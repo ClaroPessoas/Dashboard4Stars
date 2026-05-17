@@ -1,0 +1,76 @@
+{
+  "generated_at": "2026-05-17 23:04:29 KST",
+  "total_new": 0,
+  "new_repos": [
+    {
+      "rank": 1,
+      "name": "openhuman",
+      "full_name": "tinyhumansai/openhuman",
+      "owner": "tinyhumansai",
+      "description": "Your Personal AI super intelligence. Private, Simple and extremely powerful.",
+      "url": "https://github.com/tinyhumansai/openhuman",
+      "stars": 11934,
+      "forks": 1036,
+      "language": "Rust",
+      "stars_gained": "1,694 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 2,
+      "name": "CLI-Anything",
+      "full_name": "HKUDS/CLI-Anything",
+      "owner": "HKUDS",
+      "description": "\"CLI-Anything: Making ALL Software Agent-Native\" -- CLI-Hub:https://clianything.cc/",
+      "url": "https://github.com/HKUDS/CLI-Anything",
+      "stars": 35307,
+      "forks": 3466,
+      "language": "Python",
+      "stars_gained": "333 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 3,
+      "name": "cal.diy",
+      "full_name": "calcom/cal.diy",
+      "owner": "calcom",
+      "description": "Scheduling infrastructure for absolutely everyone.",
+      "url": "https://github.com/calcom/cal.diy",
+      "stars": 43043,
+      "forks": 13363,
+      "language": "TypeScript",
+      "stars_gained": "425 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 4,
+      "name": "bun",
+      "full_name": "oven-sh/bun",
+      "owner": "oven-sh",
+      "description": "Incredibly fast JavaScript runtime, bundler, test runner, and package manager – all in one",
+      "url": "https://github.com/oven-sh/bun",
+      "stars": 91610,
+      "forks": 4568,
+      "language": "Rust",
+      "stars_gained": "908 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 5,
+      "name": "Open-Generative-AI",
+      "full_name": "Anil-matcha/Open-Generative-AI",
+      "owner": "Anil-matcha",
+      "description": "Open-source alternative to AI video platforms — Free AI image & video generation studio with 200+ models (Flux, Midjourney, Kling, Sora, Veo). No content filters. Self-hosted, MIT licensed.",
+      "url": "https://github.com/Anil-matcha/Open-Generative-AI",
+      "stars": 14813,
+      "forks": 2560,
+      "language": "JavaScript",
+      "stars_gained": "704 stars today",
+      "topics": [],
+      "period": "daily"
+    }
+  ]
+}
