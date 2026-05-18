@@ -97,8 +97,8 @@
     <div class="repo-meta">
       <span class="badge badge-period">daily trending</span>
       <span class="badge badge-lang">Python</span>
-      <span class="badge badge-stars">★ 35305</span>
-      <span class="badge badge-stars">+333 stars today</span>
+      <span class="badge badge-stars">★ 35774</span>
+      <span class="badge badge-stars">+238 stars today</span>
     </div>
   </div>
   <div class="header-right">
@@ -115,7 +115,228 @@
 <div class="content">
   <div class="panel active" id="panel-analysis">
     
-    <div class="md-body"><p>분석 결과 없음</p></div>
+    <div class="md-body"><h1 id="cli-anything-analysis-report">CLI-Anything 분석 보고서 / Analysis Report</h1>
+<ul>
+<li>분석일 / Date: 2026-05-18</li>
+<li>대상 / Target: <code>/tmp/github-dashboard-analysis/HKUDS_CLI-Anything</code></li>
+<li>저장소 / Repo: <code>HKUDS/CLI-Anything</code></li>
+</ul>
+<hr />
+<h2 id="1-purpose-scope">1. 목적 및 범위 / Purpose &amp; Scope</h2>
+<p><strong>KR</strong>: 모든 GUI/데스크톱 소프트웨어를 AI 에이전트가 사용할 수 있는 CLI로 변환하는 SOP·툴킷·플러그인 마켓플레이스. "오늘 소프트웨어는 사람용, 내일은 에이전트용"이 표어. HKU Data Intelligence Lab(HKUDS) 주도, Apache 2.0(LICENSE 파일은 11KB 분량).</p>
+<p><strong>EN</strong>: SOP + toolkit + plugin marketplace that turns GUI/desktop apps (GIMP, Blender, LibreOffice, FreeCAD, OBS, Godot, Krita 등 50+) into agent-native CLIs. Targets Claude Code, Pi, OpenClaw, Codex, Cursor, GitHub Copilot CLI. Hybrid product: methodology (HARNESS.md) + many CLI harnesses + a registry/hub package manager.</p>
+<hr />
+<h2 id="2-repository-structure">2. 구조 / Repository Structure</h2>
+<ul>
+<li>Monorepo. 톱레벨 디렉터리 ≈ 60+.</li>
+<li>패턴: <code>&lt;software&gt;/agent-harness/</code> 안에 <code>cli_anything/&lt;software&gt;/</code> Python 패키지 + <code>&lt;SOFTWARE&gt;.md</code> SOP + <code>setup.py</code>.</li>
+<li>공유 자원:</li>
+<li><code>skills/</code> — 캐노니컬 SKILL.md(에이전트 발견용) 50+개 통합 디렉터리</li>
+<li><code>cli-anything-plugin/</code> — Claude Code 플러그인 본체 (HARNESS.md, skill_generator.py, templates, commands, guides)</li>
+<li><code>cli-hub/</code> — <code>pip install cli-anything-hub</code> PyPI 패키지(브라우즈/설치/업데이트)</li>
+<li><code>registry.json</code> (45KB) + <code>public_registry.json</code> (15KB) — 카탈로그</li>
+<li><code>.github/</code> — workflows, ISSUE/PR templates, CODEOWNERS, scripts</li>
+<li><code>docs/</code>, <code>assets/</code>, <code>.claude-plugin/marketplace.json</code></li>
+<li>도메인 지향 + 플러그인-마켓플레이스 패턴. 각 하니스는 독립 PyPI 배포 가능.</li>
+</ul>
+<hr />
+<h2 id="3-stack">3. 스택 / Stack</h2>
+<table>
+<thead>
+<tr>
+<th>영역</th>
+<th>사용 기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Python ≥3.10</td>
+</tr>
+<tr>
+<td>CLI 프레임워크</td>
+<td>Click ≥8.0</td>
+</tr>
+<tr>
+<td>REPL</td>
+<td>prompt-toolkit ≥3.0</td>
+</tr>
+<tr>
+<td>테스트</td>
+<td>pytest, pytest-cov</td>
+</tr>
+<tr>
+<td>패키징</td>
+<td>setuptools (namespace pkg), <code>python -m build</code>, twine</td>
+</tr>
+<tr>
+<td>플러그인</td>
+<td>Claude Code Plugin Marketplace (<code>.claude-plugin/marketplace.json</code>)</td>
+</tr>
+<tr>
+<td>백엔드 호출</td>
+<td><code>subprocess</code> (shell=False) → melt/ffmpeg/gimp/blender 등 외부 바이너리</td>
+</tr>
+<tr>
+<td>CI</td>
+<td>GitHub Actions (<code>check-root-skills</code>, <code>publish-cli-hub</code>, <code>deploy-pages</code>, <code>pr-labeler</code>)</td>
+</tr>
+<tr>
+<td>배포</td>
+<td>PyPI(trusted publishing, OIDC), GitHub Pages(웹 허브)</td>
+</tr>
+<tr>
+<td>메타</td>
+<td>JSON 카탈로그(<code>registry.json</code>, <code>public_registry.json</code>)</td>
+</tr>
+</tbody>
+</table>
+<p>데이터 저장 불필요(파일/세션 JSON 위주). DB/메시지큐 없음.</p>
+<hr />
+<h2 id="4-architecture">4. 아키텍처 / Architecture</h2>
+<ul>
+<li>7-Phase SOP 문서화(HARNESS.md): codebase 분석 → CLI 설계 → 구현 → 백엔드 통합 → 렌더/익스포트 → 세션·REPL → 테스트.</li>
+<li>진입점:</li>
+<li>각 하니스: <code>console_scripts</code> (예: <code>cli-anything-gimp=cli_anything.gimp.gimp_cli:main</code>)</li>
+<li>허브: <code>cli-hub=cli_hub.cli:main</code></li>
+<li>플러그인: Claude Code 슬래시커맨드 <code>/cli-anything</code></li>
+<li>계층:</li>
+<li>presentation = Click 명령 + ReplSkin(prompt-toolkit)</li>
+<li>business = <code>cli_anything/&lt;software&gt;/</code> 도메인 모듈</li>
+<li>backend = <code>utils/&lt;software&gt;_backend.py</code> (실 바이너리 호출)</li>
+<li>state = 파일 기반 세션 JSON, <code>_locked_save_json</code> 패턴(파일락)</li>
+<li>통신: 외부 백엔드는 subprocess 인자 리스트, REST/gRPC 없음. 출력 듀얼 모드: human + <code>--json</code>.</li>
+<li>발견 메커니즘: 캐노니컬 <code>skills/cli-anything-&lt;name&gt;/SKILL.md</code> → 에이전트가 자동 발견·로드. 패키지 내부에도 사본(<code>cli_anything/&lt;software&gt;/skills/SKILL.md</code>) 미러.</li>
+</ul>
+<hr />
+<h2 id="5-quality-tests">5. 품질·테스트 / Quality &amp; Tests</h2>
+<ul>
+<li>컨벤션: 각 하니스 <code>cli_anything/&lt;software&gt;/tests/</code>에 <code>test_core.py</code>(백엔드 불필요 unit) + <code>test_full_e2e.py</code>(실 바이너리).</li>
+<li>README 뱃지: "2,269 passing tests".</li>
+<li>CI:</li>
+<li><code>check-root-skills.yml</code> — <code>skills/</code> 미러 검증 (sync/validate 스크립트)</li>
+<li><code>publish-cli-hub.yml</code> — PyPI 버전 중복 체크 후 trusted publishing</li>
+<li><code>pr-labeler*.yml</code> — 라벨 자동화</li>
+<li><code>deploy-pages.yml</code> — 허브 사이트 배포</li>
+<li>린트/포맷터 별도 명시 없음(PEP 8 가이드만). 타입체커 미통합.</li>
+<li>버저닝: registry.json 항목별 SemVer + 하니스 setup.py(<code>1.0.0</code> 류). cli-hub만 <code>0.3.0</code>.</li>
+<li>릴리스 노트: README "News" 섹션이 사실상 changelog 역할. 별도 CHANGELOG 미존재.</li>
+</ul>
+<hr />
+<h2 id="6-security-supply-chain">6. 보안·공급망 / Security &amp; Supply Chain</h2>
+<ul>
+<li><code>SECURITY.md</code> 존재. 위협모델 명시: prompt-injected 에이전트 → 백엔드로 악성 인자 전달.</li>
+<li>통제:</li>
+<li><code>shell=True</code> 금지</li>
+<li>코덱 allowlist (<code>ALLOWED_VCODECS</code>/<code>ALLOWED_ACODECS</code> frozenset)</li>
+<li><code>_script_fu_escape()</code> (GIMP), <code>xml_escape()</code> (MLT/SVG)</li>
+<li><code>os.path.abspath()</code> 경로 정규화</li>
+<li>API 키 config 파일 <code>chmod 0o600</code></li>
+<li>공개 보고: GitHub Private Vulnerability Reporting (Security 탭). 48h acknowledge, 7d critical fix 목표.</li>
+<li>공급망 약점:</li>
+<li>Dependabot/Renovate 설정 부재(<code>.github/</code>에 dependabot.yml 없음)</li>
+<li>SBOM/아티팩트 서명 없음</li>
+<li>PyPI trusted publishing은 사용(긍정), 그러나 의존성 핀 미흡(<code>click&gt;=8.0</code> 등 lower-bound only)</li>
+<li>라이선스: Apache-2.0 (루트), cli-hub setup.py에는 <code>MIT</code> 명시 — <strong>충돌/혼선 위험</strong>.</li>
+</ul>
+<hr />
+<h2 id="7-docs-maturity">7. 문서·운영 성숙도 / Docs &amp; Maturity</h2>
+<ul>
+<li>README 65KB(EN) + CN + JA — 다국어. Quick start, demos, 플랫폼 가이드, 18앱 데모, 뉴스 로그 광범위.</li>
+<li>CONTRIBUTING.md 8KB — in-repo / standalone 두 경로, registry 필드 표 상세.</li>
+<li>SECURITY.md, LICENSE, CODEOWNERS, ISSUE_TEMPLATE(4종: bug, wishlist, feature, contributor-signup), PR template, labeler 모두 존재.</li>
+<li>ADR/CODE_OF_CONDUCT/CHANGELOG 부재.</li>
+<li>커뮤니티: 빠른 PR 머지 페이스(#92, #129, #156, #170~#224 등 다수 머지). README 뉴스 기준 매일 단위 업데이트(2026-04 활발).</li>
+<li>메인터너 응답: SECURITY policy 48h SLA 선언. 컨트리뷰터 등록 issue 템플릿 존재 → 커뮤니티 활성.</li>
+</ul>
+<hr />
+<h2 id="8-final-report">8. 최종 보고서 / Final Report</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>목적</td>
+<td>모든 GUI 소프트웨어를 에이전트 친화 CLI로 변환하는 SOP+허브+50+ 하니스</td>
+<td>★★★★★ 명확한 비전, 적시성(에이전트 시대)</td>
+</tr>
+<tr>
+<td>구조</td>
+<td>Monorepo, 도메인별 <code>&lt;sw&gt;/agent-harness/</code> + 공유 <code>skills/</code>·<code>cli-hub/</code>·plugin</td>
+<td>★★★★ 일관 패턴, 다만 60+ 톱레벨로 비대</td>
+</tr>
+<tr>
+<td>스택</td>
+<td>Python 3.10+, Click, prompt-toolkit, subprocess, GH Actions</td>
+<td>★★★★ 표준·검증된 스택</td>
+</tr>
+<tr>
+<td>진입점</td>
+<td>per-harness <code>console_scripts</code>, <code>cli-hub</code>, Claude Code <code>/cli-anything</code></td>
+<td>★★★★★ 다중 진입(에이전트·사람·플러그인)</td>
+</tr>
+<tr>
+<td>아키텍처</td>
+<td>7-Phase SOP, presentation/business/backend 분리, dual JSON+human 출력</td>
+<td>★★★★★ 재현가능 패턴, 명문화 우수</td>
+</tr>
+<tr>
+<td>데이터</td>
+<td>파일/세션 JSON(<code>_locked_save_json</code> 락) — DB 없음</td>
+<td>★★★ stateless 도구 성격에 적합</td>
+</tr>
+<tr>
+<td>배포</td>
+<td>PyPI(trusted publishing/OIDC), GH Pages 허브, Claude Code marketplace</td>
+<td>★★★★</td>
+</tr>
+<tr>
+<td>테스트</td>
+<td><code>test_core</code> + <code>test_full_e2e</code> 컨벤션, 2,269 passing, CI mirror validation</td>
+<td>★★★★ 규모↑ 그러나 커버리지 수치·린트 부재</td>
+</tr>
+<tr>
+<td>보안</td>
+<td>SECURITY.md, allowlist/escape/abspath, OIDC publishing, private VR</td>
+<td>★★★★ 위협모델 명문화, Dependabot/SBOM 부재</td>
+</tr>
+<tr>
+<td>성숙도</td>
+<td>다국어 README, 활발한 머지·컨트리뷰터 온보딩, ADR/CHANGELOG 부재</td>
+<td>★★★★</td>
+</tr>
+</tbody>
+</table>
+<h3 id="strengths">강점 / Strengths</h3>
+<ol>
+<li><strong>에이전트-네이티브 First-class 설계</strong> — SKILL.md 자동 발견, <code>--json</code> 의무, REPL+subcommand dual 모드. 단순 CLI 모음이 아닌 에이전트 운영 계약을 표준화.</li>
+<li><strong>확장 가능한 모노레포 패턴</strong> — <code>&lt;sw&gt;/agent-harness/</code> + canonical <code>skills/</code> 미러 + CI 검증으로 50+ 하니스를 일관 관리.</li>
+<li><strong>운영 자동화</strong> — PyPI trusted publishing(OIDC, 버전 중복 회피), root-skills 검증 워크플로, PR labeler, GH Pages 허브 자동 배포.</li>
+<li><strong>방어 가능한 위협 모델</strong> — prompt-injection을 1급 위협으로 명시, 코덱 allowlist·Script-Fu/XML escape·shell=False 강제.</li>
+<li><strong>커뮤니티 견인력</strong> — 다국어 README(EN/CN/JA), wishlist·contributor-signup 이슈 템플릿, registry-only PR 경로(standalone 친화).</li>
+</ol>
+<h3 id="risks">위험·개선 / Risks</h3>
+<ol>
+<li><strong>라이선스 충돌 신호</strong> — 루트 LICENSE는 Apache-2.0, <code>cli-hub/setup.py</code>는 <code>license="MIT"</code>. 분리 의도라면 명시 필요, 아니면 정정.</li>
+<li><strong>공급망 가드 미흡</strong> — Dependabot/Renovate 설정 없음, 의존성 lower-bound only, SBOM/서명 부재. PyPI publishing은 OIDC이나 입력 의존성 무결성은 약함.</li>
+<li><strong>품질 게이트 부족</strong> — 린터/포매터/타입체커 CI 미통합. "2,269 passing" 수치는 README 자체 광고일 뿐 커버리지 리포트 미공개.</li>
+<li><strong>CHANGELOG·SemVer 일관성</strong> — README "News"가 사실상 체인지로그. 하니스별 버전 동기화 정책 없음.</li>
+<li><strong>모노레포 비대</strong> — 60+ 톱레벨 디렉터리, 일부는 README 항목과 미일치 가능. 신규 컨트리뷰터 진입장벽 + git 사용자 빌드 시간 ↑.</li>
+</ol>
+<h3 id="recommendation">도입 권고 / Recommendation</h3>
+<ul>
+<li><strong>에이전트 플랫폼 통합 후보</strong>로 즉시 채택 가능. Claude Code/Codex/Pi 등 다중 호스트 검증 완료.</li>
+<li><strong>벤치마크 가치 高</strong> — <code>HARNESS.md</code> 7-Phase는 자체 에이전트-CLI 빌드 시 참조 SOP로 활용 권장.</li>
+<li><strong>보안 리뷰</strong>: 채택 전 <code>SECURITY.md</code> 위협모델 + allowlist 정책 코드 감사 통과, 추가로 Dependabot/SBOM 보강 요구.</li>
+<li><strong>운영 도입</strong>: cli-hub(<code>pip install cli-anything-hub</code>) 안정성은 Beta(<code>v0.3.0</code>) — 프로덕션 핵심 경로 의존 전에 락파일 핀 강제 필요.</li>
+<li><strong>기여 친화</strong>: registry-only PR 경로로 외부 기여 진입 비용 낮음. 자체 GUI 도구 통합 시 비용효율적.</li>
+</ul>
+<p>종합: <strong>에이전트 시대 CLI 표준화에 가장 유력한 오픈소스 베이스라인</strong>. 보안/공급망/품질 게이트 보강만 더하면 엔터프라이즈 채택 가능. Methodology 자체는 즉시 차용 권장.</p></div>
     
   </div>
 
