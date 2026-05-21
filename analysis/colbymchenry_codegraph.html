@@ -1,0 +1,1582 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>colbymchenry/codegraph - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/colbymchenry/codegraph" target="_blank" rel="noopener">colbymchenry/codegraph</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Pre-indexed code knowledge graph for Claude Code, Codex, Cursor, and OpenCode — fewer tokens, fewer tool calls, 100% local</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 10297</span>
+      <span class="badge badge-stars">+2,123 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="analysis">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-analysis">
+    
+    <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 최종 보고서를 작성합니다.</p>
+<hr />
+<h1 id="codegraph">CodeGraph 오픈소스 분석 보고서</h1>
+<p><strong>분석일:</strong> 2026-05-21
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/colbymchenry_codegraph</code>
+<strong>출력 파일:</strong> <code>.review/REVIEW.md</code>
+<strong>버전:</strong> <code>0.8.0</code></p>
+<hr />
+<h2 id="summary-table">요약표 / Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 코딩 에이전트(Claude Code, Cursor, Codex CLI, opencode)를 위한 로컬 시맨틱 코드 지식 그래프 라이브러리 + CLI + MCP 서버. tree-sitter 기반 AST 파싱으로 심벌·엣지·파일을 SQLite에 저장하고, 에이전트가 grep/파일 읽기 없이 그래프를 쿼리하도록 해 토큰 비용과 탐색 시간을 절감함.</td>
+<td>★★★★★ 명확하고 측정 가능한 목적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 npm 패키지, 모노레포. <code>src/</code> 계층 분리: <code>bin/</code>, <code>db/</code>, <code>extraction/</code>, <code>resolution/</code>, <code>graph/</code>, <code>context/</code>, <code>search/</code>, <code>sync/</code>, <code>mcp/</code>, <code>installer/</code>, <code>ui/</code>. 기능(도메인) 중심 구조. <code>__tests__/</code>는 루트 레벨에 별도 분리.</td>
+<td>★★★★☆ 잘 정의된 레이어 분리</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Node.js 20–24 · TypeScript 5 (strict) · tree-sitter (WebAssembly) · SQLite (better-sqlite3 native / node-sqlite3-wasm 폴백) · MCP(stdio) · Vitest · commander · jsonc-parser · picomatch</td>
+<td>★★★★★ 경량·의존성 최소화</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>CLI: <code>src/bin/codegraph.ts</code> (commander) / 라이브러리: <code>src/index.ts</code> (<code>CodeGraph</code> 클래스) / MCP 서버: <code>codegraph serve --mcp</code> → <code>src/mcp/index.ts</code></td>
+<td>★★★★★ 세 가지 진입점 명확히 분리</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>파이프라인 패턴: <code>파일 → ExtractionOrchestrator → DB → ReferenceResolver → GraphQueryManager/GraphTraverser → ContextBuilder</code>. 네이티브 OS 이벤트 기반 실시간 동기화 (<code>FileWatcher</code>). 워커 스레드로 파싱 오프로드 (<code>parse-worker.ts</code>).</td>
+<td>★★★★★ 레이어드·파이프라인 아키텍처, 비동기·워커 설계 우수</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLite (<code>.codegraph/codegraph.db</code>), FTS5 전문검색 인덱스, WAL 모드, schema_versions 기반 마이그레이션. 외부 DB·클라우드 없음. 100% 로컬.</td>
+<td>★★★★★ 로컬 퍼스트, 결정론적, 이식성 최상</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>npm (<code>@colbymchenry/codegraph</code>), <code>scripts/release.sh</code> (멱등성 보장), GitHub Releases. Docker/Kubernetes 없음 (CLI/라이브러리 특성상 불필요).</td>
+<td>★★★★☆ 릴리스 자동화 잘 갖춤, GitHub Actions CI 미존재</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest 기반 25개 테스트 파일, ~11,000 라인. 유닛·통합 혼합 (실제 SQLite, 실제 파일 시스템). 보안·MCP·installer·sync·framework·extraction 별도 커버. evaluation/ 별도 벤치마크. 코드 커버리지 도구 설정(v8) 되어 있으나 CI 미설정.</td>
+<td>★★★★☆ 방대하고 실질적인 테스트, CI 파이프라인 부재가 약점</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>validatePathWithinRoot()</code> 경로 트래버설 방어, <code>FileLock</code>(PID·스테일락 감지), <code>Mutex</code> 동시성 제어, MCP 입력 유효성 검사. <code>security.test.ts</code> 존재. <code>SECURITY.md</code> 부재. Dependabot/Renovate 미설정.</td>
+<td>★★★☆☆ 핵심 보안 구현 양호, 공급망 보안 인프라 미비</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v0.8.0, Keep a Changelog + SemVer 준수, 상세한 CHANGELOG, 릴리스 스크립트 자동화, 19개+ 언어·13개 프레임워크 지원, 실제 벤치마크 제공, CONTRIBUTING/CODE_OF_CONDUCT/SECURITY.md 부재, GitHub Actions CI 없음</td>
+<td>★★★★☆ 기능적으로 성숙, 커뮤니티 인프라 보완 필요</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-purpose-scope">1. 목적 및 범위 / Purpose &amp; Scope</h2>
+<p><strong>EN:</strong> CodeGraph is a <strong>local-first code intelligence library, CLI, and MCP server</strong> that parses source code via tree-sitter, stores the resulting symbol graph in SQLite, and exposes it to AI coding agents over the MCP protocol. Its primary value proposition is reducing AI agent cost and latency by replacing repetitive file-scanning (grep/glob/Read tool calls) with direct graph queries. Target users are developers using Claude Code, Cursor, Codex CLI, or opencode on medium-to-large codebases.</p>
+<p><strong>KO:</strong> CodeGraph는 로컬 우선 코드 인텔리전스 라이브러리·CLI·MCP 서버입니다. tree-sitter로 소스를 파싱해 SQLite에 심벌 그래프를 저장하고, MCP 프로토콜로 AI 에이전트에게 노출합니다. 핵심 가치는 에이전트가 반복적인 파일 탐색(grep·glob·Read) 대신 그래프를 직접 쿼리해 토큰 비용과 응답 시간을 절감하는 것입니다. 7개 실제 오픈소스 프로젝트 벤치마크에서 평균 35% 비용 절감·70% 도구 호출 감소가 측정되었습니다.</p>
+<hr />
+<h2 id="2-repository-structure">2. 저장소 구조 / Repository Structure</h2>
+<pre><code>colbymchenry_codegraph/
+├── src/
+│   ├── bin/codegraph.ts          # CLI 진입점 (commander)
+│   ├── index.ts                  # 공개 API (CodeGraph 클래스)
+│   ├── types.ts                  # NodeKind, EdgeKind 등 핵심 타입
+│   ├── db/                       # SQLite 레이어 (schema.sql, migrations, queries)
+│   ├── extraction/               # tree-sitter 파싱 오케스트레이터 + 언어별 추출기
+│   │   ├── languages/            # 16개 언어 추출기 (typescript, python, go, rust ...)
+│   │   └── wasm/                 # tree-sitter-pascal.wasm, tree-sitter-scala.wasm
+│   ├── resolution/               # 임포트·이름 매칭·프레임워크 라우트 해석
+│   │   └── frameworks/           # 15개 프레임워크 리졸버 (express, django, nestjs ...)
+│   ├── graph/                    # GraphTraverser, GraphQueryManager
+│   ├── context/                  # ContextBuilder (AI용 markdown/JSON 출력)
+│   ├── search/                   # FTS5 쿼리 파서
+│   ├── sync/                     # FileWatcher (OS 네이티브 이벤트), git hooks
+│   ├── mcp/                      # MCP 서버 (tools.ts, transport.ts)
+│   ├── installer/                # 에이전트별 설치 로직 + 타겟 레지스트리
+│   └── ui/                       # 터미널 UI (shimmer 프로그레스)
+├── __tests__/                    # Vitest 테스트 (25개 파일, ~11,000라인)
+│   └── evaluation/               # 벤치마크 평가 러너
+├── docs/                         # 계획 문서 (SEARCH_QUALITY_LOOP.md 등)
+├── scripts/                      # release.sh, extract-release-notes.mjs
+├── CHANGELOG.md                  # Keep a Changelog 형식
+├── CLAUDE.md                     # CodeGraph 자체 프로젝트 가이드
+├── DELPHI-SUPPORT.md             # Delphi 지원 상세 문서
+├── IMPLEMENTATION_PLAN.md        # 아키텍처 계획 문서
+└── package.json                  # npm 패키지 정의
+</code></pre>
+<ul>
+<li><strong>구조 지향:</strong> 기능(도메인) 중심 (<code>extraction/</code>, <code>resolution/</code>, <code>graph/</code>)</li>
+<li><strong>모노레포 여부:</strong> 단일 패키지, 단일 레포</li>
+<li><strong>운영 자산 분리:</strong> <code>scripts/</code>에 릴리스 자동화, <code>dist/</code>에 빌드 결과물 분리</li>
+</ul>
+<hr />
+<h2 id="3-software-stack">3. 소프트웨어 스택 / Software Stack</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>TypeScript 5 (ES2022 target, CommonJS 출력, <code>strict: true</code>, 전체 strict 플래그 활성)</td>
+</tr>
+<tr>
+<td><strong>런타임</strong></td>
+<td>Node.js 20–24 (Node 18 EOL로 최소 20 상향, Node 25+ 블록)</td>
+</tr>
+<tr>
+<td><strong>빌드</strong></td>
+<td><code>tsc</code> + <code>copy-assets</code> (schema.sql, .wasm 복사) + chmod</td>
+</tr>
+<tr>
+<td><strong>패키지 매니저</strong></td>
+<td>npm</td>
+</tr>
+<tr>
+<td><strong>파싱 엔진</strong></td>
+<td><code>web-tree-sitter</code> 0.25.3 + <code>tree-sitter-wasms</code> 0.1.11 (WebAssembly 그래머)</td>
+</tr>
+<tr>
+<td><strong>데이터베이스</strong></td>
+<td><code>better-sqlite3</code> 12.4.1 (optionalDependency, native) / <code>node-sqlite3-wasm</code> 0.8.30 (폴백)</td>
+</tr>
+<tr>
+<td><strong>CLI 프레임워크</strong></td>
+<td><code>commander</code> 14</td>
+</tr>
+<tr>
+<td><strong>설치 UI</strong></td>
+<td><code>@clack/prompts</code></td>
+</tr>
+<tr>
+<td><strong>JSONC 파싱</strong></td>
+<td><code>jsonc-parser</code> (opencode 설치 시 주석 보존)</td>
+</tr>
+<tr>
+<td><strong>글로브 매칭</strong></td>
+<td><code>picomatch</code> 4</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td><code>vitest</code> 2.1.9 (globals, node env, v8 커버리지)</td>
+</tr>
+<tr>
+<td><strong>스토리지</strong></td>
+<td>SQLite + FTS5 전문검색 (로컬, 외부 DB 없음)</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>npm registry, GitHub Releases</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-architecture">4. 아키텍처 분석 / Architecture</h2>
+<h3 id="4-1">4-1. 파이프라인 흐름</h3>
+<pre><code>소스 파일
+   │
+   ▼
+ExtractionOrchestrator (src/extraction/index.ts)
+   │  ├─ 파일 스캔 (picomatch 필터, 해시 기반 변경 감지)
+   │  ├─ parse-worker.ts (워커 스레드, 10s 타임아웃, 250파일마다 재사이클)
+   │  └─ 언어별 추출기 (languages/*.ts) → nodes + edges
+   │
+   ▼
+DatabaseConnection / QueryBuilder (src/db/)
+   │  SQLite WAL 모드, FTS5, 64MB 캐시, 256MB mmap
+   │
+   ▼
+ReferenceResolver (src/resolution/)
+   │  ├─ import-resolver.ts (tsconfig paths, cargo workspace 글로브)
+   │  ├─ name-matcher.ts (fuzzy 이름 매칭)
+   │  └─ frameworks/ (15개 프레임워크 라우트 → route 노드 생성)
+   │
+   ▼
+GraphTraverser / GraphQueryManager (src/graph/)
+   │  BFS/DFS, 임팩트 반경, callers/callees
+   │
+   ▼
+ContextBuilder (src/context/)
+   │  AI 소비용 마크다운/JSON 출력
+   │
+   ▼
+MCP 서버 / CLI / Library API
+</code></pre>
+<h3 id="4-2">4-2. 주요 아키텍처 패턴</h3>
+<ul>
+<li><strong>파이프라인 + 레이어드 아키텍처:</strong> 각 계층이 명확히 분리되어 있고 단방향 의존성을 유지</li>
+<li><strong>어댑터 패턴:</strong> SQLite 백엔드 선택 (<code>sqlite-adapter.ts</code>) — native/wasm 투명 전환</li>
+<li><strong>플러그인/레지스트리 패턴:</strong> <code>installer/targets/registry.ts</code> — 새 에이전트 추가 시 1파일 + 1줄</li>
+<li><strong>워커 스레드 오프로드:</strong> tree-sitter WASM 파싱을 메인 스레드와 분리, WASM 메모리 누수 방지를 위한 주기적 워커 재사이클</li>
+<li><strong>옵저버/이벤트:</strong> <code>FileWatcher</code>가 OS 네이티브 이벤트(FSEvents/inotify/RDCW)를 구독해 2초 디바운스 후 증분 동기화</li>
+<li><strong>적응형 출력 예산:</strong> <code>getExploreOutputBudget(fileCount)</code> — 프로젝트 규모에 따라 MCP 응답 크기를 동적 조정</li>
+</ul>
+<h3 id="4-3">4-3. 모듈 경계</h3>
+<table>
+<thead>
+<tr>
+<th>모듈</th>
+<th>역할</th>
+<th>핵심 인터페이스</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>src/index.ts</code></td>
+<td>공개 API 파사드</td>
+<td><code>CodeGraph.init()</code>, <code>indexAll()</code>, <code>searchNodes()</code>, <code>buildContext()</code></td>
+</tr>
+<tr>
+<td><code>src/db/</code></td>
+<td>영속성 레이어</td>
+<td><code>DatabaseConnection</code>, <code>QueryBuilder</code></td>
+</tr>
+<tr>
+<td><code>src/extraction/</code></td>
+<td>AST 파싱</td>
+<td><code>ExtractionOrchestrator</code>, <code>extractFromSource()</code></td>
+</tr>
+<tr>
+<td><code>src/resolution/</code></td>
+<td>참조 해석</td>
+<td><code>ReferenceResolver</code>, framework resolvers</td>
+</tr>
+<tr>
+<td><code>src/graph/</code></td>
+<td>그래프 순회</td>
+<td><code>GraphTraverser</code>, <code>GraphQueryManager</code></td>
+</tr>
+<tr>
+<td><code>src/mcp/</code></td>
+<td>MCP 프로토콜</td>
+<td><code>MCPServer</code>, <code>ToolHandler</code>, <code>tools.ts</code></td>
+</tr>
+<tr>
+<td><code>src/installer/</code></td>
+<td>에이전트 설정</td>
+<td><code>AgentTarget</code> 인터페이스, registry</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-quality-testing">5. 품질 및 테스트 / Quality &amp; Testing</h2>
+<h3 id="5-1">5-1. 테스트 구조</h3>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>extraction.test.ts</code></td>
+<td>19개 언어 AST 추출 검증</td>
+</tr>
+<tr>
+<td><code>installer-targets.test.ts</code></td>
+<td>4개 에이전트 대상 ~47개 파라미터화 계약 테스트</td>
+</tr>
+<tr>
+<td><code>security.test.ts</code></td>
+<td>경로 트래버설, FileLock, MCP 입력 검증, 원자적 쓰기</td>
+</tr>
+<tr>
+<td><code>frameworks-integration.test.ts</code></td>
+<td>13개 프레임워크 라우트 추출 통합 테스트</td>
+</tr>
+<tr>
+<td><code>sqlite-backend.test.ts</code></td>
+<td>native/wasm 백엔드 선택 및 폴백</td>
+</tr>
+<tr>
+<td><code>mcp-initialize.test.ts</code></td>
+<td>MCP 초기화 핸드셰이크</td>
+</tr>
+<tr>
+<td><code>sync.test.ts</code></td>
+<td>증분 동기화 로직</td>
+</tr>
+<tr>
+<td><code>evaluation/</code></td>
+<td>실제 오픈소스 저장소 대상 벤치마크 평가</td>
+</tr>
+<tr>
+<td>(기타 20개)</td>
+<td>resolution, graph, context, watcher, search-parser 등</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>테스트 철학:</strong> DB 모킹 없음 — 실제 SQLite + 실제 파일 시스템 (<code>fs.mkdtempSync</code>)</li>
+<li><strong>총 라인 수:</strong> ~11,121 라인 (테스트만)</li>
+<li><strong>커버리지 도구:</strong> Vitest v8 provider (설정됨, CI 미연동)</li>
+</ul>
+<h3 id="5-2-cicd">5-2. CI/CD</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GitHub Actions</td>
+<td><strong>미존재</strong> (<code>.github/</code> 디렉터리 없음)</td>
+</tr>
+<tr>
+<td>릴리스 자동화</td>
+<td><code>scripts/release.sh</code> (멱등성 보장, gh CLI 사용)</td>
+</tr>
+<tr>
+<td>린트/포맷</td>
+<td>ESLint/Prettier <strong>미설정</strong> (tsc strict으로 부분 대체)</td>
+</tr>
+<tr>
+<td>정적 분석</td>
+<td>TypeScript strict 모드 (noUnusedLocals, noImplicitReturns 등)</td>
+</tr>
+<tr>
+<td>버전 전략</td>
+<td>SemVer, Keep a Changelog</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-security-supply-chain">6. 보안 및 공급망 / Security &amp; Supply Chain</h2>
+<h3 id="6-1">6-1. 구현된 보안 조치</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>경로 트래버설 방어</strong></td>
+<td><code>validatePathWithinRoot()</code>: <code>path.resolve()</code> 후 루트 경계 검사, null 반환</td>
+</tr>
+<tr>
+<td><strong>교차 프로세스 잠금</strong></td>
+<td><code>FileLock</code>: PID 파일 기반, 스테일락(2분 타임아웃) 자동 처리</td>
+</tr>
+<tr>
+<td><strong>동시성 제어</strong></td>
+<td><code>Mutex</code> (async 대기큐 기반)</td>
+</tr>
+<tr>
+<td><strong>MCP 입력 검증</strong></td>
+<td>도구 핸들러에서 입력 유효성 검사 (<code>security.test.ts</code>로 커버)</td>
+</tr>
+<tr>
+<td><strong>원자적 쓰기</strong></td>
+<td>설치 파일 쓰기 시 임시 파일 → rename 패턴</td>
+</tr>
+<tr>
+<td><strong>SQLite WAL + busy_timeout</strong></td>
+<td>데이터 무결성 + 2분 락 대기</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-2">6-2. 미비 사항</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SECURITY.md</code></td>
+<td><strong>부재</strong></td>
+</tr>
+<tr>
+<td>Dependabot / Renovate</td>
+<td><strong>미설정</strong></td>
+</tr>
+<tr>
+<td>SBOM / 아티팩트 서명</td>
+<td><strong>미존재</strong></td>
+</tr>
+<tr>
+<td>npm 패키지 서명 (<code>npm publish --provenance</code>)</td>
+<td><strong>확인 불가</strong></td>
+</tr>
+<tr>
+<td>시크릿 관리</td>
+<td>N/A (API 키 불필요, 로컬 전용)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-3">6-3. 라이선스</h3>
+<ul>
+<li><strong>주 라이선스:</strong> MIT (2026 Colby McHenry)</li>
+<li><strong>주요 의존성 라이선스:</strong> MIT (commander, picomatch, jsonc-parser, better-sqlite3, vitest), Apache 2.0 (web-tree-sitter), MIT (node-sqlite3-wasm)</li>
+<li><strong>라이선스 충돌:</strong> 없음 (MIT 기반 오픈소스 스택)</li>
+</ul>
+<hr />
+<h2 id="7-documentation-operational-maturity">7. 문서 및 운영 성숙도 / Documentation &amp; Operational Maturity</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>README</strong></td>
+<td>우수 — 설치·벤치마크·아키텍처 다이어그램·CLI 레퍼런스·MCP 도구 목록 포함</td>
+</tr>
+<tr>
+<td><strong>CHANGELOG</strong></td>
+<td>Keep a Changelog 형식 준수, 사용자 관점 서술, 상세한 변경 이유 기록</td>
+</tr>
+<tr>
+<td><strong>CLAUDE.md</strong></td>
+<td>상세한 개발자 가이드 (빌드·테스트·아키텍처·하우스 룰)</td>
+</tr>
+<tr>
+<td><strong>DELPHI-SUPPORT.md</strong></td>
+<td>Delphi 지원 기능 상세 문서</td>
+</tr>
+<tr>
+<td><strong>IMPLEMENTATION_PLAN.md</strong></td>
+<td>아키텍처 설계 문서</td>
+</tr>
+<tr>
+<td><strong>CONTRIBUTING.md</strong></td>
+<td><strong>부재</strong></td>
+</tr>
+<tr>
+<td><strong>CODE_OF_CONDUCT.md</strong></td>
+<td><strong>부재</strong></td>
+</tr>
+<tr>
+<td><strong>SECURITY.md</strong></td>
+<td><strong>부재</strong></td>
+</tr>
+<tr>
+<td><strong>이슈/PR 템플릿</strong></td>
+<td><code>.github/</code> 없음, <strong>부재</strong></td>
+</tr>
+<tr>
+<td><strong>API 레퍼런스</strong></td>
+<td>README의 라이브러리 사용 예제로 부분 대체 (TypeDoc 미사용)</td>
+</tr>
+<tr>
+<td><strong>커뮤니티 활동</strong></td>
+<td>단일 기여자(colbymchenry), GitHub Stars 추적 중, 릴리스 주기 활발(0.7→0.8 최근)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-strengths">8. 강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>측정 기반 가치 제안:</strong> 7개 실제 오픈소스 프로젝트에 대한 구체적인 A/B 벤치마크(비용·토큰·시간·도구 호출 4개 지표)를 README에 직접 제시. 주장이 아닌 데이터로 설득.</p>
+</li>
+<li>
+<p><strong>우수한 레이어 분리와 확장성:</strong> <code>installer/targets/registry.ts</code>의 플러그인 패턴으로 새 에이전트 추가가 파일 1개+라인 1개로 가능. <code>frameworks/</code> 디렉터리도 동일한 패턴으로 15개 프레임워크를 수용.</p>
+</li>
+<li>
+<p><strong>실용적인 이중 SQLite 백엔드:</strong> native <code>better-sqlite3</code>가 없어도 WASM 폴백으로 투명하게 동작하며, <code>codegraph status</code>로 백엔드 확인 가능. 엔터프라이즈 환경(빌드 도구 없는 CI)에서도 작동.</p>
+</li>
+<li>
+<p><strong>워커 스레드 + 메모리 관리:</strong> tree-sitter WASM의 메모리 비해제 특성을 인식해 250파일마다 워커를 재사이클하는 실용적 해법. 10초 파싱 타임아웃으로 hung 프로세스 방지.</p>
+</li>
+<li>
+<p><strong>적응형 MCP 출력 예산:</strong> 프로젝트 규모에 따라 응답 크기를 자동 조정(<code>getExploreOutputBudget</code>). 소형 프로젝트에서 과도한 컨텍스트 소비를 방지하고, 대형 프로젝트에서는 충분한 정보를 제공 — 에이전트 비용 최적화의 핵심 설계.</p>
+</li>
+</ol>
+<hr />
+<h2 id="9-risks-improvements">9. 위험/개선 필요 사항 / Risks &amp; Improvements</h2>
+<ol>
+<li>
+<p><strong>CI/CD 파이프라인 부재:</strong> GitHub Actions가 전혀 없어 PR 머지 전 자동 테스트 실행이 불가능. 릴리스가 로컬 빌드+수동 스크립트에 의존해 회귀 위험이 있음. <code>npm test</code> + TypeScript 빌드를 자동화하는 기본 workflow 추가가 시급.</p>
+</li>
+<li>
+<p><strong>단일 기여자 버스 팩터:</strong> 전체 코드베이스가 단일 기여자(colbymchenry)에 의해 유지. CONTRIBUTING.md·이슈 템플릿·코드 오브 컨덕트가 없어 외부 기여가 구조적으로 어려움. 오픈소스 커뮤니티 성장을 위한 온보딩 인프라 필요.</p>
+</li>
+<li>
+<p><strong>공급망 보안 미비:</strong> Dependabot/Renovate 미설정으로 의존성 취약점이 자동 감지되지 않음. <code>better-sqlite3</code> 같은 네이티브 모듈은 C 레벨 취약점에 노출될 수 있음. <code>SECURITY.md</code> 부재로 보안 취약점 보고 채널도 없음.</p>
+</li>
+<li>
+<p><strong>ESLint/Prettier 부재:</strong> TypeScript strict 모드가 타입 오류를 잡지만, 코드 스타일 일관성과 잠재적 런타임 오류(unused var 이외)는 린터 없이 검출 불가. 특히 다중 기여자가 생겼을 때 코드 품질 유지에 어려움.</p>
+</li>
+<li>
+<p><strong>WASM 폴백의 성능 격차:</strong> WASM 백엔드는 native 대비 5–10x 느리고 MCP <code>database is locked</code> 오류를 유발할 수 있음. Node.js 버전 업그레이드 후 prebuilt binary가 없으면 자동으로 WASM으로 전락하는데, 이를 사용자가 인지하지 못하면 성능 저하를 CodeGraph의 버그로 오인할 수 있음.</p>
+</li>
+</ol>
+<hr />
+<h2 id="10-adoption-recommendation">10. 도입 권고 / Adoption Recommendation</h2>
+<p><strong>기술 도입 관점 (Technology Adoption):</strong> ✅ <strong>도입 권고</strong></p>
+<p>Claude Code, Cursor, Codex CLI, opencode를 사용하는 중·대형 TypeScript/Python/Go/Rust 프로젝트에 즉시 도입할 수 있는 수준의 성숙도를 갖추고 있습니다. 벤치마크가 실측 기반이고, 설치가 <code>npx @colbymchenry/codegraph</code> 한 줄로 완료되며, 로컬 전용이라 데이터 프라이버시 리스크가 없습니다.</p>
+<p><strong>아키텍처 벤치마킹 관점:</strong> ✅ <strong>참조 권고</strong></p>
+<p>레이어드 파이프라인·플러그인 레지스트리·적응형 출력 예산·워커 스레드 메모리 관리 패턴은 유사한 코드 인텔리전스 도구를 설계할 때 좋은 참조 사례가 됩니다.</p>
+<p><strong>보안 검토 관점:</strong> ⚠️ <strong>조건부 권고</strong></p>
+<p>핵심 경로 트래버설 방어와 FileLock은 구현되어 있으나, 공급망 보안(Dependabot, SBOM, 아티팩트 서명)과 SECURITY.md가 미비합니다. 엔터프라이즈 환경에서는 내부 보안 정책 검토 후 도입을 권장합니다.</p>
+<p><strong>기여 준비 관점:</strong> ⚠️ <strong>조건부 권고</strong></p>
+<p>CONTRIBUTING.md와 CI 파이프라인이 없어 외부 기여의 진입 장벽이 있습니다. 단, CLAUDE.md에 개발 가이드가 상세히 문서화되어 있어 코드베이스 이해는 어렵지 않습니다.</p>
+<p><strong>운영 성숙도:</strong> ★★★★☆ (4/5) — 기능적으로 매우 성숙하나, CI 자동화·커뮤니티 인프라 보완 시 5점 수준에 도달 가능.</p>
+<hr />
+<p><em>분석일: 2026-05-21 | 분석 도구: Claude Sonnet 4.6 | 대상 버전: @colbymchenry/codegraph v0.8.0</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>Now I have sufficient data to produce the full report. Here it is:</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-05-21
+대상 / Target: <code>/tmp/github-dashboard-analysis/colbymchenry_codegraph</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved:</strong>
+AI 코딩 에이전트(Claude Code, Cursor, Codex CLI, opencode)가 코드베이스를 탐색할 때 grep/glob/Read 툴을 반복 호출하여 토큰을 소모하는 문제를 해결한다. tree-sitter 기반 AST 정적 분석으로 코드 심볼·엣지·파일을 SQLite(FTS5)에 저장하고, MCP 서버를 통해 AI 에이전트에게 semantic 지식 그래프를 제공함으로써 코드 탐색 비용(토큰·시간·툴 호출)을 대폭 절감한다.</p>
+<p><strong>분류 / Classification:</strong> Tool / Library / MCP-Server (코드 인텔리전스 도구 + 라이브러리 + CLI)</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>TypeScript 5.x, Node.js 20–24 (hard-exit on Node 25+)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>Commander.js (CLI), @clack/prompts (TUI), MCP 프로토콜(stdio)</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>SQLite (better-sqlite3 네이티브 바이너리, WASM fallback: node-sqlite3-wasm) / FTS5</td>
+</tr>
+<tr>
+<td>파싱 엔진 / Parser</td>
+<td>tree-sitter (web-tree-sitter WASM) + tree-sitter-wasms (언어별 grammars)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>MCP stdio 프로토콜 (JSON-RPC 2.0 over stdin/stdout)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>npm 글로벌 패키지, CLI 바이너리 (<code>codegraph</code>), no Docker/k8s</td>
+</tr>
+<tr>
+<td>빌드 / Build</td>
+<td>tsc + copy-assets (schema.sql, *.wasm)</td>
+</tr>
+<tr>
+<td>테스트 / Test</td>
+<td>Vitest (unit + integration), 25개 테스트 파일</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>사용자/에이전트 (Claude Code, Cursor, Codex, opencode)
+         │ MCP stdio (JSON-RPC)
+         ▼
+┌──────────────────────────────────────────────┐
+│              MCP Server (stdio)               │
+│  tools.ts ← server-instructions.ts            │
+└──────────────┬───────────────────────────────┘
+               │
+         CodeGraph (src/index.ts - public API)
+               │
+  ┌────────────┼────────────────────────┐
+  ▼            ▼                        ▼
+ExtractionOrchestrator  ReferenceResolver  GraphQueryManager
+(tree-sitter, AST)      (imports, routes,  (BFS/DFS traversal)
+languages/*.ts          frameworks/)
+  │                                     │
+  └──────────────┬──────────────────────┘
+                 ▼
+         SQLite DB (FTS5)
+         schema.sql
+         nodes / edges / files / unresolved_refs
+                 │
+                 ▼
+         ContextBuilder → markdown/JSON output
+
+파일 감시 / FileWatcher (native FSEvents/inotify/RDCW)
+인스톨러 / Installer (claude, cursor, codex, opencode 타겟)
+</code></pre>
+<p><strong>아키텍처 패턴:</strong> Pipeline + Command (CLI) + Plugin (확장 가능 언어 추출기 / 프레임워크 리졸버)</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>colbymchenry_codegraph/
+├── src/
+│   ├── index.ts                  ← Public API (CodeGraph class)
+│   ├── types.ts                  ← NodeKind, EdgeKind 등 핵심 타입
+│   ├── config.ts / errors.ts / utils.ts / directory.ts
+│   ├── bin/
+│   │   ├── codegraph.ts          ← CLI entry (commander)
+│   │   ├── node-version-check.ts
+│   │   └── uninstall.ts
+│   ├── db/                       ← DatabaseConnection, QueryBuilder, schema.sql, migrations.ts
+│   ├── extraction/               ← ExtractionOrchestrator, 16개 언어 추출기, wasm/ (Pascal, Scala)
+│   ├── resolution/               ← ReferenceResolver, 15개 프레임워크 리졸버
+│   ├── graph/                    ← GraphTraverser, GraphQueryManager
+│   ├── context/                  ← ContextBuilder, formatter
+│   ├── search/                   ← FTS5 쿼리 파서
+│   ├── sync/                     ← FileWatcher, watch-policy, git-hooks
+│   ├── mcp/                      ← MCP Server, tools.ts, transport.ts
+│   ├── installer/                ← 4개 에이전트 타겟 (claude, cursor, codex, opencode)
+│   └── ui/                       ← shimmer progress, glyphs
+├── __tests__/                    ← 25개 test 파일 (11,121 lines)
+├── scripts/
+│   ├── release.sh                ← 릴리스 자동화
+│   └── agent-eval/               ← 에이전트 평가 스크립트
+├── docs/
+│   ├── plans/                    ← 구현 계획 문서
+│   └── SEARCH_QUALITY_LOOP.md
+├── package.json / package-lock.json / tsconfig.json / vitest.config.ts
+├── CHANGELOG.md / LICENSE / README.md
+└── CLAUDE.md / DELPHI-SUPPORT.md / IMPLEMENTATION_PLAN.md
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>라이선스 / License:</strong> MIT (MIT License)
+<strong>저작권자 / Copyright:</strong> Copyright (c) 2026 Colby Mchenry
+<strong>파일 위치 / Location:</strong> <code>LICENSE</code></p>
+<p><strong>핵심 조건 / Key Obligations:</strong>
+- 소스 비공개(closed-source) 사용 허용
+- 상용 배포 허용
+- 수정·서브라이선싱·판매 허용
+- 저작권 고지 및 본 라이선스 문구를 모든 사본 또는 실질적인 부분에 포함해야 함
+- 특허 허여 <strong>미포함</strong> (MIT는 명시적 특허 허여 없음)</p>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p><strong>직접 의존성 (Runtime Dependencies)</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@clack/prompts</td>
+<td>1.3.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@clack/core</td>
+<td>1.3.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>commander</td>
+<td>14.0.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>fast-string-width</td>
+<td>3.0.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>fast-wrap-ansi</td>
+<td>0.2.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>jsonc-parser</td>
+<td>3.3.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>node-sqlite3-wasm</td>
+<td>0.8.53</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>picomatch</td>
+<td>4.0.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>sisteransi</td>
+<td>1.0.5</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>web-tree-sitter</td>
+<td>0.25.10</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>tree-sitter-wasms</td>
+<td>0.1.13</td>
+<td>Unlicense</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>better-sqlite3</td>
+<td>12.10.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>개발 의존성 (DevDependencies) — 런타임 미포함</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>typescript</td>
+<td>5.x</td>
+<td>Apache-2.0</td>
+<td>빌드 타임만</td>
+</tr>
+<tr>
+<td>vitest</td>
+<td>2.1.x</td>
+<td>MIT</td>
+<td>테스트 전용</td>
+</tr>
+<tr>
+<td>@types/node</td>
+<td>20.x</td>
+<td>MIT</td>
+<td>타입 정의</td>
+</tr>
+<tr>
+<td>@types/better-sqlite3</td>
+<td>7.6.x</td>
+<td>MIT</td>
+<td>타입 정의</td>
+</tr>
+<tr>
+<td>@types/picomatch</td>
+<td>4.0.x</td>
+<td>MIT</td>
+<td>타입 정의</td>
+</tr>
+</tbody>
+</table>
+<p><strong>전이 의존성 (Transitive — 라이선스 분포 요약)</strong></p>
+<p><code>package-lock.json</code> 전체 기준 (138개 패키지):
+- MIT: 129개 (93.5%)
+- ISC: 8개 (5.8%)
+- Apache-2.0: 4개 (2.9%) — <code>detect-libc</code>, <code>expect-type</code>, <code>tunnel-agent</code>, <code>typescript</code>
+- BSD-3-Clause: 1개 — <code>source-map-js</code>
+- Unlicense: 1개 — <code>tree-sitter-wasms</code>
+- (MIT OR WTFPL): 1개
+- (BSD-2-Clause OR MIT OR Apache-2.0): 1개</p>
+<p><strong>Copyleft 라이선스 의존성: 0건</strong></p>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD, ISC, Unlicense</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지 / Commercialization prohibited</td>
+</tr>
+</tbody>
+</table>
+<p><strong>본 프로젝트 실제 분포:</strong> 전체 의존성이 🟢 Permissive 범주에 해당함. Copyleft 의존성 없음.</p>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<ul>
+<li><strong>충돌 없음:</strong> 모든 런타임 의존성이 MIT 또는 동등 수준 Permissive. GPL·LGPL·AGPL 의존성 전무.</li>
+<li><strong>Apache-2.0 의존성:</strong> <code>typescript</code>, <code>detect-libc</code>, <code>expect-type</code>, <code>tunnel-agent</code>는 Apache-2.0이나 모두 빌드/테스트 전용(devDependency 또는 전이)이며 런타임 번들에 포함되지 않는다. 배포 산출물(<code>dist/</code>)에 포함 여부 재확인 권장.</li>
+<li><strong>tree-sitter-wasms (Unlicense):</strong> 공개 도메인 상당, 상용 사용 무제한 허용.</li>
+<li><strong>GPL 전파 위험:</strong> 없음.</li>
+<li><strong>AGPL SaaS 위험:</strong> 없음.</li>
+</ul>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] 저작권 고지 포함 방법 / Copyright notice inclusion method — MIT 라이선스 문구를 배포 패키지(npm tarball)에 포함 (<code>README.md</code> 내 뱃지 및 <code>LICENSE</code> 파일이 npm 배포 대상 <code>files</code> 목록에 포함)</li>
+<li>[ ] NOTICE/고지문 배포 위치 / NOTICE distribution location — <strong>NOTICE 파일 부재.</strong> MIT 다수라도 의존성 저작권 일람 문서 부재. 준수 절차 보강 필요.</li>
+<li>[x] 소스 공개 의무 여부 / Source disclosure obligation — 해당 없음 (강 카피레프트 없음)</li>
+<li>[ ] Third-party 라이선스 파일 / THIRD_PARTY_LICENSES — 부재. 배포 패키지에 포함된 의존성 저작권 고지 문서 없음.</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>Dependabot (.github/dependabot.yml)</td>
+<td>확인 불가 — .github/ 디렉터리 부재</td>
+</tr>
+<tr>
+<td>Renovate (renovate.json)</td>
+<td>확인 불가 — 파일 부재</td>
+</tr>
+<tr>
+<td>Snyk (.snyk)</td>
+<td>확인 불가 — 파일 부재</td>
+</tr>
+<tr>
+<td>SBOM (cyclonedx/SPDX)</td>
+<td>확인 불가 — 파일 부재</td>
+</tr>
+<tr>
+<td>npm audit 설정</td>
+<td>별도 CI 파이프라인 없음, 수동 실행 가정</td>
+</tr>
+</tbody>
+</table>
+<p>취약점 자동 모니터링 체계가 전혀 구비되어 있지 않다. 단일 개인 저자 프로젝트 수준의 운영 방식이다.</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>하드코딩된 시크릿:</strong> <code>src/</code> 전체를 검사한 결과, <code>password</code>/<code>secret</code>/<code>apikey</code>/<code>token</code> 등의 키워드가 등장한 파일은 모두 코드 주석·설명·예시 문자열에 해당하며 실제 자격증명 하드코딩은 확인되지 않았다.</p>
+<p><strong>의존성 EOL 위험:</strong>
+- <code>better-sqlite3 12.10.0</code> — 최신 버전, Node 24 ABI 지원 (Node 22 LTS, Node 24 지원)
+- <code>web-tree-sitter 0.25.10</code> — 비교적 최신, 능동적 개발 중
+- <code>node-sqlite3-wasm 0.8.53</code> — WASM 폴백; 활발히 유지됨
+- Node.js 엔진 제약: <code>&gt;=20.0.0 &lt;25.0.0</code>. Node 18 EOL로 인해 0.8.0에서 최소 버전 상향 조치 완료.
+- <strong>esbuild 0.21.5</strong> (devDependency/transitive) — 현재 최신은 0.24.x대. 빌드 전용이므로 런타임 영향 없음.</p>
+<p><strong>경로 순회(Path Traversal) 방어:</strong> <code>__tests__/security.test.ts</code>에 경로 순회 방지 테스트 존재. MCP 입력 검증 테스트 12개 확인.</p>
+<p><strong>심볼릭 링크 사이클 방어:</strong> 테스트 파일 내 symlink cycle 감지 테스트 확인.</p>
+<p><strong>ReDoS 방어:</strong> <code>picomatch</code> 라이브러리 사용으로 수제 정규식 대신 안전한 glob 매칭 채택. ReDoS 저항 테스트 포함.</p>
+<p><strong>JSON 파싱 오류 경계:</strong> DB의 malformed JSON (decorators, metadata, errors 컬럼) 처리 테스트 확인.</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>인증/인가:</strong> 로컬 전용 도구(100% local, no API keys, no external services). 네트워크 바인딩 없음. MCP는 stdio 기반으로 외부 노출 없음.</p>
+<p><strong>시크릿 관리:</strong> 외부 서비스 없으므로 시크릿 관리 대상 없음. 환경변수(<code>CODEGRAPH_NO_WATCH</code>, <code>CODEGRAPH_EXPLORE_LINENUMS</code> 등)는 기능 제어 목적으로 자격증명 아님.</p>
+<p><strong>파일 잠금:</strong> <code>FileLock</code> 클래스로 cross-process 중복 실행 방지. atomic write (<code>.tmp.PID</code> → rename) 구현.</p>
+<p><strong>SBOM:</strong> 부재. 공급망 투명성 문서 없음.</p>
+<p><strong>종합 보안 수준:</strong> 로컬 전용 도구 특성상 공격 표면이 매우 제한적이나, SECURITY.md·자동 취약점 스캔·SBOM이 모두 부재하여 상용화 조직의 공급망 보안 요구사항 충족에 추가 조치 필요.</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-05-20 (어제)</td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>단일 커밋 이력만 확인됨 (로컬 클론 기준) — 릴리스 커밋만 포함</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>1명 (me@colbymchenry.com). 단독 저자. 외부 기여자 다수가 버그 리포트/PR로 기여(CHANGELOG 언급: @essopsp, @timxx, @Finndersen, @andreinknv 등)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>v0.8.0 (2026-05-20)</td>
+</tr>
+<tr>
+<td>릴리스 이력 / Release history</td>
+<td>0.7.6 → 0.7.7 → 0.7.8 → 0.7.10 → 0.8.0 (2주간 6개 릴리스)</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>로컬 클론에서 확인 불가 (GitHub에서 이슈 220+개 이상 참조 확인)</td>
+</tr>
+<tr>
+<td>npm 패키지 / npm</td>
+<td>@colbymchenry/codegraph (공개 배포 중)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>릴리스 속도:</strong> 매우 빠름. 2026-05-13에서 2026-05-20 사이 1주일간 6개 릴리스. 활발한 개발 중.</p>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서 / Document</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>확인 불가 — 파일 부재</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>확인 불가 — 파일 부재</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>부재 (docs/plans/ 내 구현 계획 문서 존재)</td>
+</tr>
+<tr>
+<td>CLAUDE.md</td>
+<td>존재 — 상세한 개발 가이드라인 및 빌드 지침 포함</td>
+</tr>
+<tr>
+<td>IMPLEMENTATION_PLAN.md</td>
+<td>존재 (53KB)</td>
+</tr>
+<tr>
+<td>DELPHI-SUPPORT.md</td>
+<td>존재</td>
+</tr>
+</tbody>
+</table>
+<p>오픈소스 거버넌스 문서 대부분 부재. 단일 메인테이너 운영 프로젝트로, 커뮤니티 기여 프로세스 표준화 없음.</p>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>기업 스폰서:</strong> 없음 (개인 저자 <code>colbymchenry</code> — 독립 운영)</li>
+<li><strong>CNCF/ASF 멤버십:</strong> 없음</li>
+<li><strong>LTS 버전:</strong> 없음. 단일 릴리스 채널.</li>
+<li><strong>장기 지원 불확실성:</strong> 단일 메인테이너 프로젝트로 버스 팩터(bus factor) = 1. 저자 이탈 시 유지 불가.</li>
+<li><strong>긍정적 지표:</strong> 2주간 6개 릴리스, 외부 커뮤니티 버그 리포트·PR 활발, 220+ 이슈 활동, npm 공개 배포.</li>
+<li><strong>상용화 관점:</strong> 단독 저자 프로젝트는 공급망 안정성 측면에서 고위험. 포크 유지 또는 공식 지원 계약 검토 필요.</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p><strong>멀티테넌시:</strong> 미지원. 로컬 전용(per-project <code>.codegraph/</code> SQLite). SaaS 전환 시 DB isolation 설계 필요.</p>
+<p><strong>수평/수직 확장:</strong> 해당 없음 (로컬 CLI/MCP). SaaS로 전환하려면 전체 서비스 아키텍처 재설계 필요.</p>
+<p><strong>컨테이너화:</strong> Dockerfile/docker-compose 부재. Node.js 표준 패키지이므로 컨테이너화는 기술적으로 단순하나 공식 이미지 없음.</p>
+<p><strong>헬스체크/프로브:</strong> 없음. MCP <code>codegraph_status</code> 툴이 상태 조회 역할을 하나, HTTP health endpoint는 없음.</p>
+<p><strong>구조화 로깅:</strong> <code>src/errors.ts</code>에 <code>Logger</code> 인터페이스 존재 (<code>setLogger</code>, <code>getLogger</code>). 프로덕션 로그 aggregation 적용 가능.</p>
+<p><strong>메트릭 노출:</strong> Prometheus/OpenTelemetry 없음.</p>
+<p><strong>분산 트레이싱:</strong> 없음.</p>
+<p><strong>12-Factor App 준수도:</strong> 환경변수 기반 설정(<code>CODEGRAPH_NO_WATCH</code>, <code>CODEGRAPH_EXPLORE_LINENUMS</code>, <code>CODEGRAPH_UNICODE</code>, <code>CODEGRAPH_ASCII</code>, <code>CODEGRAPH_FORCE_WATCH</code>) 구현 확인. 로컬 파일시스템 의존으로 stateless 프로세스 원칙 제한적 적용.</p>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 / Unit tests</td>
+<td>존재 (25개 파일, 11,121 lines)</td>
+</tr>
+<tr>
+<td>통합 테스트 / Integration tests</td>
+<td>존재 (실제 SQLite + 임시 파일 사용, DB 모킹 없음)</td>
+</tr>
+<tr>
+<td>E2E 테스트 / E2E tests</td>
+<td>evaluation/ 폴더 (npm run eval — 실제 오픈소스 저장소 대상 평가)</td>
+</tr>
+<tr>
+<td>보안 테스트 / Security tests</td>
+<td><code>security.test.ts</code> — FileLock, Path Traversal, MCP 입력검증, Atomic Writes, ReDoS</td>
+</tr>
+<tr>
+<td>회귀 테스트 / Regression</td>
+<td><code>pr19-improvements.test.ts</code>, <code>frameworks-integration.test.ts</code> (이름으로 git 이력 앵커)</td>
+</tr>
+<tr>
+<td>CI 자동화 / CI automation</td>
+<td>없음 (.github/workflows/ 부재)</td>
+</tr>
+<tr>
+<td>커버리지 측정 / Coverage</td>
+<td>vitest.config.ts에 v8 provider 설정 존재 (실제 수치 미측정)</td>
+</tr>
+<tr>
+<td>타입 안전성 / Type safety</td>
+<td>tsconfig.json strict 모드 전면 적용 (noImplicitAny, strictNullChecks, noUncheckedIndexedAccess 등)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>평가:</strong> 테스트 코드 품질은 수준급이나 CI/CD 파이프라인이 전무하여 자동화된 품질 게이트 없음.</p>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p>해당 없음. 전체 의존성 스택이 MIT/ISC/Apache/Unlicense 범주이므로 Copyleft 모듈 분리 문제 없음.</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>준수 여부 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I. 코드베이스 / Codebase</td>
+<td>✅ Git 단일 저장소</td>
+</tr>
+<tr>
+<td>II. 의존성 / Dependencies</td>
+<td>✅ package.json + package-lock.json 잠금 파일 존재</td>
+</tr>
+<tr>
+<td>III. 설정 / Config</td>
+<td>⚠️ 부분 준수 — 환경변수 사용하나 <code>.codegraph/config.json</code> 파일 기반 설정도 혼용</td>
+</tr>
+<tr>
+<td>IV. 백엔드 서비스 / Backing services</td>
+<td>✅ SQLite 로컬 (로컬 도구 특성상 외부 서비스 없음)</td>
+</tr>
+<tr>
+<td>V. 빌드/릴리스/실행 / Build, release, run</td>
+<td>✅ tsc build + npm publish + release.sh</td>
+</tr>
+<tr>
+<td>VI. 프로세스 / Processes</td>
+<td>⚠️ 로컬 파일시스템 상태 의존 (SQLite, .codegraph/)</td>
+</tr>
+<tr>
+<td>VII. 포트 바인딩 / Port binding</td>
+<td>✅ stdio 기반 MCP (포트 없음)</td>
+</tr>
+<tr>
+<td>VIII. 동시성 / Concurrency</td>
+<td>⚠️ worker thread(parse-worker.ts) 사용, 수평 확장 미지원</td>
+</tr>
+<tr>
+<td>IX. 폐기 가능성 / Disposability</td>
+<td>✅ fast startup (MCP 비동기 init), graceful shutdown</td>
+</tr>
+<tr>
+<td>X. 개발/프로덕션 일치 / Dev/prod parity</td>
+<td>✅ 동일 npm 패키지</td>
+</tr>
+<tr>
+<td>XI. 로그 / Logs</td>
+<td>⚠️ Logger 인터페이스 존재, structured log aggregation 미설정</td>
+</tr>
+<tr>
+<td>XII. 관리 프로세스 / Admin processes</td>
+<td>✅ codegraph CLI 명령어 체계</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>⚠️ 부분</td>
+<td>package-lock.json 존재, 수동 식별 가능하나 자동화 미구현</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>❌ 미수행</td>
+<td>SBOM, Snyk, license-checker 설정 없음</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>✅ 해당 없음</td>
+<td>현재 의존성에 Copyleft 없음</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>❌ 프로세스 없음</td>
+<td>CONTRIBUTING.md, OSPO 승인 절차 부재</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>❌ 미구현</td>
+<td>NOTICE, THIRD_PARTY_LICENSES 파일 부재</td>
+</tr>
+</tbody>
+</table>
+<p><strong>현재 수준:</strong> OpenChain 1단계에도 미달. 개인 오픈소스 프로젝트 수준으로, 상용 조직이 도입하려면 프로세스 전반을 조직 내에서 구축해야 한다.</p>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권:</strong>
+- 프로젝트명 "CodeGraph"는 일반 명사 수준의 서술적 명칭. 상표 등록 확인 불가(상표 검색 필요).
+- 로고 상업적 제한 규정 없음 (README에 별도 상표 정책 없음).
+- <code>@colbymchenry/codegraph</code> npm 스코프명 사용 시 원작자 귀속 명확.</p>
+<p><strong>특허:</strong>
+- MIT 라이선스는 <strong>명시적 특허 허여를 포함하지 않는다.</strong> 원작자가 보유한 특허가 있을 경우 MIT 라이선스 부여로 특허 실시권이 자동 부여되지 않는다.
+- Apache-2.0 devDependency(TypeScript 등)는 특허 허여 포함이나 런타임 비포함.
+- <strong>권고:</strong> 상용화 전 "CodeGraph" 명칭 상표 검색 및 법무팀 확인 필요.</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>해당 없음.</strong> 전체 의존성 트리에 GPL·LGPL·AGPL 라이선스가 0건 확인되었다. SaaS 배포 시에도 소스 공개 의무 없음.</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>전 의존성 MIT/ISC/Apache/Unlicense. Copyleft 0건. 저작권 고지만 준수하면 상용화 가능.</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟡 Caution</td>
+<td>로컬 전용 도구로 공격 표면 제한적. 단, SECURITY.md·Dependabot·SBOM 전무. 조직 도입 시 CVE 모니터링 자체 구축 필요.</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟠 Risk</td>
+<td>단일 메인테이너(버스 팩터=1). 릴리스 속도는 빠르나 CONTRIBUTING·CoC 없음. 외부 기여 활발하나 거버넌스 구조 부재.</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟡 Caution</td>
+<td>CI/CD 없음, 컨테이너화 없음, 메트릭/트레이싱 없음. 로컬 도구로 설계된 한계. SaaS 전환 시 대규모 재설계 필요.</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🔵 Review</td>
+<td>로컬 CLI/MCP 툴 또는 라이브러리 임베딩 형태의 상용화는 적합. SaaS/멀티테넌트 서비스 형태는 현 아키텍처와 부합하지 않음.</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>MIT 라이선스 자체는 문제없음. NOTICE·SBOM·OpenChain 프로세스 부재. 조직 내 컴플라이언스 절차 구축 필요.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li>
+<p><strong>완전 Permissive 라이선스 스택:</strong> 프로젝트 본체(MIT) 및 전체 런타임 의존성이 MIT/ISC/Unlicense로만 구성. GPL/AGPL 0건. 법적 위험이 가장 낮은 라이선스 프로파일.</p>
+</li>
+<li>
+<p><strong>높은 기술 완성도 및 실증된 성능:</strong> 실제 오픈소스 저장소(VS Code, Excalidraw, Django, Tokio 등) 7개 대상 벤치마크로 평균 35% 비용 절감, 70% 툴 호출 감소 실증. tree-sitter 기반 결정론적 AST 추출, FTS5, 네이티브 SQLite 백엔드.</p>
+</li>
+<li>
+<p><strong>보안 의식 있는 코드베이스:</strong> <code>security.test.ts</code>에 경로 순회, MCP 입력 검증, FileLock, ReDoS, symlink 사이클, JSON 파싱 오류 경계 테스트 포함. TypeScript strict 모드 전면 적용. atomic write 구현.</p>
+</li>
+<li>
+<p><strong>빠른 개발 속도 및 유저 반응성:</strong> 1주일 이내 6개 릴리스. 220+ GitHub 이슈 기반 사용자 버그 리포트 빠른 대응. CHANGELOG 상세 작성.</p>
+</li>
+<li>
+<p><strong>광범위한 언어·프레임워크 지원:</strong> 19개 언어, 13개 프레임워크 route 인식. 4개 AI 에이전트(Claude Code, Cursor, Codex, opencode) 멀티 타겟 인스톨러.</p>
+</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li>
+<p><strong>단일 메인테이너 위험(버스 팩터=1):</strong> 사업 연속성 측면에서 최대 위험. 저자 이탈·방치 시 보안 패치·기능 유지 불가. 포크 유지 비용 또는 상용 지원 계약 확보 필요.</p>
+</li>
+<li>
+<p><strong>CI/CD 파이프라인 전무:</strong> 자동화된 테스트 실행·커버리지·라이선스 스캔·취약점 검사 없음. 릴리스 품질 보증이 저자 수동 검증에만 의존. 상용 도입 전 자체 CI 파이프라인 구축 필요.</p>
+</li>
+<li>
+<p><strong>NOTICE·SBOM·OpenChain 프로세스 부재:</strong> ISO 5230 미달. 상용 제품 배포 시 고객 감사(audit) 대응, 라이선스 고지 의무 이행 근거 서류 없음. NOTICE 파일 및 자동 BOM 생성 추가 필요.</p>
+</li>
+<li>
+<p><strong>SaaS·멀티테넌트 비적합 아키텍처:</strong> 현재 설계는 완전히 로컬 전용(per-project SQLite). 클라우드 SaaS로 전환하려면 DB isolation, 인증/인가, API 계층, 컨테이너화 등 전면 재설계 필요.</p>
+</li>
+<li>
+<p><strong>SECURITY.md 및 취약점 관리 체계 없음:</strong> 보안 취약점 신고 채널(responsible disclosure)·패치 SLA 없음. 상용 고객이 CVE 대응 절차를 요구할 경우 응답 불가 상태.</p>
+</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict:</strong> 🔵 Review</p>
+<p><strong>상세 근거:</strong></p>
+<p>CodeGraph는 <strong>로컬 전용 코드 인텔리전스 CLI/라이브러리/MCP 서버</strong>로서 다음 두 가지 상용화 시나리오에서 평가가 달라진다.</p>
+<p><strong>시나리오 A — 개발자 도구 번들링 또는 라이브러리 임베딩:</strong> 🟢 <strong>조건부 Safe.</strong> MIT 라이선스로 소스 비공개 상용 제품에 임베딩 가능. 의존성 전체 Permissive. 기술 완성도 높음. 단, 아래 선행 조건 충족 후 채택 권장: (1) NOTICE/저작권 고지 파일 생성, (2) CVE 모니터링 자체 구축, (3) 포크 전략 또는 저자와의 지원 계약 검토.</p>
+<p><strong>시나리오 B — SaaS 또는 클라우드 서비스 형태 제공:</strong> 🟡 <strong>Caution.</strong> 현재 아키텍처가 로컬 전용으로 설계되어 SaaS 전환 시 대규모 재설계 요구. 멀티테넌시·인증·API 계층·컨테이너화 등 전무.</p>
+<p><strong>공통 선행 조건:</strong>
+- 자체 CI/CD 파이프라인 구축 및 라이선스 스캔 자동화
+- NOTICE 파일 및 SBOM 생성
+- 단일 메인테이너 위험 대응 전략(포크 유지 계획 수립)
+- 취약점 대응 프로세스(CVE 모니터링 + 패치 SLA) 자체 확립</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>✅ Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>✅ 완료 — 전체 MIT/ISC/Apache/Unlicense</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 소스 공개 의무 여부 확인</td>
+<td>✅ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 라이선스 호환성 충돌 없음</td>
+<td>✅ 충돌 없음</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>⚠️ 저작권 문구 포함</td>
+<td>⚠️ LICENSE 파일 존재, npm 배포에 포함되나 별도 NOTICE 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 고지문 배포 위치 정의</td>
+<td>❌ NOTICE/THIRD_PARTY_LICENSES 파일 부재</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>✅ Strong Copyleft 해당 없음</td>
+<td>✅ 해당 없음</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>❌ CVE 모니터링 체계 수립</td>
+<td>❌ Dependabot/Snyk/Renovate 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 중고위험 취약점 패치 계획</td>
+<td>❌ SECURITY.md 없음</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>⚠️ 유지보수 활성도·커밋 주기 확인</td>
+<td>⚠️ 빠르나 단독 저자</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 기업 스폰서/컨설팅 존재 확인</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>❌ 라이선스 검사 자동화</td>
+<td>❌ CI 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 오픈소스 BOM 자동 생성</td>
+<td>❌ SBOM 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 위반 라이선스 빌드 차단</td>
+<td>❌ CI 없음</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>❌ 고객 계약서에 라이선스 의무 명시</td>
+<td>❌ 조직 내 미이행</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 외부 감사 대비 문서 구비</td>
+<td>❌ NOTICE, BOM, 보고서 부재</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong>NOTICE 파일 생성:</strong> 프로젝트 루트에 <code>NOTICE</code> 또는 <code>THIRD_PARTY_LICENSES.md</code> 파일 생성. 주요 의존성(commander, tree-sitter-wasms, web-tree-sitter 등) 저작권 및 라이선스 고지 수록. MIT 요건 이행.</p>
+</li>
+<li>
+<p><strong>단일 메인테이너 위험 대응 계획 수립:</strong> 포크(fork) 운영 전략 또는 저자와 상용 지원 계약 검토. 최소한 내부 포크 유지 절차 문서화.</p>
+</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>자체 CI 파이프라인 구축:</strong> GitHub Actions(또는 내부 CI) 설정. <code>npm test</code>, <code>npm audit</code>, <code>license-checker --production</code> 자동 실행. 의존성 업데이트 자동화(Dependabot 또는 Renovate) 연결.</p>
+</li>
+<li>
+<p><strong>SBOM 생성 자동화:</strong> <code>@cyclonedx/cyclonedx-npm</code> 또는 <code>syft</code>로 CycloneDX/SPDX SBOM 자동 생성 및 릴리스 산출물에 포함.</p>
+</li>
+<li>
+<p><strong>"CodeGraph" 상표 검색:</strong> 법무팀에 상표 사용 위험도 검토 요청. 필요 시 제품 내 명칭 변경 또는 원작자 상표 허가 협의.</p>
+</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>내부 보안 취약점 관리 프로세스 수립:</strong> CVE 모니터링(Snyk 또는 GitHub Dependabot Security Alerts), 패치 SLA 정의, 내부 SECURITY.md 작성.</p>
+</li>
+<li>
+<p><strong>MIT 특허 위험 검토:</strong> MIT는 특허 허여 미포함. 법무팀에 tree-sitter, SQLite, web-tree-sitter 관련 특허 존재 여부 검토 의뢰.</p>
+</li>
+<li>
+<p><strong>운영 모니터링 레이어 추가:</strong> 상용 제품 번들링 시 구조화 로그 출력(Winston/Pino 연동 가능), 에러 리포팅, 사용 메트릭 수집 레이어 추가.</p>
+</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>분기별 라이선스 컴플라이언스 감사:</strong> 의존성 추가·변경 시 라이선스 변동 확인. 자동화 파이프라인 + 분기 1회 수동 감사 병행.</p>
+</li>
+<li>
+<p><strong>오픈소스 기여 전략 수립:</strong> 프로젝트가 활발한 만큼 내부 수정 사항 업스트림 기여 권장. 버스 팩터 완화, 보안 패치 적시 수용 체계 마련.</p>
+</li>
+<li>
+<p><strong>SaaS 전환 로드맵 수립 (해당 시):</strong> SaaS 형태 제공 검토 시 아키텍처 재설계(DB isolation, 멀티테넌시, 인증 계층) 단계별 계획 사전 수립.</p>
+</li>
+</ol></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>colbymchenry/codegraph</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/colbymchenry/codegraph" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
