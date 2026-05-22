@@ -1,0 +1,1791 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>freeCodeCamp/freeCodeCamp - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/freeCodeCamp/freeCodeCamp" target="_blank" rel="noopener">freeCodeCamp/freeCodeCamp</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">freeCodeCamp.org's open-source codebase and curriculum. Learn math, programming, and computer science for free.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">top100 trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 445252</span>
+      
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="analysis">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-analysis">
+    
+    <div class="md-body"><p>이제 충분한 정보를 수집했으므로 최종 보고서를 작성하겠습니다.</p>
+<hr />
+<h1 id="freecodecamp-repository-analysis-report">freeCodeCamp Repository Analysis Report</h1>
+<p><strong>분석일 (Analysis Date):</strong> 2026-05-22
+<strong>분석 대상 (Target Path):</strong> <code>/tmp/github-dashboard-analysis/freeCodeCamp_freeCodeCamp</code>
+<strong>출력 파일 (Output File):</strong> <code>.review/REVIEW.md</code></p>
+<hr />
+<h2 id="_1">단일 프로젝트 분석 보고서</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>전 세계 학습자에게 무료 코딩 교육을 제공하는 비영리 풀스택 학습 플랫폼. 인터랙티브 챌린지, 강의, 인증서를 제공하며, 100만 이상의 사용자를 대상으로 운영 중</td>
+<td>★★★★★ 명확하고 사회적 가치가 높은 미션</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>pnpm 워크스페이스 + Turborepo 기반 모노레포. 주요 패키지: <code>api/</code> (Fastify 백엔드), <code>client/</code> (Gatsby 프론트엔드), <code>curriculum/</code> (커리큘럼 콘텐츠), <code>e2e/</code> (Playwright 테스트), <code>packages/</code> (공유 라이브러리), <code>tools/</code> (개발 도구)</td>
+<td>★★★★☆ 도메인 지향 구조. 관심사 분리가 명확하나 tools/ 내부가 복잡</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Node.js ≥24, TypeScript 5.9, pnpm 10 / API: Fastify v5, Prisma 6, MongoDB / Client: Gatsby v5, React 18, Redux Toolkit + Redux-Saga, TailwindCSS / 테스트: Vitest + Playwright / 모니터링: Sentry, Pino / 기능 플래그: GrowthBook / 결제: Stripe</td>
+<td>★★★★☆ 현대적이고 성숙한 스택. Gatsby의 빌드 복잡성이 일부 우려 사항</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>API: <code>api/src/server.ts</code> (Fastify 인스턴스 부트스트랩, SIGINT/SIGTERM 핸들링) / Client: <code>client/gatsby-config.ts</code> + <code>gatsby-node.ts</code> (Gatsby 빌드 시스템) / 개발: <code>turbo develop</code> (병렬 실행)</td>
+<td>★★★★★ 진입점이 명확하고 표준 패턴 준수</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>API: 플러그인 기반 Fastify 아키텍처 (보안/인증/CSRF/라우팅 플러그인 분리), 공개/보호 라우트 구분, TypeBox 스키마 검증 / Client: Gatsby SSG + 클라이언트사이드 Redux 상태 관리 / 레이어: 라우트 → 플러그인 → DB(Prisma) 분리 명확</td>
+<td>★★★★☆ 레이어 분리 우수. 클라이언트 Redux-Saga와 Gatsby의 조합이 복잡도 증가 요인</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>MongoDB (Prisma ORM를 통한 접근), 스키마: Prisma <code>schema.prisma</code>에 정의 / 주요 컬렉션: User (챌린지 진행, 인증서, 결제 이력, 시험 결과) / 로컬 개발용 Docker Compose (Mongo 리플리카셋 포함)</td>
+<td>★★★★☆ Prisma로 타입 안전성 확보. MongoDB와 Prisma의 일부 비호환성(JSON 타입 사용) 존재</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>GitHub Actions 21개 워크플로우 / <code>deploy-api.yml</code>, <code>deploy-client.yml</code>: 수동 트리거 기반 멀티 언어 배포 / Docker 이미지: GHCR + DOCR 이중 레지스트리 / Turbo 원격 캐시로 빌드 가속 / GitHub Codespaces 지원</td>
+<td>★★★★★ 성숙한 CD 파이프라인. 브랜치별 환경 분리 및 멀티 언어 빌드 자동화</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Unit/Integration: Vitest (api + client 각각 공존 테스트), API 라우트별 테스트 파일 존재 (예: <code>challenge.test.ts</code> 2555줄) / E2E: Playwright 100+ 스펙 파일 / Husky 프리커밋 훅 + lint-staged</td>
+<td>★★★★★ 테스트 커버리지가 매우 광범위. E2E 테스트가 실제 사용자 시나리오를 거의 모두 커버</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>OWASP 보안 헤더 (<code>CSP</code>, <code>X-Frame-Options</code>, <code>HSTS</code>, <code>X-Content-Type-Options</code>) / CSRF 보호 (@fastify/csrf-protection) / AJV <code>allErrors:false</code> (ReDoS 방어) / Auth0 OAuth2 + JWT / GitHub Actions 핀드 SHA 해시 사용 / Renovate 자동 의존성 업데이트 / Sentry 에러 모니터링 / 욕설 필터링 라이브러리</td>
+<td>★★★★☆ 보안 설계가 체계적. 별도 SECURITY.md 파일 부재 (README에서 외부 URL 참조)</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>2014년부터 운영된 오픈소스 프로젝트 / CODEOWNERS, PR 템플릿, 4종 이슈 템플릿, GitHub Copilot 인스트럭션, 라벨러, 스팸/자동 닫기 봇 완비 / 대규모 기여자 커뮤니티, 활발한 Discord + 포럼 / Renovate + Crowdin (i18n) 자동화 / BSD-3-Clause 라이선스 (커리큘럼 콘텐츠는 별도 저작권)</td>
+<td>★★★★★ 최상위 오픈소스 성숙도. 거버넌스, 자동화, 커뮤니티 모두 모범적 수준</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="detailed-analysis">상세 분석 (Detailed Analysis)</h2>
+<h3 id="step-1-purpose-and-scope">Step 1. 목적 및 범위 (Purpose and Scope)</h3>
+<p>freeCodeCamp.org는 501(c)(3) 비영리 단체가 운영하는 무료 코딩 교육 플랫폼이다. 주요 목적은 성인 학습자가 개발자로 전직할 수 있도록 인터랙티브 커리큘럼과 인증서를 무료로 제공하는 것이다. 플랫폼은 다음을 포함한다:</p>
+<ul>
+<li>반응형 웹 디자인, JavaScript, 프론트엔드 라이브러리, Python, 관계형 DB, 백엔드 API 등 6개 이상의 기술 인증 과정</li>
+<li>A1~B1 수준 영어/스페인어/중국어 언어 인증 과정</li>
+<li>코딩 인터뷰 준비, Odin Project 리믹스, Project Euler, Rosetta Code 포함</li>
+</ul>
+<p><strong>유형:</strong> 풀스택 웹 애플리케이션 + 교육 플랫폼 (Application + Platform)
+<strong>대상 사용자:</strong> 코딩 교육을 받고자 하는 전 세계 성인 학습자 및 오픈소스 기여자</p>
+<hr />
+<h3 id="step-2-repository-structure">Step 2. 저장소 구조 분석 (Repository Structure)</h3>
+<pre><code>freeCodeCamp/
+├── api/                    # Fastify REST API 서버
+│   ├── src/
+│   │   ├── routes/         # public/ &amp; protected/ 분리
+│   │   ├── plugins/        # auth, csrf, cors, security 등
+│   │   ├── db/             # Prisma 연결
+│   │   ├── exam-environment/  # 시험 환경 도메인
+│   │   └── daily-coding-challenge/  # 일일 챌린지 도메인
+│   └── prisma/             # MongoDB 스키마
+├── client/                 # Gatsby React 프론트엔드
+│   ├── src/
+│   │   ├── pages/          # 라우팅 페이지
+│   │   ├── templates/      # 챌린지/소개 템플릿
+│   │   ├── components/     # 공유 UI 컴포넌트
+│   │   └── redux/          # 전역 상태 관리
+├── curriculum/             # 커리큘럼 콘텐츠
+│   ├── challenges/english/ # 영어 챌린지 YAML/MD 파일들
+│   └── structure/          # superblocks, blocks 구조
+├── e2e/                    # Playwright E2E 테스트 (100+ 스펙)
+├── packages/               # 공유 라이브러리
+│   ├── challenge-builder/
+│   ├── challenge-linter/
+│   ├── eslint-config/
+│   └── shared/
+├── tools/                  # 개발 도구
+│   ├── challenge-editor/   # 챌린지 편집기 서브모듈
+│   ├── challenge-helper-scripts/
+│   ├── client-plugins/     # Gatsby 커스텀 플러그인
+│   └── scripts/            # 시드, i18n 스크립트
+└── docker/                 # Docker Compose 설정
+</code></pre>
+<p><strong>구조 특성:</strong>
+- <strong>모노레포</strong> (pnpm workspaces + Turborepo)
+- <strong>도메인 지향</strong> (api, client, curriculum이 각자의 관심사를 독립적으로 소유)
+- 코드와 운영 자산이 명확히 분리됨 (<code>docker/</code>, <code>.github/</code>, <code>tools/scripts/</code>)</p>
+<hr />
+<h3 id="step-3-software-stack">Step 3. 소프트웨어 스택 (Software Stack)</h3>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>런타임</strong></td>
+<td>Node.js ≥24</td>
+</tr>
+<tr>
+<td><strong>언어</strong></td>
+<td>TypeScript 5.9 (전체 코드베이스 TypeScript 전환 완료)</td>
+</tr>
+<tr>
+<td><strong>패키지 관리</strong></td>
+<td>pnpm 10.33.3</td>
+</tr>
+<tr>
+<td><strong>빌드 오케스트레이션</strong></td>
+<td>Turborepo 2.8.7 (원격 캐시 서명 포함)</td>
+</tr>
+<tr>
+<td><strong>API 프레임워크</strong></td>
+<td>Fastify 5.8.5 + TypeBox 타입 프로바이더</td>
+</tr>
+<tr>
+<td><strong>ORM / 데이터베이스</strong></td>
+<td>Prisma 6.19.3 + MongoDB 8.x</td>
+</tr>
+<tr>
+<td><strong>프론트엔드 프레임워크</strong></td>
+<td>Gatsby 5.16.1 (React 18.3.1)</td>
+</tr>
+<tr>
+<td><strong>상태 관리</strong></td>
+<td>Redux Toolkit 2.x + Redux-Saga + Redux-Observable (RxJS)</td>
+</tr>
+<tr>
+<td><strong>UI 라이브러리</strong></td>
+<td>@freecodecamp/ui 6.0.1, TailwindCSS, HeadlessUI</td>
+</tr>
+<tr>
+<td><strong>코드 에디터</strong></td>
+<td>Monaco Editor 0.52.2, CodeSandbox Sandpack</td>
+</tr>
+<tr>
+<td><strong>인증</strong></td>
+<td>Auth0 OAuth2 + JWT (jsonwebtoken)</td>
+</tr>
+<tr>
+<td><strong>모니터링/로깅</strong></td>
+<td>Sentry 9.x, Pino 9.x</td>
+</tr>
+<tr>
+<td><strong>기능 플래그</strong></td>
+<td>GrowthBook 1.6.5</td>
+</tr>
+<tr>
+<td><strong>결제</strong></td>
+<td>Stripe 16.x</td>
+</tr>
+<tr>
+<td><strong>검색</strong></td>
+<td>Algolia (instantsearch.js)</td>
+</tr>
+<tr>
+<td><strong>이메일</strong></td>
+<td>Nodemailer 6.x + Mailpit (개발 환경)</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest 4.x (단위/통합), Playwright 1.47.x (E2E)</td>
+</tr>
+<tr>
+<td><strong>린팅</strong></td>
+<td>ESLint 9.x (플랫 설정), Prettier 3.8, Stylelint 16.x</td>
+</tr>
+<tr>
+<td><strong>컨테이너화</strong></td>
+<td>Docker + Docker Compose (MongoDB 리플리카셋)</td>
+</tr>
+<tr>
+<td><strong>i18n</strong></td>
+<td>i18next, Crowdin (번역 자동화)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="step-4-architecture">Step 4. 아키텍처 분석 (Architecture)</h3>
+<h4 id="api-fastify">API 아키텍처 (Fastify 플러그인 패턴)</h4>
+<pre><code>api/src/server.ts          ← 부트스트랩 + 시그널 핸들링
+  └── app.ts               ← Fastify 인스턴스 + AJV 설정
+       ├── plugins/         ← 횡단 관심사 (auth, csrf, cors, security, mailer, growthBook)
+       └── routes/
+            ├── public/     ← 인증 불필요 (auth, certificate, donate, signout, status, user)
+            └── protected/  ← JWT 인증 필요 (challenge, certificate, donate, settings, user)
+</code></pre>
+<p>Fastify의 <strong>캡슐화 + 플러그인 패턴</strong>을 활용하여 보안, 인증, CSRF를 미들웨어처럼 구성한다. TypeBox를 통한 런타임 스키마 검증으로 타입 안전성을 API 경계에서 보장한다. Sentry는 <code>instrument.ts</code>에서 최초 임포트로 초기화되어 모든 에러를 사전 캡처한다.</p>
+<h4 id="gatsby-redux">클라이언트 아키텍처 (Gatsby + Redux)</h4>
+<pre><code>gatsby-config.ts           ← 플러그인 설정, 환경변수 주입
+gatsby-node.ts             ← 챌린지/페이지 프로그래밍 방식 생성
+  └── src/
+       ├── pages/           ← 파일시스템 기반 라우팅
+       ├── templates/       ← 챌린지/소개 페이지 템플릿
+       ├── components/      ← 도메인별 UI 컴포넌트
+       └── redux/           ← Redux Store (Saga + Observable)
+            ├── root-reducer.ts
+            ├── root-saga.ts
+            └── root-epic.ts
+</code></pre>
+<p>Gatsby가 빌드 타임에 커리큘럼 데이터를 GraphQL 레이어로 로드하고, 챌린지 페이지를 정적 생성한다. 클라이언트 사이드에서는 Redux가 사용자 세션, 챌린지 진행 상태, 인증 플로우를 관리한다.</p>
+<h4 id="_2">도메인 경계</h4>
+<ul>
+<li><strong>User/Auth 도메인:</strong> Auth0 → JWT → Prisma User 모델</li>
+<li><strong>Challenge 도메인:</strong> curriculum 패키지 → Gatsby 페이지 생성 → API 제출 엔드포인트</li>
+<li><strong>Certification 도메인:</strong> 챌린지 완료 검증 → 인증서 발급 → 공개 프로필</li>
+<li><strong>Exam 도메인:</strong> <code>exam-environment/</code> (별도 토큰 기반 인증 경로)</li>
+<li><strong>Daily Coding Challenge 도메인:</strong> <code>daily-coding-challenge/</code> (독립적 서브도메인)</li>
+<li><strong>Donation 도메인:</strong> Stripe + PayPal + Patreon 통합</li>
+</ul>
+<hr />
+<h3 id="step-5-quality-and-testing">Step 5. 품질 및 테스트 시스템 (Quality and Testing)</h3>
+<h4 id="_3">테스트 구성</h4>
+<table>
+<thead>
+<tr>
+<th>레이어</th>
+<th>프레임워크</th>
+<th>위치</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위/통합 (API)</td>
+<td>Vitest</td>
+<td><code>api/src/**/*.test.ts</code></td>
+<td>라우트별 공존 테스트, MSW로 외부 서비스 모킹</td>
+</tr>
+<tr>
+<td>단위/통합 (Client)</td>
+<td>Vitest</td>
+<td><code>client/src/**/*.test.{ts,tsx}</code></td>
+<td>Testing Library + RTL</td>
+</tr>
+<tr>
+<td>E2E</td>
+<td>Playwright</td>
+<td><code>e2e/*.spec.ts</code></td>
+<td>100+ 스펙 파일, 풀 사용자 플로우 커버</td>
+</tr>
+<tr>
+<td>커리큘럼 콘텐츠 검증</td>
+<td>Vitest</td>
+<td><code>curriculum/</code></td>
+<td>챌린지 YAML 유효성 검사</td>
+</tr>
+</tbody>
+</table>
+<p>주요 테스트 밀도: <code>challenge.test.ts</code> (2555줄), <code>settings.test.ts</code> (1597줄), <code>user.test.ts</code> (1695줄) — 주요 비즈니스 로직에 대한 높은 커버리지를 시사한다.</p>
+<h4 id="cicd-21">CI/CD 워크플로우 (21개)</h4>
+<ul>
+<li><code>e2e-playwright.yml</code> — PR 머지 전 전체 E2E 스위트 실행</li>
+<li><code>deploy-api.yml</code>, <code>deploy-client.yml</code> — 수동 트리거 브랜치별 배포</li>
+<li><code>docker-ghcr.yml</code>, <code>docker-docr.yml</code> — 컨테이너 이미지 빌드/푸시</li>
+<li><code>crowdin-*.yml</code> — 번역 업로드/다운로드 자동화</li>
+<li><code>i18n-validate-builds.yml</code>, <code>i18n-validate-prs.yml</code> — i18n 유효성 검사</li>
+<li><code>github-spam.yml</code>, <code>github-autoclose.yml</code>, <code>github-lock-closed-prs.yml</code> — 커뮤니티 관리 자동화</li>
+<li><code>github-labeler.yaml</code> — PR 자동 라벨링</li>
+<li><code>devcontainer-ci.yml</code> — Dev Container 빌드 검증</li>
+</ul>
+<h4 id="_4">코드 품질 도구</h4>
+<ul>
+<li><strong>ESLint 9</strong> (플랫 설정 방식, <code>@freecodecamp/eslint-config</code> 커스텀 패키지)</li>
+<li><strong>Prettier 3.8</strong> — 전체 코드베이스 포맷 통일</li>
+<li><strong>Stylelint 16</strong> — CSS 스타일 린팅</li>
+<li><strong>Husky + lint-staged</strong> — 프리커밋 훅으로 품질 게이트 강제</li>
+<li><strong>TypeScript strict</strong> — 전 패키지 타입 검사</li>
+<li><strong>Knip</strong> — 미사용 코드/의존성 탐지</li>
+<li><strong>Turbo 원격 캐시</strong> — 빌드/테스트 증분 캐싱으로 CI 속도 향상</li>
+</ul>
+<hr />
+<h3 id="step-6-security-and-supply-chain">Step 6. 보안 및 공급망 (Security and Supply Chain)</h3>
+<h4 id="_5">보안 설계</h4>
+<ol>
+<li><strong>OWASP 보안 헤더</strong> (<code>security.ts</code> 플러그인):</li>
+<li><code>Content-Security-Policy: frame-ancestors 'none'</code> (클릭재킹 방어)</li>
+<li><code>X-Frame-Options: DENY</code></li>
+<li><code>X-Content-Type-Options: nosniff</code> (MIME 스니핑 방어)</li>
+<li><code>Strict-Transport-Security</code> (프로덕션 환경 한정)</li>
+<li>
+<p><code>Cache-Control: no-store</code></p>
+</li>
+<li>
+<p><strong>입력 검증</strong>: TypeBox + AJV (allErrors:false로 DoS 방어), ObjectID 포맷 검증</p>
+</li>
+<li>
+<p><strong>인증/인가</strong>: Auth0 OAuth2 → JWT 발급 → Fastify <code>authorize</code> 플러그인 데코레이터로 보호 라우트 접근 제어</p>
+</li>
+<li>
+<p><strong>CSRF 방어</strong>: <code>@fastify/csrf-protection</code> 플러그인</p>
+</li>
+<li>
+<p><strong>콘텐츠 안전</strong>: <code>sanitize-html</code> (XSS 방어), <code>no-profanity</code> (욕설 필터링)</p>
+</li>
+<li>
+<p><strong>시크릿 관리</strong>: 환경변수 기반 (<code>sample.env</code> 템플릿 제공, 실제 시크릿은 GitHub Secrets)</p>
+</li>
+<li>
+<p><strong>GitHub Actions 보안</strong>: 모든 서드파티 액션을 SHA 해시로 핀 고정 (공급망 공격 방어)</p>
+</li>
+</ol>
+<h4 id="_6">의존성 보안</h4>
+<ul>
+<li><strong>Renovate Bot</strong>: <code>renovate.json</code>으로 자동 의존성 업데이트, 패키지 그룹별 업데이트 주기 설정</li>
+<li><strong><code>minimumReleaseAge: 10080</code></strong> (7일): 신규 릴리스 즉시 채택 방지 (supply chain 공격 완충)</li>
+<li><code>pnpm.onlyBuiltDependencies</code>: 빌드 스크립트 실행 허용 패키지 명시적 화이트리스트</li>
+</ul>
+<h4 id="_7">라이선스</h4>
+<ul>
+<li><strong>소프트웨어 코드</strong>: BSD-3-Clause (상업적 이용 가능, 재배포 시 저작권 표시 필요)</li>
+<li><strong>커리큘럼 콘텐츠</strong> (<code>/curriculum</code>): freeCodeCamp.org 저작권 (별도 라이선스)</li>
+<li><strong>Odin Project 콘텐츠</strong>: 별도 라이선스 파일 존재 (<code>curriculum/licenses/the-odin-project.txt</code>)</li>
+</ul>
+<p><strong>주의</strong>: SECURITY.md 파일이 루트에 없으며, README에서 외부 URL(<code>contribute.freecodecamp.org/#/security</code>)로 참조한다.</p>
+<hr />
+<h3 id="step-7-documentation-and-operational-maturity">Step 7. 문서화 및 운영 성숙도 (Documentation and Operational Maturity)</h3>
+<h4 id="_8">문서화</h4>
+<ul>
+<li><strong>README.md</strong>: 배지, 인증 과정 목록, 기여 방법, 라이선스 정보 포함. 간결하고 명확.</li>
+<li><strong>PR 템플릿</strong>: 기여 가이드라인 체크리스트 + 이슈 연결 형식 강제</li>
+<li><strong>이슈 템플릿</strong>: 4종 (코딩 챌린지 이슈, 플랫폼 소프트웨어 이슈, 콘텐츠 이슈, 기능 요청)</li>
+<li><strong>CODEOWNERS</strong>: dev-team + curriculum 팀 자동 리뷰 요청</li>
+<li><strong>AI 어시스턴트 인스트럭션</strong>: GitHub Copilot 코드 리뷰 지침, 테스트 커버리지 리뷰 지침 (<code>copilot-instructions.md</code>, <code>testing.instructions.md</code>)</li>
+<li><strong>기여 가이드</strong>: 별도 사이트 (<code>contribute.freecodecamp.org</code>)</li>
+</ul>
+<h4 id="_9">커뮤니티 활동성</h4>
+<ul>
+<li><strong>설립</strong>: 2014년 (10년 이상 운영)</li>
+<li><strong>규모</strong>: 10만 명 이상의 첫 개발자 취직 지원 기록, Discord 커뮤니티 활성</li>
+<li><strong>기여자</strong>: 수천 명의 자원봉사자 (RepoBeats 통계 연동)</li>
+<li><strong>이슈/PR 관리</strong>: 자동 스팸 필터, 비활성 PR 자동 닫기, 라벨 시스템 완비</li>
+<li><strong>i18n</strong>: Crowdin 연동으로 12개 언어 지원 (영어, 중국어, 스페인어, 일본어, 한국어 등)</li>
+</ul>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>성숙한 모노레포 아키텍처</strong>: Turborepo + pnpm 워크스페이스 조합으로 의존성 그래프를 명시적으로 관리하며, 원격 캐시로 CI 빌드를 대폭 가속화한다. 패키지 간 경계가 명확해 독립적 빌드/테스트가 가능하다.</p>
+</li>
+<li>
+<p><strong>철저한 E2E 테스트 커버리지</strong>: 100개 이상의 Playwright 스펙 파일이 실제 사용자 플로우(챌린지 제출, 인증서 발급, 결제, 시험 등)를 망라한다. API 라우트별 통합 테스트도 수천 줄 수준으로 매우 두텁다.</p>
+</li>
+<li>
+<p><strong>보안 설계의 체계성</strong>: OWASP 헤더, CSRF 방어, TypeBox 스키마 검증, AJV DoS 방어, Auth0 위임 인증, GitHub Actions SHA 핀 고정이 모두 기본 탑재되어 있다.</p>
+</li>
+<li>
+<p><strong>자동화된 운영 인프라</strong>: 의존성 업데이트(Renovate), 번역(Crowdin), PR 라벨링, 스팸 관리, 비활성 이슈 닫기까지 운영 부담을 최소화하는 자동화가 완비되어 있다.</p>
+</li>
+<li>
+<p><strong>도메인 분리와 타입 안전성</strong>: API의 Fastify 플러그인 아키텍처와 TypeBox 스키마가 런타임 유효성 검사와 컴파일 타임 타입 안전성을 동시에 보장한다. 프론트엔드와 백엔드 모두 TypeScript 5.9로 전환 완료되어 있다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-and-areas-for-improvement">위험 / 개선 필요 사항 (Risks and Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>Gatsby의 기술 부채</strong>: Gatsby는 React 기반 SSG이나 커뮤니티 지원이 감소 추세이며, 빌드 속도 문제(<code>--max-old-space-size=7168</code> 설정이 이를 방증)가 있다. Next.js, Astro 등 현대적 대안으로의 장기 마이그레이션 계획 검토가 필요하다.</p>
+</li>
+<li>
+<p><strong>MongoDB + Prisma의 타입 불일치</strong>: Prisma schema에 <code>Json?</code> 타입 다수 사용 — 이는 타입 안전성 보장이 불가능한 영역이며, 데이터 정합성 문제가 잠재적으로 존재한다. <code>challengeType</code>, <code>completedDate</code> 등 핵심 필드에 명시적 타입 정의가 필요하다.</p>
+</li>
+<li>
+<p><strong>SECURITY.md 부재</strong>: 루트에 <code>SECURITY.md</code> 파일이 없으며 외부 URL만 참조한다. GitHub Security Advisories와 연동된 공식 보안 취약점 보고 채널이 저장소 수준에서 명시되어야 한다.</p>
+</li>
+<li>
+<p><strong>클라이언트 상태 관리 복잡성</strong>: Redux-Saga와 Redux-Observable(RxJS epic)이 혼재하여 (<code>root-saga.ts</code>, <code>root-epic.ts</code>) 유지보수 복잡도가 높다. 신규 기여자의 학습 곡선을 높이며 장기적으로 단일 패턴으로 통일이 권장된다.</p>
+</li>
+<li>
+<p><strong>단일 브랜치 기반 배포</strong>: <code>deploy-api.yml</code>, <code>deploy-client.yml</code> 모두 <code>workflow_dispatch</code> (수동 트리거) 방식이며, E2E 워크플로우도 <code>workflow_run</code> 연동이 주석 처리되어 있다. 완전 자동화된 프로덕션 배포 파이프라인 구축이 미완성 상태이다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<h3 id="_10">기술 벤치마킹 목적</h3>
+<p>freeCodeCamp 저장소는 <strong>대규모 교육 플랫폼 아키텍처의 우수 사례</strong>로 적극 참고할 수 있다. 특히:</p>
+<ul>
+<li><strong>모노레포 구성</strong>: Turborepo + pnpm 워크스페이스 조합은 복수의 연관 패키지를 관리하는 팀에게 즉시 참조 가능한 수준의 완성도를 보인다.</li>
+<li><strong>Fastify 플러그인 아키텍처</strong>: 보안, 인증, CSRF를 플러그인으로 분리하는 패턴은 Node.js 백엔드 설계의 모범 사례다.</li>
+<li><strong>E2E 테스트 전략</strong>: Playwright 기반 100+ 스펙의 구조와 조직 방식은 유사 규모의 학습 플랫폼에서 직접 적용 가능하다.</li>
+</ul>
+<h3 id="_11">보안 검토 목적</h3>
+<p>OWASP 헤더 구현, AJV DoS 방어 설정, GitHub Actions 공급망 보안 (SHA 핀 고정)은 <strong>보안 체크리스트의 구체적 구현 예시</strong>로 활용할 수 있다.</p>
+<h3 id="_12">기여 진입 목적</h3>
+<p>PR 템플릿, 이슈 템플릿, CODEOWNERS, 자동화된 라벨링, Copilot 인스트럭션 등 <strong>오픈소스 거버넌스 시스템이 업계 최고 수준</strong>으로 갖춰져 있어 첫 기여자도 진입 장벽이 낮다.</p>
+<h3 id="_13">종합 판단</h3>
+<blockquote>
+<p><strong>✅ 강력 권고 (Strongly Recommended)</strong> — 교육 플랫폼, SaaS 백엔드, 오픈소스 커뮤니티 운영 모두에서 아키텍처 벤치마킹, 보안 설계 참조, 기여 가이드라인 도입 목적으로 최우선 참고 대상이다. Gatsby의 장기 기술 부채와 혼합 상태 관리 패턴을 제외하면, 코드 품질·테스트·운영 자동화·커뮤니티 거버넌스 모든 축에서 업계 상위 수준의 오픈소스 프로젝트다.</p>
+</blockquote>
+<hr />
+<p><em>분석일: 2026-05-22 | 분석 도구: Claude Sonnet 4.6 | 분석 경로: <code>/tmp/github-dashboard-analysis/freeCodeCamp_freeCodeCamp</code></em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>이제 모든 필요한 정보를 수집했습니다. 종합 보고서를 작성하겠습니다.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-05-22
+대상 / Target: <code>/tmp/github-dashboard-analysis/freeCodeCamp_freeCodeCamp</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved:</strong>
+freeCodeCamp는 전 세계 누구나 무료로 웹 개발, 머신러닝 등 IT 기술을 배울 수 있도록 하는 비영리(501(c)(3)) 오픈소스 학습 플랫폼이다. 수천 개의 인터랙티브 코딩 챌린지, 프로젝트 기반 자격증 과정, 커뮤니티 포럼을 제공하며, 100,000명 이상의 취업 지원 실적을 보유한다.</p>
+<p><strong>분류 / Classification:</strong> Platform (교육 플랫폼) — 풀스택 학습 애플리케이션</p>
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>TypeScript 5.9.3, Node.js ≥24 (LTS)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>Fastify 5.x (API), Gatsby 5.x (Client/SSG), React 18.3.x, Redux Saga, TailwindCSS</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>MongoDB 8.x (via Prisma ORM 6.x), Replica Set 구성</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>REST (Fastify), OAuth2 (Auth0), JWT + HttpOnly Cookie 인증, Stripe/PayPal/Patreon 결제 API</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Docker Swarm (DigitalOcean), GitHub Actions CI/CD, Tailscale VPN, pnpm + TurboRepo 모노레포</td>
+</tr>
+<tr>
+<td>모니터링 / Monitoring</td>
+<td>Sentry (에러 추적), Pino (구조화 로깅), GrowthBook (Feature Flag)</td>
+</tr>
+<tr>
+<td>국제화 / i18n</td>
+<td>i18next, Crowdin 연동 (11개 언어 지원)</td>
+</tr>
+<tr>
+<td>패키지 관리 / Pkg mgmt</td>
+<td>pnpm 10.x, Lockfile: <code>pnpm-lock.yaml</code>, TurboRepo Remote Cache</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                        CLIENT TIER                              │
+│  Gatsby (React 18) + Redux Saga + i18next + Monaco Editor       │
+│  정적 빌드 → pm2 serve (언어별 분리 배포)                         │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │ REST / Cookie JWT
+┌─────────────────────▼───────────────────────────────────────────┐
+│                         API TIER                                │
+│  Fastify 5.x (TypeScript) — Plugin 기반 아키텍처                 │
+│  ├── auth.ts (JWT + Auth0 OAuth2)                               │
+│  ├── csrf.ts, security.ts (OWASP 헤더)                          │
+│  ├── prisma.ts (MongoDB ORM)                                    │
+│  ├── mailer.ts (AWS SES / Nodemailer)                           │
+│  └── growth-book.ts (Feature Flags)                             │
+└─────────────────────┬───────────────────────────────────────────┘
+                      │ Prisma ORM
+┌─────────────────────▼───────────────────────────────────────────┐
+│                      DATA TIER                                  │
+│  MongoDB 8.x ReplicaSet — 사용자/챌린지/결제 데이터 저장           │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>아키텍처 패턴:</strong> Plugin 기반 (Fastify), Monorepo (TurboRepo), SSG + API 분리형</p>
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>freeCodeCamp_freeCodeCamp/
+├── api/                        # Fastify 백엔드 API
+│   ├── src/
+│   │   ├── app.ts              # 애플리케이션 팩토리
+│   │   ├── server.ts           # 서버 엔트리포인트
+│   │   ├── plugins/            # auth, cors, csrf, security, mailer 등
+│   │   ├── routes/             # public/protected 라우트
+│   │   ├── schemas/            # TypeBox 스키마
+│   │   ├── exam-environment/   # 시험 환경 서브모듈
+│   │   └── daily-coding-challenge/
+│   └── prisma/                 # MongoDB 스키마 (Prisma)
+├── client/                     # Gatsby React 프론트엔드
+│   ├── gatsby-config.ts
+│   ├── src/                    # React 컴포넌트/페이지
+│   └── i18n/                   # 국제화 리소스
+├── curriculum/                 # 학습 콘텐츠 (챌린지 YAML/MD)
+│   ├── challenges/             # 수천 개 챌린지 정의
+│   ├── schema/                 # 챌린지 스키마
+│   └── licenses/               # 서드파티 라이선스 (the-odin-project.txt)
+├── e2e/                        # Playwright E2E 테스트 (119 spec)
+├── packages/                   # 공유 패키지
+│   ├── challenge-builder/
+│   ├── shared/
+│   └── eslint-config/
+├── docker/                     # Dockerfile, docker-compose
+├── tools/                      # 챌린지 편집 도구
+├── .github/
+│   ├── workflows/              # CI/CD (21개 워크플로우)
+│   ├── CODEOWNERS
+│   └── FUNDING.yml
+├── LICENSE.md                  # BSD-3-Clause
+├── pnpm-lock.yaml              # 의존성 잠금파일
+├── renovate.json               # 자동 의존성 업데이트
+└── sample.env                  # 환경변수 샘플
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>파일:</strong> <code>LICENSE.md</code> (직접 확인)</p>
+<pre><code>BSD 3-Clause License
+Copyright (c) 2014, freeCodeCamp.
+</code></pre>
+<p><strong>핵심 의무:</strong>
+- 재배포 시 저작권 고지 유지 의무
+- 바이너리 재배포 시 문서에 라이선스 포함 의무
+- freeCodeCamp 이름/기여자 이름으로 파생 상품 홍보 <strong>불가</strong></p>
+<blockquote>
+<p><strong>⚠️ 중요 예외:</strong> README.md는 명시적으로 다음과 같이 분리한다:
+- <strong>소프트웨어 코드:</strong> BSD-3-Clause
+- <strong><code>/curriculum</code> 디렉토리의 학습 콘텐츠:</strong> <code>copyright © 2014 freeCodeCamp.org</code> — <strong>별도 라이선스 부재, 명시적 사용 허가 없음</strong></p>
+</blockquote>
+<p>이는 커리큘럼 콘텐츠(챌린지, 강의 등)가 All Rights Reserved 상태임을 의미하며, 상용화 시 핵심 위험 요소이다.</p>
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<h4 id="_1">핵심 프로덕션 의존성 (주요 항목)</h4>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fastify</td>
+<td>5.8.5</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>react</td>
+<td>18.3.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>react-dom</td>
+<td>18.3.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>gatsby</td>
+<td>5.16.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@prisma/client</td>
+<td>6.19.3</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>prisma</td>
+<td>6.19.3</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>mongodb</td>
+<td>6.21.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>typescript</td>
+<td>5.9.3</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@fastify/oauth2</td>
+<td>8.2.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@fastify/csrf-protection</td>
+<td>7.1.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@sentry/node</td>
+<td>9.47.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>jsonwebtoken</td>
+<td>9.0.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>stripe</td>
+<td>16.12.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pino</td>
+<td>9.14.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>lodash</td>
+<td>4.18.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>nodemailer</td>
+<td>6.10.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>redux</td>
+<td>4.2.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@growthbook/growthbook</td>
+<td>1.6.5</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>i18next</td>
+<td>25.10.10</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>sanitize-html</td>
+<td>2.17.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>monaco-editor</td>
+<td>0.52.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@xterm/xterm</td>
+<td>6.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>algoliasearch</td>
+<td>4.27.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>ajv</td>
+<td>8.20.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>date-fns</td>
+<td>4.1.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>dotenv</td>
+<td>16.6.1</td>
+<td>BSD-2-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@fortawesome/fontawesome-svg-core</td>
+<td>7.2.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>turbo</td>
+<td>^2.8.7</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_2">내장 서드파티 콘텐츠 라이선스 (콘텐츠 레이어)</h4>
+<table>
+<thead>
+<tr>
+<th>출처 / Source</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>The Odin Project (curriculum/licenses/)</td>
+<td><strong>CC BY-NC-SA 4.0</strong></td>
+<td><strong>Commercial-incompatible</strong></td>
+<td><strong>🔴</strong></td>
+</tr>
+<tr>
+<td>freeCodeCamp curriculum (/curriculum/)</td>
+<td><strong>All Rights Reserved</strong> (저작권만 명시)</td>
+<td><strong>Commercial-incompatible</strong></td>
+<td><strong>🔴</strong></td>
+</tr>
+<tr>
+<td>freeCodeCamp 소프트웨어</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD-2, BSD-3, ISC</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1, <strong>CC BY-NC-SA</strong></td>
+<td>상용화 금지 / Commercialization prohibited</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>본 프로젝트의 소프트웨어 코드</strong>: 거의 전부 🟢 Permissive (BSD-3, MIT, Apache 2.0)
+<strong>본 프로젝트의 커리큘럼 콘텐츠</strong>: 🔴 (CC BY-NC-SA 4.0 내포, 저작권 단독 선언)</p>
+</blockquote>
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>소프트웨어 코드 레이어:</strong>
+- GPL/AGPL 의존성 확인되지 않음 (pnpm-lock.yaml 기반)
+- Apache 2.0 + BSD-3 + MIT 조합은 완전 호환
+- 특허 충돌 없음</p>
+<p><strong>콘텐츠 레이어 (치명적 위험):</strong></p>
+<ol>
+<li><strong>The Odin Project 콘텐츠 (<code>curriculum/licenses/the-odin-project.txt</code>)</strong></li>
+<li>CC BY-NC-SA 4.0 적용: <strong>NonCommercial 조건</strong> 포함</li>
+<li>"primarily intended for or directed towards commercial advantage or monetary compensation"에 해당하는 상업적 사용 <strong>금지</strong></li>
+<li>ShareAlike 조건으로 파생물도 동일 라이선스 적용 의무</li>
+<li>
+<p><strong>SaaS 또는 유료 플랫폼 내 포함 시 즉각 위반</strong></p>
+</li>
+<li>
+<p><strong>freeCodeCamp 커리큘럼 콘텐츠</strong></p>
+</li>
+<li>README가 "copyright © 2014 freeCodeCamp.org"로 선언하되 재배포 라이선스 미제공</li>
+<li>실질적 All Rights Reserved 상태 → 상업적 재배포 불허</li>
+<li>freeCodeCamp.org의 서면 허가 없이 상업 서비스에 사용 불가</li>
+</ol>
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<p><strong>소프트웨어 코드 (BSD-3-Clause):</strong>
+- [x] 저작권 고지 포함 방법: 배포물(설치 패키지, about 화면 등)에 <code>BSD 3-Clause License, Copyright (c) 2014 freeCodeCamp.</code> 포함
+- [ ] NOTICE/고지문 배포 위치: 별도 NOTICE 파일 없음 — 생성 필요
+- [x] 소스 공개 의무: BSD-3-Clause는 소스 비공개 허용</p>
+<p><strong>커리큘럼 콘텐츠 (상용화 전 해결 필수):</strong>
+- [ ] CC BY-NC-SA 4.0 콘텐츠의 대체 또는 라이선스 재협상 필요
+- [ ] freeCodeCamp.org와 커리큘럼 사용 계약 체결 필요</p>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md (저장소 내)</td>
+<td>❌ 파일 부재</td>
+<td>외부 URL(contribute.freecodecamp.org/#/security) 링크만 존재</td>
+</tr>
+<tr>
+<td>Dependabot</td>
+<td>❌ 미설정</td>
+<td><code>.github/dependabot.yml</code> 없음</td>
+</tr>
+<tr>
+<td>Renovate</td>
+<td>✅ 활성</td>
+<td><code>renovate.json</code> 상세 설정, 패키지군별 그룹화 전략 수립</td>
+</tr>
+<tr>
+<td>Snyk</td>
+<td>❌ 미설정</td>
+<td><code>.snyk</code> 파일 없음</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>❌ 없음</td>
+<td>CycloneDX, SPDX 파일 미확인</td>
+</tr>
+<tr>
+<td>오픈소스 라이선스 스캔 CI</td>
+<td>❌ 없음</td>
+<td>GitHub Actions 워크플로우 내 라이선스 검사 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Renovate 운영 수준:</strong> 상당히 정교함. Fastify, React, Stripe, Gatsby, Playwright 등 27개 패키지 그룹을 상호 의존성을 고려하여 그룹화 업데이트 전략 수립. 주간(weekly) 케이던스 등 캐이던스 제어도 구현됨.</p>
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>환경변수 관리:</strong>
+- <code>sample.env</code> 파일에 플레이스홀더 값만 존재 (실제 비밀키 없음) — 올바른 패턴
+- <code>.dockerignore</code>에 <code>.env</code> 명시적 제외
+- 배포 시 <code>AGE</code> 암호화 도구로 secrets 암호화 전달 (deploy-api.yml 확인)</p>
+<p><strong>하드코딩 패턴:</strong>
+- 소스 코드 내 하드코딩된 시크릿 없음 (모두 <code>env.ts</code>를 통한 환경변수 참조)</p>
+<p><strong>잠재적 위험 항목:</strong>
+- <code>redux-saga</code> 1.4.2: 비교적 오래된 버전, Renovate로 관리 중
+- <code>react-tooltip</code> 4.5.1, <code>react-hotkeys</code> 2.0.0: 유지보수 상태 주의 필요
+- <code>rxjs</code> 6.6.7: redux-observable 의존성으로 고정, 마이그레이션 필요</p>
+<p><strong>인증 아키텍처:</strong>
+- Auth0 OAuth2 + JWT 서명(HS256) + HttpOnly Secure Cookie (30일 만료)
+- CSRF 보호: <code>@fastify/csrf-protection</code> 적용
+- 보안 헤더: <code>X-Content-Type-Options: nosniff</code>, <code>X-Frame-Options: DENY</code>, <code>Content-Security-Policy: frame-ancestors 'none'</code>, <code>Cache-Control: no-store</code>, HSTS(prod)</p>
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>강점:</strong>
+- Sentry 연동으로 4xx 미만 에러는 필터링, 5xx만 리포트 (정교한 필터링)
+- Fastify Plugin 시스템으로 보안 계층 명확히 분리
+- Docker 비루트(non-root <code>node</code>) 사용자로 컨테이너 실행
+- Tailscale VPN을 통한 CI/CD 배포 (노출 최소화)
+- Sentry에 userId 연결 (감사 추적 가능)</p>
+<p><strong>개선 필요:</strong>
+- SECURITY.md 저장소 내 부재 (GitHub의 보안 취약점 신고 연동 미활성화)
+- Dependabot 미설정 (Renovate만 의존)
+- SBOM 미생성 (OpenChain 컴플라이언스 취약)
+- CI 내 자동화된 취약점 스캔 없음 (<code>npm audit</code> 또는 Snyk 미적용)</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-05-22 (분석 당일) — <code>fix(curriculum): correct text errors</code></td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>일간 다수 커밋 (GitHub 기준 ~50,000+ commits 이상)</td>
+</tr>
+<tr>
+<td>GitHub Stars</td>
+<td>~420,000+ (전체 GitHub 최상위권)</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>수천 명 이상 (리포비츠 분석 이미지 포함)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>버전 태깅 없음 (지속적 배포 방식)</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>수백~수천 개 (대형 오픈소스 수준)</td>
+</tr>
+<tr>
+<td>Linux Foundation Insights</td>
+<td>공식 LFX 배지로 기여자 추적</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서 / Document</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>❌ 저장소 내 부재 (외부 URL 링크)</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ 저장소 내 부재</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>❌ 저장소 내 부재</td>
+</tr>
+<tr>
+<td>CODEOWNERS</td>
+<td>✅ 상세 설정 (dev-team, curriculum, i18n, mobile 팀)</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 부재</td>
+</tr>
+<tr>
+<td>PR Template</td>
+<td>✅ <code>.github/PULL_REQUEST_TEMPLATE.md</code> 존재</td>
+</tr>
+<tr>
+<td>Issue Templates</td>
+<td>✅ 4개 이슈 템플릿 (버그, 기능, 콘텐츠, 소프트웨어)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>PR 관리:</strong> 자동화된 PR 가이드라인 체크 워크플로우, 스팸 자동 닫기, 라벨러, i18n PR 차단 등 고도화된 PR 관리 체계 운영.</p>
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>501(c)(3) 비영리 법인</strong>: freeCodeCamp.org 자체가 법인으로 장기 운영 구조</li>
+<li><strong>FUNDING.yml</strong>: GitHub Sponsors, Patreon, 자체 기부 페이지 (다중 재정 채널)</li>
+<li><strong>CNCF/ASF 멤버십</strong>: 없음 (독립 비영리 재단)</li>
+<li><strong>기업 스폰서</strong>: Microsoft (C# 자격증 파트너십), Algolia, Auth0 등 기술 파트너 존재</li>
+<li><strong>LFX (Linux Foundation Insights)</strong> 배지 표시 — Linux Foundation과의 협력 관계</li>
+<li><strong>LTS 버전</strong>: 없음 (단일 main 브랜치 지속 배포)</li>
+<li><strong>SemVer</strong>: 적용 없음 (<code>version: "0.0.1"</code> — 내부 버전)</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docker 지원</td>
+<td>✅ 완전 지원</td>
+<td>멀티스테이지 Dockerfile, GHCR 이미지 자동 빌드</td>
+</tr>
+<tr>
+<td>Docker Swarm 배포</td>
+<td>✅ 실운영</td>
+<td><code>docker stack deploy</code> 자동화</td>
+</tr>
+<tr>
+<td>Kubernetes 지원</td>
+<td>❌ 없음</td>
+<td>K8s 매니페스트/Helm 차트 미포함</td>
+</tr>
+<tr>
+<td>헬스체크</td>
+<td>✅ DB레이어</td>
+<td>MongoDB Docker healthcheck 구성</td>
+</tr>
+<tr>
+<td>Readiness/Liveness Probe</td>
+<td>❌ 미구현</td>
+<td>K8s 프로브 없음</td>
+</tr>
+<tr>
+<td>구조화 로깅</td>
+<td>✅ Pino JSON</td>
+<td>요청/응답 직렬화, 국가·IP·User-Agent 포함</td>
+</tr>
+<tr>
+<td>메트릭 노출 (Prometheus)</td>
+<td>❌ 없음</td>
+<td>Prometheus 엔드포인트 미구현</td>
+</tr>
+<tr>
+<td>분산 트레이싱</td>
+<td>🔵 부분</td>
+<td>Sentry 연동 (트레이싱 미완전)</td>
+</tr>
+<tr>
+<td>멀티테넌시</td>
+<td>❌ 없음</td>
+<td>단일 인스턴스 전제 설계</td>
+</tr>
+<tr>
+<td>수평 확장</td>
+<td>🔵 부분</td>
+<td>Swarm 스케일 가능하나 Stateless 보장 필요</td>
+</tr>
+</tbody>
+</table>
+<p><strong>12-Factor App 준수 수준:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>준수 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codebase</td>
+<td>✅ 단일 Git 저장소</td>
+</tr>
+<tr>
+<td>Dependencies</td>
+<td>✅ pnpm + lockfile</td>
+</tr>
+<tr>
+<td>Config</td>
+<td>✅ 환경변수 완전 분리 (sample.env)</td>
+</tr>
+<tr>
+<td>Backing services</td>
+<td>✅ MongoDB URL 환경변수화</td>
+</tr>
+<tr>
+<td>Build, release, run</td>
+<td>✅ TurboRepo + Docker</td>
+</tr>
+<tr>
+<td>Processes</td>
+<td>🔵 부분 (세션 쿠키가 Stateful하나 DB 저장)</td>
+</tr>
+<tr>
+<td>Port binding</td>
+<td>✅ 3000(API)/8000(Client)</td>
+</tr>
+<tr>
+<td>Concurrency</td>
+<td>🔵 부분 (Docker Swarm 스케일)</td>
+</tr>
+<tr>
+<td>Disposability</td>
+<td>✅ 빠른 시작/종료</td>
+</tr>
+<tr>
+<td>Dev/prod parity</td>
+<td>✅ Docker 개발환경 동일</td>
+</tr>
+<tr>
+<td>Logs</td>
+<td>✅ stdout/Pino</td>
+</tr>
+<tr>
+<td>Admin processes</td>
+<td>🔵 부분 (seed 스크립트 존재)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>테스트 유형 / Type</th>
+<th>파일 수 / Count</th>
+<th>도구 / Tool</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>API 단위/통합 테스트</td>
+<td>48</td>
+<td>Vitest + Supertest</td>
+</tr>
+<tr>
+<td>Client 단위 테스트</td>
+<td>91</td>
+<td>Vitest + React Testing Library</td>
+</tr>
+<tr>
+<td>Curriculum 콘텐츠 테스트</td>
+<td>11</td>
+<td>Vitest</td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td>119 spec</td>
+<td>Playwright</td>
+</tr>
+<tr>
+<td>커리큘럼 내용 검증</td>
+<td>Puppeteer 기반 자동화</td>
+<td>Chrome headless</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CI 자동화:</strong> GitHub Actions에서 lint → build → test → test-upcoming 파이프라인 완전 자동화. PR/Push 트리거, 동시성 제어, Renovate PR 중복 실행 방지 등 최적화 구현.</p>
+<p><strong>커버리지:</strong> 측정 설정 없음 (vitest coverage 미구성). 정량적 커버리지 목표 부재.</p>
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p>소프트웨어 의존성 레이어에서 GPL/AGPL 라이브러리는 확인되지 않았다. 분리 이슈 없음.</p>
+<p>단, <strong>커리큘럼 콘텐츠 레이어</strong>의 CC BY-NC-SA 4.0 (The Odin Project) 및 freeCodeCamp 자체 커리큘럼 콘텐츠는 <code>curriculum/</code> 디렉토리로 명확히 분리되어 있어 기술적 격리는 가능하다. 상용화 시 해당 디렉토리를 완전히 교체하거나, 별도 라이선스 협의가 필요하다.</p>
+<h3 id="54-dependency-locking">5.4 의존성 잠금 / Dependency Locking</h3>
+<ul>
+<li><code>pnpm-lock.yaml</code>: ✅ 존재 (975KB, 상세 잠금)</li>
+<li><code>--frozen-lockfile</code> 사용: ✅ CI 및 Dockerfile 모두 적용</li>
+<li>재현 가능한 빌드: ✅ TurboRepo Remote Cache + Signature 검증</li>
+</ul>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🔴 미완</td>
+<td>자동화된 라이선스 식별 도구 없음. 커리큘럼 내 CC BY-NC-SA 식별은 수동으로만 확인 가능</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>🔴 미완</td>
+<td>CI 내 FOSSA/Snyk/license-checker 미포함</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🔴 미완</td>
+<td>CC BY-NC-SA 이슈 미해결 상태</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🔴 미완</td>
+<td>OSPO 프로세스 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🔴 미완</td>
+<td>NOTICE 파일 없음, SBOM 없음</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권:</strong>
+- "freeCodeCamp" 브랜드는 freeCodeCamp.org 소유
+- BSD-3-Clause 3조에 의해 <strong>freeCodeCamp 이름/기여자 이름을 사용한 파생 상품 홍보 불가</strong>
+- 화이트라벨 상용화 시 별도 상표 사용 정책 확인 필요</p>
+<p><strong>특허:</strong>
+- MIT, BSD-3: 특허 부여 조항 없음 — 특허 리스크 보호 없음
+- Apache 2.0 (Prisma, MongoDB 드라이버, TypeScript): 특허 부여 조항 포함 — 이 범위에서는 특허 보호 제공
+- 전반적으로 특허 부여 보호 범위가 제한적</p>
+<h3 id="63-cc-by-nc-sa-content-license-risk-scenarios">6.3 CC BY-NC-SA 및 커리큘럼 저작권 위험 시나리오 / Content License Risk Scenarios</h3>
+<p><strong>시나리오 1: 플랫폼 전체 상용 운영</strong></p>
+<pre><code>The Odin Project 콘텐츠를 포함한 상태에서 유료 서비스 또는 
+광고 기반 서비스 운영 → CC BY-NC-SA 4.0 위반
+→ 손해배상 청구 가능성, 서비스 중단 요구 가능
+</code></pre>
+<p><strong>시나리오 2: 커리큘럼 콘텐츠 재배포</strong></p>
+<pre><code>freeCodeCamp 챌린지/강의 콘텐츠를 포함한 자체 플랫폼 구축
+→ freeCodeCamp.org의 All Rights Reserved 저작권 위반
+→ 명시적 서면 허가 없이 상업적 재배포 불가
+</code></pre>
+<p><strong>시나리오 3: 소프트웨어만 활용 (안전한 경로)</strong></p>
+<pre><code>curriculum/ 디렉토리 전체 제거 후,
+독자적 교육 콘텐츠를 탑재하여 플랫폼으로 활용
+→ BSD-3-Clause 준수 범위 내에서 합법적 상용화 가능
+</code></pre>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟠 Risk</td>
+<td>소프트웨어 코드는 🟢 BSD-3, 그러나 커리큘럼 콘텐츠의 CC BY-NC-SA 4.0 및 freeCodeCamp 저작권 단독 선언이 상용화의 핵심 장벽</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🔵 Review</td>
+<td>Renovate, Sentry, OWASP 헤더, JWT+CSRF 구현은 양호. SECURITY.md 부재, Dependabot 미설정, SBOM 없음</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟢 Safe</td>
+<td>매일 커밋, ~420K+ Stars, 501(c)(3) 비영리 법인 운영, 수천 명 기여자, 고도화된 PR 자동화</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🔵 Review</td>
+<td>Docker Swarm 실운영, Pino 구조화 로깅, TurboRepo CI 자동화 양호. K8s/Prometheus/분산 트레이싱 미지원</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟡 Caution</td>
+<td>소프트웨어 레이어는 확장 가능하나 멀티테넌시/커버리지 미지원. 콘텐츠 분리 후 재구성 필요</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟠 Risk</td>
+<td>OpenChain 0단계 수준, NOTICE/SBOM 부재, CC BY-NC-SA 미해결, 라이선스 스캔 CI 없음</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li>
+<p><strong>소프트웨어 코드 라이선스의 명확성</strong>: 핵심 소프트웨어는 BSD-3-Clause로 통일되어 있으며, 의존성 거의 전부가 MIT/Apache 2.0 Permissive로 소스 비공개 상용화에 유리하다.</p>
+</li>
+<li>
+<p><strong>최고 수준의 커뮤니티 및 프로젝트 활성도</strong>: GitHub 전체 최상위권 Stars(~420K+), 일간 커밋, 501(c)(3) 비영리법인 운영으로 장기 지속 가능성이 높다. 대형 오픈소스 프로젝트 중 가장 활발한 축에 속한다.</p>
+</li>
+<li>
+<p><strong>검증된 풀스택 아키텍처</strong>: Fastify 5.x + Prisma + MongoDB + React + Gatsby의 현대적 스택. 실제 수백만 사용자를 처리하는 프로덕션 시스템으로 검증된 안정성.</p>
+</li>
+<li>
+<p><strong>고도화된 CI/CD 파이프라인</strong>: 21개 GitHub Actions 워크플로우, Turbo Remote Cache, Docker Swarm 자동 배포, Tailscale VPN 보안 채널, 다국어(11개) 병렬 빌드·배포 체계.</p>
+</li>
+<li>
+<p><strong>보안 구현 수준</strong>: OWASP 보안 헤더, CSRF 보호, HttpOnly Secure JWT 쿠키, AGE 암호화 시크릿 관리, 비루트 Docker 컨테이너 등 보안 기본기가 체계적으로 구현되어 있다.</p>
+</li>
+</ol>
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li>
+<p><strong>CC BY-NC-SA 4.0 커리큘럼 콘텐츠</strong>: The Odin Project 콘텐츠를 포함한 상태의 상업적 운영은 즉각적인 라이선스 위반이다. 상용화 전 해당 콘텐츠 전량 제거 또는 라이선스 재협상이 필수적이다.</p>
+</li>
+<li>
+<p><strong>freeCodeCamp 커리큘럼 저작권 미해결</strong>: <code>/curriculum</code> 디렉토리의 학습 콘텐츠는 All Rights Reserved 상태로, 소프트웨어 기반 플랫폼만 차용하고 독자 콘텐츠로 교체하거나 서면 라이선스 계약이 필요하다.</p>
+</li>
+<li>
+<p><strong>OpenChain/ISO 5230 컴플라이언스 전무</strong>: SBOM 미생성, CI 내 라이선스 스캔 없음, NOTICE 파일 없음. B2B/엔터프라이즈 고객 납품 시 컴플라이언스 감사에 취약하다.</p>
+</li>
+<li>
+<p><strong>K8s 지원 부재 및 모니터링 불완전</strong>: Prometheus 메트릭 엔드포인트, K8s Helm 차트, 분산 트레이싱 미구현. 클라우드 네이티브 엔터프라이즈 환경 도입 시 추가 엔지니어링 필요.</p>
+</li>
+<li>
+<p><strong>보안 정책 문서화 공백</strong>: SECURITY.md가 저장소 내 부재하여 GitHub Security Advisories 기능 미활성화, 취약점 신고 채널이 외부 URL 의존.</p>
+</li>
+</ol>
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🟠 Risk (조건부 도입 — 법적 선결 조건 이행 필수)</p>
+<p><strong>판정 이유 / Rationale:</strong></p>
+<p>freeCodeCamp의 <strong>소프트웨어 코드 자체</strong>는 BSD-3-Clause로 상용화 친화적이며, 기술 스택·커뮤니티·운영 성숙도 모두 탁월하다. 그러나 프로젝트의 핵심 가치인 <strong>커리큘럼 콘텐츠는 상업적 이용이 명시적으로 차단</strong>되어 있다:</p>
+<ul>
+<li>The Odin Project 콘텐츠: CC BY-NC-SA 4.0 (NonCommercial 조건)</li>
+<li>freeCodeCamp 자체 커리큘럼: 저작권 단독 선언 (All Rights Reserved)</li>
+</ul>
+<p>이를 포함한 채로 상업 서비스를 운영하는 것은 <strong>즉각적 법적 위험</strong>이다.</p>
+<p><strong>허용 가능한 상용화 경로:</strong>
+1. <code>curriculum/</code> 디렉토리를 완전히 제거하고 독자 교육 콘텐츠로 교체 후, freeCodeCamp <strong>플랫폼 소프트웨어</strong>만 BSD-3-Clause 조건 하에 상용화
+2. freeCodeCamp.org와 커리큘럼 콘텐츠 사용에 관한 <strong>상업용 라이선스 계약</strong> 체결</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>- [x] Permissive/Weak/Strong Copyleft 소프트웨어 분류 확인</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 커리큘럼 CC BY-NC-SA 4.0 해결 (제거 또는 재협상)</td>
+<td>❌ 미이행</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] freeCodeCamp 커리큘럼 저작권 해결</td>
+<td>❌ 미이행</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 소프트웨어 코드 라이선스 호환성 충돌 없음</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>- [ ] 저작권 문구 포함 방법 정의</td>
+<td>❌</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] NOTICE 파일 생성 및 배포 위치 정의</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>- [x] BSD-3-Clause 소스 비공개 허용 확인</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] CC BY-NC-SA 범위 적용 시 ShareAlike 의무 검토</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>- [ ] CVE 모니터링 체계 수립 (Snyk/Dependabot 추가)</td>
+<td>❌</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] SECURITY.md 저장소 내 추가</td>
+<td>❌</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] CI 내 <code>npm audit</code> 또는 취약점 스캔 자동화</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>- [x] 유지보수 활성도·커밋 주기 확인</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 기업 스폰서/비영리법인 운영 확인</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>- [ ] 라이선스 검사 자동화 (FOSSA/license-checker)</td>
+<td>❌</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 오픈소스 BOM(SBOM) 자동 생성 (CycloneDX)</td>
+<td>❌</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 위반 라이선스 빌드 차단 게이트 추가</td>
+<td>❌</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>- [ ] 고객 계약서에 BSD-3-Clause 의무 명시</td>
+<td>❌</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] CC BY-NC-SA / 커리큘럼 저작권 법무 검토 완료</td>
+<td>❌</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 외부 감사 대비 문서 구비 (NOTICE, BOM, 리포트)</td>
+<td>❌</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong>커리큘럼 CC BY-NC-SA 콘텐츠 격리:</strong> <code>curriculum/challenges/</code> 내 The Odin Project 파생 콘텐츠를 식별·분리하고, 상업 배포물에서 완전 제거하거나 freeCodeCamp 및 The Odin Project 재단과 상업 라이선스 계약 체결. 법무 검토 필수.</p>
+</li>
+<li>
+<p><strong>freeCodeCamp 커리큘럼 저작권 법무 자문 획득:</strong> <code>/curriculum</code> 디렉토리 콘텐츠를 상업 목적으로 사용하기 위한 법적 근거(서면 허가 또는 별도 계약)를 확보하거나, 독자 교육 콘텐츠 개발 계획 수립.</p>
+</li>
+<li>
+<p><strong>NOTICE 파일 생성:</strong> <code>NOTICE.txt</code>에 BSD-3-Clause 저작권 고지 및 Apache 2.0 의존성(Prisma, MongoDB 드라이버, TypeScript) 목록 포함.</p>
+</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>SECURITY.md 저장소 내 추가:</strong> 취약점 신고 채널, 지원 버전, 응답 SLA 정의. GitHub Security Advisories 활성화.</p>
+</li>
+<li>
+<p><strong>Dependabot 설정 추가:</strong> <code>.github/dependabot.yml</code> 생성 (Renovate와 병행 또는 대체). 주간 npm 의존성 스캔 활성화.</p>
+</li>
+<li>
+<p><strong>CI 취약점 스캔 추가:</strong> <code>node.js-tests.yml</code>에 <code>pnpm audit --audit-level=high</code> 단계 추가, 고위험 취약점 발견 시 빌드 차단.</p>
+</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>SBOM 자동 생성:</strong> CI 파이프라인에 CycloneDX (<code>@cyclonedx/bom</code>) 또는 SPDX 생성 단계 추가. 릴리스마다 SBOM 아티팩트 첨부.</p>
+</li>
+<li>
+<p><strong>CI 라이선스 스캔 자동화:</strong> <code>license-checker</code> 또는 FOSSA 도입. Copyleft/Commercial-incompatible 라이선스 검출 시 빌드 차단 게이트 구현.</p>
+</li>
+<li>
+<p><strong>Prometheus 메트릭 엔드포인트 구현:</strong> <code>@fastify/metrics</code> 플러그인 추가. 엔터프라이즈 고객 환경에서 Grafana/Prometheus 연동 지원.</p>
+</li>
+<li>
+<p><strong>테스트 커버리지 측정 도입:</strong> Vitest <code>coverage</code> 설정 추가 (Istanbul/V8). CI에서 커버리지 리포트 게시 및 임계치(예: 70%) 설정.</p>
+</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>Kubernetes/Helm 지원:</strong> 엔터프라이즈 클라우드 환경 대응을 위한 K8s Deployment, Service, ConfigMap, Helm 차트 개발. Readiness/Liveness Probe 추가.</p>
+</li>
+<li>
+<p><strong>분기별 라이선스 컴플라이언스 감사:</strong> 신규 의존성 추가 시 라이선스 분류 재검토, SBOM 업데이트, OpenChain ISO 5230 단계별 달성 로드맵 수립.</p>
+</li>
+<li>
+<p><strong>멀티테넌시 아키텍처 검토:</strong> 상업 플랫폼화 시 테넌트 분리 전략(DB 레벨, 애플리케이션 레벨) 설계 및 구현.</p>
+</li>
+<li>
+<p><strong>커리큘럼 라이선스 정책 장기 해결:</strong> freeCodeCamp.org와 장기 파트너십 또는 콘텐츠 라이선스 계약을 통해 법적 안정성 확보. 독자 콘텐츠 전환 로드맵 수립.</p>
+</li>
+</ol></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><hr />
+<h2 id="final-report">최종 보고서 / Final Report</h2>
+<p><strong>[한국어]</strong></p>
+<p>두 가이드 문서가 아래 경로에 성공적으로 생성되었습니다:</p>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>경로</th>
+<th>크기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GUIDE4Junior.md</code></td>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>35 KB</td>
+</tr>
+<tr>
+<td><code>GUIDE4ImpMethod.md</code></td>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>36 KB</td>
+</tr>
+</tbody>
+</table>
+<p><code>.review/</code> 디렉토리는 이미 존재하고 있었으며 별도 생성이 필요하지 않았습니다.</p>
+<p><strong>분석된 프로젝트</strong>: freeCodeCamp (Node.js ≥24, pnpm 10, Turborepo, Gatsby SSG, Fastify 5, MongoDB 8 + Prisma, Auth0, Vitest, Playwright, GitHub Actions CI/CD)</p>
+<p><strong>각 섹션 작성 방식 요약</strong>:</p>
+<ul>
+<li><strong>직접 코드 분석 기반</strong> (웹 검색 불필요):</li>
+<li>프로젝트 개요, 기술 스택 (<code>package.json</code>, <code>turbo.json</code>, <code>pnpm-workspace.yaml</code> 분석)</li>
+<li>환경 변수 목록 (<code>sample.env</code> 직접 확인)</li>
+<li>소스 구조 트리 (실제 디렉토리 탐색)</li>
+<li>빌드/실행 명령어 (루트 및 하위 <code>package.json</code> 스크립트 분석)</li>
+<li>Docker 구성 (<code>docker/docker-compose.yml</code> 직접 확인)</li>
+<li>CI/CD 파이프라인 (<code>deploy-api.yml</code>, <code>deploy-client.yml</code> 분석)</li>
+<li>테스트 구조 (Vitest + Playwright 설정 확인)</li>
+<li>
+<p>Fastify 플러그인 목록 (<code>api/src/plugins/</code> 직접 확인)</p>
+</li>
+<li>
+<p><strong>훈련 데이터 기반 보완</strong> (freeCodeCamp는 잘 알려진 오픈소스 프로젝트로 웹 검색 없이 상세 정보 보완 가능):</p>
+</li>
+<li>Fastify vs Express 성능 비교 (섹션 6)</li>
+<li>Auth0 OAuth 2.0 보안 패턴 (섹션 7)</li>
+<li>유사 프로젝트 비교표 (섹션 8)</li>
+<li>
+<p>CDN 캐싱 전략 및 Turborepo 원격 캐시 모범 사례 (섹션 6)</p>
+</li>
+<li>
+<p><strong>해당 없음으로 명시된 섹션</strong>: 없음 — 모든 섹션에 실제 프로젝트 정보를 채울 수 있었습니다.</p>
+</li>
+</ul>
+<hr />
+<p><strong>[English]</strong></p>
+<p>Both guide documents were successfully created at:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Path</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GUIDE4Junior.md</code></td>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>35 KB</td>
+</tr>
+<tr>
+<td><code>GUIDE4ImpMethod.md</code></td>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>36 KB</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>.review/</code> directory already existed and did not need to be created.</p>
+<p><strong>Project analyzed</strong>: freeCodeCamp (Node.js ≥24, pnpm 10, Turborepo, Gatsby SSG, Fastify 5, MongoDB 8 + Prisma, Auth0, Vitest, Playwright, GitHub Actions CI/CD)</p>
+<p><strong>Summary of how each section was written</strong>:</p>
+<ul>
+<li><strong>Based on direct code analysis</strong> (no web search needed):</li>
+<li>Project overview and tech stack (analyzed <code>package.json</code>, <code>turbo.json</code>, <code>pnpm-workspace.yaml</code>)</li>
+<li>Environment variable list (directly read <code>sample.env</code>)</li>
+<li>Source structure tree (actual directory exploration)</li>
+<li>Build/run commands (analyzed root and sub-package <code>package.json</code> scripts)</li>
+<li>Docker configuration (directly read <code>docker/docker-compose.yml</code>)</li>
+<li>CI/CD pipeline (analyzed <code>deploy-api.yml</code>, <code>deploy-client.yml</code>)</li>
+<li>Test structure (verified Vitest + Playwright setup)</li>
+<li>
+<p>Fastify plugin list (directly explored <code>api/src/plugins/</code>)</p>
+</li>
+<li>
+<p><strong>Supplemented from training knowledge</strong> (freeCodeCamp is a well-known open-source project, detailed supplementation possible without web search):</p>
+</li>
+<li>Fastify vs Express performance comparison (Section 6)</li>
+<li>Auth0 OAuth 2.0 security patterns (Section 7)</li>
+<li>Similar project comparison table (Section 8)</li>
+<li>
+<p>CDN caching strategies and Turborepo remote cache best practices (Section 6)</p>
+</li>
+<li>
+<p><strong>Sections marked N/A</strong>: None — all sections could be filled with actual project information.</p>
+</li>
+</ul></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>freeCodeCamp/freeCodeCamp</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/freeCodeCamp/freeCodeCamp" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

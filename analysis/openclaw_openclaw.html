@@ -1,0 +1,2853 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>openclaw/openclaw - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/openclaw/openclaw" target="_blank" rel="noopener">openclaw/openclaw</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 </div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">top100 trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 373761</span>
+      
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="analysis">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-analysis">
+    
+    <div class="md-body"><hr />
+<h1 id="openclaw-openclaw-open-source-analysis-report">OpenClaw 오픈소스 분석 보고서 / OpenClaw Open-Source Analysis Report</h1>
+<p><strong>분석일 / Analysis Date:</strong> 2026-05-22
+<strong>분석 대상 / Target:</strong> <code>/tmp/github-dashboard-analysis/openclaw_openclaw</code>
+<strong>저장소 / Repository:</strong> <code>https://github.com/openclaw/openclaw</code>
+<strong>버전 / Version:</strong> <code>2026.5.21</code> (CalVer)</p>
+<hr />
+<h2 id="summary-table">분석 요약 테이블 / Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>개인 AI 어시스턴트 게이트웨이. WhatsApp·Telegram·Discord 등 20개 이상 메시징 채널에서 AI 에이전트를 로컬 퍼스트로 운용</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>pnpm 모노레포: <code>src/</code>(코어), <code>extensions/</code>(플러그인 135개+), <code>packages/</code>(SDK/라이브러리), <code>apps/</code>(iOS·Android·macOS), <code>ui/</code>(웹 프런트엔드), <code>docs/</code></td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>TypeScript ESM Strict, Node 22.19+/24, pnpm + Bun(빌드), Vitest, Vite/Rolldown, oxfmt/oxlint</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>src/entry.ts</code> → CLI <code>openclaw.mjs</code>, 게이트웨이 HTTP/WS 서버(<code>src/gateway/server.ts</code>)</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>이벤트 드리븐 게이트웨이 + 플러그인 SDK 패턴. 코어는 채널/프로바이더 무관. 채널·프로바이더·메모리는 플러그인으로 분리</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>로컬 파일시스템 상태(JSON), 세션 트랜스크립트, 선택적 LanceDB(메모리), SQLite(일부 플러그인), 프로바이더 크레덴셜은 <code>~/.openclaw/credentials/</code> 격리</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker 멀티스테이지(Node 24+Bun 빌드→slim 런타임), Fly.io, Render, Docker Compose, launchd/systemd 유저 서비스 데몬</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest, 40개+ 프로젝트 설정(unit·infra·boundary·contracts·gateway·e2e·live), Crabbox/Testbox 원격 검증</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md, Dependabot 일일 npm 갱신, CodeQL(Android·macOS·core), OpenGrep/Zizmor 정적 분석, GHSA 비공개 취약점 보고, DM 기본 pairing 정책</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>20명+ 유지보수자, 활발한 주간 릴리스(CalVer), 상세 CONTRIBUTING/VISION/AGENTS.md, 스폰서(OpenAI·GitHub·NVIDIA·Vercel·Blacksmith·Convex)</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-1-purpose-and-scope">Step 1. 목적 및 범위 / Purpose and Scope</h2>
+<h3 id="_1">한국어</h3>
+<p><strong>OpenClaw</strong>는 사용자 개인 기기에서 실행되는 <strong>로컬 퍼스트 AI 어시스턴트 게이트웨이</strong>다. WhatsApp, Telegram, Slack, Discord, Signal, iMessage, IRC, Microsoft Teams, Matrix, LINE, WeChat 등 <strong>20개 이상의 메시징 채널</strong>을 단일 제어 평면(Gateway)으로 연결하고, 다수의 LLM 프로바이더(OpenAI, Anthropic, Ollama, Gemini, Deepseek, Mistral 등)를 통합한다.</p>
+<p><strong>대상 사용자:</strong> 개인 단위 운영자(trusted operator) — 자신의 채널과 기기에서 강력하고 프라이버시-보존 AI 어시스턴트를 원하는 개발자 및 파워 유저.</p>
+<p><strong>제품 유형:</strong> CLI 도구 + 데몬 서버 + 플러그인 플랫폼 + 다플랫폼 앱(macOS/iOS/Android).</p>
+<h3 id="english">English</h3>
+<p><strong>OpenClaw</strong> is a <strong>local-first personal AI assistant gateway</strong> running on the user's own devices. It bridges <strong>20+ messaging channels</strong> (WhatsApp, Telegram, Slack, Discord, Signal, iMessage, Matrix, IRC, Microsoft Teams, LINE, WeChat, etc.) through a single control-plane Gateway and integrates numerous LLM providers (OpenAI, Anthropic, Ollama, Gemini, Deepseek, Mistral, etc.).</p>
+<p><strong>Target users:</strong> Single-user trusted operators — developers and power users wanting a privacy-preserving, always-on AI assistant across their existing messaging surfaces.</p>
+<p><strong>Product type:</strong> CLI tool + daemon server + plugin platform + multi-platform native apps (macOS/iOS/Android).</p>
+<hr />
+<h2 id="step-2-repository-structure-analysis">Step 2. 저장소 구조 분석 / Repository Structure Analysis</h2>
+<h3 id="_2">구조 개요</h3>
+<pre><code>openclaw/
+├── src/               # 코어 TypeScript (게이트웨이, CLI, 에이전트, 채널, 플러그인 SDK)
+│   ├── entry.ts       # CLI 진입점
+│   ├── gateway/       # HTTP/WS 서버, 인증, 세션, 채널 라우팅
+│   ├── channels/      # 채널 플러그인 인터페이스 정의
+│   ├── plugin-sdk/    # 공개 플러그인 SDK 표면
+│   ├── agents/        # AI 에이전트 런타임
+│   ├── cli/           # 서브커맨드, argv 파싱
+│   └── ...
+├── extensions/        # 135개+ 플러그인 패키지 (각 채널·프로바이더·기능)
+│   ├── telegram/      # Telegram 플러그인
+│   ├── discord/       # Discord 플러그인
+│   ├── openai/        # OpenAI 프로바이더
+│   ├── anthropic/     # Anthropic 프로바이더
+│   └── ...
+├── packages/          # 공유 라이브러리 (sdk, plugin-sdk, plugin-package-contract 등)
+├── apps/              # 네이티브 앱 (ios, android, macos, macos-mlx-tts)
+├── ui/                # 웹 컨트롤 UI (Vite 기반 SPA)
+├── docs/              # 문서 (Mintlify 기반)
+├── test/              # 공유 테스트 유틸, vitest 설정 40개+
+├── scripts/           # 빌드·CI·릴리스 스크립트
+├── deploy/            # 배포 관련 설정
+├── .github/workflows/ # 30개+ GitHub Actions 워크플로
+├── Dockerfile         # 멀티스테이지 Node 24 Docker 이미지
+├── docker-compose.yml
+├── fly.toml           # Fly.io 배포 설정
+└── render.yaml        # Render 배포 설정
+</code></pre>
+<p><strong>구조 특성:</strong> 도메인 지향(domain-oriented) 모노레포. 코어와 플러그인 경계가 명확히 분리되어 있으며, 코드와 운영 자산(<code>deploy/</code>, <code>scripts/</code>, <code>.github/</code>)이 구분된다.</p>
+<hr />
+<h2 id="step-3-software-stack">Step 3. 소프트웨어 스택 / Software Stack</h2>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>TypeScript 5.x (ESM Strict, <code>"module": "NodeNext"</code>)</td>
+</tr>
+<tr>
+<td><strong>런타임</strong></td>
+<td>Node.js 22.19+ (권장 Node 24)</td>
+</tr>
+<tr>
+<td><strong>패키지 매니저</strong></td>
+<td>pnpm (Bun은 Docker 빌드 스테이지에서만 사용)</td>
+</tr>
+<tr>
+<td><strong>빌드 도구</strong></td>
+<td>tsdown (Rolldown 기반), Bun 1.3.x (빌드 바이너리), <code>tsbuildinfo</code></td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest (40개+ 프로젝트 설정), 원격 검증: Crabbox/Testbox</td>
+</tr>
+<tr>
+<td><strong>프런트엔드</strong></td>
+<td>Vite, React (웹 컨트롤 UI)</td>
+</tr>
+<tr>
+<td><strong>린터/포맷터</strong></td>
+<td>oxfmt (포맷), oxlint (린트), actionlint, zizmor</td>
+</tr>
+<tr>
+<td><strong>타입 체커</strong></td>
+<td>tsgo (<code>pnpm tsgo*</code>)</td>
+</tr>
+<tr>
+<td><strong>데이터 저장</strong></td>
+<td>로컬 JSON 파일, SQLite, LanceDB (메모리 플러그인), 세션 트랜스크립트 파일</td>
+</tr>
+<tr>
+<td><strong>메시지 채널</strong></td>
+<td>Baileys(WhatsApp), 각 채널별 공식 SDK/API</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker (멀티스테이지 Node 24), Fly.io, Render, launchd/systemd</td>
+</tr>
+<tr>
+<td><strong>관측성</strong></td>
+<td>OpenTelemetry(OTLP), Prometheus 엔드포인트, 진단 플러그인</td>
+</tr>
+<tr>
+<td><strong>보안 분석</strong></td>
+<td>CodeQL, OpenGrep, Zizmor, Dependabot</td>
+</tr>
+<tr>
+<td><strong>네이티브 앱</strong></td>
+<td>Swift/SwiftUI (macOS/iOS), Kotlin/Android</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-4-architecture-analysis">Step 4. 아키텍처 분석 / Architecture Analysis</h2>
+<h3 id="_3">핵심 패턴</h3>
+<p><strong>이벤트 드리븐 플러그인 게이트웨이 (Event-Driven Plugin Gateway)</strong></p>
+<pre><code>[메시징 채널] ──→ [채널 플러그인] ──→ [Gateway 서버]
+                                          │
+                   [인증/인가 레이어]      │
+                   [세션 관리]            │
+                   [라우팅 정책]          ↓
+                              [에이전트 런타임]
+                                          │
+                   [LLM 프로바이더 플러그인] ↓
+                   (OpenAI, Anthropic, ...)
+                              [응답 전달]
+                                    │
+                   [메모리 플러그인] │ [도구 플러그인]
+                   (LanceDB, 파일)  ↓  (웹검색, 코드, ...)
+</code></pre>
+<h3 id="_4">계층 구조</h3>
+<ol>
+<li><strong>진입점 계층:</strong> <code>src/entry.ts</code> → CLI 파싱 → 컴파일 캐시/리스폰 → 게이트웨이 부트</li>
+<li><strong>게이트웨이 계층:</strong> <code>src/gateway/server.ts</code> - HTTP/WS 서버, 인증, 세션, 채널 상태</li>
+<li><strong>플러그인 SDK 계층:</strong> <code>src/plugin-sdk/</code>, <code>packages/plugin-sdk/</code> - 외부 플러그인 API 표면</li>
+<li><strong>채널 계층:</strong> <code>src/channels/</code> + <code>extensions/&lt;channel&gt;/</code> - 채널별 메시지 수신/발신</li>
+<li><strong>에이전트/AI 계층:</strong> <code>src/agents/</code> - LLM 호출, 도구 실행, 컨텍스트 관리</li>
+<li><strong>UI 계층:</strong> <code>ui/</code> - 웹 컨트롤 패널 (SPA)</li>
+</ol>
+<h3 id="agentsmd">아키텍처 설계 원칙 (AGENTS.md 기반)</h3>
+<ul>
+<li><strong>코어는 플러그인 무관:</strong> 채널 ID, 프로바이더 기본값, 정책을 코어에 하드코딩하지 않음</li>
+<li><strong>플러그인 격리 경계:</strong> 플러그인은 <code>openclaw/plugin-sdk/*</code>만 통해 코어 접근</li>
+<li><strong>소유권 경계 원칙:</strong> 프로바이더별 인증/검색/온보딩은 해당 플러그인 소유</li>
+<li><strong>핫 패스 최적화:</strong> 런타임 재검색 없이 준비된 사실(프로바이더 ID, 모델 ref, 채널 ID) 전달</li>
+<li><strong>ACP (Agent Client Protocol):</strong> <code>@agentclientprotocol/sdk</code>를 통한 에이전트 간 통신</li>
+<li><strong>MCP (Model Context Protocol):</strong> HTTP 엔드포인트(<code>src/gateway/mcp-http.*</code>)로 도구 노출</li>
+</ul>
+<hr />
+<h2 id="step-5-quality-and-test-system">Step 5. 품질 및 테스트 시스템 / Quality and Test System</h2>
+<h3 id="_5">테스트 구조</h3>
+<p>40개+ Vitest 프로젝트 설정 파일, 각각 분리된 테스트 계층:</p>
+<table>
+<thead>
+<tr>
+<th>계층</th>
+<th>설정 예시</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>유닛</td>
+<td><code>vitest.unit.config.ts</code>, <code>vitest.unit-fast.config.ts</code></td>
+<td>격리된 컴포넌트</td>
+</tr>
+<tr>
+<td>인프라</td>
+<td><code>vitest.infra.config.ts</code></td>
+<td>파일시스템·프로세스</td>
+</tr>
+<tr>
+<td>경계</td>
+<td><code>vitest.boundary.config.ts</code></td>
+<td>임포트 경계 검사</td>
+</tr>
+<tr>
+<td>컨트랙트</td>
+<td><code>vitest.contracts-*.config.ts</code> (채널·플러그인)</td>
+<td>플러그인 공개 API 계약</td>
+</tr>
+<tr>
+<td>게이트웨이</td>
+<td><code>vitest.gateway-*.config.ts</code> (core·client·methods·server)</td>
+<td>서버 통합</td>
+</tr>
+<tr>
+<td>E2E / 라이브</td>
+<td><code>*.e2e.test.ts</code>, <code>*.live.test.ts</code></td>
+<td>실제 환경 검증</td>
+</tr>
+<tr>
+<td>보안</td>
+<td><code>vitest.unit-security.config.ts</code></td>
+<td>보안 단위</td>
+</tr>
+</tbody>
+</table>
+<p><strong>원격 검증:</strong> Crabbox / Testbox — Docker 기반 격리 환경에서 전체/E2E/크로스OS 증명.</p>
+<h3 id="cicd-30">CI/CD 워크플로 (30개+)</h3>
+<table>
+<thead>
+<tr>
+<th>워크플로</th>
+<th>목적</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ci.yml</code></td>
+<td>메인 CI (preflight 매트릭스 → Node/macOS/Android/Windows 병렬)</td>
+</tr>
+<tr>
+<td><code>codeql.yml</code>, <code>codeql-android-critical-security.yml</code></td>
+<td>코드 보안 정적 분석</td>
+</tr>
+<tr>
+<td><code>opengrep-precise.yml</code>, <code>opengrep-precise-full.yml</code></td>
+<td>OpenGrep 정밀 스캔</td>
+</tr>
+<tr>
+<td><code>openclaw-release-publish.yml</code></td>
+<td>npm 릴리스</td>
+</tr>
+<tr>
+<td><code>docker-release.yml</code></td>
+<td>Docker 이미지 릴리스</td>
+</tr>
+<tr>
+<td><code>full-release-validation.yml</code></td>
+<td>릴리스 전 전체 검증</td>
+</tr>
+<tr>
+<td><code>install-smoke.yml</code></td>
+<td>설치 스모크 테스트</td>
+</tr>
+<tr>
+<td><code>docs-sync-publish.yml</code></td>
+<td>문서 동기화·배포</td>
+</tr>
+<tr>
+<td><code>dependabot.yml</code></td>
+<td>일일 npm 의존성 갱신</td>
+</tr>
+<tr>
+<td><code>stale.yml</code></td>
+<td>오래된 이슈/PR 관리</td>
+</tr>
+</tbody>
+</table>
+<p><strong>린팅/포맷:</strong> oxfmt(포맷), oxlint(린트), actionlint(액션), zizmor(워크플로 보안).</p>
+<h3 id="_6">버전 관리 전략</h3>
+<p><strong>CalVer (Calendar Versioning):</strong> <code>YYYY.M.D</code> — <code>2026.5.21</code>. npm <code>--tag beta</code>로 베타 배포 지원.</p>
+<hr />
+<h2 id="step-6-security-and-supply-chain">Step 6. 보안 및 공급망 / Security and Supply Chain</h2>
+<h3 id="_7">보안 정책</h3>
+<ul>
+<li><strong>SECURITY.md</strong> 존재: 비공개 보고 경로(GitHub Security Advisory), 신뢰 모델 명시</li>
+<li><strong>로컬 퍼스트 신뢰 모델:</strong> 단일 신뢰 운영자 가정. 공유 멀티테넌트 격리는 비목표</li>
+<li><strong>DM 기본 정책:</strong> <code>dmPolicy="pairing"</code> — 미등록 발신자는 페어링 코드 요구 (opt-in 방식)</li>
+<li><strong>시크릿 격리:</strong> 채널/프로바이더 크레덴셜은 <code>~/.openclaw/credentials/</code>에 저장</li>
+<li><strong>XSS 수정 이력:</strong> Diffs 뷰어 툴바 아이콘 XSS 싱크 수정 사례 확인 (CHANGELOG #83955)</li>
+<li><strong>systemd 보안:</strong> <code>OPENCLAW_GATEWAY_TOKEN</code>을 유닛 파일에 포함하지 않고 별도 env 파일에 기록</li>
+</ul>
+<h3 id="_8">공급망 보안</h3>
+<ul>
+<li><strong>Dependabot:</strong> 일일 npm 갱신, cooldown 2일, 프로덕션/개발 의존성 그룹 분리</li>
+<li><strong>Docker 이미지 다이제스트 고정:</strong> <code>node:24-bookworm@sha256:...</code>으로 재현성 있는 빌드</li>
+<li><strong>CodeQL:</strong> core/macOS/Android 대상 별도 워크플로</li>
+<li><strong>OpenGrep + Zizmor:</strong> 워크플로 보안 및 코드 정밀 스캔</li>
+<li><strong>의존성 패치:</strong> <code>pnpm-workspace.yaml</code>에 패치/오버라이드, 명시적 승인 필요</li>
+</ul>
+<h3 id="_9">라이선스</h3>
+<p><strong>MIT License</strong> (Copyright © 2026 OpenClaw Foundation). 주요 의존성(Baileys, hono, protobufjs, @buape/carbon 등) 혼합 라이선스 — MIT/Apache 2.0 계열 주류, 일부 상업적 사용 시 확인 필요.</p>
+<hr />
+<h2 id="step-7-documentation-and-operational-maturity">Step 7. 문서화 및 운영 성숙도 / Documentation and Operational Maturity</h2>
+<h3 id="_10">문서 품질</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>매우 상세 — 빠른 시작, 채널 목록, 보안 기본값, 스폰서</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>유지보수자 20명+ 목록, PR 규칙, 브랜치 전략</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>신뢰 모델, 비공개 보고 경로, 비취약점 예시 명시</td>
+</tr>
+<tr>
+<td>VISION.md</td>
+<td>현재 상태, 우선순위 로드맵</td>
+</tr>
+<tr>
+<td>AGENTS.md</td>
+<td>AI 에이전트 운영 정책 (아키텍처·코드·테스트·보안·PR)</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>버전별 변경사항, 기여자 감사 표시</td>
+</tr>
+<tr>
+<td>docs/</td>
+<td>Mintlify 기반 외부 문서 사이트 (docs.openclaw.ai)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_11">커뮤니티 및 기여</h3>
+<ul>
+<li><strong>유지보수자 20명+:</strong> Peter Steinberger(BD), Frank Yang, Shadow, Vignesh, Jos, Ayaan Zaidi, Tyler Yust, Mariano Belinky, 등</li>
+<li><strong>스폰서:</strong> OpenAI, GitHub, NVIDIA, Vercel, Blacksmith, Convex</li>
+<li><strong>Discord 서버:</strong> <code>discord.gg/clawd</code></li>
+<li><strong>이슈 템플릿:</strong> <code>bug_report.yml</code>, <code>feature_request.yml</code>, <code>config.yml</code></li>
+<li><strong>PR 템플릿:</strong> Summary, Motivation, Change Type, Scope, Real Behavior Proof 섹션 구조화</li>
+<li><strong>레이블 자동화:</strong> <code>.github/labeler.yml</code></li>
+<li><strong>릴리스 빈도:</strong> CalVer 기준 주간 단위 릴리스 (최신 <code>2026.5.21</code>)</li>
+</ul>
+<hr />
+<h2 id="step-8-final-analysis-report">Step 8. 최종 분석 보고서 / Final Analysis Report</h2>
+<h3 id="strengths">강점 / Strengths</h3>
+<ol>
+<li>
+<p><strong>극도로 세분화된 플러그인 경계</strong><br />
+   코어 → <code>plugin-sdk</code> → 플러그인 방향의 단방향 의존성이 명문화되어 있고 임포트 경계 테스트(<code>vitest.boundary.config.ts</code>)로 CI에서 자동 검증된다. 135개 이상 플러그인이 코어를 오염시키지 않는 구조.</p>
+</li>
+<li>
+<p><strong>프로덕션급 테스트 인프라</strong><br />
+   40개+ Vitest 프로젝트 설정으로 유닛·인프라·경계·컨트랙트·게이트웨이·E2E·라이브·보안·성능 레이어를 체계적으로 분리. Crabbox/Testbox로 격리 환경 원격 검증까지 갖춘 점은 오픈소스 프로젝트로서 드문 수준.</p>
+</li>
+<li>
+<p><strong>로컬 퍼스트 보안 설계</strong><br />
+   DM pairing 기본값, GHSA 비공개 보고, CodeQL·OpenGrep·Zizmor 다중 정적 분석, Docker 다이제스트 고정, systemd 토큰 파일 분리 등 보안이 아키텍처 레벨에서 설계되어 있음.</p>
+</li>
+<li>
+<p><strong>멀티 플랫폼 배포 일급 지원</strong><br />
+   동일 코드베이스에서 CLI·데몬·Docker·Fly.io·Render·launchd/systemd·macOS/iOS/Android 앱을 동시 지원. Node 24와 Bun을 빌드 파이프라인에서 혼용하면서도 런타임은 Node 24로 단순하게 유지.</p>
+</li>
+<li>
+<p><strong>운영 AI 에이전트 워크플로 내재화</strong><br />
+<code>AGENTS.md</code>가 단순 기여 가이드가 아닌 게이트웨이 아키텍처 결정 원칙, 코드 스타일 정책, CI/PR/보안/릴리스 규칙을 망라하는 운영 문서로 기능. AI-assisted 워크플로(Codex 에이전트)를 프로젝트 인프라에 통합.</p>
+</li>
+</ol>
+<hr />
+<h3 id="risks-and-areas-for-improvement">위험/개선 필요 사항 / Risks and Areas for Improvement</h3>
+<ol>
+<li>
+<p><strong>코어 복잡도 비대 위험</strong><br />
+<code>src/gateway/</code> 하나에만 200개 이상의 파일이 집중되어 있다. 플러그인 경계는 우수하나, 게이트웨이 자체가 단일 거대 모듈이 될 위험이 있음. 서브도메인별 추가 분리 검토 권고.</p>
+</li>
+<li>
+<p><strong>의존성 패치/오버라이드 다수</strong><br />
+<code>pnpm-workspace.yaml</code>에 <code>minimumReleaseAgeExclude</code> 목록이 길고, 특정 패키지(<code>@buape/carbon</code>)는 특정 오너만 변경 가능한 규칙이 존재. 공급망 공격 표면이 될 수 있는 불안정 의존성 관리 복잡도.</p>
+</li>
+<li>
+<p><strong>Baileys(WhatsApp) 비공식 엔지니어링 의존</strong><br />
+   WhatsApp 플러그인이 리버스 엔지니어링 기반 비공식 라이브러리(Baileys)에 의존. WhatsApp 정책 변경 시 전체 WhatsApp 채널이 중단될 수 있는 구조적 취약점.</p>
+</li>
+<li>
+<p><strong>외부 AI 서비스 자격증명 관리</strong><br />
+   20개 이상 LLM 프로바이더 크레덴셜을 로컬 파일시스템에 보관. 시크릿 순환(rotation), 만료, 감사 로그에 대한 명시적 정책이 보안 문서에 부재.</p>
+</li>
+<li>
+<p><strong>확장성(멀티유저) 비목표 명시화 부족</strong><br />
+   "단일 신뢰 운영자" 모델이 SECURITY.md에서 언급되지만, 이를 실수로 멀티테넌트로 운용했을 때의 위험에 대한 경고·방어 코드가 제한적. 기업 환경 도입 시 오해 소지.</p>
+</li>
+</ol>
+<hr />
+<h3 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h3>
+<p><strong>기술 도입:</strong> 개인 AI 어시스턴트 인프라 레퍼런스 아키텍처로서 최상위 수준. 플러그인 SDK 설계, 다채널 게이트웨이 패턴, AI 에이전트 통합 방식 모두 벤치마킹 가치 있음.</p>
+<p><strong>아키텍처 벤치마킹:</strong> 이벤트 드리븐 플러그인 게이트웨이 + 로컬 퍼스트 신뢰 모델은 엔터프라이즈 내부 AI 어시스턴트 구축 시 참고할 수 있는 실전 검증된 패턴.</p>
+<p><strong>보안 검토:</strong> DM pairing 기본값, 다이제스트 고정 Docker 빌드, CodeQL + OpenGrep 이중 스캔 방식은 다른 오픈소스 AI 게이트웨이 프로젝트 대비 우수한 보안 자세.</p>
+<p><strong>기여 준비도:</strong> 명확한 CONTRIBUTING.md, AGENTS.md, 유지보수자 분야별 분리, 자동화된 레이블·PR 템플릿으로 기여 진입 장벽이 낮음. 다만 Crabbox/Testbox 원격 검증 환경 접근이 외부 기여자에게 제한될 수 있음.</p>
+<p><strong>운영 성숙도:</strong> 주간 CalVer 릴리스, 스폰서십, 20명+ 유지보수자, Discord 커뮤니티, 상세 문서 사이트로 장기 운영 가능성 높음. 개인/소규모 팀 사용 환경에 최적화되어 있으며, 엔터프라이즈 멀티유저 환경 적용 시 추가 격리 설계 필요.</p>
+<hr />
+<p><em>분석일: 2026-05-22 | 대상: openclaw/openclaw v2026.5.21 | 라이선스: MIT</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>이제 보고서를 작성하겠습니다.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-05-22
+대상 / Target: <code>/tmp/github-dashboard-analysis/openclaw_openclaw</code>
+분석 / Analyst: Claude Sonnet 4.6 (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved</strong>
+OpenClaw는 사용자가 이미 사용하는 메시지 채널(WhatsApp, Telegram, Slack, Discord, Signal, iMessage, Matrix 등 20개 이상)에서 동작하는 <strong>개인용 AI 어시스턴트 게이트웨이</strong>입니다. 사용자 기기에서 직접 실행되어 로컬 퍼스트(local-first), 프라이버시 보호를 최우선으로 합니다. 멀티 AI 프로바이더(OpenAI, Anthropic, Google, xAI, Ollama 등 50개+)를 단일 게이트웨이로 통합하고, 플러그인 SDK를 통해 확장 가능한 아키텍처를 제공합니다.</p>
+<p><strong>분류 / Classification</strong>: Platform (AI 오케스트레이션 플랫폼 + 애플리케이션 게이트웨이)</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>TypeScript 6.0.3 (ESM, strict), Node.js ≥22.19.0 (Node 24 권장), Bun 1.3.13 (빌드)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>Express 5.2.1 (HTTP 게이트웨이), Hono 4.12.18 (일부 라우터), grammY 1.43.0 (Telegram), Commander 14.0.3 (CLI)</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>SQLite (kysely 0.29.2), LanceDB (memory-lancedb 확장), 로컬 파일스토어 (<code>~/.openclaw</code>)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>REST/HTTP(S), WebSocket (ws 8.20.1), WebPush (web-push 3.6.7), gRPC/protobuf (protobufjs 8.4.0), MCP (Model Context Protocol)</td>
+</tr>
+<tr>
+<td>AI 프로토콜 / AI Protocol</td>
+<td>ACP (Agent Client Protocol, @agentclientprotocol/sdk 0.22.1), MCP (1.29.0), OpenAI-compatible REST</td>
+</tr>
+<tr>
+<td>빌드/번들 / Build</td>
+<td>tsdown 0.22.0 (rolldown 기반), pnpm 워크스페이스 모노레포, 135개 extensions</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Docker (Node 24-bookworm-slim, 멀티스테이지 빌드, SHA256 고정), Fly.io, Render, Kubernetes (fly.toml, render.yaml)</td>
+</tr>
+<tr>
+<td>모바일 / Mobile</td>
+<td>iOS/macOS (Swift/SwiftUI), Android (Kotlin, Gradle)</td>
+</tr>
+<tr>
+<td>테스트 / Testing</td>
+<td>Vitest 4.1.7, @vitest/coverage-v8</td>
+</tr>
+<tr>
+<td>보안 분석 / Security</td>
+<td>CodeQL, OpenGrep(Semgrep fork), Dependabot, zizmor, actionlint</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                         OpenClaw Platform                       │
+│                                                                 │
+│  ┌──────────┐    ┌──────────────────────────────────────┐      │
+│  │ CLI/TUI  │    │           Gateway (HTTP/WS)          │      │
+│  │(commander)│   │     Express 5 + Hono + WebSocket     │      │
+│  └──────────┘    └──────────────┬───────────────────────┘      │
+│                                 │                               │
+│  ┌──────────────────────────────┼───────────────────────┐      │
+│  │              Channel Layer   │                       │      │
+│  │  Telegram │ Discord │ Slack  │ WhatsApp │ Signal ... │      │
+│  └──────────────────────────────┼───────────────────────┘      │
+│                                 │                               │
+│  ┌──────────────────────────────┼───────────────────────┐      │
+│  │          Agent/Session Engine│                       │      │
+│  │  Context Engine │ Cron │ Agents │ MCP │ ACP │ Tools  │      │
+│  └──────────────────────────────┼───────────────────────┘      │
+│                                 │                               │
+│  ┌──────────────────────────────┼───────────────────────┐      │
+│  │         Provider Layer       │                       │      │
+│  │  OpenAI │ Anthropic │ Google │ Ollama │ xAI │ 45+   │      │
+│  └──────────────────────────────┼───────────────────────┘      │
+│                                 │                               │
+│  ┌──────────────────────────────┼───────────────────────┐      │
+│  │         Plugin SDK           │ extensions/ (135개)   │      │
+│  │  openclaw/plugin-sdk/*  ─────┘                       │      │
+│  └──────────────────────────────────────────────────────┘      │
+│                                                                 │
+│  앱 / Apps: macOS · iOS · Android · Control UI (Lit/Vite)     │
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>아키텍처 패턴</strong>: Event-driven + Plugin Architecture + 12-Factor App
+- 코어는 플러그인 독립(plugin-agnostic); 채널·프로바이더·메모리는 모두 플러그인
+- 플러그인은 <code>openclaw/plugin-sdk/*</code> 배럴만을 통해 코어 접근
+- <code>extensions/</code> 하위 135개 패키지가 워크스페이스로 관리됨</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>openclaw/
+├── src/                    # 코어 TypeScript (게이트웨이, 에이전트, 채널, CLI)
+│   ├── channels/           # 채널 공통 로직 (allowlist, session, routing)
+│   ├── gateway/            # HTTP/WS 게이트웨이, 프로토콜, 인증
+│   ├── agents/             # 에이전트 런타임
+│   ├── plugin-sdk/         # 플러그인 SDK (공개 배럴)
+│   ├── plugins/            # 플러그인 로더
+│   └── ...                 # mcp, memory, tools, tts, web, etc.
+├── extensions/             # 135개 채널/프로바이더/도구 플러그인
+│   ├── telegram/           # Telegram (grammY)
+│   ├── discord/            # Discord (@buape/carbon)
+│   ├── slack/              # Slack
+│   ├── whatsapp/           # WhatsApp (Baileys)
+│   ├── openai/             # OpenAI 프로바이더
+│   ├── anthropic/          # Anthropic 프로바이더
+│   ├── memory-core/        # 메모리 코어
+│   ├── diagnostics-otel/   # OpenTelemetry
+│   ├── diagnostics-prometheus/ # Prometheus
+│   └── ...
+├── packages/               # 내부 공유 패키지
+│   ├── plugin-sdk/
+│   ├── memory-host-sdk/
+│   └── plugin-package-contract/
+├── apps/                   # 네이티브 앱
+│   ├── macos/              # macOS app (Swift/SwiftUI)
+│   ├── ios/                # iOS app
+│   └── android/            # Android app (Kotlin)
+├── ui/                     # Control UI (Lit, Vite)
+├── docs/                   # 문서
+├── scripts/                # 빌드/CI 스크립트
+├── security/               # 위협모델, 사고대응
+├── .github/
+│   ├── workflows/          # 55개 CI/CD 워크플로우
+│   ├── codeql/             # 22개 CodeQL 설정
+│   └── dependabot.yml      # 자동 의존성 업데이트
+├── Dockerfile              # 멀티스테이지 빌드
+├── docker-compose.yml      # 배포 설정
+├── fly.toml                # Fly.io 설정
+├── render.yaml             # Render 설정
+├── pnpm-lock.yaml          # 의존성 잠금파일
+├── LICENSE                 # MIT
+├── SECURITY.md             # 보안 정책 (34KB)
+├── CONTRIBUTING.md         # 기여 가이드
+├── CHANGELOG.md            # 11,500줄 이력
+└── VISION.md               # 제품 비전
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td><strong>MIT License</strong></td>
+</tr>
+<tr>
+<td>저작권자 / Copyright</td>
+<td>Copyright (c) 2026 OpenClaw Foundation</td>
+</tr>
+<tr>
+<td>라이선스 파일 / License File</td>
+<td><code>LICENSE</code> (확인 완료)</td>
+</tr>
+<tr>
+<td>핵심 의무 / Key obligations</td>
+<td>모든 배포본(소스·바이너리)에 저작권 고지 및 MIT 라이선스 전문 포함</td>
+</tr>
+<tr>
+<td>소스 공개 의무 / Source disclosure</td>
+<td>없음 (소스 비공개 제품 배포 허용)</td>
+</tr>
+<tr>
+<td>특허 부여 / Patent grant</td>
+<td><strong>없음</strong> — MIT는 명시적 특허 허여 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>판정</strong>: 프로젝트 자체 라이선스는 상용화에 가장 적합한 MIT. 별도 조건 없이 독점 상용 제품에 포함 가능.</p>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p><strong>루트 프로덕션 의존성 (50개) / Root Production Dependencies</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@agentclientprotocol/sdk</td>
+<td>0.22.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@clack/core</td>
+<td>1.3.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@clack/prompts</td>
+<td>1.4.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@earendil-works/pi-agent-core</td>
+<td>0.75.4</td>
+<td><strong>확인 필요 (상용 가능성)</strong></td>
+<td>Unknown</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>@earendil-works/pi-ai</td>
+<td>0.75.4</td>
+<td><strong>확인 필요 (상용 가능성)</strong></td>
+<td>Unknown</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>@earendil-works/pi-coding-agent</td>
+<td>0.75.4</td>
+<td><strong>확인 필요 (상용 가능성)</strong></td>
+<td>Unknown</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>@earendil-works/pi-tui</td>
+<td>0.75.4</td>
+<td><strong>확인 필요 (상용 가능성)</strong></td>
+<td>Unknown</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>@google/genai</td>
+<td>2.5.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@grammyjs/runner</td>
+<td>2.0.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@grammyjs/transformer-throttler</td>
+<td>1.2.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@homebridge/ciao</td>
+<td>1.3.8</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@lydell/node-pty</td>
+<td>1.2.0-beta.12</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@modelcontextprotocol/sdk</td>
+<td>1.29.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@mozilla/readability</td>
+<td>0.6.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@openclaw/fs-safe</td>
+<td>0.2.7</td>
+<td>MIT (내부)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@openclaw/proxyline</td>
+<td>0.3.3</td>
+<td>MIT (내부)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>ajv</td>
+<td>8.20.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>chalk</td>
+<td>5.6.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>chokidar</td>
+<td>5.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>commander</td>
+<td>14.0.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>croner</td>
+<td>10.0.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>dotenv</td>
+<td>17.4.2</td>
+<td>BSD-2-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>express</td>
+<td>5.2.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>file-type</td>
+<td>22.0.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>grammy</td>
+<td>1.43.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>ipaddr.js</td>
+<td>2.4.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>jiti</td>
+<td>2.7.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>json5</td>
+<td>2.2.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>jszip</td>
+<td>3.10.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>kysely</td>
+<td>0.29.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>linkedom</td>
+<td>0.18.12</td>
+<td>ISC</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>markdown-it</td>
+<td>14.1.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>node-edge-tts</td>
+<td>1.2.10</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>openai</td>
+<td>6.38.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pdfjs-dist</td>
+<td>5.7.284</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>playwright-core</td>
+<td>1.60.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>qrcode</td>
+<td>1.5.4</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>quickjs-wasi</td>
+<td>2.2.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>tar</td>
+<td>7.5.15</td>
+<td>ISC</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>tokenjuice</td>
+<td>0.7.1</td>
+<td>MIT (내부)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>tree-sitter-bash</td>
+<td>0.25.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>tslog</td>
+<td>4.10.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>typebox</td>
+<td>1.1.38</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>typescript</td>
+<td>6.0.3</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>undici</td>
+<td>8.3.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>web-push</td>
+<td>3.6.7</td>
+<td>LGPL-3.0</td>
+<td>Weak Copyleft</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>web-tree-sitter</td>
+<td>0.26.9</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>ws</td>
+<td>8.20.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>yaml</td>
+<td>2.9.0</td>
+<td>ISC</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>zod</td>
+<td>4.4.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주요 오버라이드 의존성 (pnpm-workspace.yaml overrides)</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>목적 / Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>@anthropic-ai/sdk</td>
+<td>0.97.1</td>
+<td>Anthropic SDK (MIT)</td>
+</tr>
+<tr>
+<td>hono</td>
+<td>4.12.18</td>
+<td>HTTP 프레임워크 (MIT)</td>
+</tr>
+<tr>
+<td>axios</td>
+<td>1.16.0</td>
+<td>CVE 패치 (MIT)</td>
+</tr>
+<tr>
+<td>follow-redirects</td>
+<td>1.16.0</td>
+<td>CVE 패치 (MIT)</td>
+</tr>
+<tr>
+<td>protobufjs</td>
+<td>8.4.0</td>
+<td>npm advisory 해결 (BSD-3-Clause)</td>
+</tr>
+<tr>
+<td>path-to-regexp</td>
+<td>8.4.0</td>
+<td>CVE 패치 (MIT)</td>
+</tr>
+<tr>
+<td>tar</td>
+<td>7.5.15</td>
+<td>CVE 패치 (ISC)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주요 Extensions 의존성 (주의 대상)</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>위치 / Location</th>
+<th>라이선스 추정 / Est. License</th>
+<th>위험도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>baileys</td>
+<td>extensions/whatsapp/</td>
+<td>MIT</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@matrix-org/matrix-sdk-crypto-nodejs</td>
+<td>extensions/matrix/</td>
+<td>Apache 2.0</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>libsignal</td>
+<td>extensions/signal/</td>
+<td>AGPL-3.0 (GPLv3)</td>
+<td>🔴</td>
+</tr>
+<tr>
+<td>@buape/carbon (Discord)</td>
+<td>extensions/discord/</td>
+<td>MIT</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>⚠️ 중요 주의사항</strong>: <code>libsignal</code> (Signal Protocol 구현체)은 GPLv3/AGPL 라이선스가 적용된 패키지입니다. Signal 확장 채널을 상용 SaaS에 포함할 경우 GPL 전파 위험이 존재합니다. Signal 확장은 별도 플러그인으로 격리되어 있으나, 정적 링크 방식 배포 시 법적 리스크가 발생할 수 있습니다.</p>
+</blockquote>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD-2, BSD-3, ISC</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL-3.0 (web-push)</td>
+<td>동적 링크 시 제한적 / Limited under dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0 (libsignal in signal extension)</td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>현재 해당 없음 / Not currently present</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>코어 (Core) 라이선스 호환성</strong>: 충돌 없음</p>
+<p>루트 의존성 50개 중 48개가 MIT/Apache 2.0/ISC/BSD 계열로 상호 호환됩니다. <code>web-push</code> (LGPL-3.0)는 동적 링크(ESM import)로 사용되므로 LGPL-3.0 조항상 Web Push API 레이어를 분리 배포하면 LGPL 의무는 web-push 자체에만 적용됩니다.</p>
+<p><strong>확장(Extension) 라이선스 위험 시나리오</strong>:</p>
+<ol>
+<li>
+<p><strong>Signal 확장 (<code>libsignal</code>)</strong>: Signal Protocol의 <code>libsignal</code> 라이브러리는 GPLv3 라이선스 하에 배포됩니다. OpenClaw가 Signal 채널을 활성화하여 상용 SaaS로 배포하면 GPL 전파 의무가 발생할 수 있습니다. 플러그인 아키텍처로 분리되어 있으나 동일 프로세스 내 동적 로드 방식은 "linking"으로 해석될 수 있습니다.</p>
+</li>
+<li>
+<p><strong><code>@earendil-works/pi-*</code> 패키지</strong>: Earendil Works의 Pi AI 에이전트 패키지로, npm에서의 명시적 오픈소스 라이선스가 확인되지 않았습니다. 상용 재배포 허용 여부를 Earendil Works에 명시적으로 확인해야 합니다.</p>
+</li>
+<li>
+<p><strong>WhatsApp (<code>baileys</code>)</strong>: Baileys는 현재 MIT 라이선스이나, WhatsApp 서비스 약관(TOS)과의 상업적 이용 충돌 가능성이 있습니다. 라이선스 문제가 아닌 계약/서비스 약관 이슈입니다.</p>
+</li>
+</ol>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] <strong>MIT 저작권 고지 포함 방법</strong>: 배포 패키지에 <code>LICENSE</code> 파일 포함 (<code>"files": ["LICENSE"]</code> in package.json)</li>
+<li>[ ] <strong>NOTICE/고지문 배포 위치</strong>: Apache 2.0 의존성(openai, @google/genai, playwright-core 등)에 대한 NOTICE 파일이 현재 <strong>부재</strong> — 생성 필요</li>
+<li>[ ] <strong>THIRD_PARTY_LICENSES 파일</strong>: 현재 <strong>부재</strong> — 생성 권장</li>
+<li>[x] <strong>소스 공개 의무</strong>: MIT 코어는 소스 공개 의무 없음</li>
+<li>[⚠️] <strong>Signal 확장 사용 시</strong>: GPL 소스 공개 의무 발생 가능 — 확장 제외 배포 또는 법적 검토 필요</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<p><strong>SECURITY.md</strong>: 존재 (34KB, 매우 상세) ✅
+- 취약점 보고 채널 명시 (GitHub GHSA private advisory)
+- 보안 트러스트 모델 상세 기술
+- False-positive 패턴 명시
+- 사고 대응 절차 문서화 (<code>docs/security/incident-response.md</code>)
+- 위협 모델 문서화 (<code>security/THREAT-MODEL-ATLAS.md</code>)
+- NVIDIA, Tencent 보안 엔지니어 참여</p>
+<p><strong>Dependabot</strong>: 구성됨 ✅ (<code>.github/dependabot.yml</code>)
+- npm: 일별 (쿨다운 2일), 최대 20개 PR
+- GitHub Actions: 일별
+- Swift Package Manager (macOS/iOS): 일별
+- Gradle (Android): 일별
+- Docker: 주별</p>
+<p><strong>CodeQL</strong>: 22개 특화 설정 ✅ (일별 스케줄 + PR)
+- 핵심 보안 영역: <code>core-auth-secrets</code>, <code>channel-runtime-boundary</code>, <code>network-ssrf-boundary</code>, <code>plugin-trust-boundary</code>, <code>mcp-process-tool-boundary</code>
+- 품질 경계: <code>agent-runtime</code>, <code>gateway-runtime</code>, <code>provider-runtime</code>, <code>memory-runtime</code>, <code>web-media-runtime</code> 등</p>
+<p><strong>OpenGrep (Semgrep fork)</strong>: PR diff 대상 정밀 스캔 ✅
+- SARIF 결과를 GitHub Code Scanning에 업로드
+- 버전 고정 (SHA256 검증)</p>
+<p><strong>Pre-commit 훅</strong>: ✅
+- <code>detect-private-key</code> (secrets 탐지)
+- <code>shellcheck</code> (Shell 보안)
+- <code>actionlint</code> (CI 워크플로우 보안)
+- <code>zizmor</code> (GitHub Actions 보안 감사)</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>CVE 완화 현황</strong> (pnpm-workspace.yaml overrides 기반):</p>
+<table>
+<thead>
+<tr>
+<th>대상 패키지</th>
+<th>조치</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>protobufjs</td>
+<td>8.4.0으로 강제 업데이트 (npm advisory 해결)</td>
+<td>✅ 완화</td>
+</tr>
+<tr>
+<td>follow-redirects</td>
+<td>1.16.0으로 업데이트</td>
+<td>✅ 완화</td>
+</tr>
+<tr>
+<td>path-to-regexp</td>
+<td>8.4.0으로 업데이트</td>
+<td>✅ 완화</td>
+</tr>
+<tr>
+<td>axios</td>
+<td>1.16.0으로 업데이트</td>
+<td>✅ 완화</td>
+</tr>
+<tr>
+<td>tar</td>
+<td>7.5.15으로 업데이트</td>
+<td>✅ 완화</td>
+</tr>
+<tr>
+<td>tough-cookie</td>
+<td>4.1.3으로 업데이트</td>
+<td>✅ 완화</td>
+</tr>
+<tr>
+<td>yauzl</td>
+<td>3.2.1으로 업데이트</td>
+<td>✅ 완화</td>
+</tr>
+<tr>
+<td>request</td>
+<td>@cypress/request@3.0.10 대체</td>
+<td>✅ 완화</td>
+</tr>
+</tbody>
+</table>
+<p><strong>하드코딩 시크릿</strong>: 미발견 ✅ (<code>.env.example</code>은 플레이스홀더만 포함, 실 키 없음)</p>
+<p><strong>SBOM</strong>: 미생성 ⚠️ — CycloneDX 또는 SPDX 파일이 현재 부재. 기업 공급망 보안 요구사항 대비 필요.</p>
+<p><strong>XSS 취약점 수정 이력</strong>: CHANGELOG에서 확인 — <code>Diffs: render viewer toolbar icons from a closed icon-name map instead of HTML strings, removing the toolbar icon XSS sink. (#83955)</code> — 적극적 보안 수정 이력 확인 ✅</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>인증/인가 방식</strong>:
+- 게이트웨이 토큰 인증 (bearer token 또는 password mode)
+- OAuth 2.0 지원 (xAI device-code, Google 등)
+- 채널별 allowlist 기반 발신자 신뢰 모델
+- ACP 승인 기반 도구 실행 (approval-gateway-runtime)</p>
+<p><strong>시크릿 관리</strong>:
+- <code>~/.openclaw/credentials/</code> 에 채널/프로바이더 자격증명 저장
+- <code>~/.openclaw/agents/&lt;agentId&gt;/agent/auth-profiles.json</code> 에 모델 인증 프로파일
+- symlink 공격 방지 (<code>rejectSymlink: true</code> 옵션 확인)
+- 게이트웨이 토큰을 systemd unit에 포함하지 않음 (별도 env 파일로 분리) ✅</p>
+<p><strong>보안 격리 (Sandbox)</strong>:
+- Docker DinD 기반 에이전트 샌드박스 (선택적)
+- <code>cap_drop: [NET_RAW, NET_ADMIN]</code>, <code>no-new-privileges: true</code> 적용
+- Plugin trust boundary: 플러그인은 SDK 배럴만 통해 코어 접근</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-05-21 (분석 기준 전날 — 매우 활발)</td>
+</tr>
+<tr>
+<td>버전 체계 / Version scheme</td>
+<td>CalVer (YYYY.M.D), 예: 2026.5.21</td>
+</tr>
+<tr>
+<td>PR 번호 범위 / PR range</td>
+<td>#83990+ (84K번대 PR 활성 — 매우 높은 활동량)</td>
+</tr>
+<tr>
+<td>CHANGELOG 규모 / Changelog size</td>
+<td>11,500+ 줄 — 연속적 릴리스 이력</td>
+</tr>
+<tr>
+<td>유지보수자 / Maintainers</td>
+<td>20명+ (Peter Steinberger BDFL + 전담 팀)</td>
+</tr>
+<tr>
+<td>기여자 기업 / Contributor orgs</td>
+<td>NVIDIA, Tencent, Earendil Works 등</td>
+</tr>
+<tr>
+<td>Discord / Community</td>
+<td>활성 Discord 커뮤니티 (discord.gg/clawd)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재 (상세한 PR 가이드, 테스트 요구사항, 행동강령)</td>
+</tr>
+<tr>
+<td>VISION.md</td>
+<td>✅ 존재 (제품 방향, 비병합 정책 명시)</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ <strong>부재</strong> — 공식 행동강령 문서 없음</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재 (34KB, 매우 상세)</td>
+</tr>
+<tr>
+<td>CODEOWNERS</td>
+<td>✅ 존재 (<code>.github/CODEOWNERS</code>)</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 부재 (VISION.md, AGENTS.md에 분산)</td>
+</tr>
+<tr>
+<td>AGENTS.md (= CLAUDE.md)</td>
+<td>✅ AI 에이전트를 위한 상세한 아키텍처 정책</td>
+</tr>
+</tbody>
+</table>
+<p><strong>브랜치 전략</strong>: <code>main</code> 단일 브랜치, merge commit 금지 (rebase 필수), PR 필수</p>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<p><strong>스폰서 / Sponsors</strong> (README.md 확인):
+- <strong>OpenAI</strong> — ChatGPT/Codex 구독 후원
+- <strong>GitHub</strong> — 공식 스폰서
+- <strong>NVIDIA</strong> — 보안 엔지니어 기여
+- <strong>Vercel</strong> — 공식 스폰서
+- <strong>Blacksmith</strong> — CI 인프라 후원 (빌드 러너)
+- <strong>Convex</strong> — 공식 스폰서</p>
+<p><strong>장기 지원 전망</strong>:
+- 강력한 기업 후원 배경 (OpenAI + GitHub + NVIDIA)
+- BDFL(Peter Steinberger, @steipete) 중심의 명확한 의사결정 구조
+- ClawHub (clawhub.ai) 플러그인 생태계 별도 운영
+- OpenClaw Foundation 이름으로 저작권 등록 (단순 개인 프로젝트 이상의 조직화)
+- LTS 버전: <strong>없음</strong> — CalVer 방식으로 최신 버전만 지원</p>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p><strong>컨테이너화 / Containerization</strong>: ✅ 우수
+- SHA256 고정 멀티스테이지 Docker 빌드 (Node 24-bookworm-slim)
+- 재현 가능 빌드 보장 (Dependabot이 digest 갱신)
+- Fly.io, Render 배포 구성 포함</p>
+<p><strong>헬스체크 / Health Check</strong>: ✅
+- <code>/healthz</code> 엔드포인트
+- docker-compose의 <code>healthcheck</code> 설정 (30초 간격, 5회 재시도)
+- Render health check path 설정</p>
+<p><strong>메트릭 / Metrics</strong>: ✅
+- <code>diagnostics-prometheus</code> 확장 — Prometheus 메트릭 노출
+- <code>diagnostics-otel</code> 확장 — OpenTelemetry OTLP 추적
+- OTEL env vars를 docker-compose에 완전 지원 (<code>OTEL_EXPORTER_OTLP_*</code>)</p>
+<p><strong>구조적 로깅 / Structured Logging</strong>: ✅
+- tslog 4.10.2 기반 구조적 로깅
+- 플러그인별 로거 주입</p>
+<p><strong>분산 추적 / Distributed Tracing</strong>: ✅ (OTEL 확장 통해)</p>
+<p><strong>멀티테넌시 / Multi-tenancy</strong>: ⚠️ 제한적
+- 설계 철학이 <strong>개인용 단일 사용자</strong> 어시스턴트 (README: "single-user assistant")
+- 게이트웨이 공유-시크릿 인증은 전체 운영자 권한 부여 (per-user 권한 분리 없음)
+- SaaS 멀티테넌트 아키텍처로의 전환은 상당한 아키텍처 수정 필요</p>
+<p><strong>수평 확장 / Horizontal Scaling</strong>: ⚠️ 제한적
+- 상태를 로컬 파일시스템(<code>~/.openclaw</code>)에 저장하는 설계
+- 단일 인스턴스 중심 (Fly.io 설정: <code>min_machines_running = 1</code>)
+- 분산 상태 관리 미지원 (Redis, DB 클러스터 없음)</p>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 / Unit tests</td>
+<td>✅ Vitest 4.1.7, 코어 전반에 <code>.test.ts</code> 코로케이션</td>
+</tr>
+<tr>
+<td>E2E 테스트 / E2E tests</td>
+<td>✅ <code>.e2e.test.ts</code> 패턴, Docker E2E, Mantis 시나리오</td>
+</tr>
+<tr>
+<td>커버리지 / Coverage</td>
+<td>✅ @vitest/coverage-v8</td>
+</tr>
+<tr>
+<td>CI 자동화 / CI automation</td>
+<td>✅ 55개 GitHub Actions 워크플로우</td>
+</tr>
+<tr>
+<td>계약 테스트 / Contract tests</td>
+<td>✅ <code>pnpm test:contracts</code> — 플러그인 SDK 경계 검증</td>
+</tr>
+<tr>
+<td>성능 테스트 / Performance tests</td>
+<td>✅ <code>openclaw-performance.yml</code> 워크플로우</td>
+</tr>
+<tr>
+<td>린트 / Linting</td>
+<td>✅ oxlint 1.66.0 (Rust 기반, 빠름)</td>
+</tr>
+<tr>
+<td>포맷팅 / Formatting</td>
+<td>✅ oxfmt 0.51.0</td>
+</tr>
+<tr>
+<td>타입체크 / Type check</td>
+<td>✅ tsgo (TypeScript native-preview 7.0.0-dev)</td>
+</tr>
+<tr>
+<td>보안 정적분석 / SAST</td>
+<td>✅ CodeQL (22개 설정) + OpenGrep</td>
+</tr>
+<tr>
+<td>import cycle 검사</td>
+<td>✅ <code>pnpm check:import-cycles</code></td>
+</tr>
+<tr>
+<td>seam 감사 / Seam audit</td>
+<td>✅ <code>pnpm audit:seams</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><strong>코어 수준</strong>: 코어 자체에 GPL/AGPL 의존성 없음 ✅</p>
+<p><strong>확장 수준</strong>: Signal 확장(<code>libsignal</code>, GPL) 은 플러그인 아키텍처로 격리되어 있어 이론상 분리 가능합니다.
+- 배포 시 Signal 확장을 배제하면 (<code>package.json</code> <code>files</code> 배열의 <code>!dist/extensions/signal/**</code> 패턴처럼) GPL 전파 위험 차단 가능
+- 단, 동일 Node.js 프로세스에서 동적 <code>import()</code>로 로드하는 경우 "same program" 해석 가능성 있음 → OSPO/법적 검토 권장</p>
+<p><strong>상용화 권고</strong>: Signal, WhatsApp(TOS 문제) 등 법적으로 민감한 채널 확장은 상용 배포 이미지에서 기본 제외.</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. Codebase</td>
+<td>✅</td>
+<td>단일 Git 리포 (모노레포)</td>
+</tr>
+<tr>
+<td>2. Dependencies</td>
+<td>✅</td>
+<td>pnpm lockfile (재현 가능)</td>
+</tr>
+<tr>
+<td>3. Config</td>
+<td>✅</td>
+<td>환경변수 우선 (<code>OPENCLAW_*</code>), <code>.env</code> 지원</td>
+</tr>
+<tr>
+<td>4. Backing services</td>
+<td>✅</td>
+<td>SQLite/LanceDB를 attach 가능</td>
+</tr>
+<tr>
+<td>5. Build, release, run</td>
+<td>✅</td>
+<td><code>pnpm build</code> → Docker 이미지 → 런타임</td>
+</tr>
+<tr>
+<td>6. Processes</td>
+<td>⚠️</td>
+<td>로컬 파일시스템 상태 의존 (stateless 아님)</td>
+</tr>
+<tr>
+<td>7. Port binding</td>
+<td>✅</td>
+<td>Express, 포트 환경변수(<code>OPENCLAW_GATEWAY_PORT</code>)</td>
+</tr>
+<tr>
+<td>8. Concurrency</td>
+<td>⚠️</td>
+<td>단일 인스턴스 중심 설계</td>
+</tr>
+<tr>
+<td>9. Disposability</td>
+<td>✅</td>
+<td><code>restart: unless-stopped</code>, graceful shutdown</td>
+</tr>
+<tr>
+<td>10. Dev/prod parity</td>
+<td>✅</td>
+<td>Docker 기반 동일 환경</td>
+</tr>
+<tr>
+<td>11. Logs</td>
+<td>✅</td>
+<td>stdout 구조적 로깅 (tslog)</td>
+</tr>
+<tr>
+<td>12. Admin processes</td>
+<td>✅</td>
+<td><code>openclaw doctor</code>, <code>openclaw migrate</code> 등</td>
+</tr>
+</tbody>
+</table>
+<p><strong>총평</strong>: 설정, 의존성, 빌드/배포 영역은 우수한 12-Factor 준수. Stateless(Factor 6)와 Concurrency(Factor 8)는 단일 사용자 설계로 인한 제약.</p>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분 완료</td>
+<td>코어 의존성 식별됨, 확장 의존성 일부 미확인</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>✅ 진행 중</td>
+<td>CodeQL, OpenGrep CI 자동화</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>✅ 적극적</td>
+<td>CVE 오버라이드, 패치 적용</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🟡 비공식</td>
+<td>CODEOWNERS, 메인테이너 리뷰 존재. 공식 OSPO 프로세스 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>⚠️ 미비</td>
+<td>NOTICE 파일 없음, SBOM 없음, THIRD_PARTY_LICENSES 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권 / Trademark</strong>:
+- "OpenClaw" 상표는 OpenClaw Foundation 보유 (LICENSE 기준)
+- 상업적 상표 사용 가이드라인 문서 미확인 — 제품명/로고 사용 시 재사용 정책 확인 필요</p>
+<p><strong>특허 위험 / Patent Risk</strong>:
+- <strong>MIT (코어 라이선스)</strong>: 명시적 특허 허여 없음 → 특허 보호 없음
+- <strong>Apache 2.0 의존성</strong> (openai, @google/genai, playwright-core, pdfjs-dist, @homebridge/ciao, @mozilla/readability): 특허 허여 포함 → 해당 패키지 사용에 대한 특허 소송으로부터 보호
+- <strong>LGPL (web-push)</strong>: 특허 허여 없음
+- <strong>결론</strong>: MIT 라이선스의 특허 보호 부재는 코어 기술에 대한 특허 소송 리스크로 이어질 수 있음. 이는 MIT 라이선스의 일반적 특성이며 상용화 결정 시 인지 필요.</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>시나리오 1 - Signal 채널 SaaS 배포 (🔴 High Risk)</strong>
+- 조건: Signal 확장(<code>libsignal</code>, GPLv3)을 활성화하여 상용 SaaS 플랫폼으로 배포
+- 위험: GPLv3 "Corresponding Source" 조항에 의해 전체 소프트웨어 소스 공개 의무 발생 가능
+- 완화: Signal 확장 배제 또는 별도 공개 저장소 운영</p>
+<p><strong>시나리오 2 - @earendil-works/pi-* 상업적 재배포 (🟡 Medium Risk)</strong>
+- 조건: Pi AI(Earendil Works) 에이전트 패키지를 포함한 상용 제품 배포
+- 위험: 해당 패키지의 상업적 재배포 허용 여부 불확실
+- 완화: Earendil Works와 명시적 상업 라이선스 계약 체결</p>
+<p><strong>시나리오 3 - WhatsApp 채널 상용화 (🟡 Medium Risk)</strong>
+- 조건: WhatsApp 채널을 상용 서비스에 포함
+- 위험: WhatsApp Business API ToS 위반 (비공식 라이브러리 <code>baileys</code> 사용)
+- 완화: 공식 WhatsApp Business API 사용으로 전환</p>
+<p><strong>시나리오 4 - 코어 MIT만 사용 (🟢 Low Risk)</strong>
+- 조건: 문제성 확장 제외, 코어 + 명확한 퍼미시브 확장만 사용
+- 위험: 매우 낮음
+- 상용화 가능성: 높음</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🔵 Review</td>
+<td>코어는 MIT로 안전. <code>@earendil-works/pi-*</code> 확인 필요, Signal 확장 GPL 주의</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟢 Safe</td>
+<td>CodeQL 22종, OpenGrep, Dependabot, pre-commit, 위협모델, 사고대응 체계 우수</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟢 Safe</td>
+<td>20명+ 메인테이너, OpenAI/GitHub/NVIDIA 스폰서, 매일 릴리스</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🔵 Review</td>
+<td>Docker/OTEL/Prometheus 지원. 단, stateless/멀티테넌시 제한</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟡 Caution</td>
+<td>개인용 설계 → 엔터프라이즈/SaaS 전환에 아키텍처 수정 필요</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>NOTICE/SBOM/THIRD_PARTY_LICENSES 부재, OSPO 프로세스 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li>
+<p><strong>탁월한 보안 인프라</strong>: CodeQL 22종 특화 설정, OpenGrep, Dependabot, zizmor, pre-commit detect-private-key 등 다계층 보안 자동화. 위협 모델과 사고대응 절차까지 갖춘 수준 높은 보안 체계.</p>
+</li>
+<li>
+<p><strong>활발한 유지보수와 강력한 스폰서십</strong>: OpenAI·GitHub·NVIDIA 스폰서, 20명+ 전문 메인테이너(NVIDIA/Tencent 엔지니어 포함), PR #84K+ 번대의 매우 높은 활동 밀도, 11,500줄 CHANGELOG.</p>
+</li>
+<li>
+<p><strong>성숙한 플러그인 아키텍처</strong>: 135개 extensions, 명확한 Plugin SDK 경계, 채널·프로바이더·메모리를 모두 플러그인으로 분리하는 설계로 기능 선별적 상용화 가능.</p>
+</li>
+<li>
+<p><strong>우수한 DevOps 성숙도</strong>: SHA256 고정 멀티스테이지 Docker 빌드, OTEL/Prometheus 지원, healthz 엔드포인트, pnpm 잠금파일 기반 재현 가능 빌드, 55개 CI 워크플로우.</p>
+</li>
+<li>
+<p><strong>포괄적인 채널 및 모델 지원</strong>: 20개+ 메시징 채널, 50개+ AI 프로바이더, 다중 플랫폼(macOS/iOS/Android) 지원으로 광범위한 도입 기반.</p>
+</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li>
+<p><strong><code>@earendil-works/pi-*</code> 라이선스 미확인</strong>: Pi AI 에이전트 패키지 4개(pi-agent-core, pi-ai, pi-coding-agent, pi-tui)가 루트 프로덕션 의존성에 포함되어 있으나, 상업적 재배포 허용 여부가 불명확. 이는 핵심 에이전트 기능에 직결되므로 즉각적인 라이선스 확인이 필요.</p>
+</li>
+<li>
+<p><strong>단일 사용자 설계 기반의 SaaS 전환 어려움</strong>: 게이트웨이 공유-시크릿이 전체 운영자 권한을 부여하고, 상태를 로컬 파일시스템에 저장하는 설계. 멀티테넌트 SaaS로 전환하려면 상태 저장소 추상화, 사용자별 격리, 수평 확장 설계가 필요.</p>
+</li>
+<li>
+<p><strong>NOTICE/SBOM/THIRD_PARTY_LICENSES 부재</strong>: Apache 2.0 의존성(openai, @google/genai, playwright-core 등)에 대한 NOTICE 파일이 없고, CycloneDX/SPDX SBOM도 미생성. 엔터프라이즈 공급망 보안 요구사항 및 ISO 5230 준수에 필수.</p>
+</li>
+<li>
+<p><strong>Signal/WhatsApp 채널의 법적 위험</strong>: <code>libsignal</code> (GPL)의 Signal 확장 포함 시 GPL 전파 위험, <code>baileys</code>의 WhatsApp 비공식 라이브러리 사용에 따른 서비스 약관 위반 위험. 상용 배포에서는 두 채널 모두 기본 제외하거나 별도 법적 검토 필요.</p>
+</li>
+<li>
+<p><strong>CODE_OF_CONDUCT 및 공식 OSPO 프로세스 부재</strong>: 기업 도입 시 필요한 공식 행동강령 및 OSPO(Open Source Program Office) 수준의 컴플라이언스 프로세스가 없음. 이는 기업 거버넌스 요구사항에서 갭을 형성.</p>
+</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 Review (조건부 채택 권고)</p>
+<p><strong>상세 근거 / Rationale</strong>:</p>
+<p>OpenClaw는 MIT 라이선스 기반의 매우 활발한 오픈소스 프로젝트로, 탁월한 보안 인프라, 강력한 스폰서십, 성숙한 플러그인 아키텍처를 갖추고 있습니다. <strong>코어 기술 자체는 상용화에 적합</strong>합니다.</p>
+<p>그러나 상용 SaaS 플랫폼으로의 도입에는 다음 전제 조건이 충족되어야 합니다:</p>
+<ol>
+<li><strong><code>@earendil-works/pi-*</code> 라이선스 확인 완료</strong> — 해당 패키지가 핵심 에이전트 기능에 연결되므로 상업적 재배포 가능 여부를 계약으로 명시화</li>
+<li><strong>GPL 위험 확장 배제</strong> — Signal 확장, WhatsApp(공식 API 전환까지) 배포 이미지 제외</li>
+<li><strong>NOTICE/SBOM 파일 생성</strong> — Apache 2.0 의존성에 대한 고지문 자동 생성 CI 파이프라인 구축</li>
+<li><strong>멀티테넌시 아키텍처 설계</strong> — 상태 저장소 추상화 및 사용자별 격리 레이어 추가 (30-90일 내)</li>
+</ol>
+<p>이 조건들을 충족하면 🟢 Safe로 등급 상향 가능.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>라이선스 / License</strong></td>
+<td>✅ Permissive(MIT) 코어 분류 확인</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 소스 공개 의무 없음 확인 (MIT)</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ <code>@earendil-works/pi-*</code> 상업적 재배포 허용 여부 확인</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ <code>libsignal</code> (Signal 확장) GPL 격리 확인</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 라이선스 호환성 충돌 없음 (코어 기준)</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td><strong>저작권·고지 / Copyright</strong></td>
+<td>✅ MIT 저작권 문구 배포 패키지에 포함 확인</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ Apache 2.0 의존성 NOTICE 고지문 배포 위치 정의</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ THIRD_PARTY_LICENSES 파일 생성</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td><strong>소스 공개 / Source Disclosure</strong></td>
+<td>✅ MIT 코어 소스 공개 의무 없음</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ Signal 확장 사용 시 GPL 공개 범위 정의</td>
+<td>⚠️ 조건부</td>
+</tr>
+<tr>
+<td><strong>보안 / Security</strong></td>
+<td>✅ CVE 모니터링 체계 (Dependabot 일별)</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ CodeQL + OpenGrep CI 자동화</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ SBOM (CycloneDX/SPDX) 자동 생성 파이프라인</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td><strong>커뮤니티 / Community</strong></td>
+<td>✅ 유지보수 활성도 매우 높음 (일별 릴리스)</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ OpenAI/GitHub/NVIDIA 기업 스폰서 확인</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>✅ 라이선스 스캔 (CodeQL, OpenGrep) 자동화</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 오픈소스 BOM 자동 생성</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ 위반 라이선스 빌드 차단 게이트 (GPL 확장 제외)</td>
+<td>⚠️ 미완료</td>
+</tr>
+<tr>
+<td><strong>법적·계약 / Legal</strong></td>
+<td>❌ 고객 계약서에 <code>@earendil-works/pi-*</code> 재배포 조건 명시</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 외부 감사 대비 NOTICE + SBOM 문서 구비</td>
+<td>❌ 미완료</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong><code>@earendil-works/pi-*</code> 라이선스 확인</strong>: npm 패키지 레지스트리 및 Earendil Works에 직접 상업적 재배포 허용 여부를 서면으로 확인. 허용되지 않을 경우 해당 패키지를 대체하거나 OEM/상업 라이선스 계약 체결 필요.</p>
+</li>
+<li>
+<p><strong>Signal 확장 격리 결정</strong>: 상용 배포 이미지에 <code>libsignal</code> 포함 여부를 결정하고, 포함 시 GPL 전파 범위에 대한 OSPO/법무 검토 진행. 가장 안전한 경로는 초기 배포에서 Signal 확장 제외.</p>
+</li>
+</ol>
+<h3 id="high-30">단기 조치 / High (30일 이내)</h3>
+<ol>
+<li>
+<p><strong>NOTICE 파일 생성 자동화</strong>: <code>license-checker</code> 또는 <code>oss-attribution-generator</code>를 CI에 통합하여 Apache 2.0 의존성의 저작권 고지문을 자동 생성. 배포 패키지의 <code>NOTICE</code> 또는 <code>THIRD_PARTY_LICENSES.md</code>로 포함.</p>
+</li>
+<li>
+<p><strong>SBOM 생성 파이프라인 구축</strong>: CycloneDX Node.js 도구를 CI에 통합하여 빌드 시 자동으로 SBOM 생성. 엔터프라이즈 고객의 공급망 보안 요구사항 대응.</p>
+</li>
+<li>
+<p><strong>GPL 확장 빌드 게이트 추가</strong>: CI에서 상용 빌드 대상 Extensions 목록을 명시하고, GPL/AGPL 확장이 포함되지 않도록 빌드 차단 스크립트 추가.</p>
+</li>
+</ol>
+<h3 id="medium-90">중기 조치 / Medium (90일 이내)</h3>
+<ol>
+<li>
+<p><strong>상태 저장소 추상화</strong>: 멀티테넌트 SaaS를 목표로 할 경우 <code>~/.openclaw</code> 파일시스템 의존성을 추상화하여 PostgreSQL/Redis 기반 상태 관리로 전환 설계. Gateway 수평 확장 지원.</p>
+</li>
+<li>
+<p><strong>CODE_OF_CONDUCT 추가</strong>: Contributor Covenant 등 표준 행동강령 채택하여 기업 거버넌스 요구사항 충족.</p>
+</li>
+<li>
+<p><strong>공식 OSPO 프로세스 문서화</strong>: 오픈소스 라이선스 검토, 의존성 추가 승인, SBOM 갱신 프로세스를 내부 정책으로 문서화. ISO 5230 OpenChain 준수를 위한 기반 마련.</p>
+</li>
+</ol>
+<h3 id="low">장기 권고 / Low (분기별 검토)</h3>
+<ol>
+<li>
+<p><strong>WhatsApp 공식 API 전환 검토</strong>: <code>baileys</code> 비공식 라이브러리에서 WhatsApp Business API로 전환하여 서비스 약관 위험 제거. 상용 고객 사용 사례에 필수.</p>
+</li>
+<li>
+<p><strong>정기 라이선스 컴플라이언스 감사</strong>: 연 2회 전체 의존성 트리 라이선스 감사 실시, CHANGELOG 기반 신규 의존성 추적, SBOM 갱신.</p>
+</li>
+<li>
+<p><strong>LTS 정책 수립</strong>: 상용 고객을 위한 Long-Term Support 버전 정책 수립 검토 (현재 CalVer 최신 버전만 지원).</p>
+</li>
+</ol>
+<hr />
+<p><em>보고서 생성 완료 / Report complete. 파일 위치: <code>.review/REVIEW-InDepth.md</code> (OUTPUT INSTRUCTION에 따라 출력 전용, 파일 비저장)</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>OpenClaw는 사용자가 직접 운영하는 개인 AI 어시스턴트 게이트웨이입니다. WhatsApp, Telegram, Slack, Discord, iMessage, Matrix 등 20개 이상의 메시징 채널을 단일 제어 플레인에서 통합하여, 이미 사용 중인 채널에서 AI 어시스턴트와 대화할 수 있게 해줍니다. macOS/iOS/Android에서 음성 대화를 지원하며, 실시간 Canvas 렌더링, 멀티 에이전트 라우팅, 스킬/플러그인 시스템까지 갖춘 풀스택 오픈소스 프레임워크입니다.</p>
+<ul>
+<li><strong>주요 기술 스택</strong></li>
+<li>언어: TypeScript (ESM, strict), Kotlin (Android), Swift (iOS/macOS)</li>
+<li>런타임: Node.js 22.19+ / 24 (권장)</li>
+<li>패키지 매니저: pnpm 11.1.0 (pnpm workspace 구조)</li>
+<li>빌드 도구: tsdown (Rolldown 기반), tsx (TypeScript 직접 실행)</li>
+<li>테스트: Vitest</li>
+<li>포맷/린트: oxfmt, oxlint</li>
+<li>주요 라이브러리: grammY (Telegram), Baileys (WhatsApp), Discord.js, Express, Kysely, Zod, ModelContextProtocol SDK, @agentclientprotocol/sdk</li>
+<li>UI: Lit (Web Components) + Vite</li>
+<li>데이터베이스: SQLite (Kysely ORM)</li>
+<li>컨테이너: Docker / docker-compose</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>OpenClaw is a self-hosted personal AI assistant gateway. It unifies 20+ messaging channels (WhatsApp, Telegram, Slack, Discord, iMessage, Matrix, and more) under a single control plane, letting you talk to your AI assistant on the platforms you already use. It supports voice on macOS/iOS/Android, live Canvas rendering, multi-agent routing, and a full plugin/skill system — making it a full-stack open-source AI assistant framework.</p>
+<ul>
+<li><strong>Key tech stack</strong></li>
+<li>Language: TypeScript (ESM, strict), Kotlin (Android), Swift (iOS/macOS)</li>
+<li>Runtime: Node.js 22.19+ / 24 (recommended)</li>
+<li>Package manager: pnpm 11.1.0 (pnpm workspace)</li>
+<li>Build tools: tsdown (Rolldown-based), tsx (direct TS execution)</li>
+<li>Testing: Vitest</li>
+<li>Format/lint: oxfmt, oxlint</li>
+<li>Key libraries: grammY (Telegram), Baileys (WhatsApp), Discord.js, Express, Kysely, Zod, ModelContextProtocol SDK, @agentclientprotocol/sdk</li>
+<li>UI: Lit (Web Components) + Vite</li>
+<li>Database: SQLite via Kysely ORM</li>
+<li>Container: Docker / docker-compose</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>필수 도구</strong></li>
+<li>Node.js <strong>22.19.0 이상</strong> (Node 24 권장) — <code>node --version</code>으로 확인</li>
+<li>pnpm <strong>11.1.0</strong> — <code>npm install -g pnpm@11.1.0</code> 또는 <code>corepack enable</code></li>
+<li>Git</li>
+<li>(선택) Bun 1.3.13 — Android 앱 빌드 스크립트에 사용됨</li>
+<li>(선택) Docker &amp; Docker Compose — 컨테이너 배포 또는 샌드박스 격리</li>
+<li>(Android 개발 시) Android Studio, JDK 17+, ADB</li>
+<li>(iOS/macOS 개발 시) Xcode 15+, macOS 13+, 유효한 코드 서명 ID</li>
+<li><strong>권장 IDE 및 플러그인</strong></li>
+<li>VS Code + ESLint + Prettier (단, 포매터는 <code>oxfmt</code> 사용)</li>
+<li>JetBrains WebStorm 또는 IntelliJ IDEA (TypeScript 지원)</li>
+<li>VS Code 확장: TypeScript language features, Vitest runner</li>
+<li><strong>OS별 주의사항</strong></li>
+<li><strong>Windows</strong>: WSL2 환경 강력 권장. 네이티브 Windows는 미지원.</li>
+<li><strong>macOS</strong>: macOS 앱 권한 테스트 시 반드시 유효한 코드 서명 ID 필요. <code>--no-sign</code> 또는 <code>SIGN_IDENTITY=-</code> 사용 금지.</li>
+<li><strong>Linux</strong>: 일반 Node.js + pnpm 환경이면 동작. <code>sharp</code> 빌드 시 libvips 소스 빌드 실패하면 <code>SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install</code> 사용.</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Required tools</strong></li>
+<li>Node.js <strong>22.19.0 or higher</strong> (Node 24 recommended) — check with <code>node --version</code></li>
+<li>pnpm <strong>11.1.0</strong> — <code>npm install -g pnpm@11.1.0</code> or <code>corepack enable</code></li>
+<li>Git</li>
+<li>(Optional) Bun 1.3.13 — used by Android build scripts</li>
+<li>(Optional) Docker &amp; Docker Compose — for containerized deployment or sandbox isolation</li>
+<li>(Android dev) Android Studio, JDK 17+, ADB</li>
+<li>(iOS/macOS dev) Xcode 15+, macOS 13+, valid code signing identity</li>
+<li><strong>Recommended IDE and plugins</strong></li>
+<li>VS Code + ESLint extension; formatter: use <code>oxfmt</code> (not Prettier)</li>
+<li>JetBrains WebStorm or IntelliJ IDEA (excellent TypeScript support)</li>
+<li>VS Code extensions: TypeScript language features, Vitest runner</li>
+<li><strong>OS-specific notes</strong></li>
+<li><strong>Windows</strong>: WSL2 is strongly recommended. Native Windows is not supported.</li>
+<li><strong>macOS</strong>: Valid code signing identity required for macOS app permission testing. Never use <code>--no-sign</code> or <code>SIGN_IDENTITY=-</code>.</li>
+<li><strong>Linux</strong>: Standard Node.js + pnpm setup works. If <code>sharp</code> fails to build due to libvips, run <code>SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install</code>.</li>
+</ul>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<ol>
+<li>
+<p><strong>저장소 클론</strong>
+   <code>bash
+   git clone https://github.com/openclaw/openclaw.git
+   cd openclaw</code></p>
+</li>
+<li>
+<p><strong>의존성 설치</strong>
+   <code>bash
+   pnpm install
+   # sharp/libvips 빌드 오류 시:
+   # SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install</code></p>
+<blockquote>
+<p>⚠️ <code>npm install</code>은 소스 체크아웃 개발 환경에서 <strong>지원되지 않습니다</strong>. 반드시 <code>pnpm install</code>을 사용하세요.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>환경 변수 설정</strong></p>
+</li>
+</ol>
+<p>프로젝트 루트에 <code>.env</code> 파일을 생성합니다 (docker-compose 사용 시):
+   ```bash
+   # .env 예시
+   OPENCLAW_GATEWAY_TOKEN=your_secure_token_here
+   OPENCLAW_CONFIG_DIR=${HOME}/.openclaw
+   OPENCLAW_WORKSPACE_DIR=${HOME}/.openclaw/workspace
+   OPENCLAW_AUTH_PROFILE_SECRET_DIR=${HOME}/.openclaw-auth-profile-secrets
+   TZ=Asia/Seoul</p>
+<p># OpenTelemetry (선택)
+   OTEL_EXPORTER_OTLP_ENDPOINT=
+   OTEL_SERVICE_NAME=openclaw</p>
+<p># AI 프로바이더 세션 키 (선택, 해당 프로바이더 사용 시)
+   CLAUDE_AI_SESSION_KEY=
+   CLAUDE_WEB_SESSION_KEY=
+   ```</p>
+<p>채널/모델 인증 정보는 <code>~/.openclaw/credentials/</code>에 관리되며, 에이전트 인증 프로파일은 <code>~/.openclaw/agents/&lt;agentId&gt;/agent/auth-profiles.json</code>에 위치합니다.</p>
+<ol>
+<li><strong>로컬 설정 초기화</strong>
+   ```bash
+   # 첫 실행 시 또는 로컬 설정 초기화 후에만 실행
+   pnpm openclaw setup</li>
+</ol>
+<p># 온보딩 마법사 (권장 — 게이트웨이, 채널, 스킬 단계별 안내)
+   pnpm openclaw onboard
+   # 또는 전역 설치 후:
+   openclaw onboard --install-daemon
+   ```</p>
+<ol>
+<li><strong>설치 검증</strong>
+   ```bash
+   # Node.js 버전 확인
+   node --version   # v22.19.0 이상</li>
+</ol>
+<p># pnpm 버전 확인
+   pnpm --version   # 11.1.0</p>
+<p># 개발 모드 게이트웨이 실행
+   pnpm gateway:watch
+   # → 게이트웨이가 기본 포트 18789에서 시작됩니다.</p>
+<p># CLI 동작 확인
+   pnpm openclaw --version
+   ```</p>
+<p><strong>[English]</strong></p>
+<ol>
+<li>
+<p><strong>Clone the repository</strong>
+   <code>bash
+   git clone https://github.com/openclaw/openclaw.git
+   cd openclaw</code></p>
+</li>
+<li>
+<p><strong>Install dependencies</strong>
+   <code>bash
+   pnpm install
+   # If sharp/libvips build fails:
+   # SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install</code></p>
+<blockquote>
+<p>⚠️ <code>npm install</code> is <strong>not supported</strong> for source checkout development. Always use <code>pnpm install</code>.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Configure environment variables</strong></p>
+</li>
+</ol>
+<p>Create a <code>.env</code> file at the project root (used by docker-compose):
+   ```bash
+   # .env example
+   OPENCLAW_GATEWAY_TOKEN=your_secure_token_here
+   OPENCLAW_CONFIG_DIR=${HOME}/.openclaw
+   OPENCLAW_WORKSPACE_DIR=${HOME}/.openclaw/workspace
+   OPENCLAW_AUTH_PROFILE_SECRET_DIR=${HOME}/.openclaw-auth-profile-secrets
+   TZ=Asia/Seoul</p>
+<p># OpenTelemetry (optional)
+   OTEL_EXPORTER_OTLP_ENDPOINT=
+   OTEL_SERVICE_NAME=openclaw</p>
+<p># AI provider session keys (optional, per provider)
+   CLAUDE_AI_SESSION_KEY=
+   CLAUDE_WEB_SESSION_KEY=
+   ```</p>
+<p>Channel/model credentials are stored in <code>~/.openclaw/credentials/</code>. Agent auth profiles live at <code>~/.openclaw/agents/&lt;agentId&gt;/agent/auth-profiles.json</code>.</p>
+<ol>
+<li><strong>Initialize local configuration</strong>
+   ```bash
+   # First run only, or after resetting local OpenClaw config/workspace
+   pnpm openclaw setup</li>
+</ol>
+<p># Onboarding wizard (recommended — walks through gateway, channels, skills)
+   pnpm openclaw onboard
+   # Or after global install:
+   openclaw onboard --install-daemon
+   ```</p>
+<ol>
+<li><strong>Verify the setup</strong>
+   ```bash
+   # Check Node.js version
+   node --version   # v22.19.0 or higher</li>
+</ol>
+<p># Check pnpm version
+   pnpm --version   # 11.1.0</p>
+<p># Start the gateway in dev mode
+   pnpm gateway:watch
+   # → Gateway starts on default port 18789</p>
+<p># Verify CLI works
+   pnpm openclaw --version
+   ```</p>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">openclaw/
+├── src/                    # 핵심 TypeScript 소스 (Gateway, CLI, channels, agents)
+│   ├── entry.ts            # CLI 진입점 (openclaw 바이너리)
+│   ├── index.ts            # 패키지 메인 엔트리
+│   ├── channels/           # 채널 공통 로직 (routing, session, config)
+│   ├── agents/             # 에이전트 런타임, ACP, 서브에이전트
+│   ├── gateway/            # Gateway HTTP/WS 서버, 프로토콜
+│   ├── cli/                # CLI 명령 파서 및 프로파일
+│   ├── config/             # 설정 스키마, 로드, 검증
+│   ├── plugin-sdk/         # 플러그인 SDK 공개 API (내부용 번들)
+│   ├── flows/              # 대화 흐름, 컴팩션, 컨텍스트 엔진
+│   ├── cron/               # 크론 작업 스케줄러
+│   ├── hooks/              # 이벤트 훅 시스템
+│   └── ...
+├── extensions/             # 플러그인 (채널/프로바이더 구현체, 135개+)
+│   ├── telegram/           # Telegram 플러그인 (grammY 기반)
+│   ├── discord/            # Discord 플러그인
+│   ├── whatsapp/           # WhatsApp 플러그인 (Baileys 기반)
+│   ├── slack/              # Slack 플러그인
+│   ├── openai/             # OpenAI 프로바이더 플러그인
+│   ├── anthropic/          # Anthropic 프로바이더 플러그인
+│   ├── ollama/             # Ollama (로컬 모델) 플러그인
+│   └── ...
+├── packages/               # 내부 공유 패키지
+│   ├── plugin-sdk/         # 플러그인 SDK 공개 barrel (openclaw/plugin-sdk/*)
+│   ├── sdk/                # 외부 SDK
+│   ├── memory-host-sdk/    # 메모리/QMD SDK
+│   └── plugin-package-contract/
+├── ui/                     # 컨트롤 UI (Lit + Vite, WebChat)
+│   ├── src/                # UI 소스
+│   └── vite.config.ts
+├── apps/                   # 플랫폼 앱
+│   ├── macos/              # macOS 앱 (Swift)
+│   ├── ios/                # iOS 앱 (Swift)
+│   ├── android/            # Android 앱 (Kotlin)
+│   └── shared/             # 공유 네이티브 코드
+├── docs/                   # 문서 (MDX, 개념/채널/CLI 레퍼런스)
+├── scripts/                # 빌드, 테스트, CI 보조 스크립트
+├── config/                 # 린트, 번들, knip 설정
+├── test/                   # Vitest 설정, E2E 헬퍼
+├── security/               # OpenGrep 보안 규칙
+├── skills/                 # 번들 스킬 정의
+├── deploy/                 # 배포 헬퍼 스크립트
+├── Dockerfile              # 멀티스테이지 Docker 빌드
+├── docker-compose.yml      # 컨테이너 개발/운영 설정
+├── fly.toml                # Fly.io 배포 설정
+├── render.yaml             # Render.com 배포 설정
+├── package.json            # 루트 패키지 (pnpm workspace 루트)
+├── pnpm-workspace.yaml     # pnpm workspace 설정
+├── tsdown.config.ts        # tsdown 번들러 설정
+├── tsconfig.json           # TypeScript 루트 설정
+└── vitest.config.ts        # Vitest 테스트 설정
+</code></pre>
+<ul>
+<li><strong>핵심 모듈 의존 관계</strong></li>
+<li><code>src/entry.ts</code> → <code>src/cli/</code> → <code>src/gateway/</code> → <code>src/channels/</code> + <code>src/agents/</code></li>
+<li><code>extensions/*/</code> → <code>packages/plugin-sdk/</code> (공개 SDK만 사용, <code>src/**</code> 직접 임포트 금지)</li>
+<li><code>src/channels/</code> → 플러그인은 채널 구현체를 제공하고, core는 추상 계약(contracts)으로만 통신</li>
+<li><code>ui/</code> → Gateway WS API (독립적인 웹 앱)</li>
+</ul>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">openclaw/
+├── src/                    # Core TypeScript source (Gateway, CLI, channels, agents)
+│   ├── entry.ts            # CLI entry point (the openclaw binary)
+│   ├── index.ts            # Package main entry
+│   ├── channels/           # Channel-shared logic (routing, session, config)
+│   ├── agents/             # Agent runtime, ACP, sub-agents
+│   ├── gateway/            # Gateway HTTP/WS server, protocol
+│   ├── cli/                # CLI command parser and profiles
+│   ├── config/             # Config schema, loading, validation
+│   ├── plugin-sdk/         # Plugin SDK public API (internal bundle)
+│   ├── flows/              # Conversation flows, compaction, context engine
+│   ├── cron/               # Cron job scheduler
+│   ├── hooks/              # Event hook system
+│   └── ...
+├── extensions/             # Plugins (channel/provider implementations, 135+)
+│   ├── telegram/           # Telegram plugin (grammY-based)
+│   ├── discord/            # Discord plugin
+│   ├── whatsapp/           # WhatsApp plugin (Baileys-based)
+│   ├── slack/              # Slack plugin
+│   ├── openai/             # OpenAI provider plugin
+│   ├── anthropic/          # Anthropic provider plugin
+│   ├── ollama/             # Ollama (local model) plugin
+│   └── ...
+├── packages/               # Internal shared packages
+│   ├── plugin-sdk/         # Plugin SDK public barrel (openclaw/plugin-sdk/*)
+│   ├── sdk/                # External SDK
+│   ├── memory-host-sdk/    # Memory/QMD SDK
+│   └── plugin-package-contract/
+├── ui/                     # Control UI (Lit + Vite, WebChat)
+│   ├── src/                # UI source
+│   └── vite.config.ts
+├── apps/                   # Platform apps
+│   ├── macos/              # macOS app (Swift)
+│   ├── ios/                # iOS app (Swift)
+│   ├── android/            # Android app (Kotlin)
+│   └── shared/             # Shared native code
+├── docs/                   # Documentation (MDX, concepts/channels/CLI reference)
+├── scripts/                # Build, test, CI helper scripts
+├── config/                 # Lint, bundle, knip configs
+├── test/                   # Vitest configs, E2E helpers
+├── security/               # OpenGrep security rules
+├── skills/                 # Bundled skill definitions
+├── deploy/                 # Deployment helper scripts
+├── Dockerfile              # Multi-stage Docker build
+├── docker-compose.yml      # Container dev/prod config
+├── fly.toml                # Fly.io deployment config
+├── render.yaml             # Render.com deployment config
+├── package.json            # Root package (pnpm workspace root)
+├── pnpm-workspace.yaml     # pnpm workspace config
+├── tsdown.config.ts        # tsdown bundler config
+├── tsconfig.json           # TypeScript root config
+└── vitest.config.ts        # Vitest test config
+</code></pre>
+<ul>
+<li><strong>Core module dependency relationships</strong></li>
+<li><code>src/entry.ts</code> → <code>src/cli/</code> → <code>src/gateway/</code> → <code>src/channels/</code> + <code>src/agents/</code></li>
+<li><code>extensions/*/</code> → <code>packages/plugin-sdk/</code> (public SDK only — direct <code>src/**</code> imports are forbidden)</li>
+<li><code>src/channels/</code> — plugins provide channel implementations; core communicates only via abstract contracts</li>
+<li><code>ui/</code> → Gateway WS API (independent web app)</li>
+</ul>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li>
+<p><strong>개발 모드</strong> (TypeScript를 <code>tsx</code>로 직접 실행, <code>dist/</code> 빌드 없음)
+  <code>bash
+  pnpm gateway:watch   # 소스 변경 시 Gateway 자동 재시작
+  pnpm openclaw &lt;cmd&gt;  # tsx로 직접 실행</code></p>
+</li>
+<li>
+<p><strong>프로덕션 빌드</strong> (dist/ 생성)
+  <code>bash
+  pnpm build           # 전체 빌드 (tsdown + postbuild 스크립트)
+  pnpm ui:build        # 컨트롤 UI 빌드 (dist/control-ui/)</code></p>
+</li>
+<li>
+<p><strong>빌드 결과물 위치</strong></p>
+</li>
+<li><code>dist/</code> — 번들된 JS (Node.js 실행용)</li>
+<li><code>dist/plugin-sdk/</code> — 플러그인 SDK 타입 선언 포함</li>
+<li>
+<p><code>dist/control-ui/</code> — 정적 웹 UI (Gateway가 직접 서빙)</p>
+</li>
+<li>
+<p><strong>자주 발생하는 빌드 오류와 해결 방법</strong></p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>오류</th>
+<th>원인</th>
+<th>해결 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sharp</code> 빌드 실패</td>
+<td>macOS Homebrew libvips 버전 충돌</td>
+<td><code>SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install</code></td>
+</tr>
+<tr>
+<td><code>[INEFFECTIVE_DYNAMIC_IMPORT]</code></td>
+<td>동일 모듈을 static + dynamic 동시 임포트</td>
+<td><code>*.runtime.ts</code> 레이지 바운더리 패턴으로 수정 후 재빌드</td>
+</tr>
+<tr>
+<td><code>ENOTEMPTY</code> (Vitest 캐시)</td>
+<td>동시에 여러 Vitest 프로세스 실행</td>
+<td><code>OPENCLAW_VITEST_FS_MODULE_CACHE_PATH</code> 분리 또는 직렬 실행</td>
+</tr>
+<tr>
+<td>pnpm install 프롬프트 (Codex worktree)</td>
+<td>worktree 환경에서 pnpm 의존성 재조정</td>
+<td><code>node scripts/crabbox-wrapper.mjs</code>로 우회</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<ul>
+<li>
+<p><strong>Development mode</strong> (TypeScript run directly via <code>tsx</code>, no <code>dist/</code> build needed)
+  <code>bash
+  pnpm gateway:watch   # Auto-restart Gateway on source changes
+  pnpm openclaw &lt;cmd&gt;  # Run directly via tsx</code></p>
+</li>
+<li>
+<p><strong>Production build</strong> (generates <code>dist/</code>)
+  <code>bash
+  pnpm build           # Full build (tsdown + postbuild scripts)
+  pnpm ui:build        # Build control UI (dist/control-ui/)</code></p>
+</li>
+<li>
+<p><strong>Build output locations</strong></p>
+</li>
+<li><code>dist/</code> — Bundled JS for Node.js execution</li>
+<li><code>dist/plugin-sdk/</code> — Plugin SDK with type declarations</li>
+<li>
+<p><code>dist/control-ui/</code> — Static web UI served by the Gateway</p>
+</li>
+<li>
+<p><strong>Common build errors and fixes</strong></p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sharp</code> build failure</td>
+<td>macOS Homebrew libvips version conflict</td>
+<td><code>SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install</code></td>
+</tr>
+<tr>
+<td><code>[INEFFECTIVE_DYNAMIC_IMPORT]</code></td>
+<td>Same module imported statically and dynamically</td>
+<td>Refactor to <code>*.runtime.ts</code> lazy boundary pattern, then rebuild</td>
+</tr>
+<tr>
+<td><code>ENOTEMPTY</code> (Vitest cache)</td>
+<td>Multiple Vitest processes running concurrently</td>
+<td>Separate <code>OPENCLAW_VITEST_FS_MODULE_CACHE_PATH</code> or run serially</td>
+</tr>
+<tr>
+<td>pnpm install prompt (Codex worktree)</td>
+<td>pnpm dependency reconciliation in worktree</td>
+<td>Use <code>node scripts/crabbox-wrapper.mjs</code> wrapper instead</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>개발 모드</strong>
+  ```bash
+  # 가장 일반적인 개발 루프 — Gateway를 tmux 창에서 자동 재시작
+  pnpm gateway:watch</li>
+</ul>
+<p># 단순 실행 (자동 재시작 없음)
+  pnpm openclaw gateway --port 18789 --verbose</p>
+<p># 컨트롤 UI 개발 (Vite HMR)
+  pnpm ui:dev
+  ```</p>
+<ul>
+<li>
+<p><strong>프로덕션 빌드 실행</strong>
+  <code>bash
+  pnpm build
+  node dist/index.js gateway --port 18789</code></p>
+</li>
+<li>
+<p><strong>접속 URL / 포트</strong></p>
+</li>
+<li>Gateway WebSocket + HTTP: <code>http://localhost:18789</code></li>
+<li>WebChat UI: <code>http://localhost:18789/__openclaw__/</code></li>
+<li>Canvas: <code>http://localhost:18789/__openclaw__/canvas/</code></li>
+<li>
+<p>A2UI: <code>http://localhost:18789/__openclaw__/a2ui/</code></p>
+</li>
+<li>
+<p><strong>Docker 실행</strong>
+  ```bash
+  # .env 파일 먼저 구성 (섹션 3 참고)
+  docker-compose up</p>
+</li>
+</ul>
+<p># 특정 확장 플러그인 포함 빌드
+  docker build --build-arg OPENCLAW_EXTENSIONS="diagnostics-otel,matrix" .
+  docker-compose up
+  ```</p>
+<ul>
+<li><strong>실행 확인</strong>
+  ```bash
+  # 헬스 체크
+  curl http://localhost:18789/health</li>
+</ul>
+<p># Gateway 상태 확인 (CLI)
+  pnpm openclaw gateway status</p>
+<p># 로그 확인 (macOS)
+  ./scripts/clawlog.sh</p>
+<p># 메시지 전송 테스트
+  pnpm openclaw message send --target &lt;채널ID&gt; --message "테스트"
+  ```</p>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Development mode</strong>
+  ```bash
+  # Most common dev loop — auto-restart Gateway in a tmux pane
+  pnpm gateway:watch</li>
+</ul>
+<p># Simple run without auto-restart
+  pnpm openclaw gateway --port 18789 --verbose</p>
+<p># Control UI development (Vite HMR)
+  pnpm ui:dev
+  ```</p>
+<ul>
+<li>
+<p><strong>Running a production build</strong>
+  <code>bash
+  pnpm build
+  node dist/index.js gateway --port 18789</code></p>
+</li>
+<li>
+<p><strong>Access URLs / ports</strong></p>
+</li>
+<li>Gateway WebSocket + HTTP: <code>http://localhost:18789</code></li>
+<li>WebChat UI: <code>http://localhost:18789/__openclaw__/</code></li>
+<li>Canvas: <code>http://localhost:18789/__openclaw__/canvas/</code></li>
+<li>
+<p>A2UI: <code>http://localhost:18789/__openclaw__/a2ui/</code></p>
+</li>
+<li>
+<p><strong>Docker</strong>
+  ```bash
+  # Configure .env first (see Section 3)
+  docker-compose up</p>
+</li>
+</ul>
+<p># Build with specific extension plugins
+  docker build --build-arg OPENCLAW_EXTENSIONS="diagnostics-otel,matrix" .
+  docker-compose up
+  ```</p>
+<ul>
+<li><strong>Verifying the app is running</strong>
+  ```bash
+  # Health check
+  curl http://localhost:18789/health</li>
+</ul>
+<p># Gateway status (CLI)
+  pnpm openclaw gateway status</p>
+<p># View logs (macOS)
+  ./scripts/clawlog.sh</p>
+<p># Test message send
+  pnpm openclaw message send --target <channelId> --message "test"
+  ```</p>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>단위 테스트 / 통합 테스트</strong>
+  ```bash
+  # 전체 테스트 (pnpm workspace 프로젝트 전체)
+  pnpm test</li>
+</ul>
+<p># 특정 파일/필터 실행
+  pnpm test src/channels/session.test.ts
+  pnpm test -- --filter session</p>
+<p># main 브랜치 대비 변경된 파일만 테스트
+  pnpm test:changed</p>
+<p># 직렬 실행 (메모리 압박 환경)
+  pnpm test:serial
+  # 또는: OPENCLAW_VITEST_MAX_WORKERS=1 pnpm test</p>
+<p># 확장(플러그인) 테스트만 실행
+  pnpm test:extensions
+  pnpm test extensions/telegram
+  ```</p>
+<ul>
+<li>
+<p><strong>커버리지 확인</strong>
+  <code>bash
+  pnpm test:coverage
+  # 결과: coverage/ 디렉토리에 HTML 리포트 생성</code></p>
+</li>
+<li>
+<p><strong>라이브 테스트 (실제 API 호출)</strong>
+  <code>bash
+  OPENCLAW_LIVE_TEST=1 pnpm test:live
+  # 상세 로그: OPENCLAW_LIVE_TEST_QUIET=0 OPENCLAW_LIVE_TEST=1 pnpm test:live</code></p>
+</li>
+<li>
+<p><strong>테스트 규칙</strong></p>
+</li>
+<li>테스트 파일: 소스 파일 옆에 <code>*.test.ts</code> 형식으로 위치 (코로케이션)</li>
+<li>E2E 테스트: <code>*.e2e.test.ts</code></li>
+<li>예시 모델: <code>sonnet-4.6</code>, <code>gpt-5.5</code> (GPT 4.x 계열 기본값 금지)</li>
+<li>타이머, 환경변수, 전역 상태, 목(mock), 소켓, 임시 디렉터리 등 반드시 정리</li>
+<li>
+<p>Vitest 프로세스를 같은 worktree에서 동시에 실행 금지 (ENOTEMPTY 캐시 경쟁 발생)</p>
+</li>
+<li>
+<p><strong>Codex worktree 또는 sparse 체크아웃 환경</strong>
+  ```bash
+  # 직접 pnpm test 대신 래퍼 사용
+  node scripts/run-vitest.mjs src/channels/session.test.ts</p>
+</li>
+</ul>
+<p># 광범위한 검사는 Crabbox/Testbox로 위임
+  node scripts/crabbox-wrapper.mjs run ... --shell -- "pnpm test:changed"
+  ```</p>
+<ul>
+<li><strong>테스트 가이드</strong>: <code>docs/reference/test.md</code></li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Unit / integration tests</strong>
+  ```bash
+  # Run all tests (across pnpm workspace projects)
+  pnpm test</li>
+</ul>
+<p># Run a specific file or filter
+  pnpm test src/channels/session.test.ts
+  pnpm test -- --filter session</p>
+<p># Test only changed files since origin/main
+  pnpm test:changed</p>
+<p># Serial run (low-memory environments)
+  pnpm test:serial
+  # Or: OPENCLAW_VITEST_MAX_WORKERS=1 pnpm test</p>
+<p># Run extension (plugin) tests only
+  pnpm test:extensions
+  pnpm test extensions/telegram
+  ```</p>
+<ul>
+<li>
+<p><strong>Test coverage</strong>
+  <code>bash
+  pnpm test:coverage
+  # Output: HTML report generated in coverage/ directory</code></p>
+</li>
+<li>
+<p><strong>Live tests (real API calls)</strong>
+  <code>bash
+  OPENCLAW_LIVE_TEST=1 pnpm test:live
+  # Verbose: OPENCLAW_LIVE_TEST_QUIET=0 OPENCLAW_LIVE_TEST=1 pnpm test:live</code></p>
+</li>
+<li>
+<p><strong>Testing rules</strong></p>
+</li>
+<li>Test files: colocated next to source as <code>*.test.ts</code></li>
+<li>E2E tests: <code>*.e2e.test.ts</code></li>
+<li>Example models: <code>sonnet-4.6</code>, <code>gpt-5.5</code> (never use GPT-4.x as default)</li>
+<li>Always clean up timers, env vars, globals, mocks, sockets, temp dirs</li>
+<li>
+<p>Never run concurrent Vitest processes in the same worktree (triggers ENOTEMPTY cache race)</p>
+</li>
+<li>
+<p><strong>In Codex worktrees or sparse checkouts</strong>
+  ```bash
+  # Use the wrapper instead of direct pnpm test
+  node scripts/run-vitest.mjs src/channels/session.test.ts</p>
+</li>
+</ul>
+<p># Delegate broad checks to Crabbox/Testbox
+  node scripts/crabbox-wrapper.mjs run ... --shell -- "pnpm test:changed"
+  ```</p>
+<ul>
+<li><strong>Test guide</strong>: <code>docs/reference/test.md</code></li>
+</ul>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>브랜치 전략</strong></li>
+<li><code>main</code> 브랜치: 안정 릴리스. 머지 커밋 금지. Push 전 <code>origin/main</code>으로 리베이스.</li>
+<li>기능 브랜치: 기능/버그 단위로 짧은 브랜치 생성 후 PR 제출.</li>
+<li>
+<p>릴리스 태그: <code>vYYYY.M.D</code> 형식 (예: <code>v2026.5.21</code>). 베타: <code>vYYYY.M.D-beta.N</code>.</p>
+</li>
+<li>
+<p><strong>커밋 메시지 컨벤션</strong></p>
+</li>
+<li>Conventional Commits 스타일 권장: <code>fix:</code>, <code>feat:</code>, <code>chore:</code>, <code>refactor:</code>, <code>docs:</code>, <code>test:</code></li>
+<li>예: <code>fix: allow provider timeout overlays (#83990)</code></li>
+<li>커밋은 <code>scripts/committer "&lt;msg&gt;" &lt;file...&gt;</code> 스크립트를 통해 작성 (의도한 파일만 스테이징)</li>
+<li>
+<p>시크릿, 전화번호, 영상, 라이브 설정 등 민감 정보 커밋 금지</p>
+</li>
+<li>
+<p><strong>PR / 코드 리뷰 절차</strong></p>
+</li>
+<li>PR 생성 전: <code>pnpm check:changed</code> (변경된 파일 기준 전체 검사)</li>
+<li>PR 본문에 <strong>Summary</strong> + <strong>Verification</strong> (재현 단계, 테스트 결과) 포함 필수</li>
+<li>실제 동작 증명 섹션: <code>Behavior addressed</code>, <code>Real environment tested</code>, <code>Exact steps or command run after this patch</code>, <code>Evidence after fix</code>, <code>Observed result after fix</code></li>
+<li>코드 리뷰 전 <code>$autoreview</code> 수행 (수용 가능한 지적 사항이 없을 때까지)</li>
+<li>Changelog 항목은 PR 랜딩/머지 시 메인테이너/AI가 추가 (기여자 PR 저자가 직접 편집 금지)</li>
+<li>
+<p><code>CODEOWNERS</code>: 유지보수/리팩토링/테스트는 OK. 제품/보안/소유권 변경은 소유자 검토 필요.</p>
+</li>
+<li>
+<p><strong>코딩 스타일 / 린트</strong></p>
+</li>
+<li><strong>포매터</strong>: <code>oxfmt</code> (Prettier 사용 금지)
+    <code>bash
+    pnpm format           # 전체 포맷
+    pnpm lint             # 전체 린트</code></li>
+<li>TypeScript: strict 모드, ESM. <code>any</code> 사용 금지; 실제 타입 또는 <code>unknown</code> + 좁은 어댑터 사용.</li>
+<li><code>@ts-nocheck</code> 금지. 린트 억제는 의도적이고 설명된 경우에만.</li>
+<li>외부 경계: <code>zod</code> 또는 기존 스키마 헬퍼 사용.</li>
+<li>파일당 ~700 LOC 기준으로 분리 (명확성/테스트 가능성 향상 시).</li>
+<li>임포트 사이클 금지: <code>pnpm check:import-cycles</code> 항상 green 유지.</li>
+<li>타입 체크: <code>pnpm tsgo*</code> (절대 <code>tsc --noEmit</code> 사용 금지).</li>
+<li>제품/문서/UI: "plugin/plugins" 용어 사용. <code>extensions/</code>는 내부 용어.</li>
+<li>이름: <strong>OpenClaw</strong> (제품/문서), <code>openclaw</code> (CLI/패키지/경로/설정).</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Branching strategy</strong></li>
+<li><code>main</code> branch: stable releases. No merge commits. Rebase on <code>origin/main</code> before push.</li>
+<li>Feature branches: short-lived branches per feature/bug, then PR.</li>
+<li>
+<p>Release tags: <code>vYYYY.M.D</code> format (e.g., <code>v2026.5.21</code>). Beta: <code>vYYYY.M.D-beta.N</code>.</p>
+</li>
+<li>
+<p><strong>Commit message conventions</strong></p>
+</li>
+<li>Conventional Commits style preferred: <code>fix:</code>, <code>feat:</code>, <code>chore:</code>, <code>refactor:</code>, <code>docs:</code>, <code>test:</code></li>
+<li>Example: <code>fix: allow provider timeout overlays (#83990)</code></li>
+<li>Use <code>scripts/committer "&lt;msg&gt;" &lt;file...&gt;</code> script to commit (stage only intended files)</li>
+<li>
+<p>Never commit secrets, phone numbers, videos, or live config</p>
+</li>
+<li>
+<p><strong>PR / code review process</strong></p>
+</li>
+<li>Before creating PR: <code>pnpm check:changed</code> (checks all changed files)</li>
+<li>PR body must include <strong>Summary</strong> + <strong>Verification</strong> (repro steps, test results)</li>
+<li>Real behavior proof section required: <code>Behavior addressed</code>, <code>Real environment tested</code>, <code>Exact steps or command run after this patch</code>, <code>Evidence after fix</code>, <code>Observed result after fix</code></li>
+<li>Run <code>$autoreview</code> before code review (until no actionable findings remain)</li>
+<li>Changelog entries are added by maintainers/AI at landing time (contributors must NOT edit <code>CHANGELOG.md</code> directly)</li>
+<li>
+<p><code>CODEOWNERS</code>: maintenance/refactoring/tests are fine. Product/security/ownership changes need owner review.</p>
+</li>
+<li>
+<p><strong>Coding style / lint</strong></p>
+</li>
+<li><strong>Formatter</strong>: <code>oxfmt</code> (never use Prettier)
+    <code>bash
+    pnpm format           # Format all files
+    pnpm lint             # Lint all files</code></li>
+<li>TypeScript: strict mode, ESM. Avoid <code>any</code>; use real types or <code>unknown</code> + narrow adapters.</li>
+<li><code>@ts-nocheck</code> is forbidden. Lint suppressions must be intentional and explained.</li>
+<li>External boundaries: use <code>zod</code> or existing schema helpers.</li>
+<li>Split files at ~700 LOC when it improves clarity/testability.</li>
+<li>No import cycles: always keep <code>pnpm check:import-cycles</code> green.</li>
+<li>Type check: use <code>pnpm tsgo*</code> (never use <code>tsc --noEmit</code>).</li>
+<li>Product/docs/UI: use term "plugin/plugins". <code>extensions/</code> is internal.</li>
+<li>Naming: <strong>OpenClaw</strong> (product/docs), <code>openclaw</code> (CLI/package/path/config).</li>
+</ul>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. <code>pnpm install</code> 후 <code>sharp</code> 관련 빌드 오류가 발생합니다.</strong></p>
+<p>A: macOS에서 Homebrew의 libvips가 시스템에 설치되어 있을 경우 충돌이 발생할 수 있습니다. 다음 환경 변수를 설정하고 재설치하세요:</p>
+<pre><code class="language-bash">SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install
+</code></pre>
+<hr />
+<p><strong>Q2. <code>pnpm gateway:watch</code> 실행 시 tmux 관련 오류가 나거나 아무것도 실행되지 않습니다.</strong></p>
+<p>A: <code>gateway:watch</code> 스크립트는 tmux를 사용합니다. tmux가 설치되어 있지 않거나 터미널 환경이 tmux를 지원하지 않는 경우 직접 게이트웨이를 실행하세요:</p>
+<pre><code class="language-bash">pnpm openclaw gateway --port 18789 --verbose
+# 또는
+node scripts/run-node.mjs gateway --port 18789 --verbose
+</code></pre>
+<hr />
+<p><strong>Q3. 테스트 실행 중 <code>ENOTEMPTY</code> 오류가 발생합니다.</strong></p>
+<p>A: 동일한 worktree에서 여러 Vitest 프로세스가 동시에 실행되면 파일 캐시 경쟁이 발생합니다. 해결 방법:</p>
+<pre><code class="language-bash"># 방법 1: 직렬 실행
+pnpm test:serial
+
+# 방법 2: 최대 워커 수 제한
+OPENCLAW_VITEST_MAX_WORKERS=1 pnpm test
+
+# 방법 3: 별도 캐시 경로 지정
+OPENCLAW_VITEST_FS_MODULE_CACHE_PATH=/tmp/vitest-cache-2 pnpm test
+</code></pre>
+<hr />
+<p><strong>Q4. <code>pnpm openclaw setup</code>은 언제 다시 실행해야 하나요?</strong></p>
+<p>A: 다음 경우에만 재실행이 필요합니다:
+- 로컬 OpenClaw 설정이나 workspace를 완전히 초기화한 후 (<code>~/.openclaw/</code> 삭제 후)
+- 첫 번째 개발 환경 구성 시
+일반적인 소스 코드 변경 후에는 재실행이 불필요합니다.</p>
+<hr />
+<p><strong>Q5. Codex worktree 또는 linked/sparse 체크아웃 환경에서 <code>pnpm test</code>를 직접 실행하면 오류가 납니다.</strong></p>
+<p>A: 이 환경에서는 <code>pnpm test*</code> 직접 실행 시 pnpm 의존성 재조정이나 설치 프롬프트가 발생할 수 있습니다. 대신 래퍼를 사용하세요:</p>
+<pre><code class="language-bash"># 소수 파일에 대한 빠른 테스트
+node scripts/run-vitest.mjs &lt;path-or-filter&gt;
+
+# 광범위한 검사
+node scripts/crabbox-wrapper.mjs run ... --shell -- &quot;pnpm test:changed&quot;
+</code></pre>
+<hr />
+<p><strong>Q6. 타입 에러를 어떻게 확인하나요? <code>tsc</code>를 사용하면 되나요?</strong></p>
+<p>A: <strong>아니오.</strong> 이 프로젝트는 <code>tsgo</code> (TypeScript Native Preview)를 타입 체크 도구로 사용합니다. 절대 <code>tsc --noEmit</code>이나 <code>typecheck</code>를 추가하지 마세요:</p>
+<pre><code class="language-bash">pnpm check:test-types  # 테스트 타입 검사
+pnpm check:changed     # 변경된 파일 전체 검사 (타입 포함)
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. I get a <code>sharp</code>-related build error after <code>pnpm install</code>.</strong></p>
+<p>A: On macOS, a system-installed Homebrew libvips can conflict. Set this env var and reinstall:</p>
+<pre><code class="language-bash">SHARP_IGNORE_GLOBAL_LIBVIPS=1 pnpm install
+</code></pre>
+<hr />
+<p><strong>Q2. <code>pnpm gateway:watch</code> gives tmux errors or does nothing.</strong></p>
+<p>A: The <code>gateway:watch</code> script uses tmux. If tmux is not installed or your terminal doesn't support it, run the gateway directly:</p>
+<pre><code class="language-bash">pnpm openclaw gateway --port 18789 --verbose
+# or
+node scripts/run-node.mjs gateway --port 18789 --verbose
+</code></pre>
+<hr />
+<p><strong>Q3. I get <code>ENOTEMPTY</code> errors while running tests.</strong></p>
+<p>A: Concurrent Vitest processes in the same worktree cause a file cache race. Fix options:</p>
+<pre><code class="language-bash"># Option 1: serial run
+pnpm test:serial
+
+# Option 2: limit worker count
+OPENCLAW_VITEST_MAX_WORKERS=1 pnpm test
+
+# Option 3: use a separate cache path
+OPENCLAW_VITEST_FS_MODULE_CACHE_PATH=/tmp/vitest-cache-2 pnpm test
+</code></pre>
+<hr />
+<p><strong>Q4. When do I need to re-run <code>pnpm openclaw setup</code>?</strong></p>
+<p>A: Only in these cases:
+- After fully resetting your local OpenClaw config or workspace (e.g., after deleting <code>~/.openclaw/</code>)
+- On first-time dev environment setup
+You do not need to re-run it after regular source code changes.</p>
+<hr />
+<p><strong>Q5. Running <code>pnpm test</code> directly in a Codex worktree or sparse checkout errors out.</strong></p>
+<p>A: In those environments, direct <code>pnpm test*</code> can trigger pnpm dependency reconciliation or install prompts. Use the wrapper instead:</p>
+<pre><code class="language-bash"># For a small number of explicit files
+node scripts/run-vitest.mjs &lt;path-or-filter&gt;
+
+# For broad checks
+node scripts/crabbox-wrapper.mjs run ... --shell -- &quot;pnpm test:changed&quot;
+</code></pre>
+<hr />
+<p><strong>Q6. How do I check type errors? Can I use <code>tsc</code>?</strong></p>
+<p>A: <strong>No.</strong> This project uses <code>tsgo</code> (TypeScript Native Preview) for type checking. Never add <code>tsc --noEmit</code> or <code>typecheck</code>:</p>
+<pre><code class="language-bash">pnpm check:test-types  # Check test types
+pnpm check:changed     # Full check of changed files (includes types)
+</code></pre></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>openclaw/openclaw</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/openclaw/openclaw" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
