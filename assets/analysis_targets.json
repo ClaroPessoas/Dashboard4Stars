@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-05-22 08:54:51 KST",
+  "generated_at": "2026-05-22 10:05:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,12 +7,12 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 17,
+  "total_targets": 15,
   "summary": {
     "top100": {
       "candidates": 5,
-      "selected": 5,
-      "skipped_existing_analysis": 0,
+      "selected": 3,
+      "skipped_existing_analysis": 2,
       "skipped_duplicate": 0
     },
     "daily": {
@@ -37,62 +37,12 @@
   "targets": [
     {
       "rank": 1,
-      "name": "freeCodeCamp",
-      "full_name": "freeCodeCamp/freeCodeCamp",
-      "description": "freeCodeCamp.org's open-source codebase and curriculum. Learn math, programming, and computer science for free.",
-      "url": "https://github.com/freeCodeCamp/freeCodeCamp",
-      "stars": 445252,
-      "forks": 44663,
-      "language": "TypeScript",
-      "topics": [
-        "careers",
-        "certification",
-        "community",
-        "curriculum",
-        "d3",
-        "education",
-        "freecodecamp",
-        "javascript",
-        "learn-to-code",
-        "math",
-        "nodejs",
-        "nonprofits",
-        "programming",
-        "react",
-        "teachers"
-      ],
-      "updated_at": "2026-05-21T23:41:01Z",
-      "period": "top100"
-    },
-    {
-      "rank": 1,
-      "name": "openclaw",
-      "full_name": "openclaw/openclaw",
-      "description": "Your own personal AI assistant. Any OS. Any Platform. The lobster way. 🦞 ",
-      "url": "https://github.com/openclaw/openclaw",
-      "stars": 373761,
-      "forks": 77645,
-      "language": "TypeScript",
-      "topics": [
-        "ai",
-        "assistant",
-        "crustacean",
-        "molty",
-        "openclaw",
-        "own-your-data",
-        "personal"
-      ],
-      "updated_at": "2026-05-21T23:53:26Z",
-      "period": "top100"
-    },
-    {
-      "rank": 1,
       "name": "system-design-primer",
       "full_name": "donnemartin/system-design-primer",
       "description": "Learn how to design large-scale systems. Prep for the system design interview.  Includes Anki flashcards.",
       "url": "https://github.com/donnemartin/system-design-primer",
-      "stars": 349718,
-      "forks": 56336,
+      "stars": 349724,
+      "forks": 56335,
       "language": "Python",
       "topics": [
         "design",
@@ -109,7 +59,7 @@
         "web-application",
         "webapp"
       ],
-      "updated_at": "2026-05-21T23:32:34Z",
+      "updated_at": "2026-05-22T01:00:34Z",
       "period": "top100"
     },
     {
@@ -118,8 +68,8 @@
       "full_name": "vinta/awesome-python",
       "description": "An opinionated list of Python frameworks, libraries, tools, and resources",
       "url": "https://github.com/vinta/awesome-python",
-      "stars": 298888,
-      "forks": 27940,
+      "stars": 298900,
+      "forks": 27941,
       "language": "Python",
       "topics": [
         "awesome",
@@ -129,7 +79,7 @@
         "python-libraries",
         "python-tools"
       ],
-      "updated_at": "2026-05-21T23:50:14Z",
+      "updated_at": "2026-05-22T00:56:57Z",
       "period": "top100"
     },
     {
@@ -138,8 +88,8 @@
       "full_name": "awesome-selfhosted/awesome-selfhosted",
       "description": "A list of Free Software network services and web applications which can be hosted on your own servers",
       "url": "https://github.com/awesome-selfhosted/awesome-selfhosted",
-      "stars": 294363,
-      "forks": 13666,
+      "stars": 294374,
+      "forks": 13667,
       "language": "",
       "topics": [
         "awesome",
@@ -151,7 +101,7 @@
         "self-hosted",
         "selfhosted"
       ],
-      "updated_at": "2026-05-21T23:47:50Z",
+      "updated_at": "2026-05-22T00:53:48Z",
       "period": "top100"
     },
     {
@@ -161,10 +111,10 @@
       "owner": "anthropics",
       "description": "Official, Anthropic-managed directory of high quality Claude Code Plugins.",
       "url": "https://github.com/anthropics/claude-plugins-official",
-      "stars": 22350,
-      "forks": 2640,
+      "stars": 22464,
+      "forks": 2646,
       "language": "Python",
-      "stars_gained": "891 stars today",
+      "stars_gained": "682 stars today",
       "topics": [],
       "period": "daily"
     },
@@ -175,10 +125,10 @@
       "owner": "multica-ai",
       "description": "A single CLAUDE.md file to improve Claude Code behavior, derived from Andrej Karpathy's observations on LLM coding pitfalls.",
       "url": "https://github.com/multica-ai/andrej-karpathy-skills",
-      "stars": 143104,
-      "forks": 14670,
+      "stars": 143199,
+      "forks": 14681,
       "language": "",
-      "stars_gained": "2,590 stars today",
+      "stars_gained": "2,614 stars today",
       "topics": [],
       "period": "daily"
     },
@@ -189,10 +139,10 @@
       "owner": "dotnet",
       "description": "Repository for skills to assist AI coding agents with .NET and C#",
       "url": "https://github.com/dotnet/skills",
-      "stars": 2183,
-      "forks": 177,
+      "stars": 2198,
+      "forks": 178,
       "language": "C#",
-      "stars_gained": "179 stars today",
+      "stars_gained": "129 stars today",
       "topics": [],
       "period": "daily"
     },
@@ -203,10 +153,10 @@
       "owner": "obra",
       "description": "An agentic skills framework & software development methodology that works.",
       "url": "https://github.com/obra/superpowers",
-      "stars": 201477,
-      "forks": 17948,
+      "stars": 201526,
+      "forks": 17953,
       "language": "Shell",
-      "stars_gained": "1,572 stars today",
+      "stars_gained": "1,576 stars today",
       "topics": [],
       "period": "daily"
     },
@@ -217,10 +167,10 @@
       "owner": "tinyhumansai",
       "description": "Your Personal AI super intelligence. Private, Simple and extremely powerful.",
       "url": "https://github.com/tinyhumansai/openhuman",
-      "stars": 24817,
-      "forks": 2236,
+      "stars": 24869,
+      "forks": 2242,
       "language": "Rust",
-      "stars_gained": "19,177 stars this week",
+      "stars_gained": "17,399 stars this week",
       "topics": [],
       "period": "weekly"
     },
@@ -231,10 +181,10 @@
       "owner": "Imbad0202",
       "description": "Academic Research Skills for Claude Code: research → write → review → revise → finalize",
       "url": "https://github.com/Imbad0202/academic-research-skills",
-      "stars": 18144,
-      "forks": 1559,
+      "stars": 18186,
+      "forks": 1565,
       "language": "Python",
-      "stars_gained": "8,737 stars this week",
+      "stars_gained": "10,737 stars this week",
       "topics": [],
       "period": "weekly"
     },
@@ -245,10 +195,10 @@
       "owner": "supertone-inc",
       "description": "Lightning-Fast, On-Device, Multilingual TTS — running natively via ONNX.",
       "url": "https://github.com/supertone-inc/supertonic",
-      "stars": 9146,
+      "stars": 9153,
       "forks": 939,
       "language": "Swift",
-      "stars_gained": "4,986 stars this week",
+      "stars_gained": "4,120 stars this week",
       "topics": [],
       "period": "weekly"
     },
@@ -259,10 +209,10 @@
       "owner": "rohitg00",
       "description": "#1 Persistent memory for AI coding agents based on real-world benchmarks",
       "url": "https://github.com/rohitg00/agentmemory",
-      "stars": 15795,
-      "forks": 1310,
+      "stars": 15835,
+      "forks": 1311,
       "language": "TypeScript",
-      "stars_gained": "7,976 stars this week",
+      "stars_gained": "7,000 stars this week",
       "topics": [],
       "period": "weekly"
     },
@@ -273,10 +223,10 @@
       "owner": "mattpocock",
       "description": "Skills for Real Engineers. Straight from my .claude directory.",
       "url": "https://github.com/mattpocock/skills",
-      "stars": 99011,
-      "forks": 8761,
+      "stars": 99097,
+      "forks": 8764,
       "language": "Shell",
-      "stars_gained": "80,029 stars this month",
+      "stars_gained": "81,739 stars this month",
       "topics": [],
       "period": "monthly"
     },
@@ -287,10 +237,10 @@
       "owner": "Alishahryar1",
       "description": "Use claude-code for free in the terminal, VSCode extension or discord like OpenClaw (voice supported)",
       "url": "https://github.com/Alishahryar1/free-claude-code",
-      "stars": 27474,
-      "forks": 4081,
+      "stars": 27500,
+      "forks": 4082,
       "language": "Python",
-      "stars_gained": "24,944 stars this month",
+      "stars_gained": "25,325 stars this month",
       "topics": [],
       "period": "monthly"
     },
@@ -301,10 +251,10 @@
       "owner": "CloakHQ",
       "description": "Stealth Chromium that passes every bot detection test. Drop-in Playwright replacement with source-level fingerprint patches. 30/30 tests passed.",
       "url": "https://github.com/CloakHQ/CloakBrowser",
-      "stars": 18202,
-      "forks": 1439,
+      "stars": 18231,
+      "forks": 1440,
       "language": "Python",
-      "stars_gained": "16,037 stars this month",
+      "stars_gained": "16,687 stars this month",
       "topics": [],
       "period": "monthly"
     },
@@ -315,10 +265,10 @@
       "owner": "anthropics",
       "description": "",
       "url": "https://github.com/anthropics/financial-services",
-      "stars": 26490,
-      "forks": 3700,
+      "stars": 26495,
+      "forks": 3701,
       "language": "Python",
-      "stars_gained": "18,624 stars this month",
+      "stars_gained": "18,821 stars this month",
       "topics": [],
       "period": "monthly"
     }
