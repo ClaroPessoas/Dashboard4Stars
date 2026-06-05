@@ -1,0 +1,1368 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>donnemartin/system-design-primer - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/donnemartin/system-design-primer" target="_blank" rel="noopener">donnemartin/system-design-primer</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Learn how to design large-scale systems. Prep for the system design interview.  Includes Anki flashcards.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">top100 trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 351785</span>
+      
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="analysis">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-analysis">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-05
+분석 대상: <code>/tmp/github-dashboard-analysis/donnemartin_system-design-primer</code></p>
+<hr />
+<h1 id="open-source-analysis-report">오픈소스 분석 보고서 / Open Source Analysis Report</h1>
+<h2 id="analysis-summary-table">분석 요약 테이블 / Analysis Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>대규모 시스템 설계 학습 및 기술 면접 대비용 교육 자료 모음</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 저장소, Flat 구조 (README + solutions/ + images/ + resources/)</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3, Jupyter Notebook, Markdown, pandoc (epub 변환)</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>README.md (주 콘텐츠 1,839줄), solutions/ (코드 예제 및 설계 솔루션)</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>콘텐츠 중심 교육 자료 — 실행 가능한 소프트웨어 아키텍처 없음</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>정적 Markdown 콘텐츠, PNG 다이어그램, Jupyter 노트북, .graffle 파일</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>배포 플랫폼 없음 (GitHub README로 직접 제공), epub 생성 스크립트 존재</td>
+<td>★★☆☆☆</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>테스트 코드 없음 (CI/CD 워크플로우 미존재)</td>
+<td>★☆☆☆☆</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 없음, 의존성 관리 파일 없음</td>
+<td>★☆☆☆☆</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>GitHub 최다 star 저장소 중 하나, 다국어 번역 체계, 커뮤니티 활성</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="detailed-analysis">상세 분석 / Detailed Analysis</h2>
+<h3 id="step-1-purpose-and-scope">Step 1. 목적 및 범위 (Purpose and Scope)</h3>
+<p><strong>한국어:</strong>
+<code>system-design-primer</code>는 대규모 시스템 설계 방법을 학습하고 기술 면접에 대비하기 위한 <strong>교육 콘텐츠 저장소</strong>입니다. 저자 Donne Martin (前 Facebook 엔지니어)이 편저한 내용으로, README.md에 ~1,839줄의 방대한 시스템 설계 개념(확장성, 가용성, 일관성, 캐싱, 데이터베이스 패턴 등)이 담겨 있습니다. 이 저장소는 <strong>라이브러리·프레임워크·실행 가능한 애플리케이션이 아닌 순수 교육 참고 자료</strong>입니다.</p>
+<p><strong>English:</strong>
+<code>system-design-primer</code> is an <strong>educational content repository</strong> for learning how to design large-scale systems and preparing for technical interviews. The primary README.md spans ~1,839 lines covering 40+ topics including scalability, availability, consistency, caching, and distributed system patterns. It is not a library or runnable application — it is a structured knowledge base.</p>
+<hr />
+<h3 id="step-2-repository-structure">Step 2. 저장소 구조 (Repository Structure)</h3>
+<pre><code>donnemartin_system-design-primer/
+├── README.md                    # 주 콘텐츠 (1,839줄) - 영어
+├── README-ja.md / zh-Hans / zh-TW  # 다국어 번역 (1,788~1,839줄)
+├── CONTRIBUTING.md              # 기여 가이드
+├── TRANSLATIONS.md              # 번역 상태 관리 (Live/In Progress/Stalled)
+├── LICENSE.txt                  # CC BY 4.0
+├── .github/
+│   └── PULL_REQUEST_TEMPLATE.md # PR 체크리스트 (번역 위주)
+├── epub-metadata.yaml + generate-epub.sh  # pandoc 기반 epub 생성
+├── images/                      # 아키텍처 다이어그램 PNG 30+개
+├── resources/                   # 학습 로드맵 (study_guide.png/.graffle)
+└── solutions/
+    ├── object_oriented_design/  # OOD 6문제 (call_center, lru_cache 등)
+    │   └── &lt;문제&gt;/ → .py (스켈레톤) + .ipynb (교육용 노트북)
+    └── system_design/           # 시스템 설계 8문제 (pastebin, twitter 등)
+        └── &lt;문제&gt;/ → README.md + .py (MapReduce 스니펫) + .png/.graffle
+</code></pre>
+<p>구조는 <strong>주제별(콘텐츠별) 조직화</strong>이며, 모노레포이지만 실행 가능한 서비스가 아닌 문서+코드 스켈레톤 모음입니다.</p>
+<hr />
+<h3 id="step-3-software-stack">Step 3. 기술 스택 (Software Stack)</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Python 3 (코드 스니펫), Markdown (주 콘텐츠)</td>
+</tr>
+<tr>
+<td><strong>빌드/패키지</strong></td>
+<td>없음 — <code>requirements.txt</code>, <code>pyproject.toml</code>, <code>setup.py</code> 모두 미존재</td>
+</tr>
+<tr>
+<td><strong>주요 라이브러리</strong></td>
+<td><code>mrjob</code> (MapReduce 예시), <code>abc</code>, <code>collections</code>, <code>enum</code> (표준 라이브러리)</td>
+</tr>
+<tr>
+<td><strong>런타임</strong></td>
+<td>Jupyter Notebook (교육용), 별도 서버 없음</td>
+</tr>
+<tr>
+<td><strong>문서 변환</strong></td>
+<td>pandoc (epub 생성용 <code>generate-epub.sh</code>)</td>
+</tr>
+<tr>
+<td><strong>다이어그램</strong></td>
+<td>OmniGraffle (.graffle), PNG</td>
+</tr>
+<tr>
+<td><strong>플래시카드</strong></td>
+<td>Anki (.apkg) — 저장소 외부 참조 링크</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="step-4-architecture-analysis">Step 4. 아키텍처 분석 (Architecture Analysis)</h3>
+<p>실행 가능한 소프트웨어가 아니므로 전통적 아키텍처 패턴은 해당 없음. <strong>콘텐츠 구조 관점:</strong></p>
+<ul>
+<li><strong>이론 계층 (README.md):</strong> 40+ 주제, 각 주제마다 트레이드오프·외부 참조 링크 포함</li>
+<li><strong>실습 계층 (solutions/):</strong> 시스템 설계 8문제 + OOD 6문제, 단계별 설계 설명</li>
+<li><strong>시각 계층 (images/, resources/):</strong> 아키텍처 다이어그램, 학습 로드맵</li>
+</ul>
+<p><strong>Python 코드 특성:</strong> OOD 솔루션은 <code>ABCMeta</code>, <code>Enum</code>, <code>deque</code> 활용 객체지향 스켈레톤. 시스템 설계 코드는 <code>mrjob</code> 기반 MapReduce 패턴 예시 (stub 메서드 다수). <strong>코드 버그 발견:</strong> <code>lru_cache.py:5</code>에서 <code>self.next = next</code> (Python 내장 함수 참조), <code>call_center.py:47</code>에서 <code>Operator.__init__</code>의 잘못된 <code>super()</code> 호출 — 교육용 스켈레톤이나 오해를 줄 수 있음.</p>
+<hr />
+<h3 id="step-5-quality-and-test-system">Step 5. 품질 및 테스트 (Quality and Test System)</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>테스트 파일</td>
+<td><strong>없음</strong> (0개)</td>
+</tr>
+<tr>
+<td>CI/CD 워크플로우</td>
+<td><strong>없음</strong> (<code>.github/workflows/</code> 미존재)</td>
+</tr>
+<tr>
+<td>린팅/포맷팅</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>커버리지 도구</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>릴리즈 전략</td>
+<td><strong>없음</strong> (Git 태그/버전 없음, 단일 <code>master</code> 브랜치)</td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td><strong>없음</strong></td>
+</tr>
+</tbody>
+</table>
+<p>교육용 콘텐츠이므로 테스트 자동화 부재는 이해되나, 최소한의 CI(링크 유효성·마크다운 린팅)라도 있었다면 코드 버그 및 깨진 링크를 방지할 수 있었음.</p>
+<hr />
+<h3 id="step-6-security-and-supply-chain">Step 6. 보안 및 공급망 (Security and Supply Chain)</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>의존성 관리</td>
+<td><strong>없음</strong> (패키지 파일 전무)</td>
+</tr>
+<tr>
+<td>Dependabot/Renovate</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td><strong>CC BY 4.0</strong> — 상업적 사용·수정·재배포 허용 (저작자 표시 필수)</td>
+</tr>
+<tr>
+<td>저작권</td>
+<td>Copyright 2017 Donne Martin (개인 저작, 前 Facebook)</td>
+</tr>
+</tbody>
+</table>
+<p>실행 가능한 의존성이 없어 공급망 보안 위험은 실질적으로 없음. CC BY 4.0은 소프트웨어 라이선스가 아닌 콘텐츠 라이선스임에 유의.</p>
+<hr />
+<h3 id="step-7-documentation-and-operational-maturity">Step 7. 문서화 및 운영 성숙도 (Documentation and Operational Maturity)</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README 품질</td>
+<td><strong>매우 높음</strong> — 1,839줄, 목차, 학습 가이드, 다이어그램, 참고 링크 완비</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td><strong>있음</strong> — PR 프로세스, 번역 가이드 상세</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>PR 템플릿</td>
+<td><strong>있음</strong> — 번역 중심 체크리스트</td>
+</tr>
+<tr>
+<td>이슈 템플릿</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>릴리즈 노트</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>번역 관리</td>
+<td><strong>TRANSLATIONS.md</strong> 존재 — 언어별 상태(Live/In Progress/Stalled) 추적</td>
+</tr>
+<tr>
+<td>다국어 지원</td>
+<td>영어(원본), 일본어·간체 중국어·번체 중국어 (Live); 한국어·러시아어 (In Progress)</td>
+</tr>
+<tr>
+<td>최근 커밋</td>
+<td>2026-03-20 "Fix link for UDP vs TCP" — 유지보수 중이나 활동 빈도 낮음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>압도적인 콘텐츠 깊이와 구조:</strong> 단일 README.md에 40+ 시스템 설계 주제를 망라하며, 각 주제마다 트레이드오프·참고 링크를 체계적으로 제공. 초급부터 고급까지 연속적 학습 경로 구성.</p>
+</li>
+<li>
+<p><strong>이론-실습 연계 구조:</strong> 8개 시스템 설계 솔루션(Pastebin, Twitter, Web Crawler 등)과 6개 OOD 솔루션이 Jupyter 노트북 + Python 코드 + 아키텍처 다이어그램 + 단계별 설명으로 구성되어 이론→실습 연결이 명확.</p>
+</li>
+<li>
+<p><strong>국제화 및 번역 거버넌스:</strong> <code>TRANSLATIONS.md</code>를 통한 언어별 상태 추적, 유지관리자 명시, PR 네이밍 컨벤션(<code>ja: Fix ...</code>) 등 번역 기여 체계화. 4개 언어 Live, 2개 언어 In Progress.</p>
+</li>
+<li>
+<p><strong>멀티미디어 학습 생태계:</strong> Anki 플래시카드, 학습 로드맵 시각 자료, epub 생성 스크립트로 오프라인 학습까지 지원.</p>
+</li>
+<li>
+<p><strong>실세계 참고 자료 집약:</strong> Amazon, Twitter, Netflix 등 25+ 기업 아키텍처 사례, 엔지니어링 블로그 35+, 원본 논문(Bigtable, Dynamo, GFS, MapReduce)을 한 곳에 집약하여 업계 표준 학습 허브 역할.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-and-areas-for-improvement">위험/개선 필요 사항 (Risks and Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>코드 버그 미수정 (교육 자료 신뢰성 위협):</strong> <code>lru_cache.py:5</code>의 <code>self.next = next</code> (내장 함수 참조 버그), <code>call_center.py</code>의 잘못된 <code>super()</code> 호출 등 Python 스켈레톤 코드에 오류 존재. CI 부재로 방치 중이며 학습자를 오도할 수 있음.</p>
+</li>
+<li>
+<p><strong>CI/CD 자동화 부재:</strong> <code>.github/workflows/</code> 없어 링크 유효성, 마크다운 린팅, 코드 스타일 자동 검사 수단이 없음. 실제로 최근 커밋("Fix link for UDP vs TCP")처럼 깨진 링크가 수동으로만 발견·수정됨.</p>
+</li>
+<li>
+<p><strong>콘텐츠 신선도 저하:</strong> 주요 내용이 2017~2019년 기준이며, 클라우드 네이티브(Kubernetes, 서비스 메시), LLM 시스템 설계, 현대적 관찰 가능성(Observability) 패턴 등 최신 트렌드가 반영되어 있지 않음.</p>
+</li>
+<li>
+<p><strong>보안 및 거버넌스 문서 부재:</strong> <code>SECURITY.md</code>, <code>CODE_OF_CONDUCT.md</code>, 이슈 템플릿, 릴리즈 노트, CHANGELOG 없음.</p>
+</li>
+<li>
+<p><strong>유지보수 활동 저하 위험:</strong> 저장소 내 최신 커밋이 링크 수정 하나뿐으로, 장기적 콘텐츠 갱신 없이 "참조만 되는" 정적 자료로 고착화될 위험.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>한국어:</strong></p>
+<p><code>system-design-primer</code>는 <strong>시스템 설계 학습 자료로서 적극 권장</strong>합니다. 소프트웨어 라이브러리 "도입"이 아닌 다음 목적별 활용 기준으로 평가합니다:</p>
+<table>
+<thead>
+<tr>
+<th>활용 목적</th>
+<th>권고 수준</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>시스템 설계 면접 대비 교재</td>
+<td>✅ <strong>강력 권장</strong></td>
+</tr>
+<tr>
+<td>엔지니어 온보딩/사내 교육 자료</td>
+<td>✅ <strong>권장</strong></td>
+</tr>
+<tr>
+<td>아키텍처 벤치마킹 참고</td>
+<td>✅ <strong>권장</strong> (단, 최신 트렌드 보완 필요)</td>
+</tr>
+<tr>
+<td>프로덕션 코드에 직접 적용</td>
+<td>❌ <strong>부적합</strong> (스켈레톤 코드, 버그 포함)</td>
+</tr>
+<tr>
+<td>패키지 의존성으로 추가</td>
+<td>❌ <strong>부적합</strong> (소프트웨어 패키지 아님)</td>
+</tr>
+</tbody>
+</table>
+<p>CC BY 4.0 라이선스로 저작자 표시 시 자유롭게 활용·재배포 가능. 2017~2019년 기준 콘텐츠가 많으므로 클라우드 네이티브·AI 시스템 설계 등 최신 토픽은 별도 보완 필요.</p>
+<p><strong>English:</strong></p>
+<p><code>system-design-primer</code> is <strong>highly recommended as a structured reference for system design education</strong>. It is not a software library to adopt, but an outstanding knowledge base for interview preparation, internal engineering education, and architectural benchmarking. Supplement with up-to-date resources on cloud-native, LLM systems, and modern observability patterns. CC BY 4.0 allows broad reuse with attribution.</p>
+<hr />
+<p><em>보고서 저장 위치: <code>.review/REVIEW.md</code></em>
+<em>Report saved to: <code>.review/REVIEW.md</code></em>
+<em>분석: Claude Sonnet 4.6 | 분석일: 2026-06-05</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-05
+대상 / Target: <code>/tmp/github-dashboard-analysis/donnemartin_system-design-primer</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved:</strong>
+대규모 시스템 설계 방법론을 학습하고 기술 면접을 준비하는 개발자를 위한 체계적인 학습 자료를 제공한다. 분산 시스템, 데이터베이스, 캐싱, 네트워킹, 아키텍처 패턴 등을 망라한 큐레이션된 콘텐츠 저장소다.</p>
+<p>This is a curated collection of resources and educational content for engineers learning large-scale system design and preparing for technical interviews. It covers distributed systems, databases, caching, networking, and architecture patterns.</p>
+<p><strong>분류 / Classification:</strong> <code>Educational Content Repository</code> (교육 콘텐츠 저장소) — 배포 가능한 소프트웨어 애플리케이션이 아님 / Not a deployable software application</p>
+<blockquote>
+<p>⚠️ <strong>중요 / Important:</strong> 이 프로젝트는 소프트웨어 라이브러리·프레임워크·서비스가 아니라 <strong>문서 및 교육 자료</strong> 저장소이다. 상용화 적합성 평가는 "이 콘텐츠를 상업적 서비스·교육 제품·훈련 프로그램에 편입할 수 있는가"의 맥락에서 수행된다.</p>
+<p>This project is a <strong>documentation and educational content</strong> repository, not a software library, framework, or service. Commercialization fitness is evaluated in the context of: "Can this content be incorporated into commercial services, educational products, or training programs?"</p>
+</blockquote>
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Markdown (콘텐츠 주), Python 3 (코드 예제)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>없음 (N/A) — 순수 문서 저장소</td>
+</tr>
+<tr>
+<td>코드 예제 외부 의존성 / External Dependency</td>
+<td><code>mrjob</code> (MapReduce 예제용) — Apache 2.0 라이선스</td>
+</tr>
+<tr>
+<td>표준 라이브러리 / Stdlib</td>
+<td><code>abc</code>, <code>enum</code>, <code>collections</code>, <code>sys</code> (모두 Python stdlib)</td>
+</tr>
+<tr>
+<td>콘텐츠 형식 / Content Format</td>
+<td>Markdown (.md), Jupyter Notebook (.ipynb), Anki 플래시카드 (.apkg), PNG 다이어그램</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>없음 (N/A)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>없음 (N/A)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>없음 — GitHub Pages 또는 로컬 렌더링용</td>
+</tr>
+<tr>
+<td>빌드 도구 / Build Tool</td>
+<td><code>pandoc</code> (EPUB 생성용 generate-epub.sh)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>시스템 설계 프라이머는 &quot;배포 가능한 소프트웨어&quot;가 아닌 콘텐츠 저장소임.
+아키텍처 패턴 없음 (MVC, Hexagonal, Event-driven 등 해당 없음).
+
+The System Design Primer is a content repository, not deployable software.
+No architectural pattern applies.
+
+콘텐츠 구조:
+README.md (1,839줄, 주 학습 문서)
+  ├── 시스템 설계 토픽 (이론/개념)
+  ├── 면접 준비 가이드
+  └── 실습 문제 (solutions/)
+      ├── system_design/
+      │   ├── twitter, pastebin, mint, web_crawler,
+      │   │   scaling_aws, social_graph, query_cache, sales_rank
+      └── object_oriented_design/
+          ├── parking_lot, call_center, hash_table,
+          │   lru_cache, deck_of_cards, online_chat
+</code></pre>
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>donnemartin_system-design-primer/
+├── README.md                    # 메인 학습 문서 (1,839줄)
+├── README-ja.md                 # 일본어 번역
+├── README-zh-Hans.md            # 중국어 간체 번역
+├── README-zh-TW.md              # 중국어 번체 번역
+├── TRANSLATIONS.md              # 번역 기여 현황
+├── CONTRIBUTING.md              # 기여 가이드라인
+├── LICENSE.txt                  # CC BY 4.0 라이선스
+├── generate-epub.sh             # pandoc EPUB 빌더
+├── epub-metadata.yaml           # EPUB 메타데이터
+├── .gitignore
+├── .gitattributes
+├── .github/
+│   └── PULL_REQUEST_TEMPLATE.md
+├── images/                      # 다이어그램 PNG (~40개)
+├── resources/
+│   ├── study_guide.png
+│   ├── study_guide.graffle
+│   └── flash_cards/             # Anki 플래시카드 (.apkg 3개)
+└── solutions/
+    ├── system_design/           # 8개 시스템 설계 솔루션
+    │   └── [각 솔루션: README.md + Python 스니펫 + 다이어그램]
+    └── object_oriented_design/  # 6개 OOP 설계 솔루션
+        └── [각 솔루션: .py + .ipynb]
+</code></pre>
+<p><strong>부재 파일 / Absent Files:</strong>
+- <code>SECURITY.md</code> — 확인 불가, 파일 부재 / Not found — file absent
+- <code>CHANGELOG.md</code> / <code>RELEASES.md</code> — 확인 불가, 파일 부재 / Not found — file absent
+- <code>CODE_OF_CONDUCT.md</code> — 확인 불가, 파일 부재 / Not found — file absent
+- <code>requirements.txt</code> / <code>pyproject.toml</code> / <code>Pipfile</code> — 확인 불가, 파일 부재 / Not found — file absent
+- <code>Dockerfile</code> / <code>docker-compose.yml</code> — 확인 불가, 파일 부재 / Not found — file absent
+- <code>.github/workflows/</code> — 확인 불가, 디렉토리 부재 / Not found — directory absent
+- <code>NOTICE</code> / <code>THIRD_PARTY_LICENSES</code> — 확인 불가, 파일 부재 / Not found — file absent</p>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>라이선스 / License:</strong> Creative Commons Attribution 4.0 International (CC BY 4.0)</p>
+<p><code>LICENSE.txt</code> 전문 요약:</p>
+<pre><code>Copyright 2017 Donne Martin
+Creative Commons Attribution 4.0 International License (CC BY 4.0)
+http://creativecommons.org/licenses/by/4.0/
+
+&quot;the license you receive to my code and resources is from me and not my employer (Facebook).&quot;
+</code></pre>
+<p><strong>주요 조건 / Key Terms:</strong></p>
+<table>
+<thead>
+<tr>
+<th>조건 / Condition</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>상업적 사용 허용 / Commercial use</td>
+<td>✅ 명시적 허용 / Explicitly permitted</td>
+</tr>
+<tr>
+<td>수정 허용 / Modification</td>
+<td>✅ 허용 (2차 저작물 포함)</td>
+</tr>
+<tr>
+<td>배포 허용 / Distribution</td>
+<td>✅ 허용</td>
+</tr>
+<tr>
+<td>저작자 표시 의무 / Attribution required</td>
+<td>⚠️ <strong>필수</strong> — Donne Martin에 대한 명시적 크레딧 필요</td>
+</tr>
+<tr>
+<td>동일조건 변경허락(ShareAlike)</td>
+<td>❌ 없음 — SA 조건 없음 (단순 BY)</td>
+</tr>
+<tr>
+<td>소스 공개 의무 / Source disclosure</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>특허 허여 / Patent grant</td>
+<td>❌ <strong>CC 라이선스에 특허 허여 없음</strong> (Apache 2.0과의 주요 차이점)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>중요 법적 고지 / Critical Legal Note:</strong> Creative Commons 조직은 소프트웨어 코드에 CC 라이선스 사용을 <strong>공식적으로 권장하지 않는다</strong>. CC BY 4.0은 문서, 이미지, 창작 저작물에 적합하며, 소프트웨어 코드에는 MIT/Apache 2.0이 더 적합하다. 이 저장소의 코드 스니펫들은 엄밀히 CC BY 4.0 하에 있으나 특허 허여가 없다는 점을 유의해야 한다.</p>
+<p>The Creative Commons organization officially discourages using CC licenses for software code. CC BY 4.0 is suited for documentation and creative works; MIT/Apache 2.0 are better for code. The code snippets in this repository are technically under CC BY 4.0 but carry no patent grant.</p>
+</blockquote>
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p>이 저장소는 배포 가능한 소프트웨어가 아니므로 공식 의존성 매니페스트(<code>requirements.txt</code> 등)가 없다. 코드 스니펫에서 확인된 의존성만 기록한다.</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mrjob</code></td>
+<td>명시 없음 / Unspecified</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td><code>abc</code></td>
+<td>Python stdlib</td>
+<td>PSF License 2.0</td>
+<td>Permissive</td>
+<td>🟢 없음</td>
+</tr>
+<tr>
+<td><code>enum</code></td>
+<td>Python stdlib</td>
+<td>PSF License 2.0</td>
+<td>Permissive</td>
+<td>🟢 없음</td>
+</tr>
+<tr>
+<td><code>collections</code></td>
+<td>Python stdlib</td>
+<td>PSF License 2.0</td>
+<td>Permissive</td>
+<td>🟢 없음</td>
+</tr>
+<tr>
+<td><code>sys</code></td>
+<td>Python stdlib</td>
+<td>PSF License 2.0</td>
+<td>Permissive</td>
+<td>🟢 없음</td>
+</tr>
+<tr>
+<td><code>pandoc</code> (빌드 도구)</td>
+<td>외부 설치 필요</td>
+<td>GPL-2.0+</td>
+<td>Strong Copyleft</td>
+<td>🟠 빌드 도구 — 바이너리 미포함</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>pandoc 참고사항 / pandoc note:</strong> <code>generate-epub.sh</code>는 pandoc을 외부 도구로 호출한다. pandoc 바이너리는 저장소에 포함되지 않으며 EPUB 생성에만 사용된다. 이 사용 방식은 GPL 전파를 유발하지 않는다 (배포 대상은 pandoc이 생성한 EPUB 결과물, pandoc 자체가 아님).</p>
+</blockquote>
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD, ISC, <strong>CC BY 4.0</strong>, PSF</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지</td>
+</tr>
+</tbody>
+</table>
+<p><strong>이 프로젝트 해당:</strong> 🟢 Permissive — CC BY 4.0 (상업적 사용 허용, 저작자 표시 의무)</p>
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<ul>
+<li><strong>GPL 전파 위험</strong>: 없음. 저장소에 GPL 코드 없음.</li>
+<li><strong>AGPL SaaS 위험</strong>: 없음. 배포 가능한 서비스 코드 없음.</li>
+<li><strong>CC BY 4.0 + Apache 2.0 (mrjob)</strong>: 호환. 둘 다 퍼미시브.</li>
+<li><strong>CC BY 4.0 소프트웨어 코드 적용 문제</strong>: CC BY 4.0은 코드에 특허 허여를 포함하지 않는다. 상업 배포 시 특허 분쟁 가능성을 완전히 배제하기 어려움. 단, 이 저장소의 코드는 단순 교육용 알고리즘 스니펫으로 특허 위험은 사실상 무시할 수 있는 수준이다.</li>
+</ul>
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] <strong>저작권 고지 포함 방법 / Copyright notice:</strong> 상업 제품/서비스/콘텐츠에 Donne Martin에 대한 명시적 크레딧 표기 필수</li>
+<li>[x] <strong>라이선스 링크 제공:</strong> <code>http://creativecommons.org/licenses/by/4.0/</code> 링크 포함</li>
+<li>[x] <strong>변경 여부 표시:</strong> 원본 콘텐츠를 수정한 경우 수정 사실 명시</li>
+<li>[ ] <strong>소스 공개 의무:</strong> 없음 (CC BY 4.0은 소스 공개를 요구하지 않음)</li>
+<li>[ ] <strong>동일 라이선스 적용 의무:</strong> 없음 (BY만 있고 SA 없음)</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>❌ 부재 / Absent</td>
+</tr>
+<tr>
+<td>Dependabot (.github/dependabot.yml)</td>
+<td>❌ 부재 / Absent</td>
+</tr>
+<tr>
+<td>Renovate (renovate.json)</td>
+<td>❌ 부재 / Absent</td>
+</tr>
+<tr>
+<td>Snyk (.snyk)</td>
+<td>❌ 부재 / Absent</td>
+</tr>
+<tr>
+<td>GitHub Actions / CI 보안 워크플로우</td>
+<td>❌ 부재 / Absent</td>
+</tr>
+<tr>
+<td>SBOM (CycloneDX/SPDX)</td>
+<td>❌ 부재 / Absent</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>맥락 / Context:</strong> 이 프로젝트는 배포 가능한 서비스가 아니므로 런타임 보안 위험은 본질적으로 낮다. 그러나 공식적인 취약점 관리 체계가 전혀 없다는 점은 콘텐츠를 상업적 제품에 통합할 때 자체 보안 프로세스를 적용해야 함을 의미한다.</p>
+</blockquote>
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<table>
+<thead>
+<tr>
+<th>위험 요소 / Risk Factor</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>하드코딩된 시크릿 / Hardcoded secrets</td>
+<td>✅ 없음 / None</td>
+<td>코드 스니펫 검사 결과 없음</td>
+</tr>
+<tr>
+<td>API 키 패턴 / API key patterns</td>
+<td>✅ 없음 / None</td>
+<td></td>
+</tr>
+<tr>
+<td>.env 파일 커밋 / .env committed</td>
+<td>✅ 없음 / None</td>
+<td></td>
+</tr>
+<tr>
+<td>EOL 의존성 / EOL dependencies</td>
+<td>⚠️ 주의</td>
+<td><code>mrjob</code> — 마지막 PyPI 릴리스 3.1.3(2021년), 사실상 유지보수 종료</td>
+</tr>
+<tr>
+<td>취약한 버전 의존성 / Vulnerable versions</td>
+<td>미확인 / Unknown</td>
+<td>lockfile 없어 버전 고정 불가</td>
+</tr>
+</tbody>
+</table>
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p>이 저장소는 인증/인가 구현이 없는 순수 콘텐츠 저장소이므로 인증·권한 관리, 시크릿 관리, 보안 아키텍처 평가 항목은 해당되지 않는다. 상업적 사용 시에는 콘텐츠를 담는 플랫폼이 자체적으로 보안을 구현해야 한다.</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<blockquote>
+<p><strong>주의 / Note:</strong> 로컬 클론은 단일 커밋(shallow clone)만 포함하고 있어 전체 이력을 확인할 수 없다. 공개 알려진 정보와 확인 가능한 데이터를 조합하여 평가한다.</p>
+</blockquote>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-03-20 (ae9bbd7 — "Fix link for UDP vs TCP #1153")</td>
+</tr>
+<tr>
+<td>로컬 확인 커밋 수 / Visible commits</td>
+<td>1 (shallow clone 한계)</td>
+</tr>
+<tr>
+<td>PR 번호 기준 / PR number reference</td>
+<td>#1153 — PR 번호로 보아 1,000건 이상의 커뮤니티 기여가 있었음을 시사</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>로컬 확인 불가; PR #1153의 존재로 대규모 기여자 커뮤니티 추정</td>
+</tr>
+<tr>
+<td>GitHub 스타 / GitHub stars</td>
+<td>공개 알려진 정보: 270,000+ (GitHub 역대 최다 스타 저장소 중 하나)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>확인 불가 — 공식 릴리스/태그 없는 rolling 방식</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>로컬 확인 불가</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서 / Document</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재 — 명확한 기여 프로세스 (fork-PR 방식)</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ 부재 / Absent</td>
+</tr>
+<tr>
+<td>PULL_REQUEST_TEMPLATE.md</td>
+<td>✅ 존재 (.github/)</td>
+</tr>
+<tr>
+<td>브랜치 전략 / Branch strategy</td>
+<td>master 단일 브랜치 전략</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 부재 / Absent</td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td>❌ 부재 / Absent</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>창작자</strong>: Donne Martin — Facebook(현 Meta) 재직 중 개인 프로젝트로 생성. LICENSE.txt에 명시: <em>"the license you receive is from me and not my employer (Facebook)."</em></li>
+<li><strong>재단 멤버십</strong>: CNCF/ASF 등 재단 멤버십 없음 (개인 프로젝트)</li>
+<li><strong>기업 스폰서</strong>: 공식 기업 스폰서 없음</li>
+<li><strong>LTS 버전</strong>: 없음 — 버전 관리 체계 없음, rolling content 방식</li>
+<li><strong>장기 전망</strong>: 콘텐츠 자체는 시스템 설계 원칙을 담고 있어 내용의 노후화 속도는 느리나, 유지보수 주체가 단일 개인이고 기업 후원이 없어 장기 유지보수 불확실성이 있음.</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p>이 프로젝트는 <strong>배포 가능한 서비스 소프트웨어가 아니므로</strong> 스케일링, 멀티테넌시, 헬스체크, 메트릭 노출 등의 운영 인프라 항목이 직접 적용되지 않는다. 상업적 활용은 콘텐츠로서의 적용에 해당한다.</p>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>해당 여부 / Applicable</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수평/수직 스케일링</td>
+<td>N/A</td>
+<td>서비스 소프트웨어 아님</td>
+</tr>
+<tr>
+<td>멀티테넌시</td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td>Docker/Kubernetes 준비도</td>
+<td>❌</td>
+<td>Dockerfile 없음</td>
+</tr>
+<tr>
+<td>헬스체크/프로브</td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td>구조화 로깅</td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td>Prometheus 메트릭</td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td>분산 추적</td>
+<td>N/A</td>
+<td></td>
+</tr>
+<tr>
+<td>12-Factor App 준수</td>
+<td>N/A</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>콘텐츠로서의 확장성 / Content Scalability:</strong>
+- EPUB 생성 스크립트 제공 (<code>generate-epub.sh</code>) → 오프라인 배포 가능
+- 다국어 번역 체계 구비 (한국어, 일본어, 중국어 간체/번체)
+- Anki 플래시카드 3종 제공 → 학습 플랫폼 통합 가능</p>
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 / Unit tests</td>
+<td>❌ 없음 — 공식 테스트 프레임워크 없음</td>
+</tr>
+<tr>
+<td>통합 테스트 / Integration tests</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>E2E 테스트 / E2E tests</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>Jupyter Notebook (인터랙티브 검증)</td>
+<td>✅ 6개 솔루션에 .ipynb 제공 — 비공식 테스트 역할</td>
+</tr>
+<tr>
+<td>CI 자동화 / CI automation</td>
+<td>❌ GitHub Actions 워크플로우 없음</td>
+</tr>
+<tr>
+<td>코드 커버리지 / Code coverage</td>
+<td>❌ 없음</td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><strong>해당 없음 / Not applicable.</strong> 이 저장소에는 Strong Copyleft(GPL/AGPL) 라이선스 코드가 없다. <code>pandoc</code>은 빌드 도구로만 사용되며 산출물에 포함되지 않는다.</p>
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<p><strong>해당 없음 / Not applicable.</strong> 배포 가능한 애플리케이션이 아니므로 12-Factor 기준 평가 불가. 이 콘텐츠를 담을 플랫폼이 12-Factor를 준수해야 한다.</p>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>⚠️ 부분적</td>
+<td>의존성 매니페스트 없음; mrjob 등 수동 확인</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>❌ 미수행</td>
+<td>SBOM, 라이선스 스캔 결과 없음</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>❌ 해당 없음</td>
+<td>공식 프로세스 없음</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>❌ 없음</td>
+<td>OSPO 또는 법적 검토 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>⚠️ 부분적</td>
+<td>LICENSE.txt 존재; NOTICE 파일 없음</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>상용화 편입 시 권고 / Recommendation for commercial integration:</strong> 수요사가 자체 OpenChain 프로세스를 통해 이 콘텐츠에 대한 SBOM을 생성하고, CC BY 4.0 고지 방법을 문서화해야 한다.</p>
+</blockquote>
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>평가 / Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>상표권 / Trademark</td>
+<td>"The System Design Primer" 및 "system-design-primer"는 등록 상표가 아닌 것으로 파악됨. 상업적 사용에 특별한 상표 제한 없음.</td>
+</tr>
+<tr>
+<td>특허 허여 / Patent grant</td>
+<td>❌ CC BY 4.0은 특허 허여를 포함하지 않음. Apache 2.0과의 주요 차이점.</td>
+</tr>
+<tr>
+<td>특허 위험 실질성 / Patent risk in practice</td>
+<td>교육용 알고리즘 스니펫의 특허 위험은 사실상 낮음 (일반적 데이터 구조/알고리즘).</td>
+</tr>
+<tr>
+<td>Facebook/Meta 관계 / Facebook/Meta relation</td>
+<td>LICENSE.txt에서 Facebook이 라이선서가 아님을 명시 → Facebook 소유 특허와의 분쟁 가능성을 배제하지 않음 (다만 현실적 위험은 낮음).</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<table>
+<thead>
+<tr>
+<th>시나리오 / Scenario</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>이 저장소 코드를 SaaS 서비스에 배포</td>
+<td>🟢 안전 — CC BY 4.0, AGPL 없음</td>
+</tr>
+<tr>
+<td>mrjob 코드 스니펫을 상업 제품에 포함</td>
+<td>🟢 안전 — Apache 2.0</td>
+</tr>
+<tr>
+<td>pandoc을 빌드 파이프라인에 포함</td>
+<td>🟡 주의 — pandoc 바이너리 배포 시 GPL-2.0 이슈, EPUB 결과물 배포만 하면 무관</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>CC BY 4.0 퍼미시브, 상업적 사용 허용 (저작자 표시 필수)</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟡 Caution</td>
+<td>SECURITY.md 없음, Dependabot 없음, SBOM 없음; 단 콘텐츠 저장소로 위험 낮음</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🔵 Review</td>
+<td>PR #1153 존재로 대규모 커뮤니티 확인, 단 개인 프로젝트·기업 후원 없음</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟡 Caution</td>
+<td>CI/CD 없음, 테스트 없음, 릴리스 관리 없음; 콘텐츠로서 허용 가능 수준</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🔵 Review</td>
+<td>소프트웨어가 아닌 콘텐츠; 교육 제품으로의 상업화는 적합, 서비스 소프트웨어로는 부적합</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🔵 Review</td>
+<td>CC BY 4.0 저작자 표시 의무 이행 필요, 특허 허여 부재 인지 필요</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>세계적 수준의 인지도와 검증된 콘텐츠</strong>: GitHub 역대 최다 스타 저장소 중 하나(270k+ stars). 전 세계 엔지니어들에게 검증된 시스템 설계 학습 자료로 신뢰성이 높다.</li>
+<li><strong>퍼미시브 라이선스로 상업 활용 용이</strong>: CC BY 4.0은 저작자 표시만 하면 상업적 사용·수정·재배포를 모두 허용하며 소스 공개 의무가 없다.</li>
+<li><strong>풍부한 다국어 지원</strong>: 영어 원본 외 일본어·중국어(간체/번체) 번역 완료, 한국어 등 진행 중. 글로벌 교육 서비스에 즉시 활용 가능.</li>
+<li><strong>다양한 콘텐츠 형식</strong>: Markdown, Jupyter Notebook, Anki 플래시카드, PNG 다이어그램, EPUB으로 멀티채널 교육 플랫폼 통합이 용이하다.</li>
+<li><strong>낮은 의존성 복잡도</strong>: 배포 가능한 소프트웨어 의존성이 사실상 없어 의존성 관리·취약점 관리 부담이 매우 낮다.</li>
+</ol>
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>CC BY 4.0의 특허 허여 부재</strong>: 소프트웨어 코드에 적용된 CC BY 4.0은 특허 허여를 포함하지 않는다. Apache 2.0이나 MIT라면 제공되는 특허 보호가 없으므로, 코드 스니펫을 대규모 상업 제품에 직접 포함할 경우 이론적 특허 위험이 존재한다.</li>
+<li><strong>단일 개인 유지보수 체계</strong>: 기업 스폰서십 없이 단일 창작자(Donne Martin)에 의존하므로 장기 유지보수 불확실성이 있다. 프로젝트가 방치될 경우 보안 취약점 패치나 콘텐츠 오류 수정이 지연될 수 있다.</li>
+<li><strong>공식 취약점 관리 체계 전무</strong>: SECURITY.md, Dependabot, SBOM이 없어 상업적 배포 시 수요사가 자체적으로 모든 보안 관리를 도입해야 한다.</li>
+<li><strong>버전 관리 및 릴리스 체계 없음</strong>: 공식 릴리스 태그, CHANGELOG, 버전 번호가 없어 특정 시점의 "안정 버전"을 고정하기 어렵다. 상업 제품에서는 콘텐츠 포크(fork)를 유지하거나 Git 해시로 버전을 고정해야 한다.</li>
+<li><strong>콘텐츠 정확성 관리 위험</strong>: 일부 기술 링크(외부 블로그, 외부 서비스)가 시간이 지나면 broken link가 될 수 있으며, CI/CD 링크 유효성 검사가 없다.</li>
+</ol>
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict:</strong> 🔵 Review (조건부 상용화 가능)</p>
+<p><strong>상세 근거 / Detailed Rationale:</strong></p>
+<p>이 프로젝트는 배포 가능한 소프트웨어 서비스가 아니라 <strong>교육 콘텐츠 저장소</strong>로, 상용화의 의미는 유료 교육 플랫폼, 기업 기술 연수 프로그램, 기술 면접 준비 서비스 등에의 편입을 의미한다.</p>
+<p><strong>적합한 상업 활용 유형 / Suitable commercial use types:</strong>
+- 유료 기술 교육 플랫폼 콘텐츠로 편입 (e-learning SaaS)
+- 기업 내부 기술 교육 자료로 활용
+- 기술 면접 준비 서비스/앱에 학습 자료로 제공
+- 시스템 설계 교육 과정/워크숍 교재로 활용</p>
+<p><strong>전제 조건 / Preconditions:</strong>
+1. CC BY 4.0 저작자 표시 의무를 이행해야 한다 (Donne Martin 크레딧, 라이선스 링크 제공, 수정 시 수정 사실 명시).
+2. mrjob 등 의존성 라이선스 고지를 함께 포함해야 한다.
+3. 배포 시점의 콘텐츠를 Git 커밋 해시로 고정하여 "사용 버전"을 문서화해야 한다.
+4. 특허 위험에 대한 법무 검토를 선제적으로 수행하는 것이 권고된다 (현실적 위험은 낮으나 CC 라이선스의 구조적 한계).</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>✅ Permissive(CC BY 4.0) 분류 확인</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 소스 공개 의무 없음 확인</td>
+<td>✅ 확인됨</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 라이선스 호환성 충돌 없음</td>
+<td>✅ 충돌 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ CC BY 4.0 특허 허여 부재 법무 검토</td>
+<td>⚠️ 요구됨</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>저작권 문구 포함 (Donne Martin 명시)</td>
+<td>⬜ 미이행 — 상용화 시 필수</td>
+</tr>
+<tr>
+<td></td>
+<td>고지문 배포 위치 정의 (앱 내 About/License 메뉴)</td>
+<td>⬜ 미정의</td>
+</tr>
+<tr>
+<td></td>
+<td>mrjob Apache 2.0 고지 포함</td>
+<td>⬜ 미이행</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>Strong Copyleft 없음 — 소스 공개 의무 없음</td>
+<td>✅ 해당 없음</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>CVE 모니터링 체계 수립 (자체 도입 필요)</td>
+<td>⬜ 미수립</td>
+</tr>
+<tr>
+<td></td>
+<td>mrjob EOL 여부 검토 및 대체 여부 결정</td>
+<td>⬜ 필요</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>유지보수 활성도 확인 (PR #1153, 2026-03-20 최근 커밋)</td>
+<td>✅ 확인됨</td>
+</tr>
+<tr>
+<td></td>
+<td>기업 스폰서/컨설팅 없음 인지</td>
+<td>⚠️ 인지 필요</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>라이선스 검사 자동화 (FOSSA/scancode 등 자체 도입)</td>
+<td>⬜ 미도입</td>
+</tr>
+<tr>
+<td></td>
+<td>오픈소스 BOM 자동 생성 (CycloneDX 등)</td>
+<td>⬜ 미도입</td>
+</tr>
+<tr>
+<td></td>
+<td>콘텐츠 버전 고정 (Git 커밋 해시 문서화)</td>
+<td>⬜ 미수행</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>고객 계약서에 CC BY 4.0 의무 명시</td>
+<td>⬜ 미포함</td>
+</tr>
+<tr>
+<td></td>
+<td>외부 감사 대비 문서 구비 (NOTICE, BOM, 스캔 보고서)</td>
+<td>⬜ 미구비</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong>CC BY 4.0 저작자 표시 구현</strong>: 콘텐츠를 활용한 상업 제품의 UI/문서에 Donne Martin 크레딧과 <code>http://creativecommons.org/licenses/by/4.0/</code> 링크를 포함하는 법적 고지 섹션을 즉시 추가하라. 이를 누락할 경우 라이선스 위반이 된다.</p>
+</li>
+<li>
+<p><strong>사용 버전 고정</strong>: 상업 제품에 편입되는 시점의 Git 커밋 해시(<code>ae9bbd7</code> 또는 최신 확인 커밋)를 내부 문서에 기록하고, 해당 콘텐츠의 스냅샷을 보관하라.</p>
+</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>CC BY 4.0 특허 조항 법무 검토</strong>: 사내 법무팀 또는 오픈소스 전문 법무법인에 CC BY 4.0 특허 허여 부재의 사업 위험도를 검토 의뢰하라. 코드 스니펫의 실질적 특허 위험은 낮으나, 공식 의견서로 문서화해 두어야 한다.</p>
+</li>
+<li>
+<p><strong>mrjob 사용 여부 결정</strong>: mrjob은 사실상 EOL(마지막 릴리스 2021년) 상태다. 해당 MapReduce 예제 코드 스니펫을 상업 제품에 그대로 포함할 것인지, 교체할 것인지 결정하라. 포함한다면 Apache 2.0 고지를 함께 제공해야 한다.</p>
+</li>
+<li>
+<p><strong>NOTICE 파일 생성</strong>: 상업 배포 패키지에 CC BY 4.0 및 Apache 2.0 의존성 고지를 포함하는 NOTICE 파일을 작성하라.</p>
+</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>SBOM(Software Bill of Materials) 생성</strong>: CycloneDX 또는 SPDX 형식으로 콘텐츠 의존성 목록을 자동 생성하는 파이프라인을 구축하라. 고객 감사 대응에 필수적이다.</p>
+</li>
+<li>
+<p><strong>라이선스 스캔 자동화</strong>: FOSSA, scancode-toolkit 또는 GitHub OSPO 도구를 CI 파이프라인에 통합하여 콘텐츠 업데이트 시 라이선스 변경을 자동 감지하라.</p>
+</li>
+<li>
+<p><strong>포크(fork) 전략 수립</strong>: 원본 저장소의 장기 유지보수 불확실성을 감안해, 사용 콘텐츠를 내부 포크로 관리하면서 upstream 변경사항을 주기적으로 검토·적용하는 프로세스를 정의하라.</p>
+</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>콘텐츠 정확성 주기 감사</strong>: 시스템 설계 원칙은 비교적 안정적이나, 외부 링크 및 기술 트렌드 변화에 따른 콘텐츠 유효성을 분기별로 검토하라.</p>
+</li>
+<li>
+<p><strong>커뮤니티 기여 모니터링</strong>: 원본 저장소의 GitHub 활성도(커밋, PR, 이슈)를 모니터링하고, 중요한 오류 수정이나 콘텐츠 개선이 upstream에 반영될 경우 내부 포크에도 적용하라.</p>
+</li>
+<li>
+<p><strong>upstream 기여 고려</strong>: 오류 발견 시 upstream에 PR을 제출하여 커뮤니티에 기여하고, 동시에 내부 포크의 diff를 최소화하여 유지보수 부담을 줄여라.</p>
+</li>
+</ol></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>donnemartin/system-design-primer</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/donnemartin/system-design-primer" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
