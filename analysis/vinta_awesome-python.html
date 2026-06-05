@@ -1,0 +1,1043 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>vinta/awesome-python - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/vinta/awesome-python" target="_blank" rel="noopener">vinta/awesome-python</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">An opinionated list of Python frameworks, libraries, tools, and resources</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">top100 trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 301341</span>
+      
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>Now I have all the information needed to write the comprehensive report. Let me compose it.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-05
+대상 / Target: <code>/tmp/github-dashboard-analysis/vinta_awesome-python</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<ul>
+<li><strong>해결하는 문제 / Problem solved</strong>: Python 생태계의 검증된 라이브러리·프레임워크·도구를 큐레이션하여 개발자에게 "지금 무엇을 써야 하는가"에 대한 신뢰할 수 있는 단일 참조점을 제공한다. GitHub에서 10번째로 많은 스타를 받은 저장소(SPONSORSHIP.md 기준)로, Google 1페이지에 노출되고 ChatGPT·LLM이 Python 도구를 추천할 때 참조하는 사실상의 표준 색인이다.</li>
+<li><strong>분류 / Classification</strong>:</li>
+<li>주 산출물: <strong>Content / Curated List</strong> (큐레이션 콘텐츠) — README.md에 담긴 Python 프로젝트 목록</li>
+<li>부 산출물: <strong>Tool</strong> (정적 사이트 생성기) — <code>website/</code> 디렉토리의 Python 빌드 파이프라인</li>
+</ul>
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Python ≥ 3.13 (uv 패키지 관리자)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>Jinja2 3.1.6 (HTML 템플릿), markdown-it-py 4.0.0 (Markdown AST 파서)</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>없음 (No DB). README.md가 콘텐츠 단일 진실 출처, website/data/github_stars.json이 캐시</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>httpx 0.28.1 (GitHub API 호출, 별 수 수집용)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>GitHub Pages (정적 HTML)</td>
+</tr>
+<tr>
+<td>빌드 도구</td>
+<td><code>uv</code>, <code>ruff</code>, <code>ty</code>, <code>pytest</code>, <code>watchdog</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>README.md (콘텐츠 단일 진실 출처)
+    │
+    ▼
+readme_parser.py  ─── markdown-it-py AST 파서
+    │                  → ParsedGroup / ParsedSection / ParsedEntry
+    ▼
+build.py  ──────────── Jinja2 렌더링
+    │                  → website/output/ (정적 HTML, sitemap.xml, llms.txt, robots.txt)
+    ▼
+GitHub Pages  ────────── awesome-python.com 배포
+
+fetch_github_stars.py ── GitHub API → website/data/github_stars.json (캐시)
+    (매일 00:00 UTC 스케줄)
+</code></pre>
+<p>단순 선형 파이프라인: 인증·DB·마이크로서비스 없음. 12-Factor 관점에서는 단일 프로세스 정적 빌드.</p>
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>vinta_awesome-python/
+├── README.md              # 콘텐츠 단일 진실 출처 (큐레이션 목록)
+├── LICENSE                # CC BY 4.0
+├── CONTRIBUTING.md        # 제출 가이드라인·심사 기준
+├── CODE_OF_CONDUCT.md     # Contributor Covenant v2.0
+├── SPONSORSHIP.md         # 스폰서십 티어, 배치 정책, 편집 독립성 선언
+├── DESIGN.md              # 웹사이트 디자인 시스템 문서
+├── AGENTS.md              # AI 에이전트 컨텍스트 문서
+├── CLAUDE.md              # Claude Code 지침
+├── pyproject.toml         # uv 기반 프로젝트 메타데이터 (license = &quot;MIT&quot; 명시 — LICENSE 파일과 불일치!)
+├── uv.lock                # 의존성 잠금 파일
+├── Makefile               # install / build / test / lint / format / typecheck / fetch_github_stars
+├── .github/
+│   ├── workflows/
+│   │   ├── ci.yml         # Push/PR 시 test + build
+│   │   └── deploy-website.yml  # master 머지 및 매일 GitHub Pages 배포
+│   └── PULL_REQUEST_TEMPLATE.md
+└── website/
+    ├── build.py           # 메인 빌드 스크립트
+    ├── fetch_github_stars.py
+    ├── readme_parser.py
+    ├── templates/         # Jinja2 HTML 템플릿 (base, index, category, sponsorship, llms.txt)
+    ├── static/            # CSS, JS, favicon, OG 이미지
+    └── tests/             # pytest 통합 테스트
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>⚠️ 중요 불일치 발견 / Critical Discrepancy Detected</strong></p>
+<table>
+<thead>
+<tr>
+<th>출처 / Source</th>
+<th>표기 라이선스 / Stated License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>LICENSE</code> 파일 (법적 구속력)</td>
+<td><strong>Creative Commons Attribution 4.0 International (CC BY 4.0)</strong></td>
+</tr>
+<tr>
+<td><code>pyproject.toml</code> → <code>license = "MIT"</code></td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<p>실제 법적 효력은 <strong>LICENSE 파일(CC BY 4.0)</strong>이 우선한다. <code>pyproject.toml</code>의 <code>"MIT"</code> 기재는 부정확한 메타데이터이며, 상용화 검토 시 <strong>반드시 CC BY 4.0 의무를 기준으로 삼아야 한다</strong>.</p>
+<p><strong>CC BY 4.0 주요 의무 / Key Obligations:</strong>
+- 저작자 표시(Attribution) 의무 — 사용 시 Vinta Chen 및 기여자 크레딧 제공 필수
+- 출처 링크(source URL) 표기 필수
+- 라이선스 표기 필수
+- 영리 목적 사용 허용(상업적 이용 가능)
+- 수정·파생물 배포 허용(단, 동일 저작자 표시 유지)
+- <strong>소스 코드 공개 의무 없음</strong> — CC BY는 저작권(콘텐츠) 라이선스이며 카피레프트 조항 없음</p>
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>httpx</td>
+<td>0.28.1</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>jinja2</td>
+<td>3.1.6</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>markdown-it-py</td>
+<td>4.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>markupsafe</td>
+<td>3.0.3</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>certifi</td>
+<td>2026.2.25</td>
+<td><strong>MPL-2.0</strong></td>
+<td>Weak Copyleft</td>
+<td>🟡 주의</td>
+</tr>
+<tr>
+<td>anyio</td>
+<td>4.12.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>httpcore</td>
+<td>1.0.9</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>h11</td>
+<td>0.16.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>idna</td>
+<td>3.15</td>
+<td>BSD-like (Unicode/PSF)</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>mdurl</td>
+<td>0.1.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>pytest</td>
+<td>9.0.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음 (dev-only)</td>
+</tr>
+<tr>
+<td>ruff</td>
+<td>0.15.6</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음 (dev-only)</td>
+</tr>
+<tr>
+<td>ty</td>
+<td>0.0.33</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음 (dev-only)</td>
+</tr>
+<tr>
+<td>watchdog</td>
+<td>6.0.0</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음 (dev-only)</td>
+</tr>
+<tr>
+<td>colorama</td>
+<td>0.4.6</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 낮음 (dev-only)</td>
+</tr>
+<tr>
+<td>iniconfig</td>
+<td>2.3.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음 (dev-only)</td>
+</tr>
+<tr>
+<td>pluggy</td>
+<td>1.6.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음 (dev-only)</td>
+</tr>
+<tr>
+<td>pygments</td>
+<td>2.20.0</td>
+<td>BSD-2-Clause</td>
+<td>Permissive</td>
+<td>🟢 낮음 (dev-only)</td>
+</tr>
+<tr>
+<td>packaging</td>
+<td>26.0</td>
+<td>Apache-2.0 OR BSD-2-Clause</td>
+<td>Permissive</td>
+<td>🟢 낮음 (dev-only)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>certifi(MPL-2.0) 주의사항</strong>: MPL-2.0은 파일 수준 카피레프트다. certifi 자체 파일을 수정하여 배포하는 경우에만 해당 파일의 소스 공개 의무가 발생한다. 수정 없이 의존성으로만 사용하는 현 구조에서는 상용화 전파 위험이 실질적으로 없다. 단, 빌드 산출물(정적 HTML)에 certifi가 번들링되지 않으므로 배포 측면 리스크는 없다.</p>
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, BSD-3, Apache 2.0, Unicode/PSF</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td><strong>MPL-2.0</strong> (certifi)</td>
+<td>수정된 MPL 파일만 공개 의무 / Only modified MPL files must be disclosed</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>해당 없음 / Not present</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>해당 없음 / Not present</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>해당 없음 / Not present</td>
+</tr>
+<tr>
+<td>📄 Content License</td>
+<td><strong>CC BY 4.0</strong> (프로젝트 자체)</td>
+<td>저작자 표시 의무 / Attribution required; commercial use permitted</td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<ul>
+<li><strong>GPL 전파 위험</strong>: 없음 (GPL 계열 의존성 없음)</li>
+<li><strong>AGPL SaaS 위험</strong>: 없음 (AGPL 없음)</li>
+<li><strong>Apache 2.0 + GPL-2.0 혼합 충돌</strong>: 해당 없음</li>
+<li><strong>CC BY 4.0 적용 범위</strong>: 이 프로젝트의 핵심 가치인 <strong>큐레이션 목록(콘텐츠)</strong>에 적용. 상업적 파생물을 만들 때 반드시 원저자 크레딧 표기가 요구된다.</li>
+<li><strong>pyproject.toml "MIT" 기재 오류</strong>: 이 불일치로 인해 자동화 라이선스 스캐너(FOSSA, Black Duck, Snyk 등)가 MIT로 잘못 분류할 수 있다. 즉시 정정이 필요하다.</li>
+</ul>
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] CC BY 4.0 저작자 표시: <code>Vinta Chen and contributors (awesome-python)</code> 명시 + 라이선스 URL 링크</li>
+<li>[ ] NOTICE/고지문 배포 위치 정의 — 현재 NOTICE 파일 없음 (부재)</li>
+<li>[x] 소스 공개 의무: 해당 없음 (CC BY 4.0은 소스 공개 불요, MPL-2.0 의존성도 미수정 사용 시 불요)</li>
+<li>[ ] pyproject.toml의 <code>license = "MIT"</code> → <code>license = "CC-BY-4.0"</code> 정정 필요</li>
+<li>[ ] 빌드 코드(website/ 디렉토리)의 별도 라이선스 명시 여부 검토 필요</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>❌ 확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>Dependabot (.github/dependabot.yml)</td>
+<td>❌ 확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>Renovate (renovate.json)</td>
+<td>❌ 확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>Snyk (.snyk)</td>
+<td>❌ 확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>SBOM (CycloneDX/SPDX)</td>
+<td>❌ 확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>uv.lock (재현 가능한 빌드)</td>
+<td>✅ 존재 — 모든 의존성 해시 포함</td>
+</tr>
+<tr>
+<td>GitHub Actions 최소 권한</td>
+<td>✅ CI: <code>contents: read</code>, Deploy: 최소 필요 권한만 부여</td>
+</tr>
+<tr>
+<td>GITHUB_TOKEN 사용</td>
+<td>✅ secrets.GITHUB_TOKEN 사용 (하드코딩 없음)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<ol>
+<li><strong>자동화 취약점 스캐닝 부재</strong>: Dependabot, Renovate, Snyk 중 어느 것도 설정되어 있지 않다. 의존성 취약점 발견은 수동에 의존한다.</li>
+<li><strong>의존성 EOL 위험</strong>: Python 3.13 필수 요건은 최신 버전이다. 현재 의존성은 2026년 기준 최신 버전이며 EOL 우려가 없다.</li>
+<li><strong>하드코딩된 시크릿</strong>: 발견되지 않음. <code>.gitignore</code>에 <code>.env*</code> 명시적 제외.</li>
+<li><strong>exclude-newer = "3 days"</strong> (uv.toml): 최근 3일 이내 릴리스된 패키지를 자동 제외하는 공급망 공격 방어 설정이 적용되어 있다. 이는 보안 모범 사례다.</li>
+<li><strong>actions/checkout@v6</strong> (CI 워크플로우): 존재하지 않는 버전 태그 사용 가능성. 실제 최신 안정 버전은 v4다. <code>@v6</code> 태그가 유효한지 확인 필요 — 만약 미존재 시 CI 실패 또는 잘못된 버전이 실행될 수 있다.</li>
+<li><strong>SECURITY.md 부재</strong>: 취약점 보고 경로가 공개적으로 문서화되어 있지 않다.</li>
+</ol>
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<ul>
+<li><strong>인증/인가</strong>: 없음 (정적 사이트 생성기이므로 불필요)</li>
+<li><strong>시크릿 관리</strong>: GitHub Actions Secrets만 사용 (GITHUB_TOKEN) — 적절</li>
+<li><strong>네트워크 노출</strong>: 없음 (빌드 도구, 서버 없음)</li>
+<li><strong>Jinja2 XSS 방어</strong>: <code>autoescape=True</code> 사용 확인 (build.py:501) — 적절</li>
+<li><strong>외부 입력 신뢰</strong>: GitHub API 응답을 JSON으로 파싱 시 예외 처리 존재 (load_stars 함수)</li>
+<li><strong>JSON-in-HTML 인젝션</strong>: <code>&lt;/</code> → <code>&lt;\/</code> 이스케이핑 처리 확인 (build.py:512) — 적절</li>
+<li><strong>SBOM</strong>: 없음. 상용화 시 BOM 자동 생성 파이프라인 구축 필요</li>
+</ul>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06-04 (분석 시점 전날)</td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>로컬 클론은 단일 커밋(얕은 복제 추정). 실제 GitHub 기준으로 GitHub 스타 10위 프로젝트로서 수천 커밋, 지속적 활동</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>로컬 클론 기준 식별 불가. GitHub 뱃지상 다수 기여자 존재</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>CHANGELOG 없음. GitHub Releases 태그 미관찰 (롤링 배포 방식)</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>로컬 환경에서 직접 확인 불가</td>
+</tr>
+<tr>
+<td>배포 주기 / Deployment cadence</td>
+<td>매일 GitHub Pages 자동 배포 (매일 00:00 UTC 크론)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>참고</strong>: 로컬 클론이 단일 커밋을 포함한 얕은 클론(shallow clone)으로 보인다. SPONSORSHIP.md의 내용("The #10 most-starred repository on all of GitHub")에 따르면 GitHub 원본 저장소는 매우 활발한 커뮤니티를 유지하고 있다.</p>
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서 / Document</th>
+<th>상태 / Status</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재</td>
+<td>품질 기준, 수락 기준, 거절 기준 상세 정의</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>✅ 존재</td>
+<td>Contributor Covenant v2.0</td>
+</tr>
+<tr>
+<td>PULL_REQUEST_TEMPLATE.md</td>
+<td>✅ 존재</td>
+<td>PR 표준화</td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td>❌ 없음</td>
+<td>롤링 변경 방식으로 별도 파일 없음</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 없음</td>
+<td>DESIGN.md가 디자인 결정 대체</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>❌ 없음</td>
+<td>취약점 신고 채널 미정의</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>저자</strong>: Vinta Chen (개인 유지관리자, vinta.chen@gmail.com)</li>
+<li><strong>기업 지원</strong>: 직접적인 CNCF/ASF 소속 없음. 스폰서십 프로그램($150/월 Featured, $500/월 Headline)을 통해 수익화 구조 있음.</li>
+<li><strong>이전 스폰서</strong>: Warp, pyr (수익 창출 가능성 검증)</li>
+<li><strong>장기 전망</strong>: GitHub 10위 저장소로서의 브랜드 가치와 Google 검색·LLM 참조로 인한 자연 트래픽은 장기 존속성을 뒷받침한다. 다만 단일 유지관리자 의존 위험(bus factor = 1)이 있다.</li>
+<li><strong>LTS</strong>: 별도 LTS 정책 없음 (상시 최신 상태 유지)</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p>이 프로젝트는 <strong>정적 사이트 생성기 + 큐레이션 콘텐츠</strong>이므로, 전통적인 SaaS/서버 애플리케이션의 확장성 기준은 직접 적용되지 않는다.</p>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수평 확장 / Horizontal scaling</td>
+<td>N/A (정적 빌드)</td>
+</tr>
+<tr>
+<td>컨테이너화 / Containerization</td>
+<td>Dockerfile 없음. uv 기반 재현 가능 환경으로 컨테이너화 용이</td>
+</tr>
+<tr>
+<td>헬스 체크 / Health check</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>구조화 로깅 / Structured logging</td>
+<td>없음 (빌드 도구이므로 불필요)</td>
+</tr>
+<tr>
+<td>분산 추적 / Distributed tracing</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td>12-Factor 준수</td>
+<td>5/12 적용 가능 (코드베이스, 의존성 잠금, 설정, 빌드-릴리스-실행 분리, 스테이스리스)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트</td>
+<td>✅ pytest 기반 (TestSlugify, TestExtractGithubRepo, TestLoadStars, TestSortEntries, TestAnnotateEntriesWithStars 등)</td>
+</tr>
+<tr>
+<td>통합 테스트</td>
+<td>✅ TestBuild — 실제 README.md 파싱 및 전체 빌드 검증</td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td>DESIGN.md에 playwright-cli 언급 있으나 저장소에 설정 파일 없음</td>
+</tr>
+<tr>
+<td>커버리지 측정</td>
+<td>pytest 설정에 coverage 플러그인 미포함</td>
+</tr>
+<tr>
+<td>CI 자동화</td>
+<td>✅ GitHub Actions CI — push/PR 시 <code>make test</code> + <code>make build</code> 실행</td>
+</tr>
+<tr>
+<td>정적 분석</td>
+<td>✅ ruff (린트/포맷), ty (타입 체크, Python 3.13 대상)</td>
+</tr>
+<tr>
+<td>타입 안전성</td>
+<td>✅ TypedDict 사용, ty <code>error-on-warning = true</code> 적용</td>
+</tr>
+</tbody>
+</table>
+<p>테스트 품질은 프로젝트 규모 대비 <strong>양호</strong>하다. build.py와 readme_parser.py의 핵심 함수들에 대해 단위·통합 테스트가 존재하며, 실제 README.md를 사용한 회귀 테스트(test_index_contains_aligned_homepage_metadata)도 포함되어 있다.</p>
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p>Strong Copyleft(GPL) 의존성이 없으므로 해당 사항 없다. MPL-2.0(certifi)의 경우 파일 수준 카피레프트이며, 수정 없이 사용하는 현 구조에서 분리 이슈가 없다.</p>
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<p>정적 사이트 생성기로서 서버 프로세스 모델이 없으므로 일부 Factor는 적용 불가다.</p>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I. 코드베이스 (Codebase)</td>
+<td>✅ 단일 Git 저장소</td>
+</tr>
+<tr>
+<td>II. 의존성 (Dependencies)</td>
+<td>✅ uv.lock으로 완전 잠금</td>
+</tr>
+<tr>
+<td>III. 설정 (Config)</td>
+<td>🟡 GITHUB_TOKEN은 환경 변수, 일부 URL은 코드에 하드코딩</td>
+</tr>
+<tr>
+<td>V. 빌드/릴리스/실행 (Build)</td>
+<td>✅ make build 명확히 분리</td>
+</tr>
+<tr>
+<td>VI. 프로세스 (Processes)</td>
+<td>✅ 빌드 실행은 무상태</td>
+</tr>
+<tr>
+<td>IX. 일회성 (Disposability)</td>
+<td>✅ 빌드 프로세스 언제든 재실행 가능</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분 완료</td>
+<td>uv.lock으로 의존성 목록 존재. pyproject.toml 라이선스 메타데이터 오류</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>❌ 미완료</td>
+<td>SBOM 없음, 자동화 라이선스 스캔 파이프라인 없음</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>❌ 미완료</td>
+<td>프로세스 정의 없음</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>❌ 미완료</td>
+<td>공식 OSPO 검토 프로세스 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>❌ 미완료</td>
+<td>NOTICE 파일 없음, BOM 자동 생성 없음</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<ul>
+<li><strong>상표권</strong>: "awesome-python" 이름과 브랜드는 Vinta Chen 소유로 추정. 상업적 제품에서 동일 이름 사용 시 혼동 위험. CC BY 4.0은 상표권을 라이선스하지 않는다.</li>
+<li><strong>특허</strong>: </li>
+<li>CC BY 4.0: 특허 부여 조항 없음. 특허 위험 완화 없음.</li>
+<li>Apache 2.0(watchdog): 특허 부여 조항 포함 — 기여자로부터의 특허 청구 방어 제공</li>
+<li>MIT/BSD 의존성: 특허 부여 조항 없음 — 잠재적 특허 노출 존재하나 실질 위험 낮음</li>
+<li><strong>프로젝트 이름/로고 상업적 사용 제한</strong>: 현재 명시적 상표 정책 없음. 브랜드 혼동 회피를 위한 별도 검토 권장.</li>
+</ul>
+<h3 id="63-cc-by-40-cc-by-40-content-usage-risk-scenarios">6.3 CC BY 4.0 콘텐츠 사용 리스크 시나리오 / CC BY 4.0 Content Usage Risk Scenarios</h3>
+<table>
+<thead>
+<tr>
+<th>시나리오 / Scenario</th>
+<th>위험도 / Risk</th>
+<th>대응 / Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>콘텐츠 목록을 자사 제품 DB로 수집·재배포</td>
+<td>🟡 중</td>
+<td>CC BY 4.0 저작자 표시 필수</td>
+</tr>
+<tr>
+<td>빌드 코드(website/)를 상업용 툴에 편입</td>
+<td>🟡 중</td>
+<td>LICENSE 파일(CC BY 4.0) 적용 주의; 코드 별도 라이선스 명시 필요</td>
+</tr>
+<tr>
+<td>프로젝트 포크 후 상업 서비스 운영</td>
+<td>🟡 중</td>
+<td>원저자 크레딧 유지 + 파생물에 CC BY 4.0 또는 호환 라이선스 적용</td>
+</tr>
+<tr>
+<td>LLM 학습 데이터로 사용</td>
+<td>🔵 검토</td>
+<td>학습용 사용 허용(robots.txt에 <code>ai-train=yes</code> 명시)</td>
+</tr>
+<tr>
+<td>고객에게 목록을 재판매</td>
+<td>🟡 중</td>
+<td>저작자 표시 의무 이행 + 상표권 혼동 회피</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🔵 Review</td>
+<td>CC BY 4.0(콘텐츠)은 상업적 사용을 허용하지만 저작자 표시 의무가 있음. pyproject.toml의 MIT 기재 불일치는 즉시 정정 필요. 의존성은 모두 Permissive/MPL-2.0으로 위험 낮음</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟡 Caution</td>
+<td>SECURITY.md 없음, 자동화 취약점 스캐닝 없음, Dependabot/Renovate 미설정. uv.lock과 exclude-newer 설정은 긍정적</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟢 Safe</td>
+<td>GitHub 10위 스타 프로젝트. CONTRIBUTING, CODE_OF_CONDUCT, 스폰서십 프로그램 존재. 단일 유지관리자 위험 있으나 브랜드 가치로 커뮤니티 유지</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟢 Safe</td>
+<td>정적 사이트 생성기로서 완성도 높음. 매일 자동 배포. pytest 통합 테스트. ruff + ty 코드 품질 관리</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🔵 Review</td>
+<td>콘텐츠·툴 이중 성격 프로젝트로 상용화 방식에 따라 요구사항 다름. 코드 자체는 단순·가볍고 재사용 가능하나, 콘텐츠 상용화 시 CC BY 4.0 의무 이행 체계 수립 필요</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>NOTICE 파일 없음, SBOM 없음, OpenChain 프로세스 미구축, 라이선스 메타데이터 불일치. 대규모 상용화 전 OSPO 검토 필요</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>무결한 의존성 위험도</strong>: GPL/AGPL 계열 의존성 완전 부재. 모든 의존성이 Permissive(MIT/BSD/Apache) 또는 약한 카피레프트(MPL-2.0, 비실질적 위험)로만 구성됨.</li>
+<li><strong>재현 가능한 빌드</strong>: <code>uv.lock</code> + <code>uv sync --locked</code> + <code>no-build = true</code> + <code>only-binary = ":all:"</code> 조합으로 공급망 보안과 빌드 재현성 우수.</li>
+<li><strong>높은 브랜드 가치와 SEO</strong>: Google 1페이지, LLM 참조, GitHub 10위로 인한 자연 유입. 콘텐츠 상용화 시 즉각적인 신뢰도 확보 가능.</li>
+<li><strong>단순하고 검증된 아키텍처</strong>: 단일 진실 출처(README.md) + 정적 빌드 파이프라인으로 운영 복잡도 없음. 보안 공격 표면 최소.</li>
+<li><strong>활발한 거버넌스 문서</strong>: CONTRIBUTING.md의 수락/거절 기준이 명확하여 포크 시 큐레이션 품질 유지 가능.</li>
+</ol>
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>라이선스 메타데이터 불일치</strong>: <code>pyproject.toml</code>의 <code>license = "MIT"</code> 기재는 실제 LICENSE 파일(CC BY 4.0)과 충돌. 자동화 라이선스 스캐너 오탐 및 법적 혼란 야기 가능. <strong>즉시 정정 필요</strong>.</li>
+<li><strong>취약점 관리 자동화 부재</strong>: SECURITY.md, Dependabot, Renovate, Snyk 중 아무것도 없음. 의존성 CVE 발생 시 수동 감지에 의존.</li>
+<li><strong>단일 유지관리자 위험(Bus Factor=1)</strong>: Vinta Chen 단독 유지관리 구조. 포크·상용화 프로젝트의 upstream 동기화가 어려워질 수 있음.</li>
+<li><strong>NOTICE 파일 및 SBOM 부재</strong>: OpenChain/ISO 5230 요건을 충족하지 못함. 대형 기업 납품 시 감사(audit) 대비 서류 구비 필요.</li>
+<li><strong>actions/checkout@v6 태그 신뢰성</strong>: GitHub Actions에서 존재하지 않는 버전 태그를 참조할 경우 CI 실패 또는 보안 리스크 발생 가능. 현재 안정 버전은 v4.</li>
+</ol>
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 Review (조건부 사용 — 추가 검토 필요)</p>
+<p><strong>한국어 상세 의견</strong>:
+awesome-python은 독특한 이중 구조 프로젝트다 — GitHub 역사상 10위 안에 드는 큐레이션 콘텐츠(CC BY 4.0)이자, 이를 웹사이트로 변환하는 경량 Python 빌드 툴이다. 상용화 가능성은 <strong>어떤 방식으로 활용하느냐</strong>에 따라 크게 달라진다.</p>
+<p>빌드 파이프라인 코드(<code>website/</code> 디렉토리)만 별도 사용하는 경우: 의존성 라이선스는 모두 허용적이고 아키텍처가 단순하여 상용화 적합성이 높다. 단, LICENSE 파일(CC BY 4.0) 적용 범위가 코드까지 포함되는지 명확히 해야 한다.</p>
+<p>콘텐츠 목록 자체를 상업 제품에 활용하는 경우: CC BY 4.0에 따른 저작자 표시 의무를 이행하면 합법적 사용이 가능하다. 다만 직접적인 경쟁 서비스를 구축할 경우 "awesome-python" 상표를 사용하는 것은 법적 검토가 필요하다.</p>
+<p>즉시 해결해야 할 사항으로는 pyproject.toml 라이선스 메타데이터 수정, NOTICE 파일 추가, Dependabot 또는 Renovate 설정이 있다. 이 조치 완료 후 실용적 상용화가 가능하다.</p>
+<p><strong>English Summary</strong>:
+awesome-python is a permissive-licensed (CC BY 4.0) curated content project with a clean, minimal Python build toolchain. No GPL/AGPL concerns exist. Commercial adoption requires: (1) honoring CC BY 4.0 attribution for the curated content, (2) fixing the license metadata discrepancy (pyproject.toml says MIT but LICENSE file says CC BY 4.0), and (3) establishing basic vulnerability management automation. The project's architecture is simple and low-risk; the primary blockers are process and documentation gaps, not fundamental technical or legal showstoppers.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>CC BY 4.0 분류 확인 (콘텐츠), Permissive(코드 의존성)</td>
+<td>✅ 확인됨</td>
+</tr>
+<tr>
+<td></td>
+<td>소스 공개 의무 없음 확인 (CC BY 4.0은 카피레프트 아님)</td>
+<td>✅ 확인됨</td>
+</tr>
+<tr>
+<td></td>
+<td>라이선스 호환성 충돌 없음 (GPL 없음)</td>
+<td>✅ 확인됨</td>
+</tr>
+<tr>
+<td></td>
+<td>pyproject.toml license 필드 "MIT" → "CC-BY-4.0" 정정</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>CC BY 4.0 저작자 표시 방법 정의 (Vinta Chen + contributors)</td>
+<td>❌ 미정의</td>
+</tr>
+<tr>
+<td></td>
+<td>NOTICE 파일 생성 및 배포 위치 결정</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>Strong Copyleft 없음, 공개 의무 해당 없음</td>
+<td>✅ 확인됨</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>SECURITY.md 작성 (취약점 신고 채널)</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>CVE 모니터링 체계 (Dependabot/Renovate) 구축</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>중고위험 취약점 패치 계획 (현재 알려진 CVE 없음)</td>
+<td>🟡 계획 필요</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>유지관리 활성도 확인 (최근 커밋 2026-06-04)</td>
+<td>✅ 확인됨</td>
+</tr>
+<tr>
+<td></td>
+<td>Bus Factor 위험 평가 완료 (단일 유지관리자 확인)</td>
+<td>🟡 위험 인식 필요</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>라이선스 검사 자동화 (FOSSA/Licensee 통합)</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>오픈소스 BOM 자동 생성 (CycloneDX/SPDX)</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>위반 라이선스 빌드 차단 게이트</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>고객 계약서에 CC BY 4.0 저작자 표시 의무 명시</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>외부 감사 대비 문서 구비 (NOTICE, BOM, 분석 보고서)</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>"awesome-python" 상표 사용 범위 법률 검토</td>
+<td>❌ 미완료</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li><strong>pyproject.toml 라이선스 메타데이터 정정</strong>: <code>license = "MIT"</code> → <code>license = "CC-BY-4.0"</code> (또는 빌드 코드와 콘텐츠를 분리하여 각각 다른 라이선스 명시). 자동화 스캐너의 오탐 방지 및 법적 혼란 예방을 위한 필수 조치.</li>
+<li><strong>CC BY 4.0 저작자 표시 방법 문서화</strong>: 상용 제품 내 콘텐츠 사용 시 표기 형식 정의 (예: "Based on awesome-python by Vinta Chen, licensed under CC BY 4.0 — awesome-python.com").</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li><strong>SECURITY.md 작성</strong>: 취약점 신고 채널(이메일 또는 GitHub Security Advisory) 정의.</li>
+<li><strong>Dependabot 또는 Renovate 설정</strong>: <code>.github/dependabot.yml</code> 추가로 의존성 자동 업데이트 활성화.</li>
+<li><strong>NOTICE 파일 생성</strong>: 주요 의존성의 저작권 고지 및 라이선스 텍스트 포함.</li>
+<li><strong>actions/checkout 버전 태그 검증</strong>: <code>@v6</code>가 실제 유효한 태그인지 확인 및 <code>@v4</code>로 고정 또는 SHA 고정 사용.</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li><strong>SBOM(소프트웨어 부품표) 자동 생성</strong>: GitHub Actions에 <code>cyclonedx-python</code> 또는 <code>syft</code> 통합으로 CycloneDX/SPDX SBOM 생성 자동화.</li>
+<li><strong>라이선스 검사 CI 게이트</strong>: FOSSA, Licensee, 또는 <code>uv pip licenses</code> 활용으로 CI 파이프라인에 라이선스 검사 단계 추가.</li>
+<li><strong>버스 팩터 완화 계획</strong>: 핵심 커뮤니티 기여자 육성 또는 co-maintainer 지정. 상용화 파트너십 시 upstream 기여 약정 체결 고려.</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li><strong>OpenChain/ISO 5230 자기 인증 검토</strong>: 분기별 오픈소스 컴플라이언스 점검 프로세스 수립.</li>
+<li><strong>"awesome-python" 상표 전략 수립</strong>: 상업적 파생 서비스 구축 시 브랜드 혼동 방지를 위한 법무 검토 및 필요 시 원저자와 상표 사용 허가 협의.</li>
+<li><strong>콘텐츠·코드 라이선스 이원화 검토</strong>: 빌드 도구(website/)는 MIT로, 큐레이션 콘텐츠(README.md)는 CC BY 4.0으로 명시적 분리하는 이중 라이선스 구조 채택 검토.</li>
+</ol>
+<hr />
+<p><em>보고서 저장 경로 / Report path: <code>/tmp/github-dashboard-analysis/vinta_awesome-python/.review/REVIEW-InDepth.md</code> (OUTPUT INSTRUCTION에 따라 파일 출력은 생략하고 콘솔에만 출력함)</em></p>
+<p><strong>종합 상용화 판정 요약</strong>: awesome-python은 GPL/AGPL 계열 의존성이 전혀 없는 허용적 라이선스 구조를 가진 경량 프로젝트다. 상용화의 주요 전제 조건은 CC BY 4.0 저작자 표시 이행 체계 수립, pyproject.toml 라이선스 불일치 정정, SECURITY.md 및 NOTICE 파일 추가다. 이 세 가지를 해결하면 상용화 도입을 위한 법적·기술적 장애물이 실질적으로 제거된다.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>vinta/awesome-python</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/vinta/awesome-python" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

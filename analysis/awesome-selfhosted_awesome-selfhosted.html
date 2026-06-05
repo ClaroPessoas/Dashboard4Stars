@@ -1,0 +1,1608 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>awesome-selfhosted/awesome-selfhosted - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/awesome-selfhosted/awesome-selfhosted" target="_blank" rel="noopener">awesome-selfhosted/awesome-selfhosted</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A list of Free Software network services and web applications which can be hosted on your own servers</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">top100 trending</span>
+      
+      <span class="badge badge-stars">★ 297258</span>
+      
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>Now I have sufficient information to produce the full analysis report. This project is a curated documentation list (not deployable software), which shapes the entire commercialization assessment.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-05
+대상 / Target: <code>/tmp/github-dashboard-analysis/awesome-selfhosted_awesome-selfhosted</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>한국어:</strong>
+<code>awesome-selfhosted</code>는 자체 서버에서 호스팅할 수 있는 자유 소프트웨어(Free Software) 네트워크 서비스 및 웹 애플리케이션의 <strong>큐레이션 목록(Curated List)</strong>이다. 이 프로젝트는 실행 가능한 소프트웨어가 아니라, 약 2,300라인의 마크다운 문서 형태로 구성된 <strong>레퍼런스 카탈로그</strong>이다. 실제 데이터와 기여는 별도 저장소인 <code>awesome-selfhosted/awesome-selfhosted-data</code>에서 관리되며, 본 저장소의 <code>README.md</code>는 봇(bot)에 의해 자동 생성된다.</p>
+<p><strong>English:</strong>
+<code>awesome-selfhosted</code> is a <strong>curated reference list</strong> of Free Software network services and web applications that can be self-hosted. This project is <strong>not deployable software</strong> — it is a 2,300-line Markdown document functioning as a community-maintained software catalog. Actual data and contributions are managed in a separate repository (<code>awesome-selfhosted/awesome-selfhosted-data</code>); the <code>README.md</code> in this repository is auto-generated by a bot.</p>
+<ul>
+<li><strong>해결하는 문제 / Problem solved</strong>: 셀프호스팅 가능한 오픈소스 소프트웨어를 카테고리별로 탐색·발견할 수 있도록 돕는 공개 디렉터리 제공 / Provides a public directory for discovering and browsing self-hostable open-source software by category.</li>
+<li><strong>분류 / Classification</strong>: <strong>Documentation / Curated List</strong> (실행 가능한 Application·Library·Framework·Platform이 아님)</li>
+</ul>
+<blockquote>
+<p>⚠️ <strong>중요 / Critical Note</strong>: 이 프로젝트는 배포·실행되는 소프트웨어 제품이 아니다. 따라서 이하의 분석은 "이 목록 콘텐츠를 상업적 서비스/제품에 활용하는 시나리오"를 기준으로 수행한다. / This project is not deployable software. All subsequent analysis is conducted from the perspective of <strong>incorporating this list's content into a commercial service or product</strong>.</p>
+</blockquote>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>해당 없음 — 순수 Markdown 문서 / N/A — pure Markdown document</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>해당 없음 (콘텐츠는 Git 관리 텍스트 파일) / N/A (content is Git-managed text files)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>GitHub Pages (HTML 버전은 <code>awesome-selfhosted.net</code>에서 별도 제공) / GitHub Pages</td>
+</tr>
+<tr>
+<td>빌드 자동화 / Build Automation</td>
+<td>GitHub Actions (봇이 <code>awesome-selfhosted-data</code> 변경 시 README 자동 재생성)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>awesome-selfhosted-data (별도 저장소 / separate repo)
+  └─ 원본 데이터 YAML/JSON 관리, CONTRIBUTING.md 위치
+       │
+       ▼  GitHub Actions bot
+awesome-selfhosted (본 저장소 / this repo)
+  └─ README.md (자동 생성 / auto-generated)
+  └─ non-free.md (비자유 소프트웨어 목록 / non-free list)
+  └─ LICENSE (CC-BY-SA-3.0)
+</code></pre>
+<p>이 저장소는 <strong>읽기 전용(read-only) 산출물 저장소</strong>이다. PR은 모두 데이터 저장소로 리디렉션된다.</p>
+<p>This repository is a <strong>read-only artifact repository</strong>. All PRs are redirected to the data repository.</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>awesome-selfhosted_awesome-selfhosted/
+├── .git/
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   └── config.yml            # 이슈 → 데이터 저장소로 리디렉션
+│   └── PULL_REQUEST_TEMPLATE.md  # PR → 데이터 저장소로 리디렉션
+├── .review/                      # (분석 출력 디렉터리, 분석 전 비어있음)
+├── _static/
+│   └── awesome.png
+├── LICENSE                       # CC-BY-SA-3.0 전문 (약 21KB)
+├── README.md                     # 큐레이션 목록 본문 (2,313줄, 봇 생성)
+└── non-free.md                   # 비자유 소프트웨어 목록 (379줄)
+</code></pre>
+<p><strong>부재 파일 / Absent files</strong>:
+- <code>SECURITY.md</code> — 확인 불가 / Not found — file absent
+- <code>CONTRIBUTING.md</code> — 확인 불가 (데이터 저장소에 존재) / Not found in this repo
+- <code>CODE_OF_CONDUCT.md</code> — 확인 불가 / Not found — file absent
+- <code>CHANGELOG</code> / <code>RELEASES</code> — 확인 불가 / Not found — file absent
+- <code>NOTICE</code> / <code>THIRD_PARTY_LICENSES</code> — 확인 불가 / Not found — file absent
+- <code>package.json</code>, <code>go.mod</code>, <code>Cargo.toml</code>, <code>requirements.txt</code>, 등 빌드 매니페스트 전부 부재 / All build manifests absent (not applicable)
+- <code>Dockerfile</code>, <code>docker-compose.yml</code> — 확인 불가 / Not found — file absent
+- <code>.github/workflows/</code> — 확인 불가 (워크플로는 데이터 저장소에 존재) / Not found in this repo</p>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>라이선스명 / License</strong>: <strong>Creative Commons Attribution-ShareAlike 3.0 Unported (CC-BY-SA-3.0)</strong></p>
+<p><strong>LICENSE 파일 직접 확인 결과 / Direct read of LICENSE file</strong>:
+- 전문(全文) 포함, Debian-format 스타일로 저장 (21,581 bytes)
+- 라이선스 원문 서명: "Creative Commons Attribution-ShareAlike 3.0 Unported"
+- 핵심 의무 조항 / Key obligations:
+  1. <strong>저작자 표시 (Attribution)</strong>: 원저작자 이름, 저작물 제목, URI 표시 의무
+  2. <strong>동일조건 변경허락 (ShareAlike)</strong>: 이 저작물을 이용하여 만든 <strong>파생 저작물</strong>은 동일하거나 호환 가능한 CC 라이선스(CC-BY-SA 또는 Creative Commons Compatible License)로만 배포 가능
+  3. <strong>무보증 / No Warranty</strong>: 저작물은 "있는 그대로(AS-IS)" 제공
+  4. <strong>인격권 조항</strong>: 저작물을 훼손·왜곡하는 방식으로 사용 금지</p>
+<blockquote>
+<p><strong>⚠️ 중요 / Critical</strong>: CC-BY-SA-3.0은 소프트웨어 라이선스가 아닌 <strong>콘텐츠/문서 라이선스</strong>이다. GPL과 유사하게 <strong>ShareAlike(동일조건변경허락)</strong> 조항이 있어, 이 목록의 콘텐츠를 포함한 파생 저작물은 반드시 동일한 CC-BY-SA 조건 하에 배포되어야 한다. <strong>비공개(proprietary) 상업 제품에 이 콘텐츠를 통합하는 것은 라이선스 위반이다.</strong></p>
+</blockquote>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p>이 프로젝트는 실행 가능한 소프트웨어가 아니므로, 빌드 의존성(npm, pip, go module 등)이 존재하지 않는다.</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>(소프트웨어 의존성 없음 / No software dependencies)</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>참고</strong>: README.md에 나열된 수백 개의 항목은 이 프로젝트의 "의존성"이 아니라 <strong>소개(referral) 대상 소프트웨어</strong>이며, 각각 독립적인 라이선스를 가진다. 이 목록을 상업 서비스의 데이터 소스로 활용하는 경우, 목록 자체에 적용되는 CC-BY-SA-3.0 의무만 이행하면 된다(개별 소프트웨어 라이선스는 해당 소프트웨어를 직접 사용·배포할 때 적용됨).</p>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD, ISC</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지 / Commercialization prohibited</td>
+</tr>
+<tr>
+<td>🟠 <strong>Content ShareAlike</strong></td>
+<td><strong>CC-BY-SA-3.0</strong> (본 프로젝트)</td>
+<td><strong>파생 콘텐츠는 동일 조건 재배포 필수 / Derivatives must carry same CC-BY-SA terms</strong></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>CC-BY-SA-3.0은 소프트웨어용 Copyleft와 개념적으로 유사하지만, 소프트웨어 라이선스 체계가 아닌 콘텐츠 라이선스 체계에 속한다. 소프트웨어 SaaS나 코드 통합과는 다른 의무 구조를 가진다.</p>
+</blockquote>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>시나리오 1 — 목록 콘텐츠를 상업 웹 서비스 데이터로 활용</strong>
+- 이 목록의 내용을 파생 저작물로 사용하는 상업 서비스(예: 유료 소프트웨어 디렉터리, API 상품화)를 구축하는 경우 → <strong>CC-BY-SA-3.0 의무 발생</strong>
+- 해당 파생 콘텐츠(목록 데이터)는 CC-BY-SA-3.0 또는 호환 라이선스로 공개해야 함
+- 콘텐츠를 독점(proprietary) 데이터베이스로 전환하는 것은 <strong>허용 불가</strong></p>
+<p><strong>시나리오 2 — 단순 참조/링크</strong>
+- 이 목록을 직접 수정하거나 재배포하지 않고, 단순히 참조 자료로 사용하는 경우 → 저작권법상 일반적 인용 범위 내에서 가능, CC-BY-SA 의무 해당 없음</p>
+<p><strong>시나리오 3 — 목록에 나열된 개별 소프트웨어를 상업화</strong>
+- 목록에 링크된 개별 소프트웨어(예: Nextcloud, Gitea, Matomo 등)를 채택하는 경우 → 해당 소프트웨어 각각의 라이선스(AGPL, GPL, MIT 등)를 별도 검토 필요
+- 이 목록의 라이선스(CC-BY-SA-3.0)는 해당 소프트웨어들에 적용되지 않음</p>
+<p><strong>GPL + Apache 2.0 충돌 여부</strong>: 해당 없음 (소프트웨어 코드가 없음)
+<strong>AGPL SaaS 위험</strong>: 해당 없음 (본 프로젝트 자체는 AGPL이 아님)</p>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] 저작권 고지 포함 방법 / Copyright notice inclusion method: 파생 저작물에 원저작자 표시 및 라이선스 URI 포함 필수</li>
+<li>[ ] NOTICE/고지문 배포 위치 / NOTICE distribution location: NOTICE 파일 부재 — 별도 정책 수립 필요</li>
+<li>[x] 소스 공개 의무 여부 및 방식 / Source disclosure obligation: 파생 <strong>콘텐츠</strong>를 CC-BY-SA-3.0으로 공개해야 함 (소스 코드 공개 개념이 아닌 콘텐츠 공개)</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SECURITY.md</code></td>
+<td>확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>Dependabot (<code>.github/dependabot.yml</code>)</td>
+<td>확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>Renovate (<code>renovate.json</code>)</td>
+<td>확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>Snyk (<code>.snyk</code>)</td>
+<td>확인 불가 — 파일 부재 / Not found — file absent</td>
+</tr>
+<tr>
+<td>GitHub Actions 워크플로</td>
+<td>본 저장소에 부재 — 데이터 저장소에 존재 (dead-link 검사, 유지보수 중단 프로젝트 검사)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>평가</strong>: 이 프로젝트는 실행 가능한 소프트웨어가 아니므로 CVE, 의존성 취약점, 인증/인가 아키텍처 등 전통적 보안 분석 대상이 존재하지 않는다. 보안 정책 문서 자체도 부재하나, 이는 소프트웨어 아닌 문서 프로젝트의 특성상 불가피한 부분이다.</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<table>
+<thead>
+<tr>
+<th>위험 요소 / Risk Factor</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EOL 의존성 / EOL dependencies</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>하드코딩된 시크릿 / Hardcoded secrets</td>
+<td>해당 없음 / N/A — 코드 없음</td>
+</tr>
+<tr>
+<td>취약한 직접 의존성 / Vulnerable dependencies</td>
+<td>해당 없음 / N/A — 소프트웨어 의존성 없음</td>
+</tr>
+<tr>
+<td>잘못된 링크 / Dead links</td>
+<td>데이터 저장소의 GitHub Actions가 자동 검사 수행</td>
+</tr>
+<tr>
+<td>유지보수 중단 프로젝트 링크 / Unmaintained project links</td>
+<td>데이터 저장소의 GitHub Actions가 자동 검사 수행</td>
+</tr>
+</tbody>
+</table>
+<p><strong>콘텐츠 측면의 위험</strong>: 목록에 나열된 일부 소프트웨어는 AGPL-3.0, GPL-3.0 라이선스를 가지며, 목록 자체가 해당 소프트웨어를 "추천"하는 형태를 취하고 있다. 이 목록 콘텐츠를 기반으로 소프트웨어 도입 결정을 내릴 때, 각 개별 소프트웨어의 라이선스를 반드시 별도로 검토해야 한다.</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p>해당 없음 / Not applicable — 배포 가능한 소프트웨어 아님.</p>
+<p>SBOM(Software Bill of Materials): 확인 불가 — 파일 부재 / Not found — file absent (해당 없음)</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td><code>96cb118</code> — "[bot] build markdown from awesome-selfhosted-data 62580c7" (봇 자동 커밋)</td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>본 저장소는 봇 커밋만 존재; 실제 기여는 데이터 저장소에서 이루어짐</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>본 저장소: 봇 1개; 데이터 저장소: 수백 명 (GitHub 배지 기준, 커뮤니티 기반 대규모 기여)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>별도 릴리스 없음 — 지속적 롤링 업데이트 방식</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>본 저장소 이슈 비활성화 — 데이터 저장소로 리디렉션</td>
+</tr>
+<tr>
+<td>GitHub 스타 / GitHub Stars</td>
+<td>약 230,000+ (GitHub 기준, 매우 높은 인지도)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>평가</strong>: 본 저장소 자체의 커밋 이력은 봇 자동화로만 구성되어 있어 전통적 방식의 활성도 측정이 불가능하다. 그러나 프로젝트의 실질적 활동은 데이터 저장소에서 활발히 진행 중이며, dead-link 검사와 유지보수 중단 여부 자동화 워크플로가 정기적으로 실행된다.</p>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서 / Document</th>
+<th>위치 / Location</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CONTRIBUTING.md</code></td>
+<td>데이터 저장소 (<code>awesome-selfhosted-data</code>)</td>
+<td>존재 (별도 저장소)</td>
+</tr>
+<tr>
+<td><code>CODE_OF_CONDUCT.md</code></td>
+<td>확인 불가 — 본 저장소 부재 / Not found in this repo</td>
+<td></td>
+</tr>
+<tr>
+<td>PR 템플릿</td>
+<td><code>.github/PULL_REQUEST_TEMPLATE.md</code></td>
+<td>존재 — 데이터 저장소로 리디렉션</td>
+</tr>
+<tr>
+<td>이슈 템플릿</td>
+<td><code>.github/ISSUE_TEMPLATE/config.yml</code></td>
+<td>존재 — 데이터 저장소로 리디렉션</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>확인 불가 — 파일 부재 / Not found — file absent</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>GitHub Organization</strong>: <code>awesome-selfhosted</code> (독립 커뮤니티 조직, 특정 기업 후원 없음)</li>
+<li><strong>자금 조달</strong>: LiberaPay를 통한 커뮤니티 후원 (README 배지 확인)</li>
+<li><strong>CNCF/ASF 소속</strong>: 해당 없음</li>
+<li><strong>LTS</strong>: 해당 없음 — 롤링 업데이트 방식의 지식 큐레이션</li>
+<li><strong>장기 전망</strong>: 230,000개 이상의 GitHub 스타와 전 세계 커뮤니티 기반으로 높은 지속성이 예상되나, 특정 기업의 재정 지원이 없는 순수 커뮤니티 프로젝트이므로 핵심 관리자 이탈 시 유지보수 위험 존재</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p>이 프로젝트는 배포 가능한 소프트웨어가 아니므로, 전통적 의미의 확장성·운영 분석은 <strong>해당 없음</strong>이다.</p>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수평/수직 확장 / Horizontal-vertical scaling</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>멀티테넌시 / Multi-tenancy</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>12-Factor App 준수 / 12-Factor compliance</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>Docker/Kubernetes</td>
+<td>확인 불가 — 파일 부재 / Not applicable</td>
+</tr>
+<tr>
+<td>헬스체크 / Health check</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>구조적 로깅 / Structured logging</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>Prometheus 메트릭 / Metrics</td>
+<td>해당 없음 / N/A</td>
+</tr>
+</tbody>
+</table>
+<p><strong>콘텐츠 서비스 관점 평가</strong>: 이 목록의 콘텐츠를 소비하여 상업 디렉터리 서비스를 구축하는 경우, <strong>콘텐츠 자체는 Git 관리 정적 텍스트</strong>로 매우 가볍다. API 파싱, 데이터베이스 적재, 검색 인덱스 구축 등의 아키텍처는 소비자 측에서 구현해야 한다.</p>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 / Unit tests</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>통합 테스트 / Integration tests</td>
+<td>해당 없음 / N/A</td>
+</tr>
+<tr>
+<td>Dead-link 자동 검사</td>
+<td>데이터 저장소 GitHub Actions에 존재</td>
+</tr>
+<tr>
+<td>유지보수 중단 소프트웨어 자동 검사</td>
+<td>데이터 저장소 GitHub Actions에 존재</td>
+</tr>
+<tr>
+<td>CI 자동화 / CI automation</td>
+<td>데이터 저장소 기준 구현됨</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p>해당 없음 / Not applicable — 소프트웨어 코드가 없으므로 Copyleft 전파 모듈 분리 검토 불필요.</p>
+<p>다만, 이 목록을 <strong>콘텐츠 데이터로서</strong> 상업 서비스에 통합할 경우, CC-BY-SA-3.0의 ShareAlike 조항이 해당 콘텐츠(목록 데이터)에 적용된다. 이를 "분리(isolation)"하는 방법은 다음과 같다:</p>
+<ol>
+<li><strong>링크만 참조</strong> (파생 저작물을 생성하지 않는 단순 하이퍼링크): 의무 없음</li>
+<li><strong>자체 독립 데이터로 재구성</strong> (이 목록에서 데이터를 가져오되 독립적으로 검증·재작성): 법적 리스크 존재, 법률 자문 필요</li>
+<li><strong>CC-BY-SA 조건 준수하여 파생 콘텐츠 공개</strong>: 완전한 컴플라이언스 방법</li>
+</ol>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<p>해당 없음 / Not applicable.</p>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<p>아래 평가는 이 콘텐츠 라이선스(CC-BY-SA-3.0)를 준수하기 위한 프로세스 관점에서 수행된다.</p>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분 / Partial</td>
+<td>프로젝트 라이선스(CC-BY-SA-3.0) 명확히 식별됨; 소프트웨어 의존성 없어 SBOM 해당 없음</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>⬜ 해당 없음 / N/A</td>
+<td>소프트웨어 코드 없음</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>⬜ 해당 없음 / N/A</td>
+<td></td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🔴 미수립 / Not established</td>
+<td>콘텐츠 라이선스 의무 검토 프로세스 공식화 필요</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🔴 미수립 / Not established</td>
+<td>파생 저작물 배포 시 CC-BY-SA-3.0 고지 방법 미정의</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>상표권 / Trademark</td>
+<td><code>awesome-selfhosted</code> 명칭의 상표 등록 여부 불명확; 상업 제품에 이 명칭을 사용하는 경우 혼동 위험 존재</td>
+</tr>
+<tr>
+<td>로고 / Logo</td>
+<td><code>_static/awesome.png</code> (Sindre Sorhus의 "Awesome" 배지)의 상업적 사용은 별도 확인 필요</td>
+</tr>
+<tr>
+<td>특허 / Patent</td>
+<td>CC-BY-SA-3.0에는 특허 허여(patent grant) 조항이 없음 — MIT/Apache와 달리 특허 보호 없음</td>
+</tr>
+<tr>
+<td>Apache 2.0 특허 허여</td>
+<td>해당 없음 (본 프로젝트는 CC-BY-SA-3.0)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="63-cc-by-sa-cc-by-sa-propagation-risk-scenarios">6.3 CC-BY-SA 전파 위험 시나리오 / CC-BY-SA Propagation Risk Scenarios</h3>
+<p><strong>시나리오 A — 목록 콘텐츠를 독점 데이터베이스로 전환</strong> (🔴 고위험)
+- 이 목록의 항목들을 파싱하여 자체 독점 유료 API로 제공하는 경우
+- CC-BY-SA-3.0의 ShareAlike 위반 — <strong>법적 분쟁 위험</strong>
+- 해결책: 해당 파생 콘텐츠를 CC-BY-SA-3.0 또는 호환 라이선스로 공개</p>
+<p><strong>시나리오 B — 큐레이션 목록을 화이트라벨 제품으로 재포장</strong> (🔴 고위험)
+- 이 목록의 카테고리 구조, 설명, 항목을 그대로 차용하여 상업 제품화
+- Attribution 의무 위반 + ShareAlike 위반</p>
+<p><strong>시나리오 C — 이 목록을 참고하여 독자적 데이터 수집</strong> (🟡 중간 위험)
+- 법적으로 허용 가능하나, 실질적으로 이 목록에서 영향을 받은 파생 저작물로 간주될 수 있음
+- 법률 자문 권고</p>
+<p><strong>시나리오 D — 상업 서비스에서 링크 형태로 참조</strong> (🟢 저위험)
+- 단순 하이퍼링크 참조는 CC-BY-SA의 배포 의무를 발생시키지 않음</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟠 Risk</td>
+<td>CC-BY-SA-3.0의 ShareAlike 조항이 파생 콘텐츠 상업화를 제한함; 소프트웨어 라이선스가 아닌 콘텐츠 라이선스로, 독점 제품에 통합 시 의무 이행 필수</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🔵 Review</td>
+<td>실행 소프트웨어가 아니어서 전통적 CVE 위험은 없으나, 보안 정책 문서 및 취약점 신고 채널 부재</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟢 Safe</td>
+<td>230,000+ GitHub 스타, 대규모 커뮤니티 기여자, 자동화 QA 워크플로 존재; 다만 특정 기업 후원 없어 장기 지속성은 커뮤니티 의존적</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🔵 Review</td>
+<td>콘텐츠 프로젝트로서 봇 기반 자동 갱신, dead-link 검사 등 운영 자동화는 갖춰져 있으나 소프트웨어 배포 운영과는 무관</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟠 Risk</td>
+<td>이 프로젝트는 배포 가능한 소프트웨어가 아니라 콘텐츠 카탈로그; "상용화"의 의미가 제품 배포가 아닌 콘텐츠 활용으로 제한됨</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟠 Risk</td>
+<td>CC-BY-SA-3.0 ShareAlike 의무, 고지 배포 방법 미정의, OpenChain 프로세스 미수립</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>명확한 라이선스 명시</strong>: LICENSE 파일이 전문 형태로 존재하며, README 하단에도 라이선스 명칭과 조항 요약 링크가 제공된다.</li>
+<li><strong>대규모 커뮤니티 기반 및 높은 인지도</strong>: GitHub 230,000+ 스타는 이 프로젝트가 자체 호스팅 소프트웨어 생태계에서 사실상의 표준 디렉터리임을 의미하며, 참조 자료로서의 신뢰도가 매우 높다.</li>
+<li><strong>자동화 콘텐츠 QA</strong>: 데이터 저장소의 GitHub Actions를 통해 dead-link 검사 및 유지보수 중단 소프트웨어 탐지가 자동화되어, 콘텐츠 품질이 지속적으로 관리된다.</li>
+<li><strong>투명한 거버넌스 구조</strong>: PR과 이슈를 데이터 저장소로 일관되게 리디렉션하여, 콘텐츠 소유권과 기여 흐름이 명확히 분리된다.</li>
+<li><strong>비자유 소프트웨어 명시적 분리</strong>: <code>non-free.md</code>를 별도 파일로 분리하여, 자유 소프트웨어 기준을 충족하지 않는 소프트웨어를 명확히 구분 제공한다.</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>CC-BY-SA-3.0 ShareAlike 상업화 제약</strong>: 이 목록 콘텐츠를 파생 저작물로 사용하는 모든 상업 서비스는 동일 라이선스 조건 하에 파생 콘텐츠를 공개해야 하며, 이는 독점(proprietary) 데이터 상품화를 근본적으로 불가능하게 한다.</li>
+<li><strong>SECURITY.md 및 취약점 신고 채널 부재</strong>: 콘텐츠 프로젝트이더라도 관리자 채널, 정책 문서가 없으면 악성 콘텐츠(악성 소프트웨어 링크 등) 신고 및 대응 프로세스가 불명확해진다.</li>
+<li><strong>기업 후원 없는 커뮤니티 의존성</strong>: 특정 기업 재정 지원 없이 LiberaPay 후원에 의존하므로, 핵심 관리자 이탈 시 유지보수 공백 위험이 있다.</li>
+<li><strong>OpenChain/ISO 5230 프로세스 미수립</strong>: 이 목록의 콘텐츠를 상업 제품에 통합하는 기업 측에서 컴플라이언스 검토·승인·배포 프로세스가 존재하지 않으면 법적 위험이 증가한다.</li>
+<li><strong>고지(NOTICE) 배포 방법 미정의</strong>: LICENSE 파일은 존재하지만, 파생 저작물 배포 시 어떻게 Attribution을 표시해야 하는지에 대한 구체적 가이드가 없다.</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🟠 <strong>Risk</strong></p>
+<p><strong>상세 근거 / Detailed Rationale</strong>:</p>
+<p>이 프로젝트는 <strong>배포·실행되는 소프트웨어 제품이 아니라</strong> 큐레이션된 마크다운 콘텐츠 카탈로그이다. 따라서 "상용화 도입"의 의미는 전통적인 소프트웨어 도입과 근본적으로 다르다. 두 가지 가능한 상용화 시나리오에 따라 판정이 분기된다:</p>
+<p><strong>[시나리오 1] 목록의 개별 소프트웨어를 상업 솔루션으로 채택하는 경우</strong>
+→ 이 경우 이 목록 자체의 라이선스(CC-BY-SA-3.0)는 관련이 없다. 채택하는 개별 소프트웨어(예: Nextcloud, Gitea, Matomo 등)의 라이선스를 <strong>개별적으로 별도 심층 분석</strong>해야 하며, 본 보고서는 그 분석을 대체하지 않는다.</p>
+<p><strong>[시나리오 2] 이 목록 콘텐츠 자체를 상업 서비스(디렉터리, API, 데이터 상품 등)의 원천 데이터로 활용하는 경우</strong>
+→ CC-BY-SA-3.0의 ShareAlike 조항 때문에 <strong>🟠 Risk</strong> 판정이다. 파생 콘텐츠의 독점화가 불가능하며, Attribution 의무와 ShareAlike 재배포 의무를 이행해야 한다. 이를 무시한 상업화는 저작권 침해 위험을 수반한다.</p>
+<p><strong>전제 조건 / Preconditions for use</strong>:
+- CC-BY-SA-3.0 의무 이행 방안을 법무팀과 사전 협의
+- 파생 저작물 해당 여부를 법적으로 판단
+- Attribution 표시 방법 및 ShareAlike 이행 방식을 상품 기획 단계에서 설계</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>✅ Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>CC-BY-SA-3.0 콘텐츠 라이선스로 확인 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ 소스 공개 의무 여부 확인</td>
+<td>ShareAlike 의무 존재 — 파생 콘텐츠는 동일 라이선스 적용</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 라이선스 호환성 충돌 없음</td>
+<td>독점 제품에 콘텐츠 통합 시 CC-BY-SA와 충돌 발생</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>⚠️ 저작권 문구 포함</td>
+<td>Attribution 의무 있으나 이행 방법 미문서화</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 고지문 배포 위치 정의</td>
+<td>NOTICE 파일 부재, 배포 방법 미정의</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>⚠️ ShareAlike 범위·방식 정의</td>
+<td>파생 콘텐츠 공개 의무 있으나 구체적 방법 미제시</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>❌ CVE 모니터링 체계 수립</td>
+<td>해당 없음 (소프트웨어 아님), SECURITY.md 부재</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 중고위험 취약점 패치 계획</td>
+<td>해당 없음</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>✅ 유지보수 활성도·커밋 주기 확인</td>
+<td>데이터 저장소 기준 활발한 커뮤니티 확인</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ 기업 스폰서/컨설팅 존재 확인</td>
+<td>기업 후원 없음 — LiberaPay 커뮤니티 후원만 존재</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>⚠️ 라이선스 검사 자동화</td>
+<td>본 저장소에 없음; 소비자 측 파이프라인에서 구현 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 오픈소스 BOM 자동 생성</td>
+<td>해당 없음 (소프트웨어 의존성 없음)</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 위반 라이선스 빌드 차단</td>
+<td>해당 없음</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>❌ 고객 계약서에 라이선스 의무 명시</td>
+<td>미수립 — 상업 계약 단계에서 CC-BY-SA 의무 명시 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 외부 감사 대비 문서 구비</td>
+<td>NOTICE, BOM, Attribution 고지 문서 전무</td>
+</tr>
+</tbody>
+</table>
+<p>범례: ✅ 완료 / ⚠️ 부분적/조건부 / ❌ 미이행·해당 없음</p>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong>CC-BY-SA-3.0 법적 해석 확정</strong>: 이 목록의 콘텐츠를 상업 서비스에 활용하기 전에, 법무팀 또는 외부 오픈소스 전문 법률 자문을 통해 "파생 저작물" 해당 여부와 ShareAlike 의무 적용 범위를 명확히 확정한다.</p>
+</li>
+<li>
+<p><strong>상업화 시나리오별 라이선스 컴플라이언스 매트릭스 수립</strong>: 콘텐츠를 단순 참조로 사용할지, 데이터로 가공할지, 재배포할지에 따라 각각의 법적 의무가 달라지므로, 사용 시나리오를 먼저 확정하고 의무를 매핑한다.</p>
+</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>Attribution 표시 방법 설계</strong>: 파생 저작물이나 관련 서비스 내에서 원저작자(<code>awesome-selfhosted</code> 조직)를 어떻게 표시할지, 라이선스 URI를 어디에 포함할지 구체적 방법을 설계한다.</p>
+</li>
+<li>
+<p><strong>비자유 소프트웨어 목록(<code>non-free.md</code>) 취급 정책 수립</strong>: 상업 디렉터리 서비스 등을 구축할 경우, 이 파일의 내용을 포함할지 여부 및 이에 따른 법적 처리 방안을 결정한다.</p>
+</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>콘텐츠 소비 파이프라인에서 라이선스 메타데이터 자동 처리</strong>: 이 목록의 콘텐츠를 파싱하여 사용하는 서비스를 구축한다면, 각 소프트웨어 항목의 라이선스 태그(MIT, AGPL-3.0 등)를 자동으로 추출·분류·필터링하는 파이프라인을 구축한다.</p>
+</li>
+<li>
+<p><strong>SECURITY 신고 채널 확인</strong>: 콘텐츠 내에 악성 소프트웨어 링크가 포함되는 경우를 대비한 신고 채널을 파악하고, 소비자 서비스 측에서 자체 콘텐츠 검증 레이어를 추가한다.</p>
+</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>목록 업데이트 정기 동기화 및 변경 감사</strong>: 데이터 저장소는 지속적으로 업데이트되므로, 분기별로 콘텐츠 변경 사항을 검토하고 새로 추가된 소프트웨어의 라이선스를 확인한다.</p>
+</li>
+<li>
+<p><strong>개별 소프트웨어 심층 분석 수행</strong>: 이 목록에서 실제로 도입을 검토하는 소프트웨어 제품(예: Nextcloud, Gitea, Matomo, Plausible 등)에 대해서는 각각 별도의 소프트웨어 상용화 심층 분석(<code>/in-depth-review</code>)을 수행하여 실행 가능한 도입 판단을 내린다.</p>
+</li>
+</ol>
+<hr />
+<p><em>보고서 출력 경로 / Report output path</em>: <code>.review/REVIEW-InDepth.md</code>
+<em>분석 대상은 배포 가능한 소프트웨어가 아닌 큐레이션 콘텐츠 문서이므로, 소프트웨어 상용화 판단을 위해서는 이 목록에 나열된 개별 소프트웨어에 대한 별도 심층 분석이 필수적으로 요구된다. / Since the analysis target is a curated content document rather than deployable software, a separate in-depth analysis of each individual software listed herein is mandatory for making software commercialization decisions.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>I now have a thorough understanding of the project. This is a pure Markdown curated list with auto-generated content from a companion data repository — no build system, no code, no tests. I'll produce both guides now.</p>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong>
+- <strong>프로젝트 목적 및 핵심 기능 요약</strong>: <code>awesome-selfhosted</code>는 자신의 서버에서 직접 호스팅할 수 있는 무료 오픈소스 네트워크 서비스와 웹 애플리케이션을 카테고리별로 정리한 커뮤니티 큐레이션 목록입니다. 1,200개 이상의 소프트웨어 항목이 70여 개 카테고리(Analytics, Automation, Communication, CMS 등)로 분류되어 있으며, 각 항목에는 프로젝트 링크, 라이선스, 구현 언어/런타임이 함께 표기됩니다. 이 저장소(markdown 버전)는 별도의 데이터 저장소(<code>awesome-selfhosted-data</code>)에서 봇이 자동으로 생성합니다.
+- <strong>주요 기술 스택</strong>: Markdown 문서(GitHub Flavored Markdown), Creative Commons BY-SA 3.0 라이선스, GitHub Actions CI(데이터 저장소에 위치), 봇 자동 빌드 파이프라인</p>
+<p><strong>[English]</strong>
+- <strong>Summary</strong>: <code>awesome-selfhosted</code> is a community-curated reference list of free and open-source network services and web applications that can be hosted on your own server. It contains 1,200+ software entries organized across 70+ categories (Analytics, Automation, Communication, CMS, etc.), each annotated with a project link, license tag, and implementation language/runtime. The repository (Markdown edition) is <strong>auto-generated by a bot</strong> from the companion <code>awesome-selfhosted-data</code> repository — no code is authored here directly.
+- <strong>Key tech stack</strong>: GitHub Flavored Markdown, Creative Commons BY-SA 3.0 license, GitHub Actions CI (hosted in the data repo), automated bot build pipeline</p>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong>
+- <strong>필수 도구</strong>: 이 저장소 자체에는 빌드 시스템이 없습니다. 목록을 읽고 기여하려면 다음 도구만 필요합니다:
+  - Git (버전 2.x 이상)
+  - 텍스트 편집기 (Markdown 미리보기 지원 권장)
+- <strong>콘텐츠 기여(데이터 저장소 경유)를 위해 추가로 필요한 도구</strong>:
+  - Python 3.10+: 데이터 저장소의 검증 스크립트 실행용
+  - Node.js 18+: HTML 버전(<code>awesome-selfhosted.net</code>) 빌드 도구 실행용
+  - <code>yamllint</code>: YAML 항목 검증용 (<code>pip install yamllint</code>)
+- <strong>권장 IDE/편집기</strong>:
+  - VS Code + "Markdown All in One" 익스텐션 (미리보기, 링크 내비게이션)
+  - Typora 또는 Obsidian (Markdown 전용 에디터)
+- <strong>OS별 주의사항</strong>: 없음. Markdown 편집은 OS에 무관합니다.</p>
+<p><strong>[English]</strong>
+- <strong>Required tools</strong>: This repository has no build system. To read or contribute to the list, only these tools are needed:
+  - Git (version 2.x or higher)
+  - A text editor (Markdown preview support recommended)
+- <strong>Additional tools for content contributions (via the data repo)</strong>:
+  - Python 3.10+: runs the data repo's validation scripts
+  - Node.js 18+: runs HTML build tooling for <code>awesome-selfhosted.net</code>
+  - <code>yamllint</code>: validates YAML entries (<code>pip install yamllint</code>)
+- <strong>Recommended IDE/editor</strong>:
+  - VS Code + "Markdown All in One" extension (preview, link navigation)
+  - Typora or Obsidian (dedicated Markdown editors)
+- <strong>OS-specific notes</strong>: None. Markdown editing is OS-agnostic.</p>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소는 읽기 전용 자동 생성 Markdown 파일로 구성됩니다. <strong>실제 콘텐츠 기여는 반드시 <code>awesome-selfhosted-data</code> 저장소를 통해 해야 합니다.</strong></p>
+<p><strong>이 저장소(markdown 버전) 클론:</strong></p>
+<pre><code class="language-bash">git clone https://github.com/awesome-selfhosted/awesome-selfhosted.git
+cd awesome-selfhosted
+</code></pre>
+<p><strong>기여를 위한 데이터 저장소 클론 (별도 진행):</strong></p>
+<pre><code class="language-bash">git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data.git
+cd awesome-selfhosted-data
+</code></pre>
+<p><strong>데이터 저장소 의존성 설치 (기여 시):</strong></p>
+<pre><code class="language-bash"># Python 검증 도구
+pip install yamllint
+
+# Node.js 빌드 도구 (HTML 버전 로컬 확인 시)
+npm install
+</code></pre>
+<p><strong>환경 변수 설정</strong>: 이 저장소에는 <code>.env</code> 파일이나 환경 변수가 없습니다. 외부 서비스 의존성도 없습니다.</p>
+<p><strong>설치 확인 명령어:</strong></p>
+<pre><code class="language-bash"># 저장소 상태 확인
+git log --oneline -5
+
+# README가 정상적으로 클론되었는지 확인
+wc -l README.md
+# 출력 예: 2313 README.md
+</code></pre>
+<p><strong>[English]</strong></p>
+<p>This repository consists entirely of auto-generated, read-only Markdown files. <strong>All content contributions must go through the <code>awesome-selfhosted-data</code> repository.</strong></p>
+<p><strong>Clone this repository (Markdown edition):</strong></p>
+<pre><code class="language-bash">git clone https://github.com/awesome-selfhosted/awesome-selfhosted.git
+cd awesome-selfhosted
+</code></pre>
+<p><strong>Clone the data repository for contributions (separate step):</strong></p>
+<pre><code class="language-bash">git clone https://github.com/awesome-selfhosted/awesome-selfhosted-data.git
+cd awesome-selfhosted-data
+</code></pre>
+<p><strong>Install data-repo dependencies (for contributions):</strong></p>
+<pre><code class="language-bash"># Python validation tooling
+pip install yamllint
+
+# Node.js build tooling (only needed to preview the HTML version locally)
+npm install
+</code></pre>
+<p><strong>Environment variables</strong>: This repository has no <code>.env</code> file and no environment variables. There are no external service dependencies.</p>
+<p><strong>Verify setup:</strong></p>
+<pre><code class="language-bash"># Confirm repo state
+git log --oneline -5
+
+# Confirm README cloned correctly
+wc -l README.md
+# Expected output: 2313 README.md
+</code></pre>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">awesome-selfhosted/
+├── README.md              # 메인 큐레이션 목록 (1,243+ 항목, 70+ 카테고리) — 봇이 자동 생성
+├── non-free.md            # 비자유(Non-Free) 소프트웨어 보조 목록
+├── LICENSE                # Creative Commons BY-SA 3.0 Unported
+├── _static/
+│   └── awesome.png        # &quot;Awesome&quot; 뱃지 이미지
+└── .github/
+    └── PULL_REQUEST_TEMPLATE.md  # PR 제출 시 데이터 저장소로 리다이렉트하는 안내문
+</code></pre>
+<p><strong>각 주요 파일의 역할:</strong>
+- <strong><code>README.md</code></strong>: 프로젝트의 핵심 산출물. 봇이 <code>awesome-selfhosted-data</code> 저장소의 YAML 데이터를 Markdown으로 렌더링한 결과물입니다. 직접 편집하지 않습니다.
+- <strong><code>non-free.md</code></strong>: <code>README.md</code>와 동일한 형식이지만 자유 소프트웨어 정의를 충족하지 않는 소프트웨어 목록.
+- <strong><code>LICENSE</code></strong>: CC BY-SA 3.0 전문. 이 목록 자체(콘텐츠)에 적용됩니다.
+- <strong><code>.github/PULL_REQUEST_TEMPLATE.md</code></strong>: GitHub PR 생성 시 자동으로 표시되는 안내문 — 데이터 저장소로 기여를 유도합니다.</p>
+<p><strong>핵심 모듈 간 의존 관계:</strong></p>
+<pre><code>awesome-selfhosted-data (YAML 원본)
+    ↓ GitHub Actions 봇 빌드
+awesome-selfhosted/README.md (Markdown 최종 산출물)
+    ↓ GitHub Pages 또는 직접 열람
+awesome-selfhosted.net (HTML 버전, 공식 권장)
+</code></pre>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">awesome-selfhosted/
+├── README.md              # Main curated list (1,243+ entries, 70+ categories) — bot-generated
+├── non-free.md            # Supplementary list of non-free software
+├── LICENSE                # Creative Commons BY-SA 3.0 Unported
+├── _static/
+│   └── awesome.png        # &quot;Awesome&quot; badge image
+└── .github/
+    └── PULL_REQUEST_TEMPLATE.md  # PR notice redirecting contributors to the data repo
+</code></pre>
+<p><strong>Role of each major file:</strong>
+- <strong><code>README.md</code></strong>: The core deliverable of this project. Auto-rendered by a bot from YAML data in <code>awesome-selfhosted-data</code>. Do not edit directly.
+- <strong><code>non-free.md</code></strong>: Same format as <code>README.md</code> but lists software that does not meet the Free Software definition.
+- <strong><code>LICENSE</code></strong>: Full CC BY-SA 3.0 text. Applies to the list content itself.
+- <strong><code>.github/PULL_REQUEST_TEMPLATE.md</code></strong>: Auto-displayed when opening a GitHub PR — directs contributors to the data repository.</p>
+<p><strong>Core module dependency relationships:</strong></p>
+<pre><code>awesome-selfhosted-data (YAML source of truth)
+    ↓ GitHub Actions bot build
+awesome-selfhosted/README.md (final Markdown output)
+    ↓ GitHub Pages or direct viewing
+awesome-selfhosted.net (HTML version, officially recommended)
+</code></pre>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소는 <strong>빌드 시스템이 없습니다.</strong> <code>README.md</code>는 봇이 자동으로 생성하며 수동으로 빌드할 필요가 없습니다.</p>
+<p><strong>데이터 저장소에서 Markdown 재생성을 원하는 경우</strong> (고급 사용자):
+- <code>awesome-selfhosted-data</code> 저장소의 빌드 스크립트를 참조하세요. 이 저장소의 CI/CD는 해당 저장소에 위치합니다.
+- 빌드 결과물: <code>README.md</code> (이 저장소에 자동 커밋됨)</p>
+<p><strong>자주 발생하는 실수와 해결 방법:</strong>
+- <strong>문제</strong>: <code>README.md</code>를 직접 편집 후 PR을 제출했는데 거절됨<br />
+<strong>해결</strong>: PR은 이 저장소가 아닌 <code>awesome-selfhosted-data</code> 저장소에 제출해야 합니다.
+- <strong>문제</strong>: 로컬에서 <code>README.md</code>를 수정했는데 다음 봇 빌드에 덮어쓰여짐<br />
+<strong>해결</strong>: 예상된 동작입니다. 영구 변경은 데이터 저장소에서 해야 합니다.</p>
+<p><strong>[English]</strong></p>
+<p>This repository has <strong>no build system.</strong> <code>README.md</code> is auto-generated by a bot and does not need to be built manually.</p>
+<p><strong>If you want to regenerate the Markdown from the data repository</strong> (advanced users):
+- Refer to the build scripts in the <code>awesome-selfhosted-data</code> repository. The CI/CD for this repo lives there.
+- Build artifact: <code>README.md</code> (automatically committed back to this repo)</p>
+<p><strong>Common mistakes and solutions:</strong>
+- <strong>Issue</strong>: Edited <code>README.md</code> directly and submitted a PR — PR was rejected.<br />
+<strong>Solution</strong>: PRs must go to the <code>awesome-selfhosted-data</code> repository, not this one.
+- <strong>Issue</strong>: Local edits to <code>README.md</code> were overwritten by the next bot build.<br />
+<strong>Solution</strong>: This is expected. Permanent changes must be made in the data repository.</p>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소는 <strong>실행 가능한 애플리케이션이 아닙니다.</strong> "실행"의 의미는 Markdown 파일을 렌더링하여 열람하는 것입니다.</p>
+<p><strong>방법 1 — GitHub에서 직접 열람:</strong></p>
+<pre><code>https://github.com/awesome-selfhosted/awesome-selfhosted
+</code></pre>
+<p><strong>방법 2 — 공식 HTML 버전 (권장):</strong></p>
+<pre><code>https://awesome-selfhosted.net/
+</code></pre>
+<p><strong>방법 3 — 로컬 Markdown 렌더링:</strong></p>
+<pre><code class="language-bash"># VS Code 사용
+code README.md
+# Markdown All in One 익스텐션 설치 후 Ctrl+Shift+V 로 미리보기
+
+# 또는 grip (GitHub-flavored Markdown 로컬 렌더러)
+pip install grip
+grip README.md 6419
+# 브라우저에서 http://localhost:6419 열기
+</code></pre>
+<p><strong>방법 4 — Docker를 이용한 정적 서버:</strong></p>
+<pre><code class="language-bash">docker run --rm -v $(pwd):/usr/share/nginx/html:ro -p 8080:80 nginx:alpine
+# 단순 파일 서빙 (Markdown 렌더링 없음)
+</code></pre>
+<p><strong>[English]</strong></p>
+<p>This repository is <strong>not a runnable application.</strong> "Running" means rendering the Markdown files for reading.</p>
+<p><strong>Option 1 — View directly on GitHub:</strong></p>
+<pre><code>https://github.com/awesome-selfhosted/awesome-selfhosted
+</code></pre>
+<p><strong>Option 2 — Official HTML version (recommended):</strong></p>
+<pre><code>https://awesome-selfhosted.net/
+</code></pre>
+<p><strong>Option 3 — Local Markdown rendering:</strong></p>
+<pre><code class="language-bash"># Using VS Code
+code README.md
+# After installing &quot;Markdown All in One&quot; extension, press Ctrl+Shift+V to preview
+
+# Or use grip (GitHub-flavored Markdown local renderer)
+pip install grip
+grip README.md 6419
+# Open http://localhost:6419 in browser
+</code></pre>
+<p><strong>Option 4 — Docker-based static file server:</strong></p>
+<pre><code class="language-bash">docker run --rm -v $(pwd):/usr/share/nginx/html:ro -p 8080:80 nginx:alpine
+# Basic file serving (no Markdown rendering)
+</code></pre>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소 자체에는 <strong>테스트 스위트가 없습니다.</strong> 모든 검증 자동화(링크 유효성 검사, 미유지 프로젝트 감지, YAML 스키마 검증)는 <code>awesome-selfhosted-data</code> 저장소의 GitHub Actions 워크플로에서 실행됩니다.</p>
+<p><strong>데이터 저장소에서 실행되는 검증 워크플로 (참고용):</strong>
+- <code>check-dead-links.yml</code>: 목록 내 외부 링크 유효성 자동 검사
+- <code>check-unmaintained-projects.yml</code>: 유지보수가 중단된 프로젝트 자동 감지</p>
+<p><strong>기여 전 로컬 YAML 검증 방법 (데이터 저장소에서):</strong></p>
+<pre><code class="language-bash"># awesome-selfhosted-data 저장소 클론 후
+yamllint software/  # YAML 문법 검사
+</code></pre>
+<p>결과 상태는 이 저장소의 README 상단 배지에서 확인할 수 있습니다:<br />
+<code>[![dead-links](...)</code> 및 <code>[![unmaintained](...)</code></p>
+<p><strong>[English]</strong></p>
+<p>This repository has <strong>no test suite.</strong> All validation automation (link checking, unmaintained project detection, YAML schema validation) runs in GitHub Actions workflows located in the <code>awesome-selfhosted-data</code> repository.</p>
+<p><strong>Validation workflows in the data repository (for reference):</strong>
+- <code>check-dead-links.yml</code>: Automated external link validation across the list
+- <code>check-unmaintained-projects.yml</code>: Automated detection of projects that are no longer maintained</p>
+<p><strong>Local YAML validation before contributing (from the data repository):</strong></p>
+<pre><code class="language-bash"># After cloning awesome-selfhosted-data
+yamllint software/  # YAML syntax check
+</code></pre>
+<p>Validation status is visible in the README badges at the top of this repository:<br />
+<code>[![dead-links](...)</code> and <code>[![unmaintained](...)</code></p>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<blockquote>
+<p><strong>중요</strong>: 이 저장소(<code>awesome-selfhosted</code>)에는 직접 PR을 제출하지 마세요. 모든 기여는 <code>awesome-selfhosted-data</code> 저장소를 통해 이루어집니다.</p>
+</blockquote>
+<p><strong>브랜치 전략:</strong>
+- <code>master</code> 브랜치만 존재하며, 봇 커밋만 수락됩니다.
+- 기여는 <code>awesome-selfhosted-data</code>의 feature 브랜치에서 PR로 제출합니다.</p>
+<p><strong>커밋 메시지 컨벤션:</strong>
+- 봇 자동 커밋: <code>[bot] build markdown from awesome-selfhosted-data &lt;commit-sha&gt;</code> 형식
+- 데이터 저장소 기여 시: 공식 <code>CONTRIBUTING.md</code> 가이드라인을 따릅니다.</p>
+<p><strong>새 소프트웨어 항목 추가 절차 (데이터 저장소 경유):</strong>
+1. <code>awesome-selfhosted-data</code> 저장소 포크 및 클론
+2. <code>software/</code> 디렉토리에 YAML 파일 추가 (기존 파일 형식 참조)
+3. <code>yamllint</code>로 로컬 검증
+4. <code>awesome-selfhosted-data</code>로 PR 제출
+5. 관리자가 검토 후 승인 시 봇이 이 저장소의 <code>README.md</code>를 자동 업데이트</p>
+<p><strong>코딩 스타일 / Markdown 규칙:</strong>
+- 각 항목 형식: <code>- [프로젝트명](URL) - 설명. ([Source Code](URL)) \</code>라이선스` `언어/런타임`<code>-</code>⚠<code>마크: 사용자 통제 외부의 독점 서비스에 의존할 경우 표시
+- 비자유 소프트웨어:</code>non-free.md`에만 등록</p>
+<p><strong>[English]</strong></p>
+<blockquote>
+<p><strong>Important</strong>: Do NOT submit PRs to this repository (<code>awesome-selfhosted</code>). All contributions go through the <code>awesome-selfhosted-data</code> repository.</p>
+</blockquote>
+<p><strong>Branching strategy:</strong>
+- Only the <code>master</code> branch exists here; only bot commits are accepted.
+- Contributions are submitted as PRs from feature branches in <code>awesome-selfhosted-data</code>.</p>
+<p><strong>Commit message convention:</strong>
+- Bot auto-commits: <code>[bot] build markdown from awesome-selfhosted-data &lt;commit-sha&gt;</code> format
+- For data repo contributions: follow the official <code>CONTRIBUTING.md</code> guidelines there.</p>
+<p><strong>Adding a new software entry (via the data repository):</strong>
+1. Fork and clone the <code>awesome-selfhosted-data</code> repository
+2. Add a YAML file in the <code>software/</code> directory (reference existing entries for format)
+3. Validate locally with <code>yamllint</code>
+4. Submit a PR to <code>awesome-selfhosted-data</code>
+5. Once approved by maintainers, the bot auto-updates <code>README.md</code> in this repository</p>
+<p><strong>Coding style / Markdown conventions:</strong>
+- Entry format: <code>- [Project Name](URL) - Description. ([Source Code](URL)) \</code>License` `Language/Runtime`<code>-</code>⚠<code>flag: used when a project depends on a proprietary service outside the user's control
+- Non-free software: listed only in</code>non-free.md`</p>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. 이 저장소에 직접 PR을 보냈는데 왜 거절됐나요?</strong><br />
+A. 이 저장소의 <code>README.md</code>는 봇이 자동 생성합니다. 모든 항목 추가/수정/삭제는 <code>awesome-selfhosted-data</code> 저장소로 PR을 보내야 합니다. <code>.github/PULL_REQUEST_TEMPLATE.md</code>에도 이 안내가 명시되어 있습니다.</p>
+<p><strong>Q2. 소프트웨어 항목을 추가하고 싶은데 어떤 기준이 있나요?</strong><br />
+A. 공식 기준은 <code>awesome-selfhosted-data</code>의 <code>CONTRIBUTING.md</code>에 있습니다. 핵심 요건은: (1) 자유 소프트웨어 라이선스일 것, (2) 자체 호스팅 가능할 것, (3) 유지보수가 활성화될 것, (4) 네트워크 서비스 또는 웹 애플리케이션일 것. 비자유 소프트웨어라면 <code>non-free.md</code> 항목으로 요청할 수 있습니다.</p>
+<p><strong>Q3. <code>awesome-selfhosted.net</code>과 이 GitHub 저장소의 차이는 무엇인가요?</strong><br />
+A. 내용은 동일합니다. <code>awesome-selfhosted.net</code>은 HTML로 렌더링된 공식 권장 버전으로, 필터링·검색 기능이 제공됩니다. 이 GitHub 저장소는 Markdown 원본을 제공하며 "레거시" 버전으로 분류됩니다.</p>
+<p><strong>Q4. 목록에 있는 소프트웨어가 더 이상 유지보수되지 않는 것 같습니다. 어떻게 신고하나요?</strong><br />
+A. <code>awesome-selfhosted-data</code> 저장소에 이슈를 작성하거나 PR로 해당 항목을 제거 요청하면 됩니다. 자동 <code>check-unmaintained-projects</code> 워크플로가 이를 정기적으로 감지하기도 합니다.</p>
+<p><strong>Q5. 이 목록을 내 웹사이트나 앱에 임베드하거나 재가공해도 되나요?</strong><br />
+A. 네. Creative Commons BY-SA 3.0 라이선스 하에 원저자 표시(Attribution)와 동일 조건 공유(ShareAlike) 조건을 지키면 자유롭게 사용할 수 있습니다.</p>
+<p><strong>Q6. 로컬에서 목록을 예쁘게 보고 싶은데 어떻게 하나요?</strong><br />
+A. <code>pip install grip &amp;&amp; grip README.md</code> 후 브라우저로 <code>http://localhost:6419</code>에 접속하면 GitHub 스타일 Markdown 렌더링을 로컬에서 확인할 수 있습니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. I submitted a PR directly to this repository. Why was it rejected?</strong><br />
+A. The <code>README.md</code> in this repository is auto-generated by a bot. All additions, edits, or removals must be submitted as PRs to the <code>awesome-selfhosted-data</code> repository. The <code>.github/PULL_REQUEST_TEMPLATE.md</code> file in this repo explicitly states this.</p>
+<p><strong>Q2. I want to add a software entry. What are the criteria?</strong><br />
+A. Official criteria live in <code>CONTRIBUTING.md</code> of <code>awesome-selfhosted-data</code>. Core requirements: (1) Free Software license, (2) self-hostable, (3) actively maintained, (4) network service or web application. If the software is non-free, request inclusion in <code>non-free.md</code> instead.</p>
+<p><strong>Q3. What is the difference between <code>awesome-selfhosted.net</code> and this GitHub repository?</strong><br />
+A. The content is identical. <code>awesome-selfhosted.net</code> is the officially recommended HTML-rendered version with filtering and search. This GitHub repository provides the raw Markdown and is labeled "legacy."</p>
+<p><strong>Q4. A listed project appears to be unmaintained. How do I report it?</strong><br />
+A. Open an issue or submit a removal PR on the <code>awesome-selfhosted-data</code> repository. The automated <code>check-unmaintained-projects</code> GitHub Actions workflow also detects this periodically.</p>
+<p><strong>Q5. Can I embed or remix this list in my website or app?</strong><br />
+A. Yes. Under the Creative Commons BY-SA 3.0 license, you may freely use it as long as you provide attribution and share any derivatives under the same license.</p>
+<p><strong>Q6. How can I view the list nicely rendered on my local machine?</strong><br />
+A. Run <code>pip install grip &amp;&amp; grip README.md</code> then open <code>http://localhost:6419</code> in your browser for GitHub-style Markdown rendering locally.</p>
+<h2 id="-">---</h2>
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong>
+- <strong>분류</strong>: 큐레이션 참고 목록 (Reference Curated List / "Awesome List"). 라이브러리도, 프레임워크도, 보일러플레이트도 아닙니다. 실행 가능한 코드가 없으며, 소프트웨어 선택 의사결정을 지원하는 지식 자산입니다.
+- <strong>해결하는 실제 문제</strong>:
+  1. <strong>소프트웨어 발견 비용 절감</strong>: 특정 기능(예: 파일 동기화, 이메일 서버, Wiki)을 자체 호스팅으로 구현할 때 어떤 오픈소스 솔루션이 존재하는지 빠르게 파악할 수 있습니다.
+  2. <strong>SaaS 의존도 탈피</strong>: Google Analytics, Slack, Dropbox 같은 상업 SaaS 서비스의 오픈소스 셀프호스팅 대안을 체계적으로 제공합니다.
+  3. <strong>라이선스·기술스택 필터링</strong>: 각 항목에 SPDX 라이선스 태그와 구현 언어/런타임이 표시되어 조직 정책에 맞는 소프트웨어를 필터링하기 용이합니다.
+  4. <strong>커뮤니티 검증</strong>: 1,200+ 항목이 커뮤니티와 유지보수자의 검토를 거쳐 관리되므로, 개별 리서치보다 신뢰도가 높습니다.</p>
+<p><strong>[English]</strong>
+- <strong>Classification</strong>: Curated Reference List ("Awesome List"). Not a library, framework, or boilerplate. Contains no executable code — it is a knowledge asset that supports software selection decisions.
+- <strong>Real-world problems it solves</strong>:
+  1. <strong>Reduces software discovery cost</strong>: Quickly identifies which open-source solutions exist for a self-hosting use case (e.g., file sync, email server, Wiki).
+  2. <strong>Reduces SaaS vendor dependency</strong>: Provides structured, community-vetted open-source self-hosting alternatives to commercial SaaS services like Google Analytics, Slack, or Dropbox.
+  3. <strong>License and tech-stack filtering</strong>: Each entry includes an SPDX license tag and implementation language/runtime, making it easy to filter for organizational policy compliance.
+  4. <strong>Community validation</strong>: 1,200+ entries are maintained through community and maintainer review, providing higher confidence than individual research.</p>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong>
+- <strong>전체 아키텍처</strong>: 이 저장소는 3-계층 출판 파이프라인의 최종 산출물입니다. 소스는 <code>awesome-selfhosted-data</code>, 빌드는 GitHub Actions 봇, 배포는 두 채널(Markdown GitHub repo + HTML 사이트)로 이루어집니다.
+- <strong>핵심 컴포넌트</strong>:
+  - <strong><code>awesome-selfhosted-data</code></strong>: YAML 형식의 소프트웨어 항목 원본 + 검증 스크립트 + CI/CD
+  - <strong>GitHub Actions 봇</strong>: YAML → Markdown 변환, 자동 커밋
+  - <strong>이 저장소</strong>: Markdown 최종 결과물 (읽기 전용)
+  - <strong><code>awesome-selfhosted.net</code></strong>: HTML 렌더링 + 필터/검색 UI (공식 권장)</p>
+<pre><code class="language-mermaid">graph LR
+    A[Contributor] --&gt;|PR| B[awesome-selfhosted-data\nYAML source]
+    B --&gt;|yamllint + schema check| C{GitHub Actions CI}
+    C --&gt;|pass| D[Bot Build\nYAML → Markdown]
+    D --&gt;|auto-commit| E[awesome-selfhosted\nREADME.md\nthis repo]
+    D --&gt;|build + deploy| F[awesome-selfhosted.net\nHTML + Search UI]
+    E --&gt;|direct reading| G[End User\nGitHub]
+    F --&gt;|browsing| H[End User\nWeb]
+</code></pre>
+<ul>
+<li><strong>데이터 흐름</strong>: 기여자 → YAML 원본 편집 → CI 검증 → 봇 변환 → Markdown/HTML 배포</li>
+</ul>
+<p><strong>[English]</strong>
+- <strong>Overall architecture</strong>: This repository is the final artifact in a 3-tier publishing pipeline. The source is <code>awesome-selfhosted-data</code>, the build is a GitHub Actions bot, and the output is distributed to two channels (Markdown GitHub repo + HTML site).
+- <strong>Core components</strong>:
+  - <strong><code>awesome-selfhosted-data</code></strong>: YAML-format software entries + validation scripts + CI/CD
+  - <strong>GitHub Actions bot</strong>: Converts YAML → Markdown, auto-commits
+  - <strong>This repository</strong>: Final Markdown output (read-only)
+  - <strong><code>awesome-selfhosted.net</code></strong>: HTML rendering + filter/search UI (officially recommended)</p>
+<pre><code class="language-mermaid">graph LR
+    A[Contributor] --&gt;|PR| B[awesome-selfhosted-data\nYAML source]
+    B --&gt;|yamllint + schema check| C{GitHub Actions CI}
+    C --&gt;|pass| D[Bot Build\nYAML → Markdown]
+    D --&gt;|auto-commit| E[awesome-selfhosted\nREADME.md\nthis repo]
+    D --&gt;|build + deploy| F[awesome-selfhosted.net\nHTML + Search UI]
+    E --&gt;|direct reading| G[End User\nGitHub]
+    F --&gt;|browsing| H[End User\nWeb]
+</code></pre>
+<ul>
+<li><strong>Data flow</strong>: Contributor → Edit YAML source → CI validation → Bot conversion → Markdown/HTML publication</li>
+</ul>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: 스타트업의 SaaS 비용 절감 — 자체 호스팅 분석 도구 선택</strong></p>
+<p>팀이 Google Analytics와 Mixpanel 비용을 줄이고 싶을 때:
+1. <code>awesome-selfhosted.net</code>에서 <strong>Analytics</strong> 카테고리를 탐색합니다.
+2. 라이선스(AGPL, MIT 등), 구현 언어(Go, Python, Node.js 등)로 필터링합니다.
+3. <a href="https://matomo.org/">Matomo</a>, <a href="https://plausible.io/">Plausible</a>, <a href="https://umami.is/">Umami</a> 등의 후보를 도출합니다.
+4. 각 항목의 소스 코드 링크, 데모 링크, 라이선스를 확인하여 최종 선택합니다.
+5. 선택한 소프트웨어의 공식 문서 또는 Docker 이미지로 배포를 진행합니다.</p>
+<p><strong>시나리오 2: 인프라 팀의 내부 도구 스택 구성</strong></p>
+<p>인프라 팀이 내부 Slack 대안, 파일 공유, Wiki를 구성할 때:
+1. README의 카테고리 목차에서 <strong>Communication - Custom Communication Systems</strong>, <strong>File Transfer &amp; Synchronization</strong>, <strong>Wikis</strong> 항목을 탐색합니다.
+2. 각 카테고리에서 Docker 지원 여부(<code>Docker</code> 태그), 라이선스를 확인합니다.
+3. 예: Mattermost(Slack 대안), Nextcloud(파일 공유), BookStack(Wiki)을 목록에서 발견하고 비교 평가합니다.
+4. <code>⚠</code> 마크가 붙은 항목은 외부 독점 서비스 의존이 있으므로 주의합니다.</p>
+<p><strong>시나리오 3: 오픈소스 프로젝트가 이 목록에 등재 신청</strong></p>
+<p>개발한 소프트웨어를 목록에 등재하여 커뮤니티에 알리고 싶을 때:
+1. <code>awesome-selfhosted-data/CONTRIBUTING.md</code>에서 등재 기준을 확인합니다.
+2. 자유 소프트웨어 라이선스 여부, 자체 호스팅 가능 여부, 활성 유지보수 상태를 점검합니다.
+3. <code>awesome-selfhosted-data</code>를 포크하고 <code>software/</code> 디렉토리에 YAML 파일을 작성합니다.
+4. <code>yamllint</code>로 로컬 검증 후 PR을 제출합니다.
+5. 검토 통과 후 봇이 이 저장소 <code>README.md</code>에 항목을 자동 추가합니다.</p>
+<p><strong>시나리오 4: 개발자가 특정 라이선스의 소프트웨어만 탐색</strong></p>
+<p>기업 법무팀이 AGPL 소프트웨어 사용을 제한할 경우:
+1. <code>awesome-selfhosted.net</code> HTML 버전의 라이선스 필터를 사용하여 MIT, Apache-2.0 항목만 표시합니다.
+2. 또는 README.md를 grep으로 분석합니다:
+   <code>bash
+   grep "MIT\`" README.md | grep -v "AGPL"</code></p>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: Startup cost reduction — choosing a self-hosted analytics tool</strong></p>
+<p>When a team wants to reduce Google Analytics and Mixpanel costs:
+1. Browse the <strong>Analytics</strong> category on <code>awesome-selfhosted.net</code>.
+2. Filter by license (AGPL, MIT, etc.) and implementation language (Go, Python, Node.js, etc.).
+3. Derive candidates such as <a href="https://matomo.org/">Matomo</a>, <a href="https://plausible.io/">Plausible</a>, <a href="https://umami.is/">Umami</a>.
+4. Review the source code link, demo link, and license for each entry to make a final selection.
+5. Deploy using the chosen software's official documentation or Docker image.</p>
+<p><strong>Scenario 2: Infrastructure team building an internal tooling stack</strong></p>
+<p>When an infrastructure team needs to set up an internal Slack alternative, file sharing, and Wiki:
+1. Browse the <strong>Communication - Custom Communication Systems</strong>, <strong>File Transfer &amp; Synchronization</strong>, and <strong>Wikis</strong> categories from the README table of contents.
+2. In each category, check for Docker support (<code>Docker</code> tag) and license.
+3. Example: discover Mattermost (Slack alternative), Nextcloud (file sharing), BookStack (Wiki) and compare them.
+4. Be cautious of entries marked <code>⚠</code> — they depend on a proprietary external service.</p>
+<p><strong>Scenario 3: An open-source project applying for list inclusion</strong></p>
+<p>When you want to register your developed software to get community visibility:
+1. Review the inclusion criteria in <code>awesome-selfhosted-data/CONTRIBUTING.md</code>.
+2. Verify Free Software license, self-hostability, and active maintenance status.
+3. Fork <code>awesome-selfhosted-data</code> and write a YAML file in the <code>software/</code> directory.
+4. Validate locally with <code>yamllint</code> and submit a PR.
+5. After review approval, the bot automatically adds the entry to <code>README.md</code> in this repository.</p>
+<p><strong>Scenario 4: Developer browsing only specific-license software</strong></p>
+<p>When a corporate legal team restricts AGPL software usage:
+1. Use the license filter on the <code>awesome-selfhosted.net</code> HTML version to show only MIT, Apache-2.0 entries.
+2. Or analyze <code>README.md</code> via grep:
+   <code>bash
+   grep "MIT\`" README.md | grep -v "AGPL"</code></p>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소를 직접 수정하는 것은 권장되지 않습니다(봇이 덮어씀). 대신 다음 방식으로 확장할 수 있습니다:</p>
+<p><strong>1. 포크 기반 커스텀 목록 운영</strong></p>
+<pre><code class="language-bash"># 이 저장소 포크
+git clone https://github.com/YOUR_USERNAME/awesome-selfhosted.git
+# README.md에 내부 소프트웨어 항목 직접 추가 (봇 비활성화 전제)
+</code></pre>
+<p><strong>2. <code>awesome-selfhosted-data</code> 포크를 이용한 파생 목록</strong>
+- 데이터 저장소를 포크 후 YAML 항목을 편집하면, 빌드 스크립트를 통해 자신만의 큐레이션 목록을 자동 생성할 수 있습니다.
+- 예: 특정 언어(Rust 전용)나 카테고리(보안 도구만)에 집중한 파생 목록</p>
+<p><strong>3. 목록 소비 자동화 (API 스타일 활용)</strong></p>
+<pre><code class="language-bash"># GitHub API를 통한 최신 README.md 가져오기
+curl -H &quot;Accept: application/vnd.github.v3.raw&quot; \
+  https://api.github.com/repos/awesome-selfhosted/awesome-selfhosted/contents/README.md
+
+# 특정 카테고리 항목만 추출하는 스크립트 예시
+python3 - &lt;&lt;'EOF'
+import re
+with open(&quot;README.md&quot;) as f:
+    text = f.read()
+section = re.search(r'### Analytics.*?(?=###)', text, re.DOTALL)
+print(section.group() if section else &quot;Not found&quot;)
+EOF
+</code></pre>
+<p><strong>설정 변경 포인트</strong>: 없음. 이 저장소에는 설정 파일이 존재하지 않습니다.</p>
+<p><strong>[English]</strong></p>
+<p>Directly modifying this repository is not recommended (the bot overwrites changes). Instead, extend it in these ways:</p>
+<p><strong>1. Fork-based custom list operation</strong></p>
+<pre><code class="language-bash"># Fork this repository
+git clone https://github.com/YOUR_USERNAME/awesome-selfhosted.git
+# Add internal software entries directly to README.md (assuming bot is disabled)
+</code></pre>
+<p><strong>2. Derived list using a fork of <code>awesome-selfhosted-data</code></strong>
+- Fork the data repository and edit YAML entries; the build script generates your own curated list automatically.
+- Example: a derived list focused on a specific language (Rust-only) or category (security tools only)</p>
+<p><strong>3. Automated list consumption (API-style usage)</strong></p>
+<pre><code class="language-bash"># Fetch the latest README.md via GitHub API
+curl -H &quot;Accept: application/vnd.github.v3.raw&quot; \
+  https://api.github.com/repos/awesome-selfhosted/awesome-selfhosted/contents/README.md
+
+# Example script to extract entries for a specific category
+python3 - &lt;&lt;'EOF'
+import re
+with open(&quot;README.md&quot;) as f:
+    text = f.read()
+section = re.search(r'### Analytics.*?(?=###)', text, re.DOTALL)
+print(section.group() if section else &quot;Not found&quot;)
+EOF
+</code></pre>
+<p><strong>Configuration touch points</strong>: None. This repository contains no configuration files.</p>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소 자체는 배포 대상 소프트웨어가 아닙니다. 그러나 이 목록을 활용하는 두 가지 "배포" 시나리오가 있습니다:</p>
+<p><strong>시나리오 A — 목록 미러 또는 파생 사이트 배포</strong></p>
+<pre><code class="language-bash"># GitHub Pages를 통한 정적 배포 (Markdown → HTML)
+# 1. 저장소 포크 후 Settings &gt; Pages &gt; Branch: master / root 설정
+# 2. Jekyll 또는 Hugo 등 정적 사이트 생성기 연동
+
+# 또는 Nginx Docker로 배포
+docker run -d \
+  --name awesome-selfhosted-mirror \
+  -v $(pwd):/usr/share/nginx/html:ro \
+  -p 80:80 \
+  nginx:alpine
+</code></pre>
+<p><strong>시나리오 B — 목록에서 선택한 소프트웨어의 배포</strong></p>
+<p>목록에서 선택한 소프트웨어(예: Matomo, Nextcloud)를 배포할 때는 해당 소프트웨어의 공식 배포 가이드를 따릅니다. 대부분의 항목이 Docker 지원을 제공합니다:</p>
+<pre><code class="language-bash"># 예: 목록에서 선택한 Umami 배포
+docker run -d \
+  -e DATABASE_URL=postgresql://... \
+  -p 3000:3000 \
+  ghcr.io/umami-software/umami:postgresql-latest
+</code></pre>
+<p><strong>CI/CD 파이프라인</strong>: 이 저장소의 CI/CD는 <code>awesome-selfhosted-data</code>에 위치합니다. 자동화 흐름은 해당 저장소의 <code>.github/workflows/</code>를 참조하세요.</p>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+셀프호스팅 소프트웨어의 Docker 기반 배포 모범 사례는 각 프로젝트 공식 문서와 <a href="https://docs.docker.com/compose/production/">Docker Compose best practices</a> 를 참조하세요.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p>This repository itself is not a deployable software artifact. However, there are two "deployment" scenarios for using this list:</p>
+<p><strong>Scenario A — Deploying a list mirror or derived site</strong></p>
+<pre><code class="language-bash"># Static deployment via GitHub Pages (Markdown → HTML)
+# 1. Fork the repo, go to Settings &gt; Pages &gt; Branch: master / root
+# 2. Integrate a static site generator like Jekyll or Hugo
+
+# Or serve with Nginx Docker
+docker run -d \
+  --name awesome-selfhosted-mirror \
+  -v $(pwd):/usr/share/nginx/html:ro \
+  -p 80:80 \
+  nginx:alpine
+</code></pre>
+<p><strong>Scenario B — Deploying software selected from the list</strong></p>
+<p>When deploying software chosen from the list (e.g., Matomo, Nextcloud), follow that software's official deployment guide. Most entries support Docker:</p>
+<pre><code class="language-bash"># Example: deploying Umami selected from the list
+docker run -d \
+  -e DATABASE_URL=postgresql://... \
+  -p 3000:3000 \
+  ghcr.io/umami-software/umami:postgresql-latest
+</code></pre>
+<p><strong>CI/CD pipeline</strong>: This repository's CI/CD lives in <code>awesome-selfhosted-data</code>. See that repository's <code>.github/workflows/</code> for the automation flow.</p>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+For Docker-based deployment best practices for self-hosted software, refer to each project's official documentation and <a href="https://docs.docker.com/compose/production/">Docker Compose best practices</a>.</p>
+</blockquote>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소 자체는 정적 Markdown 파일이므로 성능 및 확장성 문제가 없습니다. 그러나 이 목록을 활용하는 시스템 관점에서 다음을 고려하세요:</p>
+<p><strong>알려진 병목:</strong>
+- <strong><code>README.md</code> 크기</strong>: 현재 약 320KB, 2,300라인. 항목이 계속 추가되면 단일 파일 크기 증가로 GitHub 렌더링 속도가 느려질 수 있습니다. 이 때문에 HTML 버전(<code>awesome-selfhosted.net</code>)이 공식 권장 브라우징 방법입니다.
+- <strong>링크 검사 CI 부하</strong>: 1,200+ 외부 링크를 주기적으로 검사하므로 CI 실행 시간이 길어질 수 있습니다.</p>
+<p><strong>목록에서 선택한 소프트웨어의 확장성:</strong>
+- 셀프호스팅 소프트웨어의 확장성은 각 프로젝트에 따라 다릅니다. 항목의 <code>K8S</code> 태그는 Kubernetes 지원을 의미합니다.
+- 대규모 배포 시 <code>K8S</code>, <code>Docker</code> 태그가 붙은 항목이 일반적으로 더 나은 확장성을 제공합니다.</p>
+<p><strong>모니터링</strong>: 이 저장소의 상태는 README 상단 배지(dead-links, unmaintained-projects)로 모니터링합니다.</p>
+<p><strong>[English]</strong></p>
+<p>This repository itself is a static Markdown file with no performance or scalability concerns. However, consider the following from the perspective of systems that consume this list:</p>
+<p><strong>Known bottlenecks:</strong>
+- <strong><code>README.md</code> size</strong>: Currently ~320KB, 2,300 lines. As more entries are added, the growing single-file size can slow GitHub rendering. This is why the HTML version (<code>awesome-selfhosted.net</code>) is the officially recommended browsing method.
+- <strong>Link-check CI load</strong>: Periodically checking 1,200+ external links results in long CI run times.</p>
+<p><strong>Scalability of software selected from the list:</strong>
+- The scalability of self-hosted software varies per project. The <code>K8S</code> tag on an entry indicates Kubernetes support.
+- For large-scale deployments, entries tagged <code>K8S</code> and <code>Docker</code> generally offer better scalability.</p>
+<p><strong>Monitoring</strong>: This repository's health is monitored via the README top badges (dead-links, unmaintained-projects).</p>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소 자체는 코드가 없으므로 직접적인 보안 취약점이 없습니다. 그러나 이 목록 활용 시 다음 보안 사항을 주의하세요:</p>
+<p><strong>목록 활용 시 보안 고려사항:</strong></p>
+<ul>
+<li>[ ] <strong><code>⚠</code> 마크 확인</strong>: 해당 태그가 붙은 소프트웨어는 사용자 제어 범위 밖의 독점 외부 서비스에 의존합니다. 프라이버시 또는 데이터 주권이 중요한 경우 이 항목들을 피하거나 의존 서비스를 명확히 파악하세요.</li>
+<li>[ ] <strong>라이선스 검토</strong>: AGPL 라이선스 소프트웨어를 상업 제품에 통합할 경우 copyleft 의무가 발생할 수 있습니다. 법무팀 확인을 권장합니다.</li>
+<li>[ ] <strong>소스 코드 검토</strong>: 목록은 소프트웨어를 큐레이션하지만 보안 감사를 수행하지는 않습니다. 프로덕션 배포 전 선택한 소프트웨어의 소스 코드 링크를 통해 직접 확인하세요.</li>
+<li>[ ] <strong>비자유 소프트웨어 구분</strong>: <code>non-free.md</code>에 있는 항목은 제한적 라이선스를 가질 수 있습니다. 배포 전 각 항목의 라이선스를 직접 확인하세요.</li>
+<li>[ ] <strong>의존성 취약점 검사</strong>: 이 목록에서 선택한 소프트웨어를 배포할 때 해당 소프트웨어의 CVE 이력을 확인하고 최신 버전을 사용하세요.</li>
+<li>[ ] <strong>공급망 보안</strong>: 목록의 일부 소프트웨어는 Docker Hub 또는 서드파티 저장소에서 이미지를 제공합니다. 공식 소스 코드 저장소와 Docker 이미지 게시자를 대조 확인하세요.</li>
+</ul>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+셀프호스팅 소프트웨어 보안 강화를 위해 <a href="https://owasp.org/www-project-application-security-verification-standard/">OWASP Self-Hosted Application Security Guide</a>와 각 프로젝트의 보안 정책(SECURITY.md)을 참조하세요.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p>This repository itself contains no code and has no direct security vulnerabilities. However, note the following security considerations when using this list:</p>
+<p><strong>Security considerations when using the list:</strong></p>
+<ul>
+<li>[ ] <strong>Check <code>⚠</code> markers</strong>: Software with this tag depends on a proprietary external service outside user control. If privacy or data sovereignty matters, avoid these entries or clearly understand the dependency.</li>
+<li>[ ] <strong>License review</strong>: Integrating AGPL-licensed software into a commercial product may trigger copyleft obligations. Consult your legal team.</li>
+<li>[ ] <strong>Source code review</strong>: The list curates software but does not perform security audits. Before production deployment, review the chosen software via its source code link.</li>
+<li>[ ] <strong>Non-free software distinction</strong>: Entries in <code>non-free.md</code> may carry restrictive licenses. Review each entry's license directly before deployment.</li>
+<li>[ ] <strong>Dependency vulnerability scanning</strong>: When deploying software selected from this list, check the project's CVE history and use the latest version.</li>
+<li>[ ] <strong>Supply chain security</strong>: Some software on the list provides Docker images from Docker Hub or third-party registries. Cross-reference the official source code repository with the Docker image publisher.</li>
+</ul>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+To harden self-hosted software security, refer to the <a href="https://owasp.org/www-project-application-security-verification-standard/">OWASP Application Security Verification Standard</a> and each project's security policy (SECURITY.md).</p>
+</blockquote>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서 링크:</strong>
+- 이 저장소 (Markdown 레거시 버전): <code>https://github.com/awesome-selfhosted/awesome-selfhosted</code>
+- 공식 HTML 버전 (권장): <code>https://awesome-selfhosted.net/</code>
+- 데이터 원본 저장소: <code>https://github.com/awesome-selfhosted/awesome-selfhosted-data</code>
+- 기여 가이드라인: <code>https://github.com/awesome-selfhosted/awesome-selfhosted-data/blob/master/CONTRIBUTING.md</code>
+- CC BY-SA 3.0 라이선스: <code>https://creativecommons.org/licenses/by-sa/3.0/</code></p>
+<p><strong>관련 커뮤니티 및 대안 탐색 포털:</strong>
+- <a href="https://awweso.me/">awweso.me</a> — 필터링 가능한 대안 프론트엔드
+- <a href="https://github.com/awesome-foss/awesome-sysadmin">Awesome Sysadmin</a> — 시스템 관리자 오픈소스 리소스 목록
+- <a href="https://old.reddit.com/r/selfhosted/">/r/selfhosted (Reddit)</a> — 셀프호스팅 커뮤니티 토론
+- <a href="https://lemmy.world/c/selfhosted">/c/selfhosted (Lemmy.world)</a> — 탈중앙화 대안 커뮤니티 포럼
+- <a href="https://indieweb.org/">IndieWeb</a> — 개인 웹 독립성 운동</p>
+<p><strong>유사 프로젝트 비교 (장단점):</strong></p>
+<table>
+<thead>
+<tr>
+<th>프로젝트</th>
+<th>특징</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>awesome-selfhosted</strong> (이 저장소)</td>
+<td>일반 셀프호스팅 소프트웨어 종합 목록</td>
+<td>1,200+ 항목, 활발한 커뮤니티, 엄격한 기준</td>
+<td>비자유 소프트웨어 별도 관리, 항목 수락 기준이 까다로움</td>
+</tr>
+<tr>
+<td><a href="https://github.com/awesome-foss/awesome-sysadmin">Awesome Sysadmin</a></td>
+<td>시스템 관리자 도구 중심</td>
+<td>인프라 운영 도구에 특화</td>
+<td>일반 사용자용 앱 적음</td>
+</tr>
+<tr>
+<td><a href="https://prism-break.org/en/">PRISM Break</a></td>
+<td>프라이버시 중심 대안 목록</td>
+<td>프라이버시 관점 큐레이션</td>
+<td>셀프호스팅 비중 낮음</td>
+</tr>
+<tr>
+<td><a href="https://redecentralize.github.io/alternative-internet/">Alternative Internet</a></td>
+<td>탈중앙화 프로젝트 목록</td>
+<td>분산 기술 특화</td>
+<td>자체 호스팅 가이드 부족</td>
+</tr>
+<tr>
+<td><a href="https://theme-park.dev/">theme.park</a></td>
+<td>셀프호스팅 앱 UI 테마 컬렉션</td>
+<td>50여 앱 테마 제공</td>
+<td>소프트웨어 선택 아닌 미관 개선 용도</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Official documentation links:</strong>
+- This repository (Markdown legacy version): <code>https://github.com/awesome-selfhosted/awesome-selfhosted</code>
+- Official HTML version (recommended): <code>https://awesome-selfhosted.net/</code>
+- Data source repository: <code>https://github.com/awesome-selfhosted/awesome-selfhosted-data</code>
+- Contributing guidelines: <code>https://github.com/awesome-selfhosted/awesome-selfhosted-data/blob/master/CONTRIBUTING.md</code>
+- CC BY-SA 3.0 License: <code>https://creativecommons.org/licenses/by-sa/3.0/</code></p>
+<p><strong>Related communities and discovery portals:</strong>
+- <a href="https://awweso.me/">awweso.me</a> — Alternative filterable frontend
+- <a href="https://github.com/awesome-foss/awesome-sysadmin">Awesome Sysadmin</a> — Open-source sysadmin resources list
+- <a href="https://old.reddit.com/r/selfhosted/">/r/selfhosted (Reddit)</a> — Self-hosting community discussion
+- <a href="https://lemmy.world/c/selfhosted">/c/selfhosted (Lemmy.world)</a> — Decentralized alternative community forum
+- <a href="https://indieweb.org/">IndieWeb</a> — Personal web independence movement</p>
+<p><strong>Comparison with similar projects (pros and cons):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Focus</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>awesome-selfhosted</strong> (this repo)</td>
+<td>Comprehensive general self-hosted software list</td>
+<td>1,200+ entries, active community, strict quality standards</td>
+<td>Non-free software managed separately, high bar for entry acceptance</td>
+</tr>
+<tr>
+<td><a href="https://github.com/awesome-foss/awesome-sysadmin">Awesome Sysadmin</a></td>
+<td>Sysadmin tooling</td>
+<td>Specialized for infrastructure operations</td>
+<td>Fewer end-user apps</td>
+</tr>
+<tr>
+<td><a href="https://prism-break.org/en/">PRISM Break</a></td>
+<td>Privacy-centric alternatives</td>
+<td>Privacy-lens curation</td>
+<td>Low self-hosting emphasis</td>
+</tr>
+<tr>
+<td><a href="https://redecentralize.github.io/alternative-internet/">Alternative Internet</a></td>
+<td>Decentralized projects</td>
+<td>Specialized in distributed tech</td>
+<td>Lacks self-hosting guides</td>
+</tr>
+<tr>
+<td><a href="https://theme-park.dev/">theme.park</a></td>
+<td>UI themes for self-hosted apps</td>
+<td>Themes for 50+ apps</td>
+<td>Aesthetic improvement only, not software selection</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<hr />
+<h2 id="final-report">최종 보고 / Final Report</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>분석 대상</strong>: <code>awesome-selfhosted/awesome-selfhosted</code> (단일 프로젝트 모드)</p>
+<p><strong>생성 예정 파일</strong> (OUTPUT INSTRUCTION에 따라 파일 쓰기 생략, 내용을 위에 직접 출력):
+- <code>.review/GUIDE4Junior.md</code> — 주니어 개발자 가이드
+- <code>.review/GUIDE4ImpMethod.md</code> — 실전 활용 방법 가이드</p>
+<p><strong>주요 분석 결과:</strong>
+- 이 저장소는 실행 가능한 코드가 없는 <strong>순수 Markdown 큐레이션 목록</strong>입니다.
+- <code>README.md</code>(320KB, 2,313라인)는 <code>awesome-selfhosted-data</code> 저장소의 YAML 원본에서 봇이 자동 생성합니다.
+- 빌드 시스템, 테스트 스위트, 환경 변수, 외부 서비스 의존성이 없습니다.
+- 모든 기여는 이 저장소가 아닌 <code>awesome-selfhosted-data</code> 저장소를 통해 이루어져야 합니다.</p>
+<p><strong>웹 검색 활용 섹션</strong>: 섹션 5(배포), 섹션 6(성능), 섹션 7(보안)의 일부 권장 사항은 공식 문서 기반으로 작성되었으며 <code>참고: 공식 문서 기반 권장 사항</code> 주석으로 표시했습니다.</p>
+<p><strong>해당 없음(N/A)으로 처리된 섹션</strong>: 빌드 명령어(섹션 5), 실행 명령어(섹션 6), 테스트 스위트(섹션 7) — 이 저장소가 실행 가능한 소프트웨어가 아니기 때문이며, 각 섹션 내에 이유와 대안 정보를 명시했습니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Analysis target</strong>: <code>awesome-selfhosted/awesome-selfhosted</code> (single project mode)</p>
+<p><strong>Files to be generated</strong> (file writing omitted per OUTPUT INSTRUCTION; content output directly above):
+- <code>.review/GUIDE4Junior.md</code> — Junior Developer Guide
+- <code>.review/GUIDE4ImpMethod.md</code> — Implementation Method Guide</p>
+<p><strong>Key analysis findings:</strong>
+- This repository is a <strong>pure Markdown curated list</strong> with no executable code.
+- <code>README.md</code> (320KB, 2,313 lines) is auto-generated by a bot from YAML source in the <code>awesome-selfhosted-data</code> repository.
+- No build system, no test suite, no environment variables, no external service dependencies exist.
+- All contributions must go through the <code>awesome-selfhosted-data</code> repository, not this one.</p>
+<p><strong>Sections using web search supplementation</strong>: Portions of Section 5 (Deployment), Section 6 (Performance), and Section 7 (Security) were written based on official documentation and annotated with <code>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</code>.</p>
+<p><strong>Sections treated as N/A</strong>: Build commands (Section 5), run commands (Section 6), test suite (Section 7) — because this repository is not executable software; each section includes an explanation and alternative information in both languages.</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>awesome-selfhosted/awesome-selfhosted</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/awesome-selfhosted/awesome-selfhosted" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

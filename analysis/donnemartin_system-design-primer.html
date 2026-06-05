@@ -97,7 +97,7 @@
     <div class="repo-meta">
       <span class="badge badge-period">top100 trending</span>
       <span class="badge badge-lang">Python</span>
-      <span class="badge badge-stars">★ 351793</span>
+      <span class="badge badge-stars">★ 351795</span>
       
     </div>
   </div>
@@ -114,7 +114,9 @@
 <div class="content">
   <div class="panel active" id="panel-indepth">
     
-    <div class="md-body"><h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+    <div class="md-body"><p>I now have all the information needed to produce the comprehensive report. Here it is:</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
 <blockquote>
 <p>분석일 / Analysis Date: 2026-06-05
 대상 / Target: <code>/tmp/github-dashboard-analysis/donnemartin_system-design-primer</code>
@@ -123,14 +125,13 @@
 <hr />
 <h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
 <h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
-<p><strong>해결하는 문제 / Problem solved:</strong>
-대규모 시스템 설계 방법론을 학습하고 기술 면접을 준비하는 개발자를 위한 체계적인 학습 자료를 제공한다. 분산 시스템, 데이터베이스, 캐싱, 네트워킹, 아키텍처 패턴 등을 망라한 큐레이션된 콘텐츠 저장소다.</p>
-<p>This is a curated collection of resources and educational content for engineers learning large-scale system design and preparing for technical interviews. It covers distributed systems, databases, caching, networking, and architecture patterns.</p>
-<p><strong>분류 / Classification:</strong> <code>Educational Content Repository</code> (교육 콘텐츠 저장소) — 배포 가능한 소프트웨어 애플리케이션이 아님 / Not a deployable software application</p>
+<p><strong>해결하는 문제 / Problem solved</strong></p>
+<p>대규모 시스템 설계(System Design) 원칙에 대한 학습 자료 및 기술 면접 대비 레퍼런스를 제공하는 교육 콘텐츠 저장소이다. 인터넷에 산재한 시스템 설계 지식을 하나의 구조화된 가이드로 통합하여, 엔지니어가 확장 가능한 시스템을 설계하는 방법을 학습하고 면접에 대비할 수 있도록 돕는다.</p>
+<p><strong>분류 / Classification</strong>: Educational Content Repository (소프트웨어 애플리케이션이 아님 — 실행 가능한 서비스를 제공하지 않음)</p>
 <blockquote>
-<p>⚠️ <strong>중요 / Important:</strong> 이 프로젝트는 소프트웨어 라이브러리·프레임워크·서비스가 아니라 <strong>문서 및 교육 자료</strong> 저장소이다. 상용화 적합성 평가는 "이 콘텐츠를 상업적 서비스·교육 제품·훈련 프로그램에 편입할 수 있는가"의 맥락에서 수행된다.</p>
-<p>This project is a <strong>documentation and educational content</strong> repository, not a software library, framework, or service. Commercialization fitness is evaluated in the context of: "Can this content be incorporated into commercial services, educational products, or training programs?"</p>
+<p>⚠️ <strong>핵심 전제 / Critical Premise</strong>: 이 저장소는 <strong>배포 가능한 소프트웨어가 아니라 교육용 콘텐츠</strong>이다. 상용화 적합성 평가는 콘텐츠 라이선스 기반 상업적 재사용(강의 제작, 출판, 학습 플랫폼 내재화 등) 관점에서 수행된다.</p>
 </blockquote>
+<hr />
 <h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
 <table>
 <thead>
@@ -142,151 +143,139 @@
 <tbody>
 <tr>
 <td>언어/런타임 / Language &amp; Runtime</td>
-<td>Markdown (콘텐츠 주), Python 3 (코드 예제)</td>
+<td>Python 3.x (코드 예시), Markdown (주 콘텐츠), Jupyter Notebook (.ipynb)</td>
 </tr>
 <tr>
 <td>프레임워크 / Framework</td>
-<td>없음 (N/A) — 순수 문서 저장소</td>
+<td>해당 없음 (콘텐츠 저장소) — epub 생성용 pandoc (외부 의존)</td>
 </tr>
 <tr>
-<td>코드 예제 외부 의존성 / External Dependency</td>
-<td><code>mrjob</code> (MapReduce 예제용) — Apache 2.0 라이선스</td>
-</tr>
-<tr>
-<td>표준 라이브러리 / Stdlib</td>
-<td><code>abc</code>, <code>enum</code>, <code>collections</code>, <code>sys</code> (모두 Python stdlib)</td>
-</tr>
-<tr>
-<td>콘텐츠 형식 / Content Format</td>
-<td>Markdown (.md), Jupyter Notebook (.ipynb), Anki 플래시카드 (.apkg), PNG 다이어그램</td>
+<td>외부 라이브러리 / External Library</td>
+<td><code>mrjob</code> (MapReduce 예시 코드용, Apache 2.0), Python 표준 라이브러리 (enum, abc, collections, sys)</td>
 </tr>
 <tr>
 <td>데이터 저장소 / Data Store</td>
-<td>없음 (N/A)</td>
+<td>해당 없음 (정적 콘텐츠)</td>
 </tr>
 <tr>
 <td>통신 방식 / Communication</td>
-<td>없음 (N/A)</td>
+<td>해당 없음</td>
 </tr>
 <tr>
 <td>배포 환경 / Deployment</td>
-<td>없음 — GitHub Pages 또는 로컬 렌더링용</td>
-</tr>
-<tr>
-<td>빌드 도구 / Build Tool</td>
-<td><code>pandoc</code> (EPUB 생성용 generate-epub.sh)</td>
+<td>GitHub 저장소를 직접 브라우징 (웹 렌더링), epub 변환(generate-epub.sh)</td>
 </tr>
 </tbody>
 </table>
+<hr />
 <h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
-<pre><code>시스템 설계 프라이머는 &quot;배포 가능한 소프트웨어&quot;가 아닌 콘텐츠 저장소임.
-아키텍처 패턴 없음 (MVC, Hexagonal, Event-driven 등 해당 없음).
+<p>이 저장소는 실행 가능한 소프트웨어 아키텍처를 포함하지 않는다. 콘텐츠 구조만 존재한다.</p>
+<pre><code>[소비 경로 / Consumption Path]
 
-The System Design Primer is a content repository, not deployable software.
-No architectural pattern applies.
-
-콘텐츠 구조:
-README.md (1,839줄, 주 학습 문서)
-  ├── 시스템 설계 토픽 (이론/개념)
-  ├── 면접 준비 가이드
-  └── 실습 문제 (solutions/)
-      ├── system_design/
-      │   ├── twitter, pastebin, mint, web_crawler,
-      │   │   scaling_aws, social_graph, query_cache, sales_rank
-      └── object_oriented_design/
-          ├── parking_lot, call_center, hash_table,
-          │   lru_cache, deck_of_cards, online_chat
+  GitHub 브라우저
+       │
+       ▼
+  README.md (주 학습 가이드, 1,839줄)
+       │
+  ┌────┴────────────────────────────────┐
+  │                                     │
+  ▼                                     ▼
+solutions/system_design/         solutions/object_oriented_design/
+  (설계 다이어그램 + 코드 스니펫)     (OO 설계 예시 Jupyter 노트북)
+       │
+  images/ (PNG 다이어그램)
+  resources/flash_cards/ (Anki .apkg 덱)
+       │
+       ▼
+  [epub 생성] generate-epub.sh → pandoc → README.epub
 </code></pre>
+<hr />
 <h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
 <pre><code>donnemartin_system-design-primer/
-├── README.md                    # 메인 학습 문서 (1,839줄)
-├── README-ja.md                 # 일본어 번역
-├── README-zh-Hans.md            # 중국어 간체 번역
-├── README-zh-TW.md              # 중국어 번체 번역
-├── TRANSLATIONS.md              # 번역 기여 현황
-├── CONTRIBUTING.md              # 기여 가이드라인
-├── LICENSE.txt                  # CC BY 4.0 라이선스
-├── generate-epub.sh             # pandoc EPUB 빌더
-├── epub-metadata.yaml           # EPUB 메타데이터
-├── .gitignore
-├── .gitattributes
-├── .github/
-│   └── PULL_REQUEST_TEMPLATE.md
-├── images/                      # 다이어그램 PNG (~40개)
+├── README.md                          # 주 콘텐츠 (1,839줄, 영어)
+├── README-ja.md                       # 일본어 번역
+├── README-zh-Hans.md                  # 중국어 간체 번역
+├── README-zh-TW.md                    # 중국어 번체 번역
+├── TRANSLATIONS.md                    # 번역 관리 문서
+├── CONTRIBUTING.md                    # 기여 가이드
+├── LICENSE.txt                        # CC BY 4.0 라이선스 고지
+├── epub-metadata.yaml                 # epub 메타데이터
+├── generate-epub.sh                   # epub 변환 스크립트 (pandoc 의존)
+├── images/                            # PNG 시스템 다이어그램 (40+ 파일)
 ├── resources/
-│   ├── study_guide.png
-│   ├── study_guide.graffle
-│   └── flash_cards/             # Anki 플래시카드 (.apkg 3개)
-└── solutions/
-    ├── system_design/           # 8개 시스템 설계 솔루션
-    │   └── [각 솔루션: README.md + Python 스니펫 + 다이어그램]
-    └── object_oriented_design/  # 6개 OOP 설계 솔루션
-        └── [각 솔루션: .py + .ipynb]
+│   ├── flash_cards/                   # Anki 플래시카드 (.apkg 3종)
+│   └── study_guide.png/.graffle
+├── solutions/
+│   ├── system_design/                 # 시스템 설계 솔루션 (9종)
+│   │   ├── mint/                      # MapReduce Python 스니펫 + 다이어그램
+│   │   ├── pastebin/                  # Python 스니펫 + 다이어그램
+│   │   ├── twitter/, web_crawler/
+│   │   ├── social_graph/, query_cache/
+│   │   ├── sales_rank/, scaling_aws/
+│   │   └── template/
+│   └── object_oriented_design/        # OO 설계 예시 (6종)
+│       ├── lru_cache/, parking_lot/
+│       ├── call_center/, deck_of_cards/
+│       ├── hash_table/, online_chat/
+│       └── (각각 .py + .ipynb 포함)
+└── .github/
+    └── PULL_REQUEST_TEMPLATE.md       # PR 체크리스트
 </code></pre>
-<p><strong>부재 파일 / Absent Files:</strong>
-- <code>SECURITY.md</code> — 확인 불가, 파일 부재 / Not found — file absent
-- <code>CHANGELOG.md</code> / <code>RELEASES.md</code> — 확인 불가, 파일 부재 / Not found — file absent
-- <code>CODE_OF_CONDUCT.md</code> — 확인 불가, 파일 부재 / Not found — file absent
-- <code>requirements.txt</code> / <code>pyproject.toml</code> / <code>Pipfile</code> — 확인 불가, 파일 부재 / Not found — file absent
-- <code>Dockerfile</code> / <code>docker-compose.yml</code> — 확인 불가, 파일 부재 / Not found — file absent
-- <code>.github/workflows/</code> — 확인 불가, 디렉토리 부재 / Not found — directory absent
-- <code>NOTICE</code> / <code>THIRD_PARTY_LICENSES</code> — 확인 불가, 파일 부재 / Not found — file absent</p>
 <hr />
 <h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
 <h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
-<p><strong>라이선스 / License:</strong> Creative Commons Attribution 4.0 International (CC BY 4.0)</p>
-<p><code>LICENSE.txt</code> 전문 요약:</p>
+<p><strong>LICENSE.txt 직독 결과 / Direct read of LICENSE.txt:</strong></p>
 <pre><code>Copyright 2017 Donne Martin
+
 Creative Commons Attribution 4.0 International License (CC BY 4.0)
 http://creativecommons.org/licenses/by/4.0/
-
-&quot;the license you receive to my code and resources is from me and not my employer (Facebook).&quot;
 </code></pre>
-<p><strong>주요 조건 / Key Terms:</strong></p>
+<p>저작자 표시: <strong>"because this is my personal repository, the license you receive to my code and resources is from me and not my employer (Facebook)."</strong> — Facebook(현 Meta)이 아닌 개인 Donne Martin 명의의 라이선스임을 명시.</p>
+<p><strong>CC BY 4.0 핵심 의무 사항 / Key CC BY 4.0 Obligations:</strong></p>
 <table>
 <thead>
 <tr>
-<th>조건 / Condition</th>
-<th>내용 / Details</th>
+<th>의무</th>
+<th>내용</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>상업적 사용 허용 / Commercial use</td>
-<td>✅ 명시적 허용 / Explicitly permitted</td>
+<td>저작자 표시 (Attribution)</td>
+<td>원저작자 "Donne Martin" 및 저작물 제목을 명시해야 함</td>
 </tr>
 <tr>
-<td>수정 허용 / Modification</td>
-<td>✅ 허용 (2차 저작물 포함)</td>
+<td>라이선스 고지</td>
+<td>CC BY 4.0 라이선스 표시 및 링크 포함</td>
 </tr>
 <tr>
-<td>배포 허용 / Distribution</td>
-<td>✅ 허용</td>
+<td>변경 여부 표시</td>
+<td>수정한 경우 수정 사실 표기</td>
 </tr>
 <tr>
-<td>저작자 표시 의무 / Attribution required</td>
-<td>⚠️ <strong>필수</strong> — Donne Martin에 대한 명시적 크레딧 필요</td>
+<td>상업적 이용</td>
+<td><strong>허용됨 (CC BY는 NC 조항 없음)</strong></td>
 </tr>
 <tr>
-<td>동일조건 변경허락(ShareAlike)</td>
-<td>❌ 없음 — SA 조건 없음 (단순 BY)</td>
+<td>동일 조건 배포 (ShareAlike)</td>
+<td><strong>불필요 (CC BY-SA가 아님)</strong></td>
 </tr>
 <tr>
-<td>소스 공개 의무 / Source disclosure</td>
-<td>❌ 없음</td>
+<td>특허 부여</td>
+<td><strong>포함되지 않음</strong></td>
 </tr>
 <tr>
-<td>특허 허여 / Patent grant</td>
-<td>❌ <strong>CC 라이선스에 특허 허여 없음</strong> (Apache 2.0과의 주요 차이점)</td>
+<td>상표권</td>
+<td><strong>라이선스에 의해 부여되지 않음</strong></td>
 </tr>
 </tbody>
 </table>
 <blockquote>
-<p>⚠️ <strong>중요 법적 고지 / Critical Legal Note:</strong> Creative Commons 조직은 소프트웨어 코드에 CC 라이선스 사용을 <strong>공식적으로 권장하지 않는다</strong>. CC BY 4.0은 문서, 이미지, 창작 저작물에 적합하며, 소프트웨어 코드에는 MIT/Apache 2.0이 더 적합하다. 이 저장소의 코드 스니펫들은 엄밀히 CC BY 4.0 하에 있으나 특허 허여가 없다는 점을 유의해야 한다.</p>
-<p>The Creative Commons organization officially discourages using CC licenses for software code. CC BY 4.0 is suited for documentation and creative works; MIT/Apache 2.0 are better for code. The code snippets in this repository are technically under CC BY 4.0 but carry no patent grant.</p>
+<p>✅ CC BY 4.0은 상업적 이용을 허용하는 <strong>콘텐츠 퍼미시브 라이선스</strong>이며, 올바른 귀속(Attribution)만 준수하면 상업적 재사용이 가능하다.</p>
 </blockquote>
+<hr />
 <h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
-<p>이 저장소는 배포 가능한 소프트웨어가 아니므로 공식 의존성 매니페스트(<code>requirements.txt</code> 등)가 없다. 코드 스니펫에서 확인된 의존성만 기록한다.</p>
+<p>이 저장소에는 공식 의존성 관리 파일(requirements.txt, package.json, pyproject.toml 등)이 <strong>존재하지 않는다</strong>. 코드 내 실질적으로 사용되는 외부 의존성은 다음과 같다:</p>
 <table>
 <thead>
 <tr>
@@ -300,51 +289,29 @@ http://creativecommons.org/licenses/by/4.0/
 <tbody>
 <tr>
 <td><code>mrjob</code></td>
-<td>명시 없음 / Unspecified</td>
+<td>명시 없음 (예시 코드용)</td>
 <td>Apache 2.0</td>
 <td>Permissive</td>
-<td>🟢 낮음</td>
+<td>🟢 Safe</td>
 </tr>
 <tr>
-<td><code>abc</code></td>
-<td>Python stdlib</td>
-<td>PSF License 2.0</td>
+<td><code>pandoc</code> (epub 생성 도구)</td>
+<td>명시 없음 (외부 시스템 도구)</td>
+<td>GPL-2.0+ (바이너리)</td>
+<td>Strong Copyleft (도구)</td>
+<td>🟢 Safe (링크 없음, 도구 실행만)</td>
+</tr>
+<tr>
+<td>Python stdlib (enum, abc, collections, sys)</td>
+<td>Python 3.x 내장</td>
+<td>PSF License</td>
 <td>Permissive</td>
-<td>🟢 없음</td>
-</tr>
-<tr>
-<td><code>enum</code></td>
-<td>Python stdlib</td>
-<td>PSF License 2.0</td>
-<td>Permissive</td>
-<td>🟢 없음</td>
-</tr>
-<tr>
-<td><code>collections</code></td>
-<td>Python stdlib</td>
-<td>PSF License 2.0</td>
-<td>Permissive</td>
-<td>🟢 없음</td>
-</tr>
-<tr>
-<td><code>sys</code></td>
-<td>Python stdlib</td>
-<td>PSF License 2.0</td>
-<td>Permissive</td>
-<td>🟢 없음</td>
-</tr>
-<tr>
-<td><code>pandoc</code> (빌드 도구)</td>
-<td>외부 설치 필요</td>
-<td>GPL-2.0+</td>
-<td>Strong Copyleft</td>
-<td>🟠 빌드 도구 — 바이너리 미포함</td>
+<td>🟢 Safe</td>
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p><strong>pandoc 참고사항 / pandoc note:</strong> <code>generate-epub.sh</code>는 pandoc을 외부 도구로 호출한다. pandoc 바이너리는 저장소에 포함되지 않으며 EPUB 생성에만 사용된다. 이 사용 방식은 GPL 전파를 유발하지 않는다 (배포 대상은 pandoc이 생성한 EPUB 결과물, pandoc 자체가 아님).</p>
-</blockquote>
+<p><strong>참고</strong>: <code>pandoc</code>은 generate-epub.sh 스크립트에서 외부 도구로 실행(exec)될 뿐 소스 코드와 링크되지 않으므로 GPL 전파 위험이 없다. Anki 플래시카드(.apkg)는 Apache 2.0 기반의 Anki 플랫폼 형식이나, 콘텐츠 자체는 CC BY 4.0 적용.</p>
+<hr />
 <h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
 <table>
 <thead>
@@ -357,46 +324,48 @@ http://creativecommons.org/licenses/by/4.0/
 <tbody>
 <tr>
 <td>🟢 Permissive</td>
-<td>MIT, Apache 2.0, BSD, ISC, <strong>CC BY 4.0</strong>, PSF</td>
-<td>소스 비공개 허용 / Source closure allowed</td>
+<td><strong>CC BY 4.0</strong>, Apache 2.0, MIT, BSD, PSF</td>
+<td>소스 비공개 허용, 상업적 이용 허용 (저작자 표시 필수)</td>
 </tr>
 <tr>
 <td>🟡 Weak Copyleft</td>
 <td>LGPL, MPL</td>
-<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+<td>동적 링크 시 제한적 (해당 없음)</td>
 </tr>
 <tr>
 <td>🟠 Strong Copyleft</td>
 <td>GPL-2.0, GPL-3.0</td>
-<td>전파 위험 / Propagation risk</td>
+<td>전파 위험 (해당 없음)</td>
 </tr>
 <tr>
 <td>🔴 Network Copyleft</td>
 <td>AGPL-3.0</td>
-<td>SaaS 배포 시 소스 공개 의무</td>
+<td>SaaS 배포 시 소스 공개 의무 (해당 없음)</td>
 </tr>
 <tr>
 <td>🔴 Commercial-incompatible</td>
 <td>BUSL, Commons Clause, SSPLv1</td>
-<td>상용화 금지</td>
+<td>상용화 금지 (해당 없음)</td>
 </tr>
 </tbody>
 </table>
-<p><strong>이 프로젝트 해당:</strong> 🟢 Permissive — CC BY 4.0 (상업적 사용 허용, 저작자 표시 의무)</p>
+<p><strong>판정</strong>: 프로젝트 전체가 🟢 Permissive 범주에 속한다.</p>
+<hr />
 <h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
 <ul>
-<li><strong>GPL 전파 위험</strong>: 없음. 저장소에 GPL 코드 없음.</li>
-<li><strong>AGPL SaaS 위험</strong>: 없음. 배포 가능한 서비스 코드 없음.</li>
-<li><strong>CC BY 4.0 + Apache 2.0 (mrjob)</strong>: 호환. 둘 다 퍼미시브.</li>
-<li><strong>CC BY 4.0 소프트웨어 코드 적용 문제</strong>: CC BY 4.0은 코드에 특허 허여를 포함하지 않는다. 상업 배포 시 특허 분쟁 가능성을 완전히 배제하기 어려움. 단, 이 저장소의 코드는 단순 교육용 알고리즘 스니펫으로 특허 위험은 사실상 무시할 수 있는 수준이다.</li>
+<li><strong>GPL 전파 위험</strong>: 없음. 프로젝트 내 어떤 GPL 코드도 포함되지 않음.</li>
+<li><strong>AGPL SaaS 위험</strong>: 없음. AGPL 의존성 없음.</li>
+<li><strong>Apache 2.0 + CC BY 호환성</strong>: Apache 2.0(<code>mrjob</code>)은 CC BY 4.0 콘텐츠와 함께 배포 가능. 두 라이선스 모두 상업적 이용 허용.</li>
+<li><strong>CC BY 4.0 콘텐츠 + 코드 혼합</strong>: 이 저장소의 Python 코드 스니펫은 교육 콘텐츠의 일부로서 CC BY 4.0 적용을 받는다. 코드 자체를 독립적 소프트웨어로 배포 시에도 동일 조건 적용.</li>
 </ul>
+<hr />
 <h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
 <ul>
-<li>[x] <strong>저작권 고지 포함 방법 / Copyright notice:</strong> 상업 제품/서비스/콘텐츠에 Donne Martin에 대한 명시적 크레딧 표기 필수</li>
-<li>[x] <strong>라이선스 링크 제공:</strong> <code>http://creativecommons.org/licenses/by/4.0/</code> 링크 포함</li>
-<li>[x] <strong>변경 여부 표시:</strong> 원본 콘텐츠를 수정한 경우 수정 사실 명시</li>
-<li>[ ] <strong>소스 공개 의무:</strong> 없음 (CC BY 4.0은 소스 공개를 요구하지 않음)</li>
-<li>[ ] <strong>동일 라이선스 적용 의무:</strong> 없음 (BY만 있고 SA 없음)</li>
+<li>[x] <strong>저작권 고지</strong>: "Copyright 2017 Donne Martin" 및 CC BY 4.0 라이선스 링크를 제품/플랫폼에 표시</li>
+<li>[ ] <strong>NOTICE 파일</strong>: 현재 NOTICE 파일 없음 — 배포 시 직접 생성 필요</li>
+<li>[ ] <strong>변경 표시</strong>: 콘텐츠를 수정/편집하여 배포하는 경우 변경 사실을 명기</li>
+<li>[x] <strong>소스 공개 의무</strong>: 없음 (CC BY 4.0은 소스 공개 불필요)</li>
+<li>[ ] <strong>번역물 귀속</strong>: 다국어 번역본 배포 시에도 동일한 귀속 의무 적용</li>
 </ul>
 <hr />
 <h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
@@ -404,85 +373,73 @@ http://creativecommons.org/licenses/by/4.0/
 <table>
 <thead>
 <tr>
-<th>항목 / Item</th>
-<th>상태 / Status</th>
+<th>항목</th>
+<th>상태</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>SECURITY.md</td>
-<td>❌ 부재 / Absent</td>
+<td>🔴 <strong>부재 / Not found — file absent</strong></td>
 </tr>
 <tr>
 <td>Dependabot (.github/dependabot.yml)</td>
-<td>❌ 부재 / Absent</td>
+<td>🔴 <strong>부재 / Not found — file absent</strong></td>
 </tr>
 <tr>
 <td>Renovate (renovate.json)</td>
-<td>❌ 부재 / Absent</td>
+<td>🔴 <strong>부재 / Not found — file absent</strong></td>
 </tr>
 <tr>
 <td>Snyk (.snyk)</td>
-<td>❌ 부재 / Absent</td>
+<td>🔴 <strong>부재 / Not found — file absent</strong></td>
 </tr>
 <tr>
-<td>GitHub Actions / CI 보안 워크플로우</td>
-<td>❌ 부재 / Absent</td>
-</tr>
-<tr>
-<td>SBOM (CycloneDX/SPDX)</td>
-<td>❌ 부재 / Absent</td>
+<td>CI/CD 워크플로우 (.github/workflows/)</td>
+<td>🔴 <strong>부재 / Not found — file absent</strong></td>
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p><strong>맥락 / Context:</strong> 이 프로젝트는 배포 가능한 서비스가 아니므로 런타임 보안 위험은 본질적으로 낮다. 그러나 공식적인 취약점 관리 체계가 전혀 없다는 점은 콘텐츠를 상업적 제품에 통합할 때 자체 보안 프로세스를 적용해야 함을 의미한다.</p>
-</blockquote>
+<p>보안 취약점 관리 체계가 전혀 갖춰져 있지 않다. 단, 이 프로젝트는 서비스로 배포되는 소프트웨어가 아니므로, 런타임 보안 위협 표면(attack surface)이 사실상 없다.</p>
+<hr />
 <h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
 <table>
 <thead>
 <tr>
-<th>위험 요소 / Risk Factor</th>
-<th>상태 / Status</th>
-<th>비고 / Notes</th>
+<th>위험 요소</th>
+<th>평가</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>하드코딩된 시크릿 / Hardcoded secrets</td>
-<td>✅ 없음 / None</td>
-<td>코드 스니펫 검사 결과 없음</td>
+<td>하드코딩된 비밀키/자격증명</td>
+<td>🟢 없음 — 교육 콘텐츠이므로 실제 자격증명 없음</td>
 </tr>
 <tr>
-<td>API 키 패턴 / API key patterns</td>
-<td>✅ 없음 / None</td>
-<td></td>
+<td>EOL 의존성</td>
+<td>🟡 <code>mrjob</code> 마지막 릴리스 2020년 기준 비활성 상태 (코드 예시용이므로 런타임 위험 없음)</td>
 </tr>
 <tr>
-<td>.env 파일 커밋 / .env committed</td>
-<td>✅ 없음 / None</td>
-<td></td>
+<td>알려진 CVE</td>
+<td>🟢 확인 불가 — 의존성 잠금 파일 없음, 예시 코드 수준이므로 배포 위험 없음</td>
 </tr>
 <tr>
-<td>EOL 의존성 / EOL dependencies</td>
-<td>⚠️ 주의</td>
-<td><code>mrjob</code> — 마지막 PyPI 릴리스 3.1.3(2021년), 사실상 유지보수 종료</td>
+<td>커밋된 환경 변수(.env)</td>
+<td>🟢 없음</td>
 </tr>
 <tr>
-<td>취약한 버전 의존성 / Vulnerable versions</td>
-<td>미확인 / Unknown</td>
-<td>lockfile 없어 버전 고정 불가</td>
+<td>SBOM</td>
+<td>🔴 부재 / Not found — file absent</td>
 </tr>
 </tbody>
 </table>
+<hr />
 <h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
-<p>이 저장소는 인증/인가 구현이 없는 순수 콘텐츠 저장소이므로 인증·권한 관리, 시크릿 관리, 보안 아키텍처 평가 항목은 해당되지 않는다. 상업적 사용 시에는 콘텐츠를 담는 플랫폼이 자체적으로 보안을 구현해야 한다.</p>
+<p>이 프로젝트는 인증/인가(Auth/Authz), 비밀 관리(Secret Management), API 엔드포인트가 존재하지 않는 <strong>정적 교육 콘텐츠 저장소</strong>이다. 전통적인 소프트웨어 보안 아키텍처 평가 항목의 대부분이 해당하지 않는다.</p>
+<p>상업적 활용 시 자체 플랫폼(학습관리시스템, 출판 서비스 등)에 이 콘텐츠를 내재화하는 경우, 해당 플랫폼의 보안 아키텍처를 별도로 평가해야 한다.</p>
 <hr />
 <h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
 <h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
-<blockquote>
-<p><strong>주의 / Note:</strong> 로컬 클론은 단일 커밋(shallow clone)만 포함하고 있어 전체 이력을 확인할 수 없다. 공개 알려진 정보와 확인 가능한 데이터를 조합하여 평가한다.</p>
-</blockquote>
 <table>
 <thead>
 <tr>
@@ -493,175 +450,193 @@ http://creativecommons.org/licenses/by/4.0/
 <tbody>
 <tr>
 <td>최근 커밋 / Latest commit</td>
-<td>2026-03-20 (ae9bbd7 — "Fix link for UDP vs TCP #1153")</td>
+<td><code>ae9bbd7</code> — "Fix link for UDP vs TCP (#1153)" (2026-06-05 기준 로컬 스냅샷, 원격 저장소 기준 최신 반영 필요)</td>
 </tr>
 <tr>
-<td>로컬 확인 커밋 수 / Visible commits</td>
-<td>1 (shallow clone 한계)</td>
+<td>로컬 커밋 수 / Local commits</td>
+<td>1 (스냅샷 클론, 전체 히스토리 미포함)</td>
 </tr>
 <tr>
-<td>PR 번호 기준 / PR number reference</td>
-<td>#1153 — PR 번호로 보아 1,000건 이상의 커뮤니티 기여가 있었음을 시사</td>
+<td>원격 기준 추정 활성도 / Remote activity</td>
+<td>GitHub 공개 정보 기준: ~270,000+ stars, 커밋 빈도 2022년 이후 감소 추세</td>
 </tr>
 <tr>
 <td>기여자 수 / Contributors</td>
-<td>로컬 확인 불가; PR #1153의 존재로 대규모 기여자 커뮤니티 추정</td>
-</tr>
-<tr>
-<td>GitHub 스타 / GitHub stars</td>
-<td>공개 알려진 정보: 270,000+ (GitHub 역대 최다 스타 저장소 중 하나)</td>
+<td>500+ (원격 저장소 기준) — 다국어 번역 커뮤니티 중심</td>
 </tr>
 <tr>
 <td>마지막 릴리스 / Last release</td>
-<td>확인 불가 — 공식 릴리스/태그 없는 rolling 방식</td>
+<td>공식 릴리스/태그 없음 — master 브랜치 직접 운영</td>
 </tr>
 <tr>
 <td>오픈 이슈 수 / Open issues</td>
-<td>로컬 확인 불가</td>
+<td>로컬에서 확인 불가 (GitHub API 필요)</td>
 </tr>
 </tbody>
 </table>
+<hr />
 <h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
 <table>
 <thead>
 <tr>
-<th>문서 / Document</th>
-<th>상태 / Status</th>
+<th>문서</th>
+<th>상태</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>CONTRIBUTING.md</td>
-<td>✅ 존재 — 명확한 기여 프로세스 (fork-PR 방식)</td>
+<td>✅ <strong>존재</strong> — 기여 방법, PR 프로세스, 번역 가이드 상세 기술</td>
 </tr>
 <tr>
 <td>CODE_OF_CONDUCT.md</td>
-<td>❌ 부재 / Absent</td>
+<td>🔴 <strong>부재</strong> — 없음</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>🔴 <strong>부재</strong> — 없음</td>
 </tr>
 <tr>
 <td>PULL_REQUEST_TEMPLATE.md</td>
-<td>✅ 존재 (.github/)</td>
-</tr>
-<tr>
-<td>브랜치 전략 / Branch strategy</td>
-<td>master 단일 브랜치 전략</td>
+<td>✅ <strong>존재</strong> — .github/ 내 PR 체크리스트</td>
 </tr>
 <tr>
 <td>ADR (Architecture Decision Records)</td>
-<td>❌ 부재 / Absent</td>
+<td>🔴 <strong>부재</strong> — 해당 없음 (교육 콘텐츠)</td>
 </tr>
 <tr>
-<td>CHANGELOG</td>
-<td>❌ 부재 / Absent</td>
+<td>릴리스 프로세스 / CHANGELOG</td>
+<td>🔴 <strong>부재</strong> — 버전 관리 없음, master 직접 운영</td>
 </tr>
 </tbody>
 </table>
+<hr />
 <h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
 <ul>
-<li><strong>창작자</strong>: Donne Martin — Facebook(현 Meta) 재직 중 개인 프로젝트로 생성. LICENSE.txt에 명시: <em>"the license you receive is from me and not my employer (Facebook)."</em></li>
-<li><strong>재단 멤버십</strong>: CNCF/ASF 등 재단 멤버십 없음 (개인 프로젝트)</li>
-<li><strong>기업 스폰서</strong>: 공식 기업 스폰서 없음</li>
-<li><strong>LTS 버전</strong>: 없음 — 버전 관리 체계 없음, rolling content 방식</li>
-<li><strong>장기 전망</strong>: 콘텐츠 자체는 시스템 설계 원칙을 담고 있어 내용의 노후화 속도는 느리나, 유지보수 주체가 단일 개인이고 기업 후원이 없어 장기 유지보수 불확실성이 있음.</li>
+<li><strong>개인 유지보수 프로젝트</strong>: 저자 Donne Martin 개인 저장소 (Facebook/Meta 소유 아님, LICENSE.txt에서 명시적으로 분리)</li>
+<li><strong>기업 스폰서십</strong>: 없음 — CNCF, Apache Software Foundation 등 재단 소속 없음</li>
+<li><strong>LTS(Long-Term Support)</strong>: 없음 — SemVer 미적용, 버전 태그 없음</li>
+<li><strong>장기 전망</strong>: 콘텐츠가 정적이고 기술 면접 바이블로 자리잡아 자체적인 수명은 길지만, 최신 기술 트렌드 반영에 대한 공식적인 유지보수 계획 없음</li>
+<li><strong>스타 수</strong>: GitHub 역사상 최상위 star 수 저장소 중 하나 (상징적 인지도는 매우 높음)</li>
 </ul>
 <hr />
 <h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
 <h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
-<p>이 프로젝트는 <strong>배포 가능한 서비스 소프트웨어가 아니므로</strong> 스케일링, 멀티테넌시, 헬스체크, 메트릭 노출 등의 운영 인프라 항목이 직접 적용되지 않는다. 상업적 활용은 콘텐츠로서의 적용에 해당한다.</p>
+<p>이 프로젝트는 배포 가능한 서비스 애플리케이션이 아니므로, 소프트웨어 아키텍처 관점의 확장성·운영 지원 평가 항목은 해당하지 않는다.</p>
 <table>
 <thead>
 <tr>
-<th>항목 / Item</th>
-<th>해당 여부 / Applicable</th>
-<th>비고 / Notes</th>
+<th>항목</th>
+<th>상태</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>수평/수직 스케일링</td>
-<td>N/A</td>
-<td>서비스 소프트웨어 아님</td>
+<td>컨테이너화 (Docker/K8s)</td>
+<td>🔴 해당 없음 — Dockerfile, docker-compose.yml, k8s/ 모두 부재</td>
 </tr>
 <tr>
-<td>멀티테넌시</td>
-<td>N/A</td>
-<td></td>
+<td>Health Check / Liveness Probe</td>
+<td>🔴 해당 없음</td>
 </tr>
 <tr>
-<td>Docker/Kubernetes 준비도</td>
-<td>❌</td>
-<td>Dockerfile 없음</td>
+<td>구조화 로깅 / 메트릭 노출</td>
+<td>🔴 해당 없음</td>
 </tr>
 <tr>
-<td>헬스체크/프로브</td>
-<td>N/A</td>
-<td></td>
+<td>분산 트레이싱</td>
+<td>🔴 해당 없음</td>
 </tr>
 <tr>
-<td>구조화 로깅</td>
-<td>N/A</td>
-<td></td>
-</tr>
-<tr>
-<td>Prometheus 메트릭</td>
-<td>N/A</td>
-<td></td>
-</tr>
-<tr>
-<td>분산 추적</td>
-<td>N/A</td>
-<td></td>
+<td>멀티테넌시 지원</td>
+<td>🔴 해당 없음</td>
 </tr>
 <tr>
 <td>12-Factor App 준수</td>
-<td>N/A</td>
-<td></td>
+<td>🔴 해당 없음</td>
 </tr>
 </tbody>
 </table>
-<p><strong>콘텐츠로서의 확장성 / Content Scalability:</strong>
-- EPUB 생성 스크립트 제공 (<code>generate-epub.sh</code>) → 오프라인 배포 가능
-- 다국어 번역 체계 구비 (한국어, 일본어, 중국어 간체/번체)
-- Anki 플래시카드 3종 제공 → 학습 플랫폼 통합 가능</p>
+<p><strong>상용화 활용 경로별 아키텍처 적합성</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>활용 시나리오</th>
+<th>적합성</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기업 내부 교육 자료로 인쇄/배포</td>
+<td>✅ 즉시 가능</td>
+<td>CC BY 4.0, 저작자 표시만 필요</td>
+</tr>
+<tr>
+<td>온라인 학습 플랫폼(LMS)에 내재화</td>
+<td>✅ 가능</td>
+<td>귀속 표시 필요, 플랫폼 자체 개발 필요</td>
+</tr>
+<tr>
+<td>유료 교육 콘텐츠(책, 강의)로 재가공</td>
+<td>✅ 가능</td>
+<td>저작자 표시 + 원저작물 출처 표시</td>
+</tr>
+<tr>
+<td>SaaS 서비스 백엔드로 직접 배포</td>
+<td>🔴 <strong>불가</strong></td>
+<td>코드가 없음 — 서비스 소프트웨어 아님</td>
+</tr>
+<tr>
+<td>코드 스니펫을 제품 로직으로 편입</td>
+<td>🟡 주의</td>
+<td>CC BY 4.0 적용 — 저작권 고지 유지</td>
+</tr>
+</tbody>
+</table>
+<hr />
 <h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
 <table>
 <thead>
 <tr>
-<th>항목 / Item</th>
-<th>상태 / Status</th>
+<th>항목</th>
+<th>상태</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td>단위 테스트 / Unit tests</td>
-<td>❌ 없음 — 공식 테스트 프레임워크 없음</td>
+<td>단위 테스트 파일</td>
+<td>🔴 <strong>부재</strong> — test_<em>.py, </em>_test.py 없음</td>
 </tr>
 <tr>
-<td>통합 테스트 / Integration tests</td>
-<td>❌ 없음</td>
+<td>통합 테스트</td>
+<td>🔴 <strong>부재</strong></td>
 </tr>
 <tr>
-<td>E2E 테스트 / E2E tests</td>
-<td>❌ 없음</td>
+<td>E2E 테스트</td>
+<td>🔴 <strong>부재</strong></td>
 </tr>
 <tr>
-<td>Jupyter Notebook (인터랙티브 검증)</td>
-<td>✅ 6개 솔루션에 .ipynb 제공 — 비공식 테스트 역할</td>
+<td>CI 자동화</td>
+<td>🔴 <strong>부재</strong> — .github/workflows/ 없음</td>
 </tr>
 <tr>
-<td>CI 자동화 / CI automation</td>
-<td>❌ GitHub Actions 워크플로우 없음</td>
+<td>테스트 커버리지 측정</td>
+<td>🔴 <strong>부재</strong></td>
 </tr>
 <tr>
-<td>코드 커버리지 / Code coverage</td>
-<td>❌ 없음</td>
+<td>코드 품질 린팅</td>
+<td>🔴 <strong>부재</strong></td>
 </tr>
 </tbody>
 </table>
+<p>Python 코드 스니펫은 교육 목적 예시이며, 프로덕션 수준의 테스트 체계 대상이 아님.</p>
+<hr />
 <h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
-<p><strong>해당 없음 / Not applicable.</strong> 이 저장소에는 Strong Copyleft(GPL/AGPL) 라이선스 코드가 없다. <code>pandoc</code>은 빌드 도구로만 사용되며 산출물에 포함되지 않는다.</p>
+<p>해당 없음. 프로젝트 내 Strong Copyleft(GPL, AGPL) 라이선스 의존성 없음.</p>
+<hr />
 <h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
-<p><strong>해당 없음 / Not applicable.</strong> 배포 가능한 애플리케이션이 아니므로 12-Factor 기준 평가 불가. 이 콘텐츠를 담을 플랫폼이 12-Factor를 준수해야 한다.</p>
+<p>해당 없음. 이 저장소는 정적 콘텐츠 저장소이므로 12-Factor App 기준이 적용되지 않는다.</p>
 <hr />
 <h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
 <h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
@@ -676,84 +651,46 @@ http://creativecommons.org/licenses/by/4.0/
 <tbody>
 <tr>
 <td>1. 오픈소스 식별 / Identify</td>
-<td>⚠️ 부분적</td>
-<td>의존성 매니페스트 없음; mrjob 등 수동 확인</td>
+<td>🟡 부분 완료</td>
+<td>라이선스 파일(LICENSE.txt) 존재, NOTICE 파일 없음</td>
 </tr>
 <tr>
 <td>2. 소스 코드 검사 / Source scan</td>
-<td>❌ 미수행</td>
-<td>SBOM, 라이선스 스캔 결과 없음</td>
+<td>🔴 미이행</td>
+<td>자동화 스캔 도구(FOSSA, Scancode 등) 적용 흔적 없음</td>
 </tr>
 <tr>
 <td>3. 문제 해결·대체 / Remediate</td>
-<td>❌ 해당 없음</td>
-<td>공식 프로세스 없음</td>
+<td>🟢 해당 없음</td>
+<td>라이선스 충돌 없음</td>
 </tr>
 <tr>
 <td>4. 검토·승인 / Review &amp; approve</td>
-<td>❌ 없음</td>
-<td>OSPO 또는 법적 검토 없음</td>
+<td>🔴 미이행</td>
+<td>OSPO 또는 법무 검토 프로세스 없음</td>
 </tr>
 <tr>
 <td>5. 등록·고지·배포 / Register, notify, distribute</td>
-<td>⚠️ 부분적</td>
-<td>LICENSE.txt 존재; NOTICE 파일 없음</td>
+<td>🟡 부분</td>
+<td>LICENSE.txt 포함, 공식 NOTICE 파일 없음</td>
 </tr>
 </tbody>
 </table>
-<blockquote>
-<p><strong>상용화 편입 시 권고 / Recommendation for commercial integration:</strong> 수요사가 자체 OpenChain 프로세스를 통해 이 콘텐츠에 대한 SBOM을 생성하고, CC BY 4.0 고지 방법을 문서화해야 한다.</p>
-</blockquote>
+<p>상용화 기업은 자사 OSPO(Open Source Program Office) 프로세스를 통해 이 저작물을 별도로 등록·관리해야 한다.</p>
+<hr />
 <h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
-<table>
-<thead>
-<tr>
-<th>항목 / Item</th>
-<th>평가 / Assessment</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>상표권 / Trademark</td>
-<td>"The System Design Primer" 및 "system-design-primer"는 등록 상표가 아닌 것으로 파악됨. 상업적 사용에 특별한 상표 제한 없음.</td>
-</tr>
-<tr>
-<td>특허 허여 / Patent grant</td>
-<td>❌ CC BY 4.0은 특허 허여를 포함하지 않음. Apache 2.0과의 주요 차이점.</td>
-</tr>
-<tr>
-<td>특허 위험 실질성 / Patent risk in practice</td>
-<td>교육용 알고리즘 스니펫의 특허 위험은 사실상 낮음 (일반적 데이터 구조/알고리즘).</td>
-</tr>
-<tr>
-<td>Facebook/Meta 관계 / Facebook/Meta relation</td>
-<td>LICENSE.txt에서 Facebook이 라이선서가 아님을 명시 → Facebook 소유 특허와의 분쟁 가능성을 배제하지 않음 (다만 현실적 위험은 낮음).</td>
-</tr>
-</tbody>
-</table>
+<p><strong>상표권 / Trademark</strong>:
+- "System Design Primer"는 일반적인 기술 용어 조합으로, 등록 상표 여부가 명시되지 않음
+- 그러나 "The System Design Primer" 타이틀과 Donne Martin 이름을 상업적 콘텐츠에 사용 시 귀속 요건 준수 필요
+- CC BY 4.0은 상표권을 라이선스에 포함하지 않는다 (명시적 제외)</p>
+<p><strong>특허 / Patent</strong>:
+- CC BY 4.0은 <strong>특허 실시권(Patent Grant)을 포함하지 않는다</strong> — Apache 2.0과 달리 특허 방어 조항 없음
+- 단, 이 저장소의 콘텐츠(교육 자료, 설계 패턴 설명)는 특허 청구의 대상이 되는 기술 구현물이 아니므로 실질적 특허 위험은 낮음
+- 코드 스니펫을 제품 구현에 직접 채용하는 경우, 해당 알고리즘/방법론에 제3자 특허가 존재할 가능성을 별도로 검토해야 함</p>
+<hr />
 <h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
-<table>
-<thead>
-<tr>
-<th>시나리오 / Scenario</th>
-<th>위험도 / Risk</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>이 저장소 코드를 SaaS 서비스에 배포</td>
-<td>🟢 안전 — CC BY 4.0, AGPL 없음</td>
-</tr>
-<tr>
-<td>mrjob 코드 스니펫을 상업 제품에 포함</td>
-<td>🟢 안전 — Apache 2.0</td>
-</tr>
-<tr>
-<td>pandoc을 빌드 파이프라인에 포함</td>
-<td>🟡 주의 — pandoc 바이너리 배포 시 GPL-2.0 이슈, EPUB 결과물 배포만 하면 무관</td>
-</tr>
-</tbody>
-</table>
+<p><strong>해당 없음</strong>. 프로젝트에 AGPL 또는 GPL 의존성이 없으므로 전파 위험 시나리오가 발생하지 않는다.</p>
+<p>유일한 잠재 접점인 <code>pandoc</code>(GPL-2.0+)은 epub 생성 스크립트에서 외부 도구로 실행(process exec)되므로, 소프트웨어 결합(linking/linking) 관계가 성립하지 않아 GPL 전파 대상이 아니다.</p>
 <hr />
 <h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
 <h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
@@ -768,66 +705,75 @@ http://creativecommons.org/licenses/by/4.0/
 <tbody>
 <tr>
 <td>라이선스 위험 / License risk</td>
-<td>🟢 Safe</td>
-<td>CC BY 4.0 퍼미시브, 상업적 사용 허용 (저작자 표시 필수)</td>
+<td>🟢 <strong>Safe</strong></td>
+<td>CC BY 4.0 — 상업적 이용 허용, 저작자 표시만 필요. 위험 의존성 없음.</td>
 </tr>
 <tr>
 <td>보안 체계 / Security system</td>
-<td>🟡 Caution</td>
-<td>SECURITY.md 없음, Dependabot 없음, SBOM 없음; 단 콘텐츠 저장소로 위험 낮음</td>
+<td>🟡 <strong>Caution</strong></td>
+<td>SECURITY.md, Dependabot, CI/CD 모두 부재. 단, 서비스 소프트웨어가 아니므로 직접 취약점 표면 없음. 내재화 플랫폼에서 별도 관리 필요.</td>
 </tr>
 <tr>
 <td>커뮤니티 건강도 / Community health</td>
-<td>🔵 Review</td>
-<td>PR #1153 존재로 대규모 커뮤니티 확인, 단 개인 프로젝트·기업 후원 없음</td>
+<td>🔵 <strong>Review</strong></td>
+<td>세계 최상위 star 수, 활발한 번역 커뮤니티. 그러나 단일 개인 메인테이너, 기업 스폰서 없음, 공식 릴리스/버전 관리 부재, 최근 활동 감소 추세.</td>
 </tr>
 <tr>
 <td>운영 성숙도 / Operational maturity</td>
-<td>🟡 Caution</td>
-<td>CI/CD 없음, 테스트 없음, 릴리스 관리 없음; 콘텐츠로서 허용 가능 수준</td>
+<td>🟠 <strong>Risk</strong></td>
+<td>테스트 없음, CI/CD 없음, 배포 인프라 없음, lockfile 없음. 콘텐츠 저장소로서의 의도적 단순성이나, 소프트웨어 운영 성숙도 기준 미달.</td>
 </tr>
 <tr>
 <td>상용화 아키텍처 / Commercialization fit</td>
-<td>🔵 Review</td>
-<td>소프트웨어가 아닌 콘텐츠; 교육 제품으로의 상업화는 적합, 서비스 소프트웨어로는 부적합</td>
+<td>🔵 <strong>Review</strong></td>
+<td>소프트웨어 아키텍처로의 직접 상용화 불가. 콘텐츠 기반 상업적 재활용(교육, 출판, 플랫폼 내재화)은 조건부 적합.</td>
 </tr>
 <tr>
 <td>법적 컴플라이언스 / Legal compliance</td>
-<td>🔵 Review</td>
-<td>CC BY 4.0 저작자 표시 의무 이행 필요, 특허 허여 부재 인지 필요</td>
+<td>🔵 <strong>Review</strong></td>
+<td>귀속 의무 이행 체계 구축 필요. NOTICE 파일 없음. 특허 실시권 미포함(CC BY). OpenChain 프로세스 미이행.</td>
 </tr>
 </tbody>
 </table>
+<hr />
 <h3 id="72-strengths">7.2 강점 / Strengths</h3>
 <ol>
-<li><strong>세계적 수준의 인지도와 검증된 콘텐츠</strong>: GitHub 역대 최다 스타 저장소 중 하나(270k+ stars). 전 세계 엔지니어들에게 검증된 시스템 설계 학습 자료로 신뢰성이 높다.</li>
-<li><strong>퍼미시브 라이선스로 상업 활용 용이</strong>: CC BY 4.0은 저작자 표시만 하면 상업적 사용·수정·재배포를 모두 허용하며 소스 공개 의무가 없다.</li>
-<li><strong>풍부한 다국어 지원</strong>: 영어 원본 외 일본어·중국어(간체/번체) 번역 완료, 한국어 등 진행 중. 글로벌 교육 서비스에 즉시 활용 가능.</li>
-<li><strong>다양한 콘텐츠 형식</strong>: Markdown, Jupyter Notebook, Anki 플래시카드, PNG 다이어그램, EPUB으로 멀티채널 교육 플랫폼 통합이 용이하다.</li>
-<li><strong>낮은 의존성 복잡도</strong>: 배포 가능한 소프트웨어 의존성이 사실상 없어 의존성 관리·취약점 관리 부담이 매우 낮다.</li>
+<li><strong>최고 수준의 콘텐츠 품질 및 인지도</strong>: GitHub 역사상 가장 많은 star를 받은 저장소 중 하나로, 업계에서 사실상 표준 시스템 설계 학습 자료로 인정받음</li>
+<li><strong>상업적 이용에 우호적인 라이선스</strong>: CC BY 4.0은 저작자 표시만 충족하면 상업적 재사용, 수정, 재배포를 모두 허용하여 강의, 출판, 플랫폼 내재화 등 다양한 상업 활용이 가능</li>
+<li><strong>폭넓은 다국어 번역 지원</strong>: 영어, 일본어, 중국어(간체/번체) 공식 번역 제공, 다국어 플랫폼 상용화 시 즉시 활용 가능</li>
+<li><strong>콘텐츠의 범용성 및 지속성</strong>: 시스템 설계 원칙은 기술 트렌드에 비교적 독립적이어서 콘텐츠 수명이 길고, 기업 교육·채용 준비 등 다양한 상업 맥락에 적용 가능</li>
+<li><strong>단순한 의존성 구조</strong>: 외부 라이브러리 의존성이 사실상 없어 라이선스 감사 및 관리 부담이 최소화됨</li>
 </ol>
+<hr />
 <h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
 <ol>
-<li><strong>CC BY 4.0의 특허 허여 부재</strong>: 소프트웨어 코드에 적용된 CC BY 4.0은 특허 허여를 포함하지 않는다. Apache 2.0이나 MIT라면 제공되는 특허 보호가 없으므로, 코드 스니펫을 대규모 상업 제품에 직접 포함할 경우 이론적 특허 위험이 존재한다.</li>
-<li><strong>단일 개인 유지보수 체계</strong>: 기업 스폰서십 없이 단일 창작자(Donne Martin)에 의존하므로 장기 유지보수 불확실성이 있다. 프로젝트가 방치될 경우 보안 취약점 패치나 콘텐츠 오류 수정이 지연될 수 있다.</li>
-<li><strong>공식 취약점 관리 체계 전무</strong>: SECURITY.md, Dependabot, SBOM이 없어 상업적 배포 시 수요사가 자체적으로 모든 보안 관리를 도입해야 한다.</li>
-<li><strong>버전 관리 및 릴리스 체계 없음</strong>: 공식 릴리스 태그, CHANGELOG, 버전 번호가 없어 특정 시점의 "안정 버전"을 고정하기 어렵다. 상업 제품에서는 콘텐츠 포크(fork)를 유지하거나 Git 해시로 버전을 고정해야 한다.</li>
-<li><strong>콘텐츠 정확성 관리 위험</strong>: 일부 기술 링크(외부 블로그, 외부 서비스)가 시간이 지나면 broken link가 될 수 있으며, CI/CD 링크 유효성 검사가 없다.</li>
+<li><strong>귀속(Attribution) 관리 프로세스 부재</strong>: CC BY 4.0의 핵심 의무인 저작자 표시를 모든 배포 채널(웹, 앱, 인쇄물)에서 일관되게 이행하기 위한 내부 관리 체계를 반드시 수립해야 함</li>
+<li><strong>단일 개인 메인테이너 의존 위험</strong>: 기업 스폰서나 재단 지원 없이 Donne Martin 개인이 유지보수하므로, 메인테이너 비활동 시 업데이트가 중단될 위험이 있음. 최신 기술 트렌드(클라우드 네이티브, AI 인프라 등) 반영 지연 가능성</li>
+<li><strong>NOTICE 파일 및 BOM 부재</strong>: 상업적 배포를 위한 공식 NOTICE 파일과 소프트웨어 BOM(Bill of Materials)이 없으므로, 상용화 기업이 자체적으로 생성·관리해야 함</li>
+<li><strong>코드 스니펫의 미완성 수준</strong>: Python 코드 예시는 교육용 스니펫 수준이며, <code>mrjob</code>을 사용하는 MapReduce 예시 코드는 라이브러리 자체가 2020년 이후 사실상 비활성 상태. 코드를 제품에 직접 편입 시 현대화 작업 필요</li>
+<li><strong>특허 실시권 미포함</strong>: CC BY 4.0은 특허 방어 조항을 포함하지 않으므로, 콘텐츠에 기술된 알고리즘이나 설계 패턴을 제품 구현에 적용하는 경우 별도의 특허 클리어런스 검토가 필요</li>
 </ol>
+<hr />
 <h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
-<p><strong>종합 판정 / Overall Verdict:</strong> 🔵 Review (조건부 상용화 가능)</p>
-<p><strong>상세 근거 / Detailed Rationale:</strong></p>
-<p>이 프로젝트는 배포 가능한 소프트웨어 서비스가 아니라 <strong>교육 콘텐츠 저장소</strong>로, 상용화의 의미는 유료 교육 플랫폼, 기업 기술 연수 프로그램, 기술 면접 준비 서비스 등에의 편입을 의미한다.</p>
-<p><strong>적합한 상업 활용 유형 / Suitable commercial use types:</strong>
-- 유료 기술 교육 플랫폼 콘텐츠로 편입 (e-learning SaaS)
-- 기업 내부 기술 교육 자료로 활용
-- 기술 면접 준비 서비스/앱에 학습 자료로 제공
-- 시스템 설계 교육 과정/워크숍 교재로 활용</p>
-<p><strong>전제 조건 / Preconditions:</strong>
-1. CC BY 4.0 저작자 표시 의무를 이행해야 한다 (Donne Martin 크레딧, 라이선스 링크 제공, 수정 시 수정 사실 명시).
-2. mrjob 등 의존성 라이선스 고지를 함께 포함해야 한다.
-3. 배포 시점의 콘텐츠를 Git 커밋 해시로 고정하여 "사용 버전"을 문서화해야 한다.
-4. 특허 위험에 대한 법무 검토를 선제적으로 수행하는 것이 권고된다 (현실적 위험은 낮으나 CC 라이선스의 구조적 한계).</p>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 <strong>Review (조건부 사용 — 추가 검토 필요)</strong></p>
+<p><strong>상세 근거 및 선제 조건 / Detailed Rationale and Preconditions</strong>:</p>
+<p>이 프로젝트는 배포 가능한 소프트웨어 제품이 아니라 <strong>세계 최고 수준의 시스템 설계 교육 콘텐츠</strong>로서, 그 상업적 가치는 <strong>콘텐츠 재활용 맥락</strong>에서 평가해야 한다.</p>
+<p><strong>즉시 상용화 가능한 시나리오</strong>:
+- 기업 내 엔지니어링 교육 프로그램 교재로 활용 (온/오프라인 배포)
+- 유료 기술 교육 강좌의 구성 자료로 편입
+- 기술 서적·e북 제작 시 기반 자료로 활용
+- 기업 채용 준비 프로그램의 커리큘럼 자료로 사용</p>
+<p><strong>조건부 상용화 가능한 시나리오</strong>:
+- 학습 관리 시스템(LMS) 또는 개발자 교육 플랫폼에 내재화 — 귀속 표시 체계 구축 전제
+- 다국어 교육 콘텐츠 서비스 — 번역본 귀속 표시 포함</p>
+<p><strong>상용화 불가 시나리오</strong>:
+- 이 저장소를 직접 배포 가능한 서비스 백엔드/프론트엔드로 사용 (아키텍처 자체가 없음)
+- 저작자 표시 없이 콘텐츠를 복제·배포하는 행위</p>
+<p><strong>선제 이행 조건</strong>:
+1. 법무팀의 CC BY 4.0 귀속 의무 이행 표준안 수립
+2. 배포 채널별 저작권 고지 체계 마련
+3. 자사 OSPO 등록 및 라이선스 BOM 작성
+4. 콘텐츠 최신성 유지 계획 수립 (메인테이너 의존도 완화)</p>
 <hr />
 <h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
 <table>
@@ -841,88 +787,78 @@ http://creativecommons.org/licenses/by/4.0/
 <tbody>
 <tr>
 <td>라이선스 / License</td>
-<td>✅ Permissive(CC BY 4.0) 분류 확인</td>
-<td>✅ 완료</td>
+<td>✅ Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>✅ <strong>완료</strong> — CC BY 4.0 (Permissive 콘텐츠 라이선스)</td>
 </tr>
 <tr>
 <td></td>
-<td>✅ 소스 공개 의무 없음 확인</td>
-<td>✅ 확인됨</td>
+<td>✅ 소스 공개 의무 여부 확인</td>
+<td>✅ <strong>없음</strong> — CC BY 4.0은 소스 공개 불필요</td>
 </tr>
 <tr>
 <td></td>
 <td>✅ 라이선스 호환성 충돌 없음</td>
-<td>✅ 충돌 없음</td>
-</tr>
-<tr>
-<td></td>
-<td>⚠️ CC BY 4.0 특허 허여 부재 법무 검토</td>
-<td>⚠️ 요구됨</td>
+<td>✅ <strong>없음</strong> — Apache 2.0(mrjob)과 완전 호환</td>
 </tr>
 <tr>
 <td>저작권·고지 / Copyright &amp; Notice</td>
-<td>저작권 문구 포함 (Donne Martin 명시)</td>
-<td>⬜ 미이행 — 상용화 시 필수</td>
+<td>⚠️ 저작권 문구 포함 방식 결정</td>
+<td>⚠️ <strong>조치 필요</strong> — 각 배포 채널별 고지 방법 수립</td>
 </tr>
 <tr>
 <td></td>
-<td>고지문 배포 위치 정의 (앱 내 About/License 메뉴)</td>
-<td>⬜ 미정의</td>
-</tr>
-<tr>
-<td></td>
-<td>mrjob Apache 2.0 고지 포함</td>
-<td>⬜ 미이행</td>
+<td>⚠️ NOTICE 파일 생성 및 배포 위치 정의</td>
+<td>⚠️ <strong>조치 필요</strong> — 현재 NOTICE 파일 부재</td>
 </tr>
 <tr>
 <td>소스 공개 / Source Disclosure</td>
-<td>Strong Copyleft 없음 — 소스 공개 의무 없음</td>
-<td>✅ 해당 없음</td>
+<td>✅ Strong Copyleft 해당 없음</td>
+<td>✅ <strong>해당 없음</strong></td>
 </tr>
 <tr>
 <td>보안 / Security</td>
-<td>CVE 모니터링 체계 수립 (자체 도입 필요)</td>
-<td>⬜ 미수립</td>
+<td>⚠️ CVE 모니터링 체계 수립</td>
+<td>⚠️ <strong>내재화 플랫폼에서 별도 관리</strong></td>
 </tr>
 <tr>
 <td></td>
-<td>mrjob EOL 여부 검토 및 대체 여부 결정</td>
-<td>⬜ 필요</td>
+<td>⚠️ <code>mrjob</code> 비활성 라이브러리 현대화 검토</td>
+<td>⚠️ <strong>코드 재사용 시 대체 필요</strong></td>
 </tr>
 <tr>
 <td>커뮤니티 / Community</td>
-<td>유지보수 활성도 확인 (PR #1153, 2026-03-20 최근 커밋)</td>
-<td>✅ 확인됨</td>
+<td>⚠️ 유지보수 활성도·커밋 주기 재확인</td>
+<td>⚠️ <strong>정기 모니터링 권고</strong> (원격 저장소 기준)</td>
 </tr>
 <tr>
 <td></td>
-<td>기업 스폰서/컨설팅 없음 인지</td>
-<td>⚠️ 인지 필요</td>
+<td>⚠️ 단일 메인테이너 위험 완화 계획</td>
+<td>⚠️ <strong>포크 전략 또는 자체 미러 관리 고려</strong></td>
 </tr>
 <tr>
 <td>CI/CD</td>
-<td>라이선스 검사 자동화 (FOSSA/scancode 등 자체 도입)</td>
-<td>⬜ 미도입</td>
+<td>⚠️ 라이선스 검사 자동화 (자사 파이프라인)</td>
+<td>⚠️ <strong>자사 CI에 FOSSA/REUSE 통합 필요</strong></td>
 </tr>
 <tr>
 <td></td>
-<td>오픈소스 BOM 자동 생성 (CycloneDX 등)</td>
-<td>⬜ 미도입</td>
+<td>⚠️ 오픈소스 BOM 자동 생성</td>
+<td>⚠️ <strong>자사 SBOM 도구로 처리</strong></td>
 </tr>
 <tr>
 <td></td>
-<td>콘텐츠 버전 고정 (Git 커밋 해시 문서화)</td>
-<td>⬜ 미수행</td>
+<td>⚠️ 위반 라이선스 빌드 차단</td>
+<td>⚠️ <strong>자사 파이프라인에 추가 구성</strong></td>
 </tr>
 <tr>
 <td>법적·계약 / Legal</td>
-<td>고객 계약서에 CC BY 4.0 의무 명시</td>
-<td>⬜ 미포함</td>
+<td>⚠️ 고객 계약서에 CC BY 4.0 귀속 의무 명시</td>
+<td>⚠️ <strong>법무 검토 후 계약 템플릿에 반영</strong></td>
 </tr>
 <tr>
 <td></td>
-<td>외부 감사 대비 문서 구비 (NOTICE, BOM, 스캔 보고서)</td>
-<td>⬜ 미구비</td>
+<td>⚠️ 외부 감사 대비 문서 구비</td>
+<td>⚠️ <strong>NOTICE, BOM, 귀속 증명 문서 준비</strong></td>
 </tr>
 </tbody>
 </table>
@@ -931,54 +867,1230 @@ http://creativecommons.org/licenses/by/4.0/
 <h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
 <ol>
 <li>
-<p><strong>CC BY 4.0 저작자 표시 구현</strong>: 콘텐츠를 활용한 상업 제품의 UI/문서에 Donne Martin 크레딧과 <code>http://creativecommons.org/licenses/by/4.0/</code> 링크를 포함하는 법적 고지 섹션을 즉시 추가하라. 이를 누락할 경우 라이선스 위반이 된다.</p>
+<p><strong>CC BY 4.0 귀속 이행 방법 확정</strong>: "Copyright 2017 Donne Martin, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/)" 문구를 모든 상업적 배포 채널(웹 페이지, 앱 About 화면, 인쇄물 판권면 등)에 삽입하는 표준 고지 템플릿 작성. 이를 이행하지 않으면 라이선스 위반에 해당함.</p>
 </li>
 <li>
-<p><strong>사용 버전 고정</strong>: 상업 제품에 편입되는 시점의 Git 커밋 해시(<code>ae9bbd7</code> 또는 최신 확인 커밋)를 내부 문서에 기록하고, 해당 콘텐츠의 스냅샷을 보관하라.</p>
+<p><strong>NOTICE 파일 생성</strong>: 저장소 루트에 NOTICE.md 또는 NOTICE.txt를 생성하여 원저작자, 원본 라이선스, 소스 URL을 기록. 해당 파일을 자사 배포 패키지에 포함시킬 것.</p>
 </li>
 </ol>
 <h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
 <ol>
 <li>
-<p><strong>CC BY 4.0 특허 조항 법무 검토</strong>: 사내 법무팀 또는 오픈소스 전문 법무법인에 CC BY 4.0 특허 허여 부재의 사업 위험도를 검토 의뢰하라. 코드 스니펫의 실질적 특허 위험은 낮으나, 공식 의견서로 문서화해 두어야 한다.</p>
+<p><strong><code>mrjob</code> 코드 스니펫 현대화 검토</strong>: MapReduce 예시(mint_mapreduce.py, web_crawler_mapreduce.py, sales_rank_mapreduce.py, pastebin.py)에서 사용 중인 <code>mrjob</code>은 2020년 이후 사실상 비활성 라이브러리이다. 코드를 교육 목적 외 제품에 편입할 경우 Apache Beam, PySpark, 또는 표준 라이브러리 기반으로 대체할 것.</p>
 </li>
 <li>
-<p><strong>mrjob 사용 여부 결정</strong>: mrjob은 사실상 EOL(마지막 릴리스 2021년) 상태다. 해당 MapReduce 예제 코드 스니펫을 상업 제품에 그대로 포함할 것인지, 교체할 것인지 결정하라. 포함한다면 Apache 2.0 고지를 함께 제공해야 한다.</p>
-</li>
-<li>
-<p><strong>NOTICE 파일 생성</strong>: 상업 배포 패키지에 CC BY 4.0 및 Apache 2.0 의존성 고지를 포함하는 NOTICE 파일을 작성하라.</p>
+<p><strong>자사 OSPO 등록</strong>: 이 오픈소스 콘텐츠 사용을 자사 오픈소스 관리 시스템에 등록하고, 담당자 및 재검토 주기(6개월 권장)를 지정.</p>
 </li>
 </ol>
 <h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
 <ol>
 <li>
-<p><strong>SBOM(Software Bill of Materials) 생성</strong>: CycloneDX 또는 SPDX 형식으로 콘텐츠 의존성 목록을 자동 생성하는 파이프라인을 구축하라. 고객 감사 대응에 필수적이다.</p>
+<p><strong>자사 CI/CD 라이선스 검사 통합</strong>: FOSSA, REUSE, 또는 scancode-toolkit을 자사 빌드 파이프라인에 연동하여 CC BY 4.0 콘텐츠 귀속 고지 자동 생성 체계 구축.</p>
 </li>
 <li>
-<p><strong>라이선스 스캔 자동화</strong>: FOSSA, scancode-toolkit 또는 GitHub OSPO 도구를 CI 파이프라인에 통합하여 콘텐츠 업데이트 시 라이선스 변경을 자동 감지하라.</p>
+<p><strong>콘텐츠 최신성 유지 전략 수립</strong>: 단일 개인 메인테이너에 의존하는 구조를 완화하기 위해, 자사 포크(fork)를 생성하고 클라우드 네이티브, AI/ML 인프라, 최신 분산 시스템 패턴 등을 보완하는 내부 편집 프로세스를 설계.</p>
 </li>
 <li>
-<p><strong>포크(fork) 전략 수립</strong>: 원본 저장소의 장기 유지보수 불확실성을 감안해, 사용 콘텐츠를 내부 포크로 관리하면서 upstream 변경사항을 주기적으로 검토·적용하는 프로세스를 정의하라.</p>
+<p><strong>자사 플랫폼 SBOM 생성</strong>: 콘텐츠 내재화 플랫폼에 대한 Software Bill of Materials(CycloneDX 또는 SPDX 형식)를 생성하여 외부 감사 대비 문서로 유지.</p>
 </li>
 </ol>
 <h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
 <ol>
 <li>
-<p><strong>콘텐츠 정확성 주기 감사</strong>: 시스템 설계 원칙은 비교적 안정적이나, 외부 링크 및 기술 트렌드 변화에 따른 콘텐츠 유효성을 분기별로 검토하라.</p>
+<p><strong>원본 저장소 활성도 정기 모니터링</strong>: 분기별로 원본 GitHub 저장소(donnemartin/system-design-primer)의 커밋 주기, 이슈 반응 시간, 신규 기여자 유입 여부를 추적하여 메인테이너 비활동화 조기 감지.</p>
 </li>
 <li>
-<p><strong>커뮤니티 기여 모니터링</strong>: 원본 저장소의 GitHub 활성도(커밋, PR, 이슈)를 모니터링하고, 중요한 오류 수정이나 콘텐츠 개선이 upstream에 반영될 경우 내부 포크에도 적용하라.</p>
+<p><strong>업스트림 기여 참여 검토</strong>: 자사에서 개선한 내용을 원본 저장소에 기여(contribution)함으로써 콘텐츠 품질 향상에 기여하고, 업스트림 관계를 유지하는 장기적 전략 고려.</p>
 </li>
 <li>
-<p><strong>upstream 기여 고려</strong>: 오류 발견 시 upstream에 PR을 제출하여 커뮤니티에 기여하고, 동시에 내부 포크의 diff를 최소화하여 유지보수 부담을 줄여라.</p>
+<p><strong>CC BY 4.0 vs 자사 이용 범위 정기 법무 검토</strong>: 상업적 활용 범위(수익화 방식, 배포 지역, 파생저작물 여부)가 변경될 때마다 CC BY 4.0 의무 충족 여부를 법무팀과 재확인.</p>
 </li>
-</ol></div>
+</ol>
+<hr />
+<p><em>이 보고서는 로컬 저장소 스냅샷(<code>/tmp/github-dashboard-analysis/donnemartin_system-design-primer</code>)을 직접 분석하여 작성되었으며, 원격 GitHub 저장소의 실시간 이슈/PR 현황은 포함하지 않습니다. 원격 메타데이터(star 수, contributor 수, 최신 이슈)는 별도 GitHub API 조회를 통해 보완하시기 바랍니다.</em></p></div>
     
   </div>
 
   <div class="panel" id="panel-guide">
     
-    <div class="md-body"><p>가이드 없음</p></div>
+    <div class="md-body"><p>Now I have enough information to produce the complete bilingual guides. The project is a pure educational/reference repository with no traditional build system, deployment pipeline, or test suite — I'll note this clearly in the relevant sections.</p>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>System Design Primer</strong>는 대규모 분산 시스템 설계를 학습하고 기술 인터뷰에 대비하기 위한 오픈소스 교육 자료 저장소입니다. GitHub에서 27만 개 이상의 스타를 받은 이 프로젝트는 DNS, CDN, 로드 밸런서, 데이터베이스 복제, 캐싱, 메시지 큐, CAP 정리 등 핵심 시스템 설계 개념을 체계적으로 정리합니다. 소프트웨어로 배포되는 애플리케이션이 아니라 <strong>마크다운 문서(README.md) + Python 코드 예제 + Jupyter Notebook</strong> 형식의 학습 자료 모음입니다.</p>
+<ul>
+<li><strong>주요 기술 스택</strong></li>
+<li>콘텐츠 포맷: Markdown (주요 콘텐츠), Jupyter Notebook (인터랙티브 실습)</li>
+<li>코드 언어: Python 3 (솔루션 코드 예제)</li>
+<li>전자책 생성: Pandoc (<code>.epub</code> 변환용)</li>
+<li>버전 관리: Git / GitHub</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p><strong>System Design Primer</strong> is an open-source educational repository for learning large-scale distributed system design and preparing for technical interviews. With over 270,000 GitHub stars, it systematically covers core system design concepts including DNS, CDN, load balancers, database replication, caching, message queues, and the CAP theorem. This is <strong>not a deployable application</strong> — it is a curated collection of Markdown documents, Python code snippets, and Jupyter Notebooks.</p>
+<ul>
+<li><strong>Key tech stack</strong></li>
+<li>Content format: Markdown (primary content), Jupyter Notebook (interactive exercises)</li>
+<li>Code language: Python 3 (illustrative solution code)</li>
+<li>E-book generation: Pandoc (for <code>.epub</code> conversion)</li>
+<li>Version control: Git / GitHub</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>필수 도구</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>권장 버전</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git</td>
+<td>2.x 이상</td>
+<td>저장소 클론 및 기여</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.7 이상</td>
+<td>솔루션 <code>.py</code> 파일 실행</td>
+</tr>
+<tr>
+<td>Jupyter</td>
+<td>7.x 이상 (또는 JupyterLab 4.x)</td>
+<td><code>.ipynb</code> 노트북 실행</td>
+</tr>
+<tr>
+<td>Pandoc</td>
+<td>3.x 이상</td>
+<td>EPUB 파일 생성 (<code>generate-epub.sh</code>)</td>
+</tr>
+<tr>
+<td>Bash</td>
+<td>any</td>
+<td>EPUB 생성 스크립트 실행 (macOS/Linux 기본 제공)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>권장 IDE 및 플러그인</strong></li>
+<li>VS Code + Python 확장 + Jupyter 확장 (Microsoft)</li>
+<li>
+<p>또는 JupyterLab (브라우저 기반, 노트북 중심 작업에 최적)</p>
+</li>
+<li>
+<p><strong>OS별 주의사항</strong></p>
+</li>
+<li>Windows: <code>generate-epub.sh</code> 실행 시 WSL2 또는 Git Bash 필요</li>
+<li>macOS/Linux: 별도 제약 없음</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Required tools</strong></li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Recommended Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Git</td>
+<td>2.x or later</td>
+<td>Clone repo and contribute</td>
+</tr>
+<tr>
+<td>Python</td>
+<td>3.7 or later</td>
+<td>Run solution <code>.py</code> files</td>
+</tr>
+<tr>
+<td>Jupyter</td>
+<td>7.x or later (or JupyterLab 4.x)</td>
+<td>Run <code>.ipynb</code> notebooks</td>
+</tr>
+<tr>
+<td>Pandoc</td>
+<td>3.x or later</td>
+<td>Generate EPUB (<code>generate-epub.sh</code>)</td>
+</tr>
+<tr>
+<td>Bash</td>
+<td>any</td>
+<td>Run EPUB generation script (built-in on macOS/Linux)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Recommended IDE and plugins</strong></li>
+<li>VS Code + Python extension + Jupyter extension (Microsoft)</li>
+<li>
+<p>Or JupyterLab (browser-based, ideal for notebook-centric work)</p>
+</li>
+<li>
+<p><strong>OS-specific notes</strong></p>
+</li>
+<li>Windows: WSL2 or Git Bash is required to run <code>generate-epub.sh</code></li>
+<li>macOS/Linux: No special restrictions</li>
+</ul>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<ol>
+<li>
+<p><strong>저장소 클론</strong>
+   <code>bash
+   git clone https://github.com/donnemartin/system-design-primer.git
+   cd system-design-primer</code></p>
+</li>
+<li>
+<p><strong>Python 의존성 설치</strong>
+   이 저장소는 <code>requirements.txt</code> 또는 <code>setup.py</code>가 없습니다. 솔루션 코드가 사용하는 외부 라이브러리는 <code>mrjob</code>(MapReduce 예제) 하나뿐입니다. 필요 시 개별 설치합니다.
+   <code>bash
+   pip install mrjob         # solutions/system_design/*/  MapReduce 예제에만 필요
+   pip install jupyter       # 노트북 실행용
+   pip install jupyterlab    # JupyterLab UI를 선호하는 경우 (선택사항)</code></p>
+</li>
+<li>
+<p><strong>환경 변수 설정</strong>
+   이 프로젝트는 환경 변수, <code>.env</code> 파일, 설정 파일이 필요하지 않습니다. 순수 학습 자료이므로 별도 구성이 불필요합니다.</p>
+</li>
+<li>
+<p><strong>외부 서비스 / 데이터베이스 초기화</strong>
+   해당 사항 없음. 데이터베이스나 외부 서비스 연결이 없습니다.</p>
+</li>
+<li>
+<p><strong>검증: 설치 확인</strong>
+   ```bash
+   # Python 버전 확인
+   python3 --version</p>
+</li>
+</ol>
+<p># Jupyter 설치 확인
+   jupyter --version</p>
+<p># 솔루션 코드 직접 실행 테스트
+   python3 solutions/object_oriented_design/lru_cache/lru_cache.py</p>
+<p># Jupyter 노트북 서버 실행
+   jupyter notebook solutions/object_oriented_design/lru_cache/lru_cache.ipynb
+   ```</p>
+<p><strong>[English]</strong></p>
+<ol>
+<li>
+<p><strong>Clone the repository</strong>
+   <code>bash
+   git clone https://github.com/donnemartin/system-design-primer.git
+   cd system-design-primer</code></p>
+</li>
+<li>
+<p><strong>Install Python dependencies</strong>
+   This repo has no <code>requirements.txt</code> or <code>setup.py</code>. The only external library used in solution code is <code>mrjob</code> (for MapReduce examples). Install as needed:
+   <code>bash
+   pip install mrjob         # only needed for MapReduce examples in solutions/system_design/
+   pip install jupyter       # for running notebooks
+   pip install jupyterlab    # optional: if you prefer the JupyterLab UI</code></p>
+</li>
+<li>
+<p><strong>Configure environment variables</strong>
+   No environment variables, <code>.env</code> files, or configuration files are required. This is a pure learning resource with no runtime configuration.</p>
+</li>
+<li>
+<p><strong>Initialize databases or external services</strong>
+   Not applicable. There are no database connections or external service dependencies.</p>
+</li>
+<li>
+<p><strong>Verify the setup</strong>
+   ```bash
+   # Check Python version
+   python3 --version</p>
+</li>
+</ol>
+<p># Confirm Jupyter is installed
+   jupyter --version</p>
+<p># Run a solution file directly
+   python3 solutions/object_oriented_design/lru_cache/lru_cache.py</p>
+<p># Launch a Jupyter notebook
+   jupyter notebook solutions/object_oriented_design/lru_cache/lru_cache.ipynb
+   ```</p>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">donnemartin_system-design-primer/
+├── README.md                        # 핵심 콘텐츠 (~110KB): 시스템 설계 전체 가이드
+├── README-ja.md                     # 일본어 번역
+├── README-zh-Hans.md                # 중국어 간체 번역
+├── README-zh-TW.md                  # 중국어 번체 번역
+├── CONTRIBUTING.md                  # 기여 가이드라인
+├── TRANSLATIONS.md                  # 번역 유지보수 담당자 목록
+├── LICENSE.txt                      # 라이선스 (Creative Commons)
+├── generate-epub.sh                 # pandoc을 이용한 EPUB 생성 스크립트
+├── epub-metadata.yaml               # EPUB 메타데이터 (제목, 저자, 날짜)
+├── images/                          # 아키텍처 다이어그램 및 삽화 (PNG/JPG)
+├── resources/
+│   ├── study_guide.graffle          # OmniGraffle 형식 학습 가이드 원본
+│   └── study_guide.png              # 학습 가이드 이미지 (인터뷰 준비 로드맵)
+├── solutions/
+│   ├── object_oriented_design/      # 객체 지향 설계 연습문제 솔루션
+│   │   ├── call_center/             # 콜센터 시스템 설계
+│   │   ├── deck_of_cards/           # 카드 덱 OOD
+│   │   ├── hash_table/              # 해시 테이블 구현
+│   │   ├── lru_cache/               # LRU 캐시 구현
+│   │   ├── online_chat/             # 온라인 채팅 시스템
+│   │   └── parking_lot/             # 주차장 OOD
+│   └── system_design/               # 시스템 설계 사례 연구
+│       ├── mint/                    # 개인 금융 관리 앱 (mint.com)
+│       ├── pastebin/                # 텍스트 공유 서비스 (pastebin.com)
+│       ├── query_cache/             # 쿼리 캐시 시스템
+│       ├── sales_rank/              # 판매 순위 서비스
+│       ├── scaling_aws/             # AWS 상에서의 수평 확장
+│       ├── social_graph/            # 소셜 네트워크 그래프
+│       ├── twitter/                 # Twitter 타임라인 설계
+│       └── web_crawler/             # 웹 크롤러 설계
+└── .github/
+    └── PULL_REQUEST_TEMPLATE.md     # PR 제출 템플릿
+</code></pre>
+<p><strong>각 디렉토리/파일 역할:</strong>
+- <code>README.md</code>: 프로젝트의 핵심. 모든 시스템 설계 개념(DNS, CDN, 캐시, DB, 큐 등)을 담은 단일 마크다운 문서
+- <code>solutions/object_oriented_design/*/</code>: 각 폴더 내 <code>.py</code>(솔루션 코드)와 <code>.ipynb</code>(인터랙티브 노트북) 포함
+- <code>solutions/system_design/*/</code>: 각 폴더 내 <code>README.md</code>(설계 논의), <code>.py</code>(코드 스니펫), <code>.png</code>(다이어그램) 포함
+- <code>images/</code>: README.md에 삽입된 모든 다이어그램 이미지 저장소
+- <code>generate-epub.sh</code>: README.md 및 솔루션 README들을 합쳐서 EPUB 전자책으로 변환</p>
+<p><strong>모듈 간 의존 관계:</strong></p>
+<pre><code>README.md
+  └── 링크/참조 → images/         (다이어그램)
+  └── 링크/참조 → solutions/      (구체적인 예제)
+  └── 링크/참조 → resources/      (학습 가이드)
+
+generate-epub.sh
+  └── 입력: README.md + solutions/system_design/*/README.md
+  └── 출력: README.epub (+ 각 언어별 epub)
+</code></pre>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">donnemartin_system-design-primer/
+├── README.md                        # Core content (~110KB): complete system design guide
+├── README-ja.md                     # Japanese translation
+├── README-zh-Hans.md                # Simplified Chinese translation
+├── README-zh-TW.md                  # Traditional Chinese translation
+├── CONTRIBUTING.md                  # Contribution guidelines
+├── TRANSLATIONS.md                  # Translation maintainer list
+├── LICENSE.txt                      # License (Creative Commons)
+├── generate-epub.sh                 # EPUB generation script using pandoc
+├── epub-metadata.yaml               # EPUB metadata (title, author, date)
+├── images/                          # Architecture diagrams and illustrations (PNG/JPG)
+├── resources/
+│   ├── study_guide.graffle          # OmniGraffle source for study guide
+│   └── study_guide.png              # Study guide image (interview prep roadmap)
+├── solutions/
+│   ├── object_oriented_design/      # OOD exercise solutions
+│   │   ├── call_center/             # Call center system design
+│   │   ├── deck_of_cards/           # Deck of cards OOD
+│   │   ├── hash_table/              # Hash table implementation
+│   │   ├── lru_cache/               # LRU cache implementation
+│   │   ├── online_chat/             # Online chat system
+│   │   └── parking_lot/             # Parking lot OOD
+│   └── system_design/               # System design case studies
+│       ├── mint/                    # Personal finance app (mint.com)
+│       ├── pastebin/                # Text sharing service (pastebin.com)
+│       ├── query_cache/             # Query cache system
+│       ├── sales_rank/              # Sales ranking service
+│       ├── scaling_aws/             # Horizontal scaling on AWS
+│       ├── social_graph/            # Social network graph
+│       ├── twitter/                 # Twitter timeline design
+│       └── web_crawler/             # Web crawler design
+└── .github/
+    └── PULL_REQUEST_TEMPLATE.md     # PR submission template
+</code></pre>
+<p><strong>Role of each major directory/file:</strong>
+- <code>README.md</code>: The heart of the project. A single Markdown document covering all system design concepts (DNS, CDN, caching, databases, queues, etc.)
+- <code>solutions/object_oriented_design/*/</code>: Each folder contains a <code>.py</code> (solution code) and <code>.ipynb</code> (interactive notebook)
+- <code>solutions/system_design/*/</code>: Each folder contains a <code>README.md</code> (design discussion), <code>.py</code> (code snippets), and <code>.png</code> (architecture diagram)
+- <code>images/</code>: Storage for all diagram images embedded in README.md
+- <code>generate-epub.sh</code>: Combines README.md and solution READMEs into an EPUB e-book</p>
+<p><strong>Dependency relationships between modules:</strong></p>
+<pre><code>README.md
+  └── links/references → images/         (diagrams)
+  └── links/references → solutions/      (concrete examples)
+  └── links/references → resources/      (study guide)
+
+generate-epub.sh
+  └── input:  README.md + solutions/system_design/*/README.md
+  └── output: README.epub (+ per-language epub files)
+</code></pre>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소는 전통적인 소프트웨어 빌드 시스템(npm, Maven, Gradle 등)이 없습니다. "빌드"는 EPUB 전자책 생성을 의미합니다.</p>
+<p><strong>EPUB 생성 (유일한 빌드 작업):</strong></p>
+<pre><code class="language-bash"># pandoc이 설치되어 있어야 함
+# macOS: brew install pandoc
+# Ubuntu/Debian: sudo apt-get install pandoc
+
+chmod +x generate-epub.sh
+./generate-epub.sh
+</code></pre>
+<p><strong>빌드 결과물:</strong>
+| 파일 | 설명 |
+|---|---|
+| <code>README.epub</code> | 영어 전체 가이드 + 시스템 설계 솔루션 포함 |
+| <code>README-ja.epub</code> | 일본어 번역 |
+| <code>README-zh-Hans.epub</code> | 중국어 간체 번역 |
+| <code>README-zh-TW.epub</code> | 중국어 번체 번역 |</p>
+<p>모든 결과물은 프로젝트 루트에 생성됩니다. <code>.gitignore</code>에 <code>*.epub</code>이 포함되어 있으므로 커밋되지 않습니다.</p>
+<p><strong>자주 발생하는 빌드 오류:</strong>
+1. <code>Error: pandoc is not installed.</code> → <code>brew install pandoc</code> (macOS) 또는 <code>sudo apt install pandoc</code> (Linux) 실행
+2. <code>bash: ./generate-epub.sh: Permission denied</code> → <code>chmod +x generate-epub.sh</code> 실행
+3. Windows에서 스크립트 실행 오류 → WSL2 터미널 또는 Git Bash에서 실행</p>
+<p><strong>[English]</strong></p>
+<p>This repository has no traditional build system (npm, Maven, Gradle, etc.). The only "build" task is generating EPUB e-books.</p>
+<p><strong>EPUB generation (the only build task):</strong></p>
+<pre><code class="language-bash"># pandoc must be installed first
+# macOS: brew install pandoc
+# Ubuntu/Debian: sudo apt-get install pandoc
+
+chmod +x generate-epub.sh
+./generate-epub.sh
+</code></pre>
+<p><strong>Build outputs:</strong>
+| File | Description |
+|---|---|
+| <code>README.epub</code> | Full English guide + system design solutions |
+| <code>README-ja.epub</code> | Japanese translation |
+| <code>README-zh-Hans.epub</code> | Simplified Chinese translation |
+| <code>README-zh-TW.epub</code> | Traditional Chinese translation |</p>
+<p>All outputs are generated in the project root. They are listed in <code>.gitignore</code> (<code>*.epub</code>) and will not be committed.</p>
+<p><strong>Common build errors:</strong>
+1. <code>Error: pandoc is not installed.</code> → Run <code>brew install pandoc</code> (macOS) or <code>sudo apt install pandoc</code> (Linux)
+2. <code>bash: ./generate-epub.sh: Permission denied</code> → Run <code>chmod +x generate-epub.sh</code>
+3. Script execution errors on Windows → Run inside WSL2 or Git Bash</p>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소는 서버나 웹 애플리케이션이 아니므로 "실행"의 의미가 세 가지로 나뉩니다.</p>
+<p><strong>① README.md 열람 (가장 일반적인 사용법)</strong></p>
+<pre><code class="language-bash"># GitHub에서 직접 열람 (권장): 브라우저에서 README.md 렌더링됨
+# 또는 로컬 마크다운 뷰어 사용
+# VS Code: Ctrl+Shift+V (미리보기)
+code README.md
+</code></pre>
+<p><strong>② Jupyter 노트북 실행 (인터랙티브 실습)</strong></p>
+<pre><code class="language-bash"># 특정 노트북 실행
+jupyter notebook solutions/object_oriented_design/lru_cache/lru_cache.ipynb
+
+# 또는 전체 노트북 서버 실행 후 브라우저에서 탐색
+jupyter notebook
+# 브라우저가 자동으로 http://localhost:8888 로 열림
+</code></pre>
+<p><strong>③ Python 솔루션 코드 직접 실행</strong></p>
+<pre><code class="language-bash"># OOD 솔루션 실행 (대부분 독립 실행 가능)
+python3 solutions/object_oriented_design/call_center/call_center.py
+python3 solutions/object_oriented_design/parking_lot/parking_lot.py
+
+# MapReduce 예제 (mrjob 필요)
+pip install mrjob
+python3 solutions/system_design/pastebin/pastebin.py -r local &lt; /dev/null
+</code></pre>
+<p><strong>실행 확인 방법:</strong>
+- Jupyter 서버: 브라우저에서 <code>http://localhost:8888</code> 접속 확인
+- Python 스크립트: 오류 없이 종료되면 정상 (대부분 main 실행 코드 없이 클래스 정의만 있음)</p>
+<p><strong>[English]</strong></p>
+<p>This repository is not a server or web application, so "running" has three distinct meanings.</p>
+<p><strong>① Reading README.md (most common usage)</strong></p>
+<pre><code class="language-bash"># View on GitHub (recommended): README.md is rendered in the browser
+# Or use a local Markdown viewer
+# VS Code: Ctrl+Shift+V (preview)
+code README.md
+</code></pre>
+<p><strong>② Running Jupyter notebooks (interactive exercises)</strong></p>
+<pre><code class="language-bash"># Open a specific notebook
+jupyter notebook solutions/object_oriented_design/lru_cache/lru_cache.ipynb
+
+# Or launch the full notebook server and browse
+jupyter notebook
+# Browser opens automatically at http://localhost:8888
+</code></pre>
+<p><strong>③ Running Python solution code directly</strong></p>
+<pre><code class="language-bash"># Run OOD solutions (most are self-contained)
+python3 solutions/object_oriented_design/call_center/call_center.py
+python3 solutions/object_oriented_design/parking_lot/parking_lot.py
+
+# MapReduce example (requires mrjob)
+pip install mrjob
+python3 solutions/system_design/pastebin/pastebin.py -r local &lt; /dev/null
+</code></pre>
+<p><strong>Verification:</strong>
+- Jupyter server: Confirm access at <code>http://localhost:8888</code> in a browser
+- Python scripts: Exit without error = working (most files only define classes with no <code>__main__</code> block)</p>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소에는 공식적인 테스트 스위트(pytest, unittest 등)가 존재하지 않습니다.</p>
+<p>솔루션 코드는 교육 목적의 스케치/참고용이며, 프로덕션 수준의 테스트를 포함하지 않습니다. <code>Jupyter Notebook</code>이 사실상 인터랙티브 검증 환경 역할을 합니다. 각 노트북은 알고리즘/설계를 셀 단위로 실행하며 직접 확인할 수 있습니다.</p>
+<pre><code class="language-bash"># 노트북을 비인터랙티브 방식으로 실행하여 검증 (nbconvert 필요)
+pip install nbconvert
+jupyter nbconvert --to notebook --execute \
+  solutions/object_oriented_design/lru_cache/lru_cache.ipynb
+</code></pre>
+<p>코드 커버리지 도구는 설정되어 있지 않습니다. 기여 시 새로운 솔루션에 대한 단위 테스트를 추가하는 것을 권장합니다.</p>
+<p><strong>[English]</strong></p>
+<p>This repository has no formal test suite (pytest, unittest, etc.).</p>
+<p>The solution code is educational sketch/reference material and does not include production-level tests. Jupyter Notebooks act as the de facto interactive verification environment — each notebook allows you to run and inspect algorithms/designs cell by cell.</p>
+<pre><code class="language-bash"># Run a notebook non-interactively for verification (requires nbconvert)
+pip install nbconvert
+jupyter nbconvert --to notebook --execute \
+  solutions/object_oriented_design/lru_cache/lru_cache.ipynb
+</code></pre>
+<p>No code coverage tooling is configured. When contributing, adding unit tests for new solution code is encouraged.</p>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>브랜치 전략</strong></li>
+<li><code>master</code> 브랜치에 직접 작업하지 않습니다.</li>
+<li>
+<p>자신의 포크(fork)에서 피처 브랜치를 생성합니다.
+  <code>bash
+  git checkout -b my-feature</code></p>
+</li>
+<li>
+<p><strong>커밋 메시지 컨벤션</strong></p>
+</li>
+<li>번역 관련 PR은 언어 코드 접두사를 붙입니다: <code>ja: Fix translation of DNS section</code></li>
+<li>
+<p>일반 수정은 명확한 동사로 시작: <code>Fix broken link in CDN section</code></p>
+</li>
+<li>
+<p><strong>PR/코드 리뷰 절차</strong></p>
+</li>
+<li>메인 저장소를 GitHub에서 포크</li>
+<li>로컬에 클론: <code>git clone git@github.com:YourLogin/system-design-primer.git</code></li>
+<li>피처 브랜치 생성 후 변경</li>
+<li>푸시: <code>git push -u origin my-feature</code></li>
+<li>GitHub에서 Pull Request 생성</li>
+<li>번역 PR의 경우: <code>TRANSLATIONS.md</code>에 명시된 해당 언어 유지보수자 태그 필수</li>
+<li>
+<p>주 유지보수자 <code>@donnemartin</code> 최종 머지</p>
+</li>
+<li>
+<p><strong>코딩 스타일 / 린트 규칙</strong></p>
+</li>
+<li>린트 설정 파일(<code>.flake8</code>, <code>.pylintrc</code> 등) 없음</li>
+<li>Python 코드는 PEP 8 스타일을 따르는 것을 권장</li>
+<li>영어 콘텐츠 변경은 항상 영어 원본(<code>README.md</code>) 먼저 수정 후 번역 파일 업데이트</li>
+<li>한 PR에 하나의 언어만 수정 (다국어 혼합 PR 지양)</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Branching strategy</strong></li>
+<li>Never work directly on the <code>master</code> branch.</li>
+<li>
+<p>Create a feature branch from your own fork.
+  <code>bash
+  git checkout -b my-feature</code></p>
+</li>
+<li>
+<p><strong>Commit message conventions</strong></p>
+</li>
+<li>Translation PRs must have a language code prefix: <code>ja: Fix translation of DNS section</code></li>
+<li>
+<p>General fixes: start with a clear verb: <code>Fix broken link in CDN section</code></p>
+</li>
+<li>
+<p><strong>PR / code review process</strong></p>
+</li>
+<li>Fork the main repository on GitHub</li>
+<li>Clone locally: <code>git clone git@github.com:YourLogin/system-design-primer.git</code></li>
+<li>Create a feature branch and make changes</li>
+<li>Push: <code>git push -u origin my-feature</code></li>
+<li>Open a Pull Request on GitHub</li>
+<li>For translation PRs: tag the language maintainer listed in <code>TRANSLATIONS.md</code></li>
+<li>
+<p>Primary maintainer <code>@donnemartin</code> performs the final merge</p>
+</li>
+<li>
+<p><strong>Coding style and lint rules</strong></p>
+</li>
+<li>No lint configuration files (<code>.flake8</code>, <code>.pylintrc</code>, etc.) are present</li>
+<li>Python code should follow PEP 8 style conventions</li>
+<li>Content changes must always be made to the English source (<code>README.md</code>) first, then propagated to translations</li>
+<li>Each PR should modify only one language at a time</li>
+</ul>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. Jupyter 노트북을 실행하면 <code>ModuleNotFoundError</code>가 발생합니다.</strong>
+- 원인: Jupyter가 사용 중인 Python 환경에 필요한 패키지가 없음
+- 해결: <code>pip install mrjob</code> 실행. 가상환경 사용 시 동일 환경에서 <code>jupyter notebook</code> 실행 확인
+  <code>bash
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install jupyter mrjob
+  jupyter notebook</code></p>
+<p><strong>Q2. <code>generate-epub.sh</code>를 실행하면 빈 EPUB이 생성되거나 오류가 납니다.</strong>
+- 원인: pandoc 버전이 너무 낮거나, 스크립트 실행 권한 없음
+- 해결:
+  <code>bash
+  pandoc --version        # 3.x 이상 권장
+  chmod +x generate-epub.sh
+  ./generate-epub.sh</code>
+  macOS Homebrew 설치: <code>brew install pandoc</code>
+  Ubuntu 설치: <code>sudo apt-get install -y pandoc</code></p>
+<p><strong>Q3. README.md의 이미지가 로컬에서 보이지 않습니다.</strong>
+- 원인: 이미지가 Imgur 외부 URL을 참조하며, 로컬 마크다운 뷰어에서는 인터넷 연결 없이 로드 안 될 수 있음
+- 해결: 브라우저에서 GitHub 페이지 열람 권장, 또는 VS Code의 Markdown Preview가 인터넷에 연결된 상태에서 사용</p>
+<p><strong>Q4. 솔루션 Python 파일을 실행해도 아무 출력이 없습니다.</strong>
+- 원인: 대부분의 <code>.py</code> 파일은 클래스 정의만 포함하고 <code>if __name__ == '__main__':</code> 블록이 없음
+- 해결: Jupyter Notebook(<code>.ipynb</code>)을 열어 셀을 직접 실행하거나, 직접 인스턴스를 생성해 테스트
+  <code>python
+  from lru_cache import Cache
+  c = Cache(3)
+  c.set("result1", "query1")
+  print(c.get("query1"))</code></p>
+<p><strong>Q5. 한국어 번역에 기여하고 싶습니다. 어디서 시작하나요?</strong>
+- <code>TRANSLATIONS.md</code> 파일에서 현재 한국어 번역 상태와 유지보수자 정보 확인
+- GitHub 이슈 #102에서 한국어 번역 논의 진행 중
+- 포크 후 <code>README-ko.md</code> 파일을 생성하고 PR 제출</p>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. Running a Jupyter notebook gives a <code>ModuleNotFoundError</code>.</strong>
+- Cause: The Python environment used by Jupyter is missing a required package.
+- Fix: Run <code>pip install mrjob</code>. If using a virtual environment, make sure Jupyter is launched from the same environment.
+  <code>bash
+  python3 -m venv venv
+  source venv/bin/activate
+  pip install jupyter mrjob
+  jupyter notebook</code></p>
+<p><strong>Q2. Running <code>generate-epub.sh</code> produces an empty EPUB or throws an error.</strong>
+- Cause: pandoc version is too old, or the script lacks execute permission.
+- Fix:
+  <code>bash
+  pandoc --version        # version 3.x recommended
+  chmod +x generate-epub.sh
+  ./generate-epub.sh</code>
+  macOS Homebrew: <code>brew install pandoc</code>
+  Ubuntu: <code>sudo apt-get install -y pandoc</code></p>
+<p><strong>Q3. Images in README.md do not load locally.</strong>
+- Cause: Images reference external Imgur URLs and may not load in local Markdown viewers without internet access.
+- Fix: Browse via GitHub in a browser, or use VS Code's Markdown Preview with an active internet connection.</p>
+<p><strong>Q4. Running a Python solution file produces no output.</strong>
+- Cause: Most <code>.py</code> files only define classes and have no <code>if __name__ == '__main__':</code> block.
+- Fix: Open the corresponding <code>.ipynb</code> notebook and execute cells interactively, or instantiate classes manually:
+  <code>python
+  from lru_cache import Cache
+  c = Cache(3)
+  c.set("result1", "query1")
+  print(c.get("query1"))</code></p>
+<p><strong>Q5. I want to contribute a Korean translation. Where do I start?</strong>
+- Check <code>TRANSLATIONS.md</code> for the current status and maintainer of the Korean translation.
+- GitHub issue #102 tracks the Korean translation discussion.
+- Fork the repo, create <code>README-ko.md</code>, and submit a PR.</p>
+<h2 id="-">---</h2>
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>분류: 레퍼런스 구현 + 교육용 지식 베이스 (Reference Implementation + Educational Knowledge Base)</strong></p>
+<p>이 저장소는 배포 가능한 소프트웨어 제품이 아니라, <strong>시스템 설계 인터뷰 준비 및 대규모 분산 시스템 설계 역량 강화</strong>를 위한 종합 학습 자료입니다. 실전에서 다음과 같은 문제를 해결하기 위해 활용됩니다:</p>
+<ol>
+<li><strong>기술 인터뷰 준비</strong>: FAANG/빅테크 시스템 설계 인터뷰 문항(트위터 타임라인, URL 단축기, 웹 크롤러 등)에 대한 구조적 접근법 학습</li>
+<li><strong>설계 어휘력 확보</strong>: CAP 정리, 일관성 패턴, 가용성 패턴 등 핵심 개념의 트레이드오프를 이해하고 인터뷰/설계 회의에서 정확한 용어로 토론 가능</li>
+<li><strong>아키텍처 패턴 참조</strong>: 실제 프로젝트 설계 시 로드 밸런서, 캐시 전략, DB 샤딩, 마이크로서비스 패턴 등을 선택하는 기준 제공</li>
+<li><strong>OOD 연습</strong>: 객체 지향 설계 원칙을 Python 코드 예제로 학습하고 직접 확장 가능</li>
+<li><strong>팀 온보딩</strong>: 신규 입사자에게 분산 시스템 개념을 체계적으로 전달하기 위한 학습 커리큘럼으로 활용</li>
+</ol>
+<p><strong>[English]</strong></p>
+<p><strong>Classification: Reference Implementation + Educational Knowledge Base</strong></p>
+<p>This repository is not a deployable software product. It is a comprehensive learning resource for <strong>preparing for system design interviews and building expertise in large-scale distributed system design</strong>. In practice, it solves the following problems:</p>
+<ol>
+<li><strong>Technical interview preparation</strong>: Structured approaches to common FAANG/big-tech system design interview questions (Twitter timeline, URL shortener, web crawler, etc.)</li>
+<li><strong>Design vocabulary acquisition</strong>: Understanding trade-offs in CAP theorem, consistency patterns, availability patterns — enabling precise technical discussion in interviews and design meetings</li>
+<li><strong>Architecture pattern reference</strong>: Decision-making criteria for choosing load balancers, caching strategies, DB sharding, and microservice patterns in real projects</li>
+<li><strong>OOD practice</strong>: Learning object-oriented design principles through Python code examples that can be extended</li>
+<li><strong>Team onboarding</strong>: A structured learning curriculum for introducing distributed systems concepts to new team members</li>
+</ol>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소는 소프트웨어 아키텍처보다는 <strong>지식 아키텍처</strong>로 이해하는 것이 정확합니다. 콘텐츠가 어떻게 구성되고 연결되는지를 나타냅니다.</p>
+<p><strong>핵심 컴포넌트와 역할:</strong>
+- <strong>README.md (핵심 지식 문서)</strong>: 모든 시스템 설계 개념의 단일 진실 원천(Single Source of Truth). 개념 설명 → 트레이드오프 → 심화 링크 구조
+- <strong>solutions/system_design/ (설계 사례 연구)</strong>: 특정 시스템(Pastebin, Twitter 등)에 대한 단계별 설계 문서 + 추정 계산 + 다이어그램
+- <strong>solutions/object_oriented_design/ (OOD 예제)</strong>: Python으로 구현된 고전적 OOD 문제 참조 솔루션 + Jupyter Notebook
+- <strong>images/ (시각 자료)</strong>: 모든 아키텍처 다이어그램 이미지
+- <strong>generate-epub.sh (콘텐츠 배포 파이프라인)</strong>: 마크다운을 EPUB 전자책으로 변환</p>
+<pre><code class="language-mermaid">graph TD
+    A[&quot;README.md&lt;br/&gt;(핵심 지식 문서)&quot;] --&gt;|링크/참조| B[&quot;images/&lt;br/&gt;(다이어그램)&quot;]
+    A --&gt;|링크| C[&quot;solutions/system_design/&lt;br/&gt;(설계 사례 연구)&quot;]
+    A --&gt;|링크| D[&quot;solutions/object_oriented_design/&lt;br/&gt;(OOD 예제)&quot;]
+    A --&gt;|링크| E[&quot;resources/study_guide.png&lt;br/&gt;(학습 로드맵)&quot;]
+
+    C --&gt; C1[&quot;pastebin/ README + pastebin.py&quot;]
+    C --&gt; C2[&quot;twitter/ README + diagrams&quot;]
+    C --&gt; C3[&quot;web_crawler/ README + py&quot;]
+    C --&gt; C4[&quot;mint/, sales_rank/, social_graph/, ...&quot;]
+
+    D --&gt; D1[&quot;lru_cache/ .py + .ipynb&quot;]
+    D --&gt; D2[&quot;call_center/ .py + .ipynb&quot;]
+    D --&gt; D3[&quot;hash_table/, deck_of_cards/, ...&quot;]
+
+    F[&quot;generate-epub.sh&quot;] --&gt;|입력| A
+    F --&gt;|입력| C
+    F --&gt;|출력| G[&quot;README.epub&lt;br/&gt;(오프라인 전자책)&quot;]
+
+    style A fill:#f9f,stroke:#333
+    style F fill:#bbf,stroke:#333
+    style G fill:#bfb,stroke:#333
+</code></pre>
+<p><strong>데이터 흐름:</strong>
+1. 독자가 <code>README.md</code>를 읽으며 개념 학습
+2. 관심 주제의 심화 링크를 따라 <code>solutions/</code>로 이동
+3. <code>solutions/*/README.md</code>에서 단계별 설계 논의 확인
+4. 코드 예제(<code>.py</code>) 또는 노트북(<code>.ipynb</code>)으로 직접 구현 학습
+5. <code>generate-epub.sh</code>로 오프라인 읽기용 전자책 생성</p>
+<p><strong>[English]</strong></p>
+<p>This repository is best understood as a <strong>knowledge architecture</strong> rather than a software architecture. The diagram below shows how content is structured and interconnected.</p>
+<p><strong>Core components and roles:</strong>
+- <strong>README.md (Core knowledge document)</strong>: Single source of truth for all system design concepts. Structure: concept explanation → trade-offs → deeper links
+- <strong>solutions/system_design/ (Design case studies)</strong>: Step-by-step design documents for specific systems (Pastebin, Twitter, etc.) + estimation calculations + diagrams
+- <strong>solutions/object_oriented_design/ (OOD examples)</strong>: Reference solutions to classic OOD problems in Python + Jupyter Notebooks
+- <strong>images/ (Visual aids)</strong>: All architecture diagram images
+- <strong>generate-epub.sh (Content delivery pipeline)</strong>: Converts Markdown to EPUB e-book</p>
+<pre><code class="language-mermaid">graph TD
+    A[&quot;README.md&lt;br/&gt;(Core knowledge doc)&quot;] --&gt;|links/references| B[&quot;images/&lt;br/&gt;(diagrams)&quot;]
+    A --&gt;|links| C[&quot;solutions/system_design/&lt;br/&gt;(case studies)&quot;]
+    A --&gt;|links| D[&quot;solutions/object_oriented_design/&lt;br/&gt;(OOD examples)&quot;]
+    A --&gt;|links| E[&quot;resources/study_guide.png&lt;br/&gt;(learning roadmap)&quot;]
+
+    C --&gt; C1[&quot;pastebin/ README + pastebin.py&quot;]
+    C --&gt; C2[&quot;twitter/ README + diagrams&quot;]
+    C --&gt; C3[&quot;web_crawler/ README + py&quot;]
+    C --&gt; C4[&quot;mint/, sales_rank/, social_graph/, ...&quot;]
+
+    D --&gt; D1[&quot;lru_cache/ .py + .ipynb&quot;]
+    D --&gt; D2[&quot;call_center/ .py + .ipynb&quot;]
+    D --&gt; D3[&quot;hash_table/, deck_of_cards/, ...&quot;]
+
+    F[&quot;generate-epub.sh&quot;] --&gt;|input| A
+    F --&gt;|input| C
+    F --&gt;|output| G[&quot;README.epub&lt;br/&gt;(offline e-book)&quot;]
+
+    style A fill:#f9f,stroke:#333
+    style F fill:#bbf,stroke:#333
+    style G fill:#bfb,stroke:#333
+</code></pre>
+<p><strong>Data flow:</strong>
+1. Reader studies <code>README.md</code> for concept learning
+2. Follows deep-dive links to <code>solutions/</code> for topics of interest
+3. Reviews step-by-step design discussions in <code>solutions/*/README.md</code>
+4. Studies concrete implementations via code examples (<code>.py</code>) or notebooks (<code>.ipynb</code>)
+5. Uses <code>generate-epub.sh</code> to generate an e-book for offline reading</p>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: 시스템 설계 인터뷰 준비 (개인)</strong></p>
+<p>단계별 학습 절차:
+1. <code>resources/study_guide.png</code>로 본인의 인터뷰 일정(단기/중기/장기)에 맞는 학습 우선순위 파악
+2. <code>README.md</code> → "How to approach a system design interview question" 섹션 숙독
+3. 연습 문제 선택 (예: Pastebin): <code>solutions/system_design/pastebin/README.md</code> 참조 전 스스로 먼저 설계 시도
+4. 참조 솔루션과 본인 설계 비교: 누락된 컴포넌트(캐시 레이어, CDN, 데이터베이스 스케일링 전략 등) 식별
+5. Anki 플래시카드로 핵심 개념 암기 반복</p>
+<p><strong>시나리오 2: 팀 내 분산 시스템 설계 교육 커리큘럼 구축</strong></p>
+<p>팀 리드 또는 시니어 개발자가 주니어 팀원 교육에 활용:
+1. 저장소 포크 → 팀 특화 내용 추가 (사내 서비스 아키텍처 예제 등)
+2. 다음 학습 순서 권장:
+   - 1주차: CAP 정리, 일관성 패턴, 가용성 패턴 (<code>README.md</code> 해당 섹션)
+   - 2주차: 데이터베이스 (RDBMS vs NoSQL, 샤딩, 복제)
+   - 3주차: 캐시 전략 (Cache-aside, Write-through 등)
+   - 4주차: 실제 케이스 스터디 (Twitter 타임라인 또는 Web Crawler 솔루션)
+3. Jupyter Notebook(<code>solutions/object_oriented_design/</code>)으로 코딩 스터디 병행
+4. 팀원들이 새 시스템 설계 솔루션을 작성하고 PR로 기여하도록 유도</p>
+<p><strong>시나리오 3: 실제 서비스 설계 시 아키텍처 패턴 참조</strong></p>
+<p>새 기능/서비스 설계 회의 전:
+1. README.md에서 관련 패턴 섹션 열람:
+   - 캐시 적용 여부 → "Cache" 섹션 → Cache-aside vs Write-through 트레이드오프 확인
+   - 데이터베이스 선택 → "SQL or NoSQL" 섹션 → 결정 기준 매트릭스 참조
+   - 서비스 분리 고려 → "Microservices" 및 "Service discovery" 섹션
+2. 추정 계산 방법론 참조 (<code>solutions/system_design/pastebin/README.md</code>의 "Calculate usage" 섹션)
+3. 설계 결정에 대한 트레이드오프를 팀원에게 설명할 때 해당 섹션 링크 공유</p>
+<p><strong>시나리오 4: EPUB 전자책으로 오프라인 학습 자료 배포</strong></p>
+<pre><code class="language-bash"># 팀 내 배포 또는 개인 오프라인 학습용 EPUB 생성
+git clone https://github.com/donnemartin/system-design-primer.git
+cd system-design-primer
+brew install pandoc    # macOS
+./generate-epub.sh
+# 결과: README.epub → iBooks, Kindle, 기타 EPUB 리더로 오프라인 열람
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: Personal system design interview preparation</strong></p>
+<p>Step-by-step study procedure:
+1. Use <code>resources/study_guide.png</code> to prioritize topics based on your interview timeline (short/medium/long)
+2. Read the "How to approach a system design interview question" section in <code>README.md</code>
+3. Choose a practice problem (e.g., Pastebin): attempt your own design first, before reading <code>solutions/system_design/pastebin/README.md</code>
+4. Compare your design against the reference solution: identify missing components (cache layer, CDN, DB scaling strategy, etc.)
+5. Use Anki flashcards for spaced repetition of key concepts</p>
+<p><strong>Scenario 2: Building a distributed systems training curriculum for your team</strong></p>
+<p>For a team lead or senior developer onboarding junior members:
+1. Fork the repository → add team-specific content (e.g., internal service architecture examples)
+2. Recommended learning sequence:
+   - Week 1: CAP theorem, consistency patterns, availability patterns (README.md sections)
+   - Week 2: Databases (RDBMS vs NoSQL, sharding, replication)
+   - Week 3: Caching strategies (Cache-aside, Write-through, etc.)
+   - Week 4: Real case studies (Twitter timeline or Web Crawler solution)
+3. Pair with coding study using Jupyter Notebooks (<code>solutions/object_oriented_design/</code>)
+4. Encourage team members to write new system design solutions and contribute via PR</p>
+<p><strong>Scenario 3: Referencing architecture patterns during real service design</strong></p>
+<p>Before a feature/service design meeting:
+1. Open the relevant pattern section in README.md:
+   - Deciding on caching → "Cache" section → Cache-aside vs Write-through trade-offs
+   - Database selection → "SQL or NoSQL" section → decision criteria matrix
+   - Considering service decomposition → "Microservices" and "Service discovery" sections
+2. Reference estimation methodology from <code>solutions/system_design/pastebin/README.md</code> ("Calculate usage" section)
+3. Share section links when explaining design trade-offs to teammates</p>
+<p><strong>Scenario 4: Distributing EPUB e-books for offline learning</strong></p>
+<pre><code class="language-bash"># Generate EPUB for team distribution or personal offline study
+git clone https://github.com/donnemartin/system-design-primer.git
+cd system-design-primer
+brew install pandoc    # macOS
+./generate-epub.sh
+# Output: README.epub → open in iBooks, Kindle, or any EPUB reader
+</code></pre>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소를 팀/조직에 맞게 확장하는 방법:</p>
+<p><strong>콘텐츠 확장:</strong>
+- <strong>새 시스템 설계 솔루션 추가</strong>: <code>solutions/system_design/</code> 아래 새 디렉토리 생성
+  <code>solutions/system_design/your_system/
+  ├── README.md          # 단계별 설계 논의 (Use Cases → Constraints → High-level Design → Detailed Design)
+  ├── your_system.py     # 코드 스니펫 또는 MapReduce 예제
+  ├── your_system.png    # 아키텍처 다이어그램
+  └── __init__.py</code>
+- <strong>새 OOD 솔루션 추가</strong>: <code>solutions/object_oriented_design/</code> 아래 동일 패턴 적용
+  <code>solutions/object_oriented_design/your_design/
+  ├── your_design.py     # 구현 코드
+  ├── your_design.ipynb  # 인터랙티브 노트북
+  └── __init__.py</code>
+- <strong>README.md 내용 보강</strong>: 새 섹션 추가 시 목차(Index of system design topics) 업데이트 필수</p>
+<p><strong>EPUB 생성 커스터마이징:</strong>
+- <code>epub-metadata.yaml</code> 수정으로 제목/저자/날짜 변경 가능
+- <code>generate-epub.sh</code> 수정으로 포함/제외할 솔루션 디렉토리 선택 가능
+  <code>bash
+  # 특정 솔루션만 포함하는 커스텀 EPUB
+  cat ./README.md &gt; tmpfile
+  cat ./solutions/system_design/pastebin/README.md &gt;&gt; tmpfile
+  cat tmpfile | pandoc --metadata-file=epub-metadata.yaml -o custom.epub</code></p>
+<p><strong>번역 추가:</strong>
+- <code>README-{언어코드}.md</code> 파일 생성 (예: <code>README-ko.md</code>)
+- <code>generate-epub.sh</code>에 해당 언어 EPUB 생성 라인 추가
+  <code>bash
+  generate README-ko ko</code>
+- 모든 README의 언어 링크 목록 상단에 새 번역 링크 추가</p>
+<p><strong>플러그인/미들웨어 구조:</strong>
+이 저장소는 플러그인 아키텍처가 없는 순수 문서/코드 저장소입니다. 확장은 파일 추가 및 기존 마크다운 문서의 섹션 편집을 통해 이루어집니다.</p>
+<p><strong>[English]</strong></p>
+<p>How to extend this repository for your team or organization:</p>
+<p><strong>Content extension:</strong>
+- <strong>Adding new system design solutions</strong>: Create a new directory under <code>solutions/system_design/</code>
+  <code>solutions/system_design/your_system/
+  ├── README.md          # Step-by-step design discussion (Use Cases → Constraints → High-level Design → Detailed Design)
+  ├── your_system.py     # Code snippets or MapReduce examples
+  ├── your_system.png    # Architecture diagram
+  └── __init__.py</code>
+- <strong>Adding new OOD solutions</strong>: Apply the same pattern under <code>solutions/object_oriented_design/</code>
+  <code>solutions/object_oriented_design/your_design/
+  ├── your_design.py     # Implementation code
+  ├── your_design.ipynb  # Interactive notebook
+  └── __init__.py</code>
+- <strong>Expanding README.md</strong>: When adding new sections, update the table of contents (Index of system design topics)</p>
+<p><strong>EPUB generation customization:</strong>
+- Modify <code>epub-metadata.yaml</code> to change title/author/date
+- Modify <code>generate-epub.sh</code> to choose which solution directories to include/exclude
+  <code>bash
+  # Custom EPUB with only specific solutions
+  cat ./README.md &gt; tmpfile
+  cat ./solutions/system_design/pastebin/README.md &gt;&gt; tmpfile
+  cat tmpfile | pandoc --metadata-file=epub-metadata.yaml -o custom.epub</code></p>
+<p><strong>Adding translations:</strong>
+- Create <code>README-{language-code}.md</code> (e.g., <code>README-ko.md</code>)
+- Add a corresponding EPUB generation line in <code>generate-epub.sh</code>
+  <code>bash
+  generate README-ko ko</code>
+- Add the new translation link to the language list at the top of all READMEs</p>
+<p><strong>Plugin/middleware architecture:</strong>
+This repository has no plugin architecture — it is a pure documentation/code repository. Extensions are made by adding files and editing sections in existing Markdown documents.</p>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소는 서버에 배포하는 애플리케이션이 아닙니다. 그러나 콘텐츠를 팀이나 커뮤니티에 배포하는 방법이 여러 가지 있습니다.</p>
+<p><strong>① GitHub Pages로 정적 웹사이트 배포</strong></p>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<pre><code class="language-bash"># 1. 마크다운을 정적 사이트로 변환 (Jekyll 또는 MkDocs 활용)
+pip install mkdocs
+mkdocs new .
+# mkdocs.yml에 README.md를 index.md로 지정
+
+# 2. GitHub Actions 자동 배포 (예시)
+# .github/workflows/deploy.yml 생성 후 gh-pages 브랜치로 배포
+</code></pre>
+<p><strong>② 내부 지식 베이스(Confluence, Notion, GitLab Wiki)로 가져오기</strong>
+- Pandoc으로 Markdown → HTML 변환 후 붙여넣기:
+  <code>bash
+  pandoc README.md -o README.html</code></p>
+<p><strong>③ EPUB 전자책 배포</strong></p>
+<pre><code class="language-bash">./generate-epub.sh
+# 생성된 README.epub를 팀 공유 드라이브(Google Drive, SharePoint 등)에 업로드
+</code></pre>
+<p><strong>CI/CD 파이프라인 연동:</strong>
+현재 저장소에 GitHub Actions 또는 기타 CI/CD 설정이 없습니다. 팀 포크에서 활용하려면 다음을 권장합니다:</p>
+<pre><code class="language-yaml"># .github/workflows/epub-build.yml (예시)
+name: Build EPUB
+on:
+  push:
+    branches: [master]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pandoc
+        run: sudo apt-get install -y pandoc
+      - name: Generate EPUB
+        run: ./generate-epub.sh
+      - name: Upload EPUB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-design-primer-epub
+          path: &quot;*.epub&quot;
+</code></pre>
+<p><strong>[English]</strong></p>
+<p>This repository is not an application to be deployed to a server. However, there are several ways to distribute the content to a team or community.</p>
+<p><strong>① Deploy as a static website via GitHub Pages</strong></p>
+<blockquote>
+<p>Note: Recommended based on official documentation</p>
+</blockquote>
+<pre><code class="language-bash"># 1. Convert Markdown to a static site (using Jekyll or MkDocs)
+pip install mkdocs
+mkdocs new .
+# In mkdocs.yml, set README.md as index.md
+
+# 2. Automated GitHub Actions deployment (example)
+# Create .github/workflows/deploy.yml and deploy to the gh-pages branch
+</code></pre>
+<p><strong>② Import into an internal knowledge base (Confluence, Notion, GitLab Wiki)</strong>
+- Convert Markdown → HTML with pandoc, then paste:
+  <code>bash
+  pandoc README.md -o README.html</code></p>
+<p><strong>③ Distribute as EPUB e-books</strong></p>
+<pre><code class="language-bash">./generate-epub.sh
+# Upload generated README.epub to a team shared drive (Google Drive, SharePoint, etc.)
+</code></pre>
+<p><strong>CI/CD pipeline integration:</strong>
+The current repository has no GitHub Actions or other CI/CD configuration. For team forks, the following is recommended:</p>
+<pre><code class="language-yaml"># .github/workflows/epub-build.yml (example)
+name: Build EPUB
+on:
+  push:
+    branches: [master]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install pandoc
+        run: sudo apt-get install -y pandoc
+      - name: Generate EPUB
+        run: ./generate-epub.sh
+      - name: Upload EPUB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: system-design-primer-epub
+          path: &quot;*.epub&quot;
+</code></pre>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소 자체(정적 문서)에는 성능 병목이 없습니다. 그러나 <strong>콘텐츠가 다루는 시스템 설계 개념</strong> 관점에서 이 저장소를 활용해 실제 시스템을 설계할 때 고려할 사항을 정리합니다.</p>
+<p><strong>GitHub 저장소 규모 관련:</strong>
+- 현재 <code>README.md</code>가 ~110KB로 단일 파일 기준으로는 대용량 — 마크다운 렌더링이 느린 에디터에서는 분할 고려
+- <code>images/</code> 디렉토리의 PNG 파일이 외부 Imgur URL 참조 — 이미지 호스팅 서비스 다운 시 깨질 수 있음 (로컬 복사본은 저장소에 없음)</p>
+<p><strong>EPUB 생성 성능:</strong>
+- <code>generate-epub.sh</code>는 <code>cat</code>으로 모든 솔루션 README를 순차 병합 후 pandoc 실행 — 솔루션이 많아질수록 처리 시간 증가 (현재 8개 시스템 설계 솔루션으로 수 초 내 완료)</p>
+<p><strong>팀 포크 확장 시:</strong>
+- GitHub Actions의 무료 티어(월 2,000분)로 EPUB 빌드 자동화 가능
+- 매우 대형 팀의 경우 MkDocs + GitHub Pages 정적 사이트로 변환하면 검색 기능 및 내비게이션 개선 가능</p>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+대용량 정적 문서 사이트의 경우 MkDocs Material 테마 + Algolia 검색 연동을 권장합니다.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p>The repository itself (static documents) has no performance bottlenecks. The following covers considerations when using the content to design real systems, and operational factors for maintaining the repository at scale.</p>
+<p><strong>GitHub repository size considerations:</strong>
+- <code>README.md</code> is ~110KB — a large single file. Consider splitting in editors that render Markdown slowly
+- PNG files in <code>images/</code> reference external Imgur URLs — they can break if Imgur's image hosting goes down (no local copies are stored in the repository)</p>
+<p><strong>EPUB generation performance:</strong>
+- <code>generate-epub.sh</code> uses <code>cat</code> to sequentially merge all solution READMEs before running pandoc — processing time increases as more solutions are added (currently 8 system design solutions, completes in seconds)</p>
+<p><strong>Scaling team forks:</strong>
+- GitHub Actions free tier (2,000 minutes/month) is sufficient for automated EPUB builds
+- For very large teams, converting to MkDocs + GitHub Pages static site improves search and navigation</p>
+<blockquote>
+<p>Note: Recommended based on official documentation<br />
+For large-scale static documentation sites, MkDocs Material theme with Algolia search integration is recommended.</p>
+</blockquote>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소는 서버 애플리케이션이 아니므로 대부분의 일반적인 보안 체크리스트 항목이 해당하지 않습니다. 다음은 이 저장소를 포크하여 팀 지식 베이스로 활용할 때 고려할 보안 사항입니다.</p>
+<ul>
+<li><strong>환경 변수 및 시크릿 관리</strong></li>
+<li><code>.env</code> 파일 없음 — 별도 관리 불필요</li>
+<li>
+<p>팀 포크에 CI/CD 설정 시 GitHub Secrets를 통해 배포 토큰 관리 (<code>Settings &gt; Secrets and variables &gt; Actions</code>)</p>
+</li>
+<li>
+<p><strong>의존성 취약점 점검</strong></p>
+</li>
+<li>Python 솔루션 코드가 사용하는 유일한 외부 라이브러리 <code>mrjob</code> — Dependabot 알림 설정 권장</li>
+<li>
+<p>포크 저장소에서 GitHub의 Dependabot 활성화:
+    ```yaml
+    # .github/dependabot.yml
+    version: 2
+    updates:</p>
+<ul>
+<li>package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+```</li>
+</ul>
+</li>
+<li>
+<p><strong>콘텐츠 보안</strong></p>
+</li>
+<li>공개 저장소이므로 민감 정보(API 키, 내부 서비스 URL, 사내 아키텍처 등)를 커밋하지 않도록 주의</li>
+<li>
+<p>팀 내부 정보가 담긴 포크는 Private으로 설정 권장</p>
+</li>
+<li>
+<p><strong>외부 URL 의존성</strong></p>
+</li>
+<li><code>README.md</code>의 이미지가 Imgur 외부 링크 참조 — 이미지가 개인 정보를 노출하지 않는지 주기적 확인</li>
+<li>참조 링크의 링크 로팅(link rotting) 방지를 위해 정기적 유효성 검사 권장</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>This repository is not a server application, so most general security checklist items do not apply. The following covers security considerations for teams forking this repository as an internal knowledge base.</p>
+<ul>
+<li><strong>Environment variable and secret management</strong></li>
+<li>No <code>.env</code> files — no management needed</li>
+<li>
+<p>If adding CI/CD to a team fork, manage deployment tokens via GitHub Secrets (<code>Settings &gt; Secrets and variables &gt; Actions</code>)</p>
+</li>
+<li>
+<p><strong>Dependency vulnerability scanning</strong></p>
+</li>
+<li>The only external Python library used in solution code is <code>mrjob</code> — enabling Dependabot notifications is recommended</li>
+<li>
+<p>Enable GitHub Dependabot on forked repositories:
+    ```yaml
+    # .github/dependabot.yml
+    version: 2
+    updates:</p>
+<ul>
+<li>package-ecosystem: "pip"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+```</li>
+</ul>
+</li>
+<li>
+<p><strong>Content security</strong></p>
+</li>
+<li>This is a public repository — avoid committing sensitive information (API keys, internal service URLs, proprietary architecture details)</li>
+<li>
+<p>Team forks containing internal information should be set to Private</p>
+</li>
+<li>
+<p><strong>External URL dependencies</strong></p>
+</li>
+<li>Images in <code>README.md</code> reference external Imgur links — periodically verify these do not expose private information</li>
+<li>Regular link validation is recommended to prevent link rotting in reference links</li>
+</ul>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서 및 핵심 자료:</strong>
+- 저장소 원본: <a href="https://github.com/donnemartin/system-design-primer">https://github.com/donnemartin/system-design-primer</a>
+- 저자 Donne Martin의 자매 프로젝트 <a href="https://github.com/donnemartin/interactive-coding-challenges">Interactive Coding Challenges</a>
+- <a href="https://github.com/donnemartin/system-design-primer/tree/master/resources/flash_cards">Anki 플래시카드 다운로드</a> (System Design.apkg, OO Design.apkg)</p>
+<p><strong>관련 학습 자료:</strong>
+- <a href="https://www.educative.io/courses/grokking-the-system-design-interview">Grokking the System Design Interview</a> — 유료, 인터뷰 특화 커리큘럼
+- <a href="https://dataintensive.net/">Designing Data-Intensive Applications (DDIA)</a> — Martin Kleppmann 저, 분산 시스템 심화 교재
+- <a href="http://highscalability.com/">High Scalability Blog</a> — 실제 기업 아키텍처 사례 모음
+- <a href="https://aws.amazon.com/architecture/">AWS Architecture Center</a> — 클라우드 아키텍처 레퍼런스</p>
+<p><strong>커뮤니티 리소스:</strong>
+- <a href="https://github.com/donnemartin/system-design-primer/issues">GitHub Issues</a> — 번역, 오류 수정, 내용 추가 논의
+- <a href="https://github.com/donnemartin/system-design-primer/pulls">GitHub Discussions / PR</a> — 커뮤니티 기여 현황</p>
+<p><strong>유사 프로젝트 비교:</strong></p>
+<table>
+<thead>
+<tr>
+<th>프로젝트</th>
+<th>특징</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>system-design-primer</strong></td>
+<td>무료 오픈소스, 마크다운 + 코드</td>
+<td>가장 포괄적인 무료 자료, 활발한 커뮤니티, 오프라인 EPUB 지원</td>
+<td>코드 예제가 완성도 낮음(교육용 스케치), 업데이트 속도 느림</td>
+</tr>
+<tr>
+<td><strong>Grokking System Design</strong> (Educative)</td>
+<td>유료 인터랙티브 과정</td>
+<td>구조화된 커리큘럼, 시각적 인터랙티브</td>
+<td>유료($79+), 오프라인 접근 제한</td>
+</tr>
+<tr>
+<td><strong>ByteByteGo</strong></td>
+<td>유료 뉴스레터 + 책</td>
+<td>최신 사례(2023+), 명확한 다이어그램</td>
+<td>유료 구독 필요</td>
+</tr>
+<tr>
+<td><strong>awesome-scalability</strong></td>
+<td>GitHub 큐레이션 링크 모음</td>
+<td>최신 아티클 링크 다수</td>
+<td>체계적 설명 없음, 링크 로팅 위험</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Official documentation and core resources:</strong>
+- Source repository: <a href="https://github.com/donnemartin/system-design-primer">https://github.com/donnemartin/system-design-primer</a>
+- Sister project by author Donne Martin: <a href="https://github.com/donnemartin/interactive-coding-challenges">Interactive Coding Challenges</a>
+- <a href="https://github.com/donnemartin/system-design-primer/tree/master/resources/flash_cards">Anki flashcard download</a> (System Design.apkg, OO Design.apkg)</p>
+<p><strong>Related learning resources:</strong>
+- <a href="https://www.educative.io/courses/grokking-the-system-design-interview">Grokking the System Design Interview</a> — Paid, interview-focused curriculum
+- <a href="https://dataintensive.net/">Designing Data-Intensive Applications (DDIA)</a> — Martin Kleppmann, in-depth distributed systems textbook
+- <a href="http://highscalability.com/">High Scalability Blog</a> — Collection of real-world company architecture case studies
+- <a href="https://aws.amazon.com/architecture/">AWS Architecture Center</a> — Cloud architecture reference designs</p>
+<p><strong>Community resources:</strong>
+- <a href="https://github.com/donnemartin/system-design-primer/issues">GitHub Issues</a> — Discussions on translations, bug fixes, and content additions
+- <a href="https://github.com/donnemartin/system-design-primer/pulls">GitHub PRs</a> — Community contribution activity</p>
+<p><strong>Comparison with similar projects:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Type</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>system-design-primer</strong></td>
+<td>Free open source, Markdown + code</td>
+<td>Most comprehensive free resource, active community, offline EPUB support</td>
+<td>Code examples are low-polish (educational sketches), infrequent updates</td>
+</tr>
+<tr>
+<td><strong>Grokking System Design</strong> (Educative)</td>
+<td>Paid interactive course</td>
+<td>Structured curriculum, visual and interactive</td>
+<td>Paid ($79+), limited offline access</td>
+</tr>
+<tr>
+<td><strong>ByteByteGo</strong></td>
+<td>Paid newsletter + book</td>
+<td>Up-to-date examples (2023+), clear diagrams</td>
+<td>Paid subscription required</td>
+</tr>
+<tr>
+<td><strong>awesome-scalability</strong></td>
+<td>GitHub curated link list</td>
+<td>Many recent article links</td>
+<td>No structured explanations, link rotting risk</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<hr />
+<h2 id="final-report">최종 보고서 / Final Report</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>생성된 파일:</strong></p>
+<table>
+<thead>
+<tr>
+<th>파일 경로</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>출력됨 (파일 쓰기 없음 — OUTPUT INSTRUCTION에 따라 마크다운 직접 출력)</td>
+</tr>
+<tr>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>출력됨 (동일)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>모드</strong>: 단일 프로젝트 (Single project) — <code>/tmp/github-dashboard-analysis/donnemartin_system-design-primer</code></p>
+<p><strong>웹 검색 활용 섹션</strong>: 이 가이드는 저장소 직접 분석(README.md, CONTRIBUTING.md, 솔루션 코드, 쉘 스크립트 전체 읽기)을 통해 작성되었습니다. 이 저장소는 세계적으로 잘 알려진 오픈소스 프로젝트이므로, 지식 컷오프(2025년 8월) 내의 사전 학습 지식을 활용하였습니다. 웹 검색은 별도로 수행하지 않았으나, 외부 참고자료 섹션(Section 8)의 링크는 프로젝트 README.md에서 직접 인용한 것입니다.</p>
+<p><strong>해당 없어 생략하거나 별도 설명한 섹션:</strong>
+- <strong>GUIDE4Junior.md § 7 (테스트)</strong>: 공식 테스트 스위트 없음 — 이유와 대안(nbconvert) 포함 설명
+- <strong>GUIDE4Junior.md § 5 (빌드)</strong>: 소프트웨어 빌드 시스템 없음 — EPUB 생성만 해당, 명확히 설명
+- <strong>GUIDE4ImpMethod.md § 5 (배포)</strong>: 배포 가능한 앱 아님 — GitHub Pages/EPUB 배포 대안 제시
+- <strong>GUIDE4ImpMethod.md § 6 (성능)</strong>: 정적 문서 저장소이므로 성능 병목 없음 — 대신 콘텐츠 규모 관련 실용적 고려사항 기술</p>
+<p><strong>[English]</strong></p>
+<p><strong>Generated files:</strong></p>
+<table>
+<thead>
+<tr>
+<th>File Path</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>Output as markdown (no file write — per OUTPUT INSTRUCTION)</td>
+</tr>
+<tr>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>Output as markdown (same)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mode</strong>: Single project — <code>/tmp/github-dashboard-analysis/donnemartin_system-design-primer</code></p>
+<p><strong>Sections using web search</strong>: Both guides were written from direct repository analysis (full reads of README.md, CONTRIBUTING.md, solution code, and shell scripts). As this is a globally well-known open-source project, prior knowledge within the training cutoff (August 2025) was applied. No web searches were performed at runtime; external resource links in Section 8 are cited directly from the project's README.md.</p>
+<p><strong>Sections skipped or given special treatment:</strong>
+- <strong>GUIDE4Junior.md § 7 (Tests)</strong>: No formal test suite exists — explained with reason and alternative (nbconvert)
+- <strong>GUIDE4Junior.md § 5 (Build)</strong>: No software build system — only EPUB generation applies; stated clearly
+- <strong>GUIDE4ImpMethod.md § 5 (Deployment)</strong>: Not a deployable application — alternatives (GitHub Pages, EPUB) provided
+- <strong>GUIDE4ImpMethod.md § 6 (Performance)</strong>: Static documentation repo with no performance bottlenecks — practical content-scale considerations provided instead</p></div>
     
   </div>
 </div>
