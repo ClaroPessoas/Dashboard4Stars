@@ -1,0 +1,2829 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>rohitg00/agentmemory - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/rohitg00/agentmemory" target="_blank" rel="noopener">rohitg00/agentmemory</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">#1 Persistent memory for AI coding agents based on real-world benchmarks</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">monthly trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 21535</span>
+      <span class="badge badge-stars">+19,261 stars this month</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>Now I have all the information needed to write the comprehensive report.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-07
+대상 / Target: <code>/tmp/github-dashboard-analysis/rohitg00_agentmemory</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved:</strong>
+AI 코딩 에이전트(Claude Code, Cursor, Copilot CLI, Codex 등)가 세션 간 컨텍스트를 잃는 문제를 해결하는 로컬 우선(local-first) 영속 메모리 런타임. LLM 에이전트의 관측 결과(observation)를 자동으로 캡처·압축·검색 가능한 형태로 저장하여, 에이전트가 이전 세션의 맥락·결정·패턴을 회상할 수 있게 한다.</p>
+<p>This project solves the "stateless agent" problem: AI coding agents (Claude Code, Cursor, GitHub Copilot CLI, Codex, Gemini CLI, etc.) lose all context between sessions. agentmemory provides a local-first persistent memory runtime that automatically captures, compresses, indexes, and retrieves agent observations via MCP and a REST API, enabling cross-session recall without an external database.</p>
+<p><strong>분류 / Classification:</strong> Platform / Tool — MCP-compatible memory server, deployable as a daemon, with a REST API (126 endpoints), a web viewer, and npm packages.</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>TypeScript 6.x, Node.js ≥ 20.0 (tested: 20, 22); ESM-only (<code>"type": "module"</code>)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>iii-engine 0.11.2 (핵심 워커/상태/큐/pubsub 런타임); Vitest 4.x (테스트); tsdown 0.21 (번들러)</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>iii-state KV (파일 기반 SQLite-like: <code>state_store.db</code>, <code>stream_store</code>); 로컬 BM25 역색인 + 벡터 인덱스 (인-메모리, 샤딩 영속)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>REST HTTP (포트 3111), SSE 스트림 (포트 3112), MCP stdio/JSON-RPC, WebSocket (iii-engine 내부, 포트 49134)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Node.js 로컬 데몬, Docker Compose, Fly.io, Railway, Render, Coolify; npm 패키지 (<code>@agentmemory/agentmemory</code>, <code>@agentmemory/mcp</code>, <code>@agentmemory/fs-watcher</code>)</td>
+</tr>
+<tr>
+<td>임베딩 / Embeddings</td>
+<td>로컬(Xenova/all-MiniLM-L6-v2), OpenAI, Voyage, Cohere, Gemini, OpenRouter (옵션)</td>
+</tr>
+<tr>
+<td>텔레메트리 / Telemetry</td>
+<td>OpenTelemetry (OTEL) — 21개 카운터, 6개 히스토그램, Prometheus 호환 메트릭 노출 (포트 9464)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────────────┐
+│                        AI Agent (Claude Code, Cursor, etc.)             │
+│  lifecycle hooks (pre/post-tool-use, session-start/end, stop, …)        │
+└───────────────────────────┬─────────────────────────────────────────────┘
+                            │ HTTP POST / MCP stdio
+              ┌─────────────▼──────────────┐
+              │   agentmemory REST API      │  ← 126 endpoints
+              │   (iii-http, port 3111)     │
+              └──────────┬──────────────────┘
+                         │
+        ┌────────────────┼───────────────────┐
+        ▼                ▼                   ▼
+   src/functions/   src/mcp/          src/viewer/
+   (core memory     (MCP server,      (web UI,
+   operations)      tools registry)    port 3113)
+        │
+        ▼
+   iii-state KV ──► state_store.db
+   BM25 + Vector index (in-memory, sharded persist)
+   LLM Provider (Anthropic / OpenAI / Gemini / etc.)
+</code></pre>
+<p><strong>아키텍처 패턴:</strong> 이벤트 기반 파이프라인 + 서비스 레이어 분리. <code>src/functions/</code> (핵심 메모리 연산) → <code>src/triggers/api.ts</code> (HTTP 라우터) → <code>src/mcp/</code> (MCP 어댑터). iii-engine이 상태·큐·pubsub·스케줄러·옵저버빌리티를 제공하는 플랫폼 역할.</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>rohitg00_agentmemory/
+├── src/
+│   ├── auth.ts               # timing-safe 인증 헬퍼, CSP nonce
+│   ├── cli.ts / cli/         # CLI 진입점, connect 어댑터 (17개 에이전트)
+│   ├── config.ts             # LLM 프로바이더 자동 감지 / env 로드
+│   ├── functions/            # 핵심 메모리 연산 (~80개 파일)
+│   ├── health/               # liveness/readiness 모니터
+│   ├── hooks/                # 12개 자동 hook 핸들러
+│   ├── mcp/                  # MCP 서버, 도구 레지스트리, 전송
+│   ├── providers/            # LLM/임베딩 프로바이더, circuit breaker
+│   ├── state/                # KV 스키마, BM25/벡터 인덱스, hybrid search
+│   ├── telemetry/            # OTEL 카운터/히스토그램 초기화
+│   ├── triggers/api.ts       # 전체 REST 라우터 (126 엔드포인트)
+│   └── viewer/               # 실시간 웹 뷰어 (HTML+JS+CSP nonce)
+├── test/                     # Vitest 테스트 ~110개 파일, ~1379 테스트
+├── benchmark/                # LongMemEval, load-100k, scale eval
+├── deploy/                   # Fly, Railway, Render, Coolify Dockerfiles
+├── integrations/             # fs-watcher, openclaw, pi 통합
+├── packages/mcp/             # @agentmemory/mcp 독립 패키지
+├── plugin/                   # Claude Code, Codex, OpenCode 플러그인
+├── website/                  # Next.js 16 마케팅 사이트
+├── .github/
+│   ├── dependabot.yml        # 주간 자동 패치
+│   ├── workflows/ci.yml      # ubuntu+macos × Node20+22
+│   ├── workflows/publish.yml # npm provenance 출판
+│   └── security-advisories/  # 6개 보안 어드바이저리 초안
+├── CHANGELOG.md              # Keep-a-Changelog 형식
+├── CONTRIBUTING.md           # DCO 서명, PR 프로세스
+├── GOVERNANCE.md             # Linux Foundation MVG 패턴
+├── MAINTAINERS.md            # 유지보수자 목록
+├── SECURITY.md               # 취약점 보고 정책
+├── ROADMAP.md                # 12개월 공개 로드맵
+├── docker-compose.yml        # 로컬 127.0.0.1 바인딩
+├── iii-config.yaml           # 로컬 설정 (127.0.0.1)
+├── iii-config.docker.yaml    # Docker 설정 (0.0.0.0 + 호스트 127.0.0.1 매핑)
+└── LICENSE                   # Apache-2.0, Copyright 2026 Rohit Ghumare
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td><strong>Apache-2.0</strong></td>
+</tr>
+<tr>
+<td>저작권자 / Copyright</td>
+<td>Copyright 2026 Rohit Ghumare</td>
+</tr>
+<tr>
+<td>파일 확인 / File verified</td>
+<td>LICENSE 파일 직접 확인 — 표준 Apache 2.0 전문, 부록 포함</td>
+</tr>
+<tr>
+<td>특기사항</td>
+<td><strong>특허 허가 조항 포함 (Section 3)</strong> — 기여자의 특허 청구에 대한 영구적 사용 허가 부여</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주요 의무 / Key obligations:</strong>
+- 배포 시 LICENSE 파일 동봉 필수
+- 수정된 파일에 변경 고지 필수
+- NOTICE 파일이 있을 경우 파생 배포물에 포함 필수 (<strong>현재 NOTICE 파일 부재</strong>)
+- 상표권 사용 제한 (Section 6)</p>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p><strong>프로덕션 의존성 (Production Dependencies)</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@anthropic-ai/sdk</code></td>
+<td>^0.100.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td><code>@anthropic-ai/claude-agent-sdk</code></td>
+<td>^0.3.142</td>
+<td>"SEE LICENSE IN README.md" ⚠️</td>
+<td><strong>검토 필요 / Needs Review</strong></td>
+<td>🔵 Review</td>
+</tr>
+<tr>
+<td><code>@clack/prompts</code></td>
+<td>^1.2.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td><code>dotenv</code></td>
+<td>^17.4.2</td>
+<td>BSD-2-Clause</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td><code>iii-sdk</code></td>
+<td>0.11.2</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td><code>zod</code></td>
+<td>^4.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+</tbody>
+</table>
+<p><strong>선택적 의존성 (Optional Dependencies)</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@node-rs/jieba</code></td>
+<td>^2.0.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td><code>@xenova/transformers</code></td>
+<td>^2.17.2</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td><code>onnxruntime-node</code></td>
+<td>^1.14.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td><code>onnxruntime-web</code></td>
+<td>^1.14.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td><code>tiny-segmenter</code></td>
+<td>^0.2.0</td>
+<td>"SEE LICENSE IN URL" ⚠️</td>
+<td><strong>검토 필요</strong></td>
+<td>🔵 Review</td>
+</tr>
+</tbody>
+</table>
+<p><strong>개발 의존성 (Dev Dependencies)</strong> — 배포 아티팩트에 미포함, 위험도 낮음</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>@types/node</code></td>
+<td>^25.9.1</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><code>tsdown</code></td>
+<td>^0.21.10</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><code>tsx</code></td>
+<td>^4.19.0</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><code>typescript</code></td>
+<td>^6.0.3</td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td><code>vitest</code></td>
+<td>^4.1.6</td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<p><strong>전이적 의존성 오버라이드 / Transitive Overrides</strong> (보안 패치용):</p>
+<table>
+<thead>
+<tr>
+<th>패키지</th>
+<th>강제 버전</th>
+<th>사유</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>qs</code></td>
+<td>^6.15.2</td>
+<td>CVE 패치</td>
+</tr>
+<tr>
+<td><code>ws</code></td>
+<td>^8.21.0</td>
+<td>CVE 패치</td>
+</tr>
+<tr>
+<td><code>protobufjs</code></td>
+<td>^7.5.8</td>
+<td>CVE 패치</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD-2, BSD-3, ISC</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🔵 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지 / Commercialization prohibited</td>
+</tr>
+</tbody>
+</table>
+<p><strong>이 프로젝트의 라이선스 분포:</strong> 6개 프로덕션 의존성 모두 Permissive 계열 (MIT/Apache-2.0/BSD-2). AGPL, GPL, BUSL, SSPLv1 없음. Strong/Network Copyleft <strong>부재 확인</strong>.</p>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<ul>
+<li><strong>GPL 충돌 없음:</strong> 모든 직접 의존성이 Permissive 계열이므로, Apache-2.0 프로젝트와 완전 호환.</li>
+<li><strong>AGPL 위험 없음:</strong> AGPL 의존성 없음 → SaaS 배포 시 소스 공개 의무 없음.</li>
+<li><strong><code>@anthropic-ai/claude-agent-sdk</code> 라이선스 미명시 (🔵 Review):</strong> npm 메타데이터가 "SEE LICENSE IN README.md"로 표시되어 있으나, Anthropic의 공개 SDK(MIT) 가족의 일원으로 추정. 도입 전 실제 README 내 라이선스 조항 문서화 필요.</li>
+<li><strong><code>tiny-segmenter</code> 라이선스 URL 참조:</strong> <code>http://chasen.org/~taku/software/TinySegmenter/LICENCE.txt</code>로 지정. BSD 계열로 알려져 있으나, 옵션 의존성으로서 선택 도입 시 확인 필수.</li>
+<li><strong>iii-engine 라이선스:</strong> iii-sdk는 Apache-2.0이나, iii-engine 바이너리(<code>iiidev/iii</code>) 자체 라이선스는 별도 확인 필요 — Docker 이미지 형태로 사용되므로 라이선스 전파 위험은 낮으나 재배포 조건 확인 권장.</li>
+</ul>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[ ] 저작권 고지 포함 방법 / Copyright notice inclusion method — <code>LICENSE</code> 파일 동봉 (현재 npm 패키지 <code>files</code> 배열에 포함됨 ✅), 설치 프로그램/컨테이너 이미지에도 포함 필요</li>
+<li>[ ] NOTICE/고지문 배포 위치 / NOTICE distribution location — <strong>NOTICE 파일 부재</strong> ⚠️. Apache-2.0 요건상 서드파티 귀속 고지가 필요할 경우 NOTICE 작성 및 배포 필수</li>
+<li>[ ] 소스 공개 의무 여부 및 방식 / Source disclosure obligation and method — Apache-2.0은 소스 공개 의무 없음. <code>@anthropic-ai/claude-agent-sdk</code> 라이선스 최종 확인 후 판단</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<p><strong>SECURITY.md:</strong> 존재 ✅, 내용 상세함.
+- GitHub Security Advisories를 통한 비공개 취약점 신고 채널 명시
+- 72시간 내 수신 확인, CVSS 3.1 심각도 분류, 30~90일 공개 조정 창 정책
+- 지원 버전 정책: 현재 <code>0.9.x</code> (보안 수정 전체 지원), <code>0.8.x</code> (출시 후 90일간 Critical/High만 지원)</p>
+<p><strong>Dependabot:</strong> <code>.github/dependabot.yml</code> 존재 ✅
+- 대상: 루트(<code>/</code>), <code>/website</code>, <code>/integrations/openclaw</code>, <code>/integrations/pi</code>, <code>/integrations/filesystem-watcher</code>, GitHub Actions
+- 주기: 매주 월요일 06:00 UTC
+- minor·patch 자동 그룹 PR 생성, PR 한도: 5~10개</p>
+<p><strong>Renovate / Snyk:</strong> 확인 불가 — 파일 부재 / Not found — file absent.</p>
+<p><strong>SBOM (CycloneDX / SPDX):</strong> 확인 불가 — 파일 부재 / Not found — file absent. ⚠️</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>공개 보안 어드바이저리 (<code>.github/security-advisories/</code>) — 6건, 모두 v0.8.2에서 패치:</strong></p>
+<table>
+<thead>
+<tr>
+<th>번호</th>
+<th>제목</th>
+<th>CVSS</th>
+<th>심각도</th>
+<th>패치 버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>01</td>
+<td>Viewer 저장형 XSS (CWE-79)</td>
+<td>9.6</td>
+<td>Critical</td>
+<td>0.8.2 ✅</td>
+</tr>
+<tr>
+<td>02</td>
+<td><code>curl \| sh</code> 패턴 RCE 위험</td>
+<td>—</td>
+<td>—</td>
+<td>0.8.2 ✅</td>
+</tr>
+<tr>
+<td>03</td>
+<td>REST/Stream 기본 바인딩 0.0.0.0 (CWE-668)</td>
+<td>8.1</td>
+<td>High</td>
+<td>0.8.2 ✅</td>
+</tr>
+<tr>
+<td>04</td>
+<td>메시 동기화 인증 누락 (CWE-306, CWE-862)</td>
+<td>7.4</td>
+<td>High</td>
+<td>0.8.2 ✅</td>
+</tr>
+<tr>
+<td>05</td>
+<td>Obsidian Export 경로 순회</td>
+<td>—</td>
+<td>—</td>
+<td>0.8.2 ✅</td>
+</tr>
+<tr>
+<td>06</td>
+<td>개인정보 필터 불완전 (CWE-532, CWE-200)</td>
+<td>6.2</td>
+<td>Medium</td>
+<td>0.8.2 ✅</td>
+</tr>
+</tbody>
+</table>
+<p>현재 버전(0.9.26)은 모든 알려진 취약점 수정 완료. 그러나 다음 사항에 주의:</p>
+<ul>
+<li><strong>로크파일 미커밋 (의도적 결정):</strong> SECURITY.md에서 명시적으로 설명. CI는 매 실행마다 <code>npm install --package-lock-only</code> → <code>npm ci</code>로 대응하나, 오프라인/에어갭 환경에서는 재현성 보장 불가.</li>
+<li><strong>의존성 오버라이드 (전이적 취약점 패치):</strong> <code>qs</code>, <code>ws</code>, <code>protobufjs</code> 버전 강제 지정으로 알려진 CVE 대응 확인 ✅. npm audit 0건 확인 (CHANGELOG v0.9.25).</li>
+<li><strong>iii-engine 버전 고정 (0.11.2):</strong> 최신 엔진(0.11.6+)과 아키텍처 비호환으로 고의 핀. 상위 버전의 보안 패치가 있을 경우 즉시 적용 불가.</li>
+<li><strong>하드코딩된 시크릿:</strong> 소스코드 직접 검사 결과 — 하드코딩된 API 키 패턴 없음 ✅. 모든 키는 환경변수 경유.</li>
+</ul>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>인증/인가 / Auth:</strong>
+- Bearer 토큰 인증 (<code>AGENTMEMORY_SECRET</code> 환경변수). 미설정 시 루프백(127.0.0.1)에서는 개방형으로 동작 — 개발 도구의 기본 동작으로 허용 가능.
+- HMAC 기반 타이밍 안전 비교 (<code>timingSafeEqual</code>, <code>src/auth.ts:8</code>) 구현 ✅
+- Mesh 기능은 <code>AGENTMEMORY_SECRET</code> 미설정 시 503 반환 (advisory #04 패치) ✅</p>
+<p><strong>CSP 및 XSS 방어:</strong>
+- 뷰어 서버: 요청별 랜덤 nonce 생성 (<code>randomBytes(16).toString("base64url")</code>), <code>script-src 'nonce-&lt;n&gt;'</code>, <code>script-src-attr 'none'</code> 적용 ✅
+- <code>default-src 'none'</code>, <code>frame-ancestors 'none'</code>, <code>object-src 'none'</code>, <code>form-action 'none'</code> ✅</p>
+<p><strong>시크릿 관리:</strong> 환경변수 기반 (<code>~/.agentmemory/.env</code> 또는 프로젝트 루트 <code>.env</code>). Vault/AWS SSM 등 외부 시크릿 관리자와의 네이티브 통합은 없으나 환경변수 주입으로 대체 가능.</p>
+<p><strong>SBOM:</strong> 부재 — CI/CD 파이프라인에 SBOM 자동 생성 없음 ⚠️</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06-04 (<code>fix(graph): top-degree snapshot cache</code>, #814/#816)</td>
+</tr>
+<tr>
+<td>릴리스 빈도 / Release frequency</td>
+<td>v0.9.23 (2026-05-28) → v0.9.24 (2026-05-29) → v0.9.25 (2026-06-03) → v0.9.26 (2026-06-03) — 약 1주일에 1~2회 릴리스</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>현재 단일 주요 커미터 (Rohit Ghumare). PR 기여자: @Rokurolize (PR #764), @eng-pf (#108) 등 외부 기여 존재 확인</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>2026-06-03 (v0.9.26)</td>
+</tr>
+<tr>
+<td>버전 / Current version</td>
+<td>0.9.26 (pre-1.0)</td>
+</tr>
+<tr>
+<td>이슈/PR 참조</td>
+<td>CHANGELOG에서 v0.9.25 기준 11개 이슈 클로즈, 13개 신규 테스트 파일 추가 확인</td>
+</tr>
+<tr>
+<td>테스트 수 / Test count</td>
+<td>1,379개 (v0.9.25 기준, CHANGELOG 확인)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>존재 여부</th>
+<th>주요 내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>GOVERNANCE.md</td>
+<td>✅ 존재</td>
+<td>Linux Foundation MVG 패턴, 역할 정의, lazy consensus, 투표 절차</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재</td>
+<td>DCO 서명 필수, PR 흐름, 릴리스 절차 8개 파일 동기화</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>✅ 존재</td>
+<td>Contributor Covenant 기반</td>
+</tr>
+<tr>
+<td>MAINTAINERS.md</td>
+<td>✅ 존재</td>
+<td>현재 단일 유지보수자, 유지보수자 채용 계획 명시</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재</td>
+<td>상세한 취약점 신고 정책</td>
+</tr>
+<tr>
+<td>ROADMAP.md</td>
+<td>✅ 존재</td>
+<td>12개월 공개 로드맵 (Q2 2026 ~ Q1 2027)</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>✅ 존재</td>
+<td>Keep-a-Changelog 형식, SemVer 준수</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td>확인 불가 — 파일 부재 / Not found — file absent</td>
+<td></td>
+</tr>
+<tr>
+<td>NOTICE</td>
+<td><strong>확인 불가 — 파일 부재</strong> / Not found — file absent ⚠️</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>브랜치 전략: <code>main</code> 단일 브랜치, PR 기반 검토. CodeRabbit 자동 리뷰 활성화. DCO(Developer Certificate of Origin) 서명 의무화.</p>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>후원자 / Sponsor:</strong> GitHub Sponsors (<code>rohitg00</code> 개인). 기업 후원사 없음.</li>
+<li><strong>재단 소속:</strong> CNCF, Apache Software Foundation 미소속. Q1 2027 재단 가입(Growth → Impact Stage) 목표로 로드맵 명시.</li>
+<li><strong>상용 서비스 계획 없음:</strong> ROADMAP.md에서 "클라우드 호스팅 SaaS", "구독 티어", "Apache-2.0 이상의 상용 라이선스" 명시적으로 범위 외(Out of Scope)로 선언 → 공급업체 종속 위험 낮음.</li>
+<li><strong>LTS:</strong> v1.0 목표 Q1 2027. 12개월 보안 패치 LTS 브랜치(<code>v1.x</code>) 계획. 현재는 최신 minor만 전체 지원, 이전 minor 90일 Critical/High 지원.</li>
+<li><strong>단일 유지보수자 위험 (Key-person risk):</strong> 현재 사실상 1인 프로젝트. 유지보수자 다양화 Q3 2026 계획이나 완료 전까지 위험 존재.</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p><strong>멀티테넌시 / Multi-tenancy:</strong>
+- 기본: 단일 사용자 로컬 데몬 설계.
+- <code>TEAM_MODE=shared</code>, <code>TEAM_ID</code>, <code>USER_ID</code> 환경변수로 (팀ID, 사용자ID) 튜플 범위 지정 가능 (초기 기능, Alpha 수준).
+- 메시 동기화(<code>/agentmemory/mesh/*</code>)로 인스턴스 간 P2P 메모리 공유 가능 (Auth 필요).
+- 엔터프라이즈 SSO/RBAC: Q4 2026 로드맵 — <strong>현재 미구현</strong>.</p>
+<p><strong>컨테이너화 / Containerization:</strong>
+- Docker Compose ✅ (기본 제공)
+- Fly.io, Railway, Render, Coolify 개별 Dockerfile + 가이드 ✅
+- Kubernetes/Helm: 공식 차트 없음, 커스텀 구성 필요
+- 이미지 태그 고정 (<code>iiidev/iii:${AGENTMEMORY_III_VERSION:-0.11.2}</code>) ✅</p>
+<p><strong>헬스체크 / Health Check:</strong>
+- <code>src/health/monitor.ts</code>: KV probe (<code>_probe</code> 키 읽기/쓰기) 기반 liveness 체크 ✅
+- <code>src/health/thresholds.ts</code>: 임계값 기반 경보 ✅
+- <code>GET /agentmemory/health</code> REST 엔드포인트 존재 (HealthSnapshot 반환)
+- Kubernetes readiness probe로 활용 가능</p>
+<p><strong>메트릭 / Metrics:</strong>
+- OTEL 카운터 21개 + 히스토그램 6개 ✅
+- Prometheus 호환 메트릭 포트 9464 (<code>iii-observability</code> 설정) ✅
+- 주요 측정 지표: 관측 수, 압축 성공/실패, 검색 지연, 임베딩 지연, 서킷 브레이커, 통합 품질 점수</p>
+<p><strong>구조화 로깅 / Structured logging:</strong>
+- iii-observability를 통한 OTEL 로그 (기본 콘솔 출력 비활성화, sampling_ratio 0.1)
+- <code>AGENTMEMORY_DEBUG=1</code> 환경변수로 디버그 추적 활성화</p>
+<p><strong>12-Factor App 준수:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Codebase</td>
+<td>✅ 단일 저장소</td>
+</tr>
+<tr>
+<td>Dependencies</td>
+<td>✅ npm + package.json 선언 (lockfile 미커밋 ⚠️)</td>
+</tr>
+<tr>
+<td>Config</td>
+<td>✅ 환경변수 전용 (<code>.env</code> 파일 지원, 소스 미포함)</td>
+</tr>
+<tr>
+<td>Backing services</td>
+<td>✅ iii-engine URL 환경변수로 주입</td>
+</tr>
+<tr>
+<td>Build/Release/Run</td>
+<td>✅ tsdown 빌드, dist/ 분리</td>
+</tr>
+<tr>
+<td>Processes</td>
+<td>✅ 상태는 iii-state KV에만 저장</td>
+</tr>
+<tr>
+<td>Port binding</td>
+<td>✅ 포트 환경변수로 설정 가능</td>
+</tr>
+<tr>
+<td>Concurrency</td>
+<td>⚠️ 단일 Node.js 프로세스 (iii-engine 멀티 워커)</td>
+</tr>
+<tr>
+<td>Disposability</td>
+<td>✅ 빠른 시작/종료 설계</td>
+</tr>
+<tr>
+<td>Dev/Prod parity</td>
+<td>✅ Docker Compose로 환경 동일화</td>
+</tr>
+<tr>
+<td>Logs</td>
+<td>✅ OTEL, stdout</td>
+</tr>
+<tr>
+<td>Admin processes</td>
+<td>✅ <code>agentmemory migrate</code> CLI</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>테스트 프레임워크</td>
+<td>Vitest 4.x</td>
+</tr>
+<tr>
+<td>테스트 수</td>
+<td><strong>1,379개</strong> (v0.9.25 기준, CHANGELOG)</td>
+</tr>
+<tr>
+<td>테스트 파일 수</td>
+<td>~110개 (<code>test/*.test.ts</code>)</td>
+</tr>
+<tr>
+<td>테스트 종류</td>
+<td>단위 테스트, 통합 테스트 (<code>test/integration.test.ts</code> — 실 서버 필요), 보안 테스트 (<code>viewer-security.test.ts</code>, <code>privacy.test.ts</code>, <code>replay-sensitive.test.ts</code>)</td>
+</tr>
+<tr>
+<td>CI 자동화</td>
+<td>ubuntu-latest + macos-latest × Node 20 + Node 22 매트릭스 ✅</td>
+</tr>
+<tr>
+<td>커버리지 측정</td>
+<td>커버리지 임계값/리포트 설정 확인 불가 — CI 구성에 없음 ⚠️</td>
+</tr>
+<tr>
+<td>벤치마크</td>
+<td>LongMemEval (95.2% R@5 달성), load-100k (100K 관측 부하), scale eval</td>
+</tr>
+<tr>
+<td>평가 시스템</td>
+<td><code>eval/</code> 디렉토리: coding-agent-life-v1 데이터셋, agentmemory/grep/vector 어댑터 비교</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><strong>해당 없음 / Not applicable.</strong> 현재 프로젝트의 모든 직접 의존성은 Permissive 계열(MIT, Apache-2.0, BSD-2)이므로, Strong Copyleft 격리 아키텍처 검토가 불필요하다.</p>
+<hr />
+<h3 id="54-dependency-locking">5.4 의존성 잠금 및 재현 빌드 / Dependency Locking</h3>
+<p><strong>로크파일 미커밋 (의도적):</strong>
+- 프로젝트는 의도적으로 <code>package-lock.json</code>을 gitignore처리함.
+- CI에서는 매 실행마다 <code>npm install --package-lock-only</code> → <code>npm ci</code>로 임시 로크파일 생성 후 빌드.
+- npm 배포 아티팩트는 사전 빌드된 <code>dist/</code>를 포함하므로, 최종 사용자 설치 시 소스 컴파일 없음.
+- 상용화 파이프라인에서는 <code>npm shrinkwrap</code>으로 배포별 로크파일 생성 권장 (SECURITY.md 안내).</p>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분 / Partial</td>
+<td>package.json 의존성 목록 있으나 SBOM 미생성, <code>@anthropic-ai/claude-agent-sdk</code> 라이선스 메타데이터 불완전</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>🟡 부분 / Partial</td>
+<td>CI 파이프라인에 라이선스 스캔 자동화(예: <code>license-checker</code>, <code>FOSSA</code>, <code>SCANOSS</code>) 없음</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🟡 부분 / Partial</td>
+<td>알려진 취약점은 패치됨. 라이선스 불명 의존성 대체 절차 미정의</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🔴 미구현 / Not implemented</td>
+<td>공식 OSPO/법무 검토 프로세스 문서 없음. 단일 유지보수자 판단에 의존</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🟡 부분 / Partial</td>
+<td>LICENSE 파일 npm 패키지에 포함. NOTICE 파일 없음. SBOM 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>특허:</strong>
+- Apache-2.0 라이선스는 <strong>특허 허가(patent grant) 조항 포함 (Section 3)</strong>. 각 기여자는 자신의 기여와 관련된 특허 청구에 대해 영구적 비독점 사용 허가 부여.
+- MIT(Anthropic SDK, Zod 등) 및 BSD-2-Clause(dotenv)는 <strong>특허 허가 조항 없음</strong> — 의존 패키지 내 특허 주장이 있을 경우 독립적으로 협상 필요.</p>
+<p><strong>상표:</strong>
+- Apache-2.0 Section 6: 리센서의 상호, 상표, 서비스 마크, 제품명 사용 제한.
+- "agentmemory" 상표는 공식 등록 확인 불가이나, 상업적 제품에서 브랜드 사용 시 출처 명시 및 원작자와의 관계 혼동 방지 필요.
+- iii-engine 브랜드 및 <code>iiidev/iii</code> 이미지 사용 조건 별도 확인 필요.</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>위험 없음 / No risk identified.</strong> 현재 직접 의존성에 AGPL, GPL 라이선스 패키지 없음. SaaS 배포 시 소스 공개 의무 없음.</p>
+<p>단, 향후 의존성 추가 시 AGPL 패키지 도입에 주의 필요 — 특히 LLM 관련 라이브러리(일부 AGPL 배포판 존재) 및 임베딩 런타임 확장 시.</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>Apache-2.0 프로젝트, 전 직접 의존성 Permissive. <code>@anthropic-ai/claude-agent-sdk</code> 라이선스 메타데이터 불명확하나 MIT 추정. AGPL/GPL 없음</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🔵 Review</td>
+<td>SECURITY.md 상세, Dependabot 활성, 6개 취약점 패치 완료. SBOM 없음, 로크파일 미커밋, iii-engine 버전 동결이 조건부 검토 필요</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟡 Caution</td>
+<td>매우 활발한 개발(주 1~2회 릴리스)이나 <strong>단일 유지보수자</strong> 위험. 외부 기여자 소수. 기업 후원 없음. Pre-1.0</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🔵 Review</td>
+<td>OTEL 메트릭, 헬스체크, Docker 지원, 1379개 테스트 ✅. 커버리지 측정 없음, K8s 공식 차트 없음, RBAC 미구현</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🔵 Review</td>
+<td>12-factor 대부분 준수, REST+MCP 이중 인터페이스, 다양한 배포 옵션. 멀티테넌시·SSO·RBAC Pre-alpha. iii-engine 벤더 고착</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>NOTICE 파일 없음, SBOM 없음, CI 라이선스 스캔 없음, OpenChain 미인증. Apache-2.0 특허 허가는 긍정적</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>완전 Permissive 라이선스 스택 / Fully permissive license stack:</strong> Apache-2.0 프로젝트 + 전 직접 의존성 MIT/Apache-2.0/BSD-2. AGPL/GPL 오염 없음 → 상용화 라이선스 리스크 최저 수준.</li>
+<li><strong>활발한 개발 속도와 회귀 대응력 / High release velocity + regression responsiveness:</strong> 주 1~2회 릴리스, 11개 이슈를 한 릴리스에서 클로즈하는 운영 성숙도. 버그 보고 후 수일 내 핫픽스 패턴.</li>
+<li><strong>포괄적 보안 문서화 / Comprehensive security posture:</strong> SECURITY.md, 6개 어드바이저리 초안 공개, 타이밍 안전 인증, CSP nonce, 개인정보 필터, Dependabot — pre-1.0 프로젝트 치고 이례적으로 성숙한 보안 문화.</li>
+<li><strong>대규모 테스트 스위트 / Large test suite:</strong> 1,379개 테스트, ~110개 파일, 보안 전용 테스트 포함. CI matrix(2 OS × 2 Node 버전) 자동화. LongMemEval 95.2% R@5 벤치마크.</li>
+<li><strong>풍부한 거버넌스 문서 / Rich governance documentation:</strong> GOVERNANCE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY, ROADMAP, MAINTAINERS 모두 존재 — 오픈소스 모범 사례에 근접. 명확한 v1.0 및 LTS 로드맵.</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>단일 유지보수자 버스 팩터 / Single-maintainer bus factor:</strong> Rohit Ghumare 1인이 모든 커밋·릴리스를 담당. 질병, 이직 등 이벤트 시 프로젝트 중단 위험. Q3 2026 추가 유지보수자 목표이나 현재 미달성.</li>
+<li><strong>Pre-1.0 API 불안정 / Pre-v1.0 API instability:</strong> REST(126개 엔드포인트) 및 MCP 인터페이스는 v1.0(Q1 2027) 이전까지 Breaking change 가능. 상용 제품에 직접 의존 시 업그레이드 비용 발생.</li>
+<li><strong>iii-engine 벤더 고착 / iii-engine vendor lock-in:</strong> 코어 상태·큐·pubsub 모두 iii-engine에 의존. v0.11.2에 고정되어 상위 버전 보안 패치 즉시 적용 불가. iii-engine 자체 라이선스/상업적 조건 별도 검토 필요.</li>
+<li><strong>컴플라이언스 자동화 미흡 / Compliance automation gaps:</strong> SBOM 자동 생성 없음, CI 라이선스 스캔 없음, NOTICE 파일 없음 → 외부 감사 시 준비 시간 소요.</li>
+<li><strong><code>AGENTMEMORY_SECRET</code> 선택적 / Optional auth by default:</strong> 로컬 개발 도구 특성상 기본 개방이지만, 팀 배포 또는 역방향 프록시 뒤 배치 시 시크릿 미설정으로 인한 노출 위험. 엔터프라이즈 도입 시 정책 강제 필요.</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict:</strong> 🔵 <strong>Review (조건부 도입 — 추가 검토 필요)</strong></p>
+<p>agentmemory는 AI 코딩 에이전트 영속 메모리 분야에서 현재 가장 기술적으로 성숙한 오픈소스 솔루션 중 하나이다. Apache-2.0 라이선스 + Permissive 의존성 스택은 상용화의 최대 걸림돌인 라이선스 리스크를 실질적으로 제거한다. 1,379개 테스트, OTEL 메트릭, 6건의 보안 어드바이저리 공개 패치, 상세한 거버넌스 문서는 pre-1.0 프로젝트로서 이례적으로 높은 성숙도를 보인다.</p>
+<p>그러나 다음 조건을 충족할 때 도입을 권고한다:</p>
+<ol>
+<li><strong><code>@anthropic-ai/claude-agent-sdk</code> 라이선스 조항 명문화 확인</strong> — 실제 README 또는 GitHub 저장소에서 라이선스 조항을 확인하고 법무 검토 진행.</li>
+<li><strong>iii-engine 라이선스 및 상업적 조건 확인</strong> — Docker 이미지(<code>iiidev/iii</code>) 재배포·상업적 활용 조건 및 라이선스 확인.</li>
+<li><strong>단일 유지보수자 위험 헷징</strong> — 내부 포크 유지, 핵심 기능 패치 능력 확보, 또는 상용 지원 계약(컨설팅) 체결.</li>
+<li><strong>CI 라이선스 스캔 + SBOM 생성 파이프라인 내재화</strong> — 도입 프로젝트에서 직접 구축하여 의존성 변화 모니터링.</li>
+<li><strong>엔터프라이즈 배포 시 <code>AGENTMEMORY_SECRET</code> 정책 강제화</strong> — Helm values 또는 환경 정책으로 필수 설정 적용.</li>
+</ol>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>- [x] Permissive/Weak/Strong Copyleft 분류 확인 / Classification verified</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 소스 공개 의무 여부 확인 (없음) / Source disclosure obligation checked</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 라이선스 호환성 충돌 없음 / No compatibility conflicts</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] <code>@anthropic-ai/claude-agent-sdk</code> 라이선스 조항 법무 문서화</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] <code>tiny-segmenter</code> 라이선스 URL 조항 확인</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] iii-engine 상업 배포 조건 확인</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>- [x] 저작권 문구 포함 (npm files 배열에 LICENSE 포함)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] NOTICE 파일 생성 및 배포 위치 정의</td>
+<td>❌ 부재</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>- [x] Strong Copyleft 없음 → 소스 공개 불필요</td>
+<td>✅</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>- [x] CVE 모니터링 체계 (Dependabot 주간)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 알려진 취약점 패치 완료 (v0.8.2+)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] SBOM 생성 파이프라인 구축</td>
+<td>❌ 미구현</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 로크파일 커밋 or shrinkwrap 정책 정의</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] iii-engine 버전 동결 해소 경로 확인</td>
+<td>⚠️</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>- [x] 유지보수 활성도 확인 (주 1~2회 릴리스)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 기업 스폰서/컨설팅 확보 또는 내부 포크 유지 계획</td>
+<td>⚠️ 단일 유지보수자 위험</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>- [x] 테스트 자동화 (CI matrix)</td>
+<td>✅</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 라이선스 검사 자동화 (license-checker, FOSSA 등)</td>
+<td>❌ 미구현</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 오픈소스 BOM 자동 생성 (CycloneDX, SPDX)</td>
+<td>❌ 미구현</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 위반 라이선스 빌드 차단 정책</td>
+<td>❌ 미구현</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>- [ ] 고객 계약서에 Apache-2.0 의무 명시</td>
+<td>⚠️ 도입 시 작성 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 외부 감사 대비 문서 구비 (NOTICE, BOM, 라이선스 보고서)</td>
+<td>❌ 미구현</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong><code>@anthropic-ai/claude-agent-sdk</code> 라이선스 확인 및 문서화 / Verify @anthropic-ai/claude-agent-sdk license:</strong>
+   GitHub 저장소 (<code>anthropics/claude-agent-sdk</code>) 또는 npm README에서 실제 라이선스 조항을 확인하고, OSPO 또는 법무팀 검토 결과를 도입 결정서에 첨부. MIT임이 확인되면 제거 대상에서 해제.</p>
+</li>
+<li>
+<p><strong>iii-engine 라이선스 및 상업적 활용 조건 확인 / Confirm iii-engine commercial terms:</strong>
+   <code>iiidev/iii</code> Docker 이미지 및 <code>iii-sdk</code>의 상업적 재배포·SaaS 활용 조건 확인. Apache-2.0이 아닌 별도 EULA가 존재할 경우 법무 검토 후 도입 여부 재판단.</p>
+</li>
+</ol>
+<hr />
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>NOTICE 파일 생성 / Create NOTICE file:</strong>
+   프로젝트 루트에 <code>NOTICE</code> 파일 작성 — Apache-2.0 요건 및 서드파티 귀속(Anthropic, iii 프로젝트 등) 고지 포함. 내부 배포물에 동봉.</p>
+</li>
+<li>
+<p><strong>배포용 <code>npm-shrinkwrap.json</code> 생성 정책 수립 / Establish shrinkwrap policy for deployments:</strong>
+   상용 배포 파이프라인에서 <code>npm shrinkwrap</code> 실행 → <code>npm-shrinkwrap.json</code> 생성, 아티팩트에 포함. 재현 빌드 보장 및 공급망 공격 표면 감소.</p>
+</li>
+<li>
+<p><strong><code>AGENTMEMORY_SECRET</code> 필수화 정책 적용 / Enforce secret in team deployments:</strong>
+   팀·엔터프라이즈 배포 시 <code>AGENTMEMORY_SECRET</code> 환경변수를 인프라 정책(Helm values, Kubernetes Secret, 환경 정책)으로 필수 설정. 미설정 시 서버 기동 거부하도록 내부 래퍼 스크립트 작성 권장.</p>
+</li>
+</ol>
+<hr />
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>CI 라이선스 스캔 자동화 / Automate license scanning in CI:</strong>
+   <code>license-checker</code>, <code>FOSSA CLI</code>, 또는 <code>SCANOSS</code>를 CI 파이프라인에 추가. Copyleft 계열 라이선스 탐지 시 빌드 차단 게이트 설정. 결과를 SBOM으로 저장.</p>
+</li>
+<li>
+<p><strong>SBOM 자동 생성 파이프라인 구축 / Build SBOM generation pipeline:</strong>
+   CycloneDX Node.js 모듈(<code>@cyclonedx/cyclonedx-npm</code>) 또는 Syft를 사용하여 릴리스마다 SBOM 자동 생성. ISO 5230 준수 증빙 및 외부 감사 대응용 보관.</p>
+</li>
+<li>
+<p><strong>K8s Helm Chart 내부 개발 / Develop internal Helm Chart:</strong>
+   공식 Helm 차트가 없으므로, 조직 내 표준화된 Kubernetes 배포를 위한 내부 Helm Chart를 작성. readinessProbe/livenessProbe (<code>GET /agentmemory/health</code>) 및 Prometheus ServiceMonitor 포함.</p>
+</li>
+</ol>
+<hr />
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>단일 유지보수자 위험 모니터링 / Monitor single-maintainer risk:</strong>
+   분기별로 커밋 활동, PR 응답 시간, 릴리스 주기를 검토. Q3 2026 추가 유지보수자 가입 여부 확인. 프로젝트가 비활성화 조짐 보일 경우 내부 포크 계획 발동.</p>
+</li>
+<li>
+<p><strong>v1.0 및 API 안정화 추적 / Track v1.0 API stabilization (Q1 2027):</strong>
+    v1.0 릴리스 시 REST/MCP 인터페이스 동결 여부 확인 후 상용 제품 통합 강화. LTS 브랜치(<code>v1.x</code>) 출시 후 업그레이드 정책 수립.</p>
+</li>
+<li>
+<p><strong>주기적 오픈소스 컴플라이언스 감사 / Periodic OSS compliance audit:</strong>
+    분기별로 의존성 라이선스 변경, 새 Copyleft 의존성 도입, iii-engine 업스트림 변경 이력을 검토. ISO 5230/OpenChain Self-Certification 진행을 도입 조직 내 목표로 설정.</p>
+</li>
+</ol>
+<hr />
+<p><em>본 보고서는 2026-06-07 기준 분석된 소스 코드 및 메타데이터에 기반하며, 의존성 라이선스 상태는 향후 업스트림 변경에 따라 달라질 수 있습니다. 법적 효력이 있는 컴플라이언스 판단을 위해서는 반드시 전문 법무팀 검토를 병행하시기 바랍니다.</em></p>
+<p><em>This report is based on source code and metadata analyzed as of 2026-06-07. Dependency license status is subject to change with upstream updates. For legally binding compliance decisions, always consult qualified legal counsel.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>I now have enough information to generate both guides. Here is the complete bilingual output:</p>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p><code>agentmemory</code>는 AI 코딩 에이전트(Claude Code, GitHub Copilot CLI, Cursor, Gemini CLI, Codex CLI 등)를 위한 <strong>영속 메모리 엔진</strong>입니다. 에이전트 세션 간의 컨텍스트가 유실되는 문제를 해결하기 위해, 세션 훅을 통해 관찰 기록을 자동으로 수집·압축·저장하고, 다음 세션 시작 시 관련 기억을 검색·주입합니다. 핵심 기능은 BM25 + 벡터 + 그래프 하이브리드 검색(RRF 퓨전), LLM 기반 요약·통합, 53개 MCP 도구 노출, REST API, 그리고 실시간 메모리 뷰어입니다.</p>
+<ul>
+<li><strong>주요 기술 스택</strong>:</li>
+<li>언어: TypeScript (strict 모드, ESNext/ES2022 타겟)</li>
+<li>런타임: Node.js ≥ 20</li>
+<li>엔진: iii-sdk (iii-engine v0.11.2, WebSocket 기반 워커 프레임워크)</li>
+<li>빌드 도구: tsdown</li>
+<li>테스트: Vitest</li>
+<li>핵심 라이브러리: <code>iii-sdk</code>, <code>@anthropic-ai/sdk</code>, <code>@anthropic-ai/claude-agent-sdk</code>, <code>zod</code>, <code>dotenv</code>, <code>@clack/prompts</code></li>
+<li>선택적 임베딩: <code>@xenova/transformers</code> (로컬 all-MiniLM-L6-v2), <code>onnxruntime-node</code>, Voyage, Cohere, OpenAI, Gemini</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p><code>agentmemory</code> is a <strong>persistent memory engine</strong> for AI coding agents (Claude Code, GitHub Copilot CLI, Cursor, Gemini CLI, Codex CLI, and more). It solves the problem of context loss across agent sessions by automatically capturing, compressing, and storing session observations via hooks, then injecting relevant memories when the next session starts. Core capabilities include BM25 + vector + graph hybrid search (RRF fusion), LLM-backed summarization and consolidation, 53 MCP tool surfaces, a REST API, and a real-time memory viewer.</p>
+<ul>
+<li><strong>Key tech stack</strong>:</li>
+<li>Language: TypeScript (strict mode, ESNext/ES2022 target)</li>
+<li>Runtime: Node.js ≥ 20</li>
+<li>Engine: iii-sdk (iii-engine v0.11.2, WebSocket-based worker framework)</li>
+<li>Build tool: tsdown</li>
+<li>Tests: Vitest</li>
+<li>Core libraries: <code>iii-sdk</code>, <code>@anthropic-ai/sdk</code>, <code>@anthropic-ai/claude-agent-sdk</code>, <code>zod</code>, <code>dotenv</code>, <code>@clack/prompts</code></li>
+<li>Optional embeddings: <code>@xenova/transformers</code> (local all-MiniLM-L6-v2), <code>onnxruntime-node</code>, Voyage, Cohere, OpenAI, Gemini</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li>
+<p><strong>필수 도구 (버전 포함)</strong>:
+  | 도구 | 최소 버전 | 비고 |
+  |---|---|---|
+  | Node.js | ≥ 20.0.0 | LTS 권장 (20.x 또는 22.x) |
+  | npm | ≥ 10 | Node.js와 함께 설치됨 |
+  | Git | ≥ 2.x | 저장소 클론 및 커밋 서명에 필요 |
+  | Docker + Docker Compose | ≥ 20.x / v2 | Docker 모드 실행 시 필요 (선택) |</p>
+</li>
+<li>
+<p><strong>권장 IDE 및 플러그인</strong>:</p>
+</li>
+<li>VS Code + ESLint Extension + TypeScript Extension</li>
+<li>Prettier 포맷터 (on-save 설정 권장)</li>
+<li>
+<p>Vitest Explorer Extension (테스트 실행 시각화)</p>
+</li>
+<li>
+<p><strong>OS별 주의사항</strong>:</p>
+</li>
+<li><strong>macOS/Linux</strong>: <code>npm install -g</code> 시 EACCES 오류가 발생하면 <code>sudo</code> 또는 nvm/volta로 권한 없이 설치</li>
+<li><strong>Windows</strong>: 일부 테스트(<code>test/obsidian-export.test.ts</code>)가 하드코딩된 POSIX 경로(<code>/tmp/...</code>)를 사용하므로 현재 CI에서 제외됨. Windows 개발 환경에서는 WSL2 사용 권장</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li>
+<p><strong>Required tools (with versions)</strong>:
+  | Tool | Minimum version | Notes |
+  |---|---|---|
+  | Node.js | ≥ 20.0.0 | LTS recommended (20.x or 22.x) |
+  | npm | ≥ 10 | Ships with Node.js |
+  | Git | ≥ 2.x | Required for cloning and DCO commit sign-off |
+  | Docker + Docker Compose | ≥ 20.x / v2 | Only for Docker-mode execution (optional) |</p>
+</li>
+<li>
+<p><strong>Recommended IDE and plugins</strong>:</p>
+</li>
+<li>VS Code + ESLint Extension + TypeScript Extension</li>
+<li>Prettier formatter (on-save recommended)</li>
+<li>
+<p>Vitest Explorer Extension (visual test runner)</p>
+</li>
+<li>
+<p><strong>OS-specific notes</strong>:</p>
+</li>
+<li><strong>macOS/Linux</strong>: If <code>npm install -g</code> throws EACCES, use <code>sudo</code> or install Node via nvm/volta to avoid permission issues</li>
+<li><strong>Windows</strong>: Some tests (<code>test/obsidian-export.test.ts</code>) use hardcoded POSIX paths (<code>/tmp/...</code>) and are currently excluded from CI on Windows. WSL2 is recommended for Windows development</li>
+</ul>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<ol>
+<li>
+<p><strong>저장소 클론</strong>
+   <code>bash
+   git clone https://github.com/rohitg00/agentmemory.git
+   cd agentmemory</code></p>
+</li>
+<li>
+<p><strong>의존성 설치</strong> (lockfile이 저장소에 커밋되어 있지 않으므로 <code>--legacy-peer-deps</code> 필요)
+   <code>bash
+   npm install --legacy-peer-deps</code></p>
+</li>
+<li>
+<p><strong>환경 변수 설정</strong> (선택)
+   <code>bash
+   # ~/.agentmemory/.env 에 복사 (권장)
+   mkdir -p ~/.agentmemory
+   cp .env.example ~/.agentmemory/.env
+   # 편집: 원하는 LLM 키만 주석 해제</code>
+   최소 <code>.env</code> 예시 (LLM 없이도 동작):
+   ```ini
+   # LLM 없이도 BM25 검색 + synthetic 압축으로 동작함
+   # 원하는 경우 하나만 선택:
+   # ANTHROPIC_API_KEY=sk-ant-...
+   # OPENAI_API_KEY=sk-...
+   # GEMINI_API_KEY=...</p>
+</li>
+</ol>
+<p># REST API 인증 (loopback 이외 노출 시 필수)
+   # AGENTMEMORY_SECRET=your-secret-here
+   ```</p>
+<ol>
+<li>
+<p><strong>빌드 (TypeScript → dist/)</strong>
+   <code>bash
+   npm run build</code>
+   빌드 후 <code>dist/cli.mjs</code>가 생성됩니다.</p>
+</li>
+<li>
+<p><strong>검증: 서버 실행 및 health check</strong>
+   <code>bash
+   # 개발 모드로 실행
+   npm run dev
+   # 또는 빌드된 버전으로 실행
+   node dist/cli.mjs
+   # 새 터미널에서 health check
+   curl http://localhost:3111/agentmemory/health</code>
+   응답: <code>{"status":"ok","version":"0.9.26", ...}</code></p>
+</li>
+</ol>
+<p><strong>[English]</strong></p>
+<ol>
+<li>
+<p><strong>Clone the repository</strong>
+   <code>bash
+   git clone https://github.com/rohitg00/agentmemory.git
+   cd agentmemory</code></p>
+</li>
+<li>
+<p><strong>Install dependencies</strong> (<code>--legacy-peer-deps</code> is needed because no lockfile is committed to the repo)
+   <code>bash
+   npm install --legacy-peer-deps</code></p>
+</li>
+<li>
+<p><strong>Configure environment variables</strong> (optional — works out of the box with no keys)
+   <code>bash
+   # Copy to ~/.agentmemory/.env (recommended)
+   mkdir -p ~/.agentmemory
+   cp .env.example ~/.agentmemory/.env
+   # Edit: uncomment only the LLM key you want to use</code>
+   Minimal <code>.env</code> example (works without LLM):
+   ```ini
+   # Works without an LLM key — BM25 search + synthetic compression
+   # Pick one if you want LLM-backed compression:
+   # ANTHROPIC_API_KEY=sk-ant-...
+   # OPENAI_API_KEY=sk-...
+   # GEMINI_API_KEY=...</p>
+</li>
+</ol>
+<p># REST API auth (required when exposing beyond loopback)
+   # AGENTMEMORY_SECRET=your-secret-here
+   ```</p>
+<ol>
+<li>
+<p><strong>Build (TypeScript → dist/)</strong>
+   <code>bash
+   npm run build</code>
+   After build, <code>dist/cli.mjs</code> is the runnable entry point.</p>
+</li>
+<li>
+<p><strong>Verify: start server and health check</strong>
+   <code>bash
+   # Dev mode
+   npm run dev
+   # Or run the built artifact
+   node dist/cli.mjs
+   # In a new terminal
+   curl http://localhost:3111/agentmemory/health</code>
+   Expected response: <code>{"status":"ok","version":"0.9.26", ...}</code></p>
+</li>
+</ol>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">agentmemory/
+├── src/
+│   ├── cli.ts                  # CLI 진입점 (agentmemory 명령어)
+│   ├── index.ts                # iii-engine 워커 등록, 모든 기능 초기화
+│   ├── types.ts                # Session, RawObservation, CompressedObservation 등 핵심 타입
+│   ├── config.ts               # 환경변수 로딩 및 공급자 감지
+│   ├── auth.ts                 # Bearer 토큰 인증 (timing-safe 비교)
+│   ├── logger.ts               # 로깅 유틸리티
+│   ├── version.ts              # 버전 상수
+│   │
+│   ├── cli/                    # CLI 서브커맨드
+│   │   ├── connect/            # 에이전트 연결 (claude-code, codex, cursor, gemini-cli 등)
+│   │   ├── onboarding.ts       # 첫 실행 온보딩
+│   │   ├── preferences.ts      # 사용자 설정
+│   │   └── doctor-diagnostics.ts # 진단 도구
+│   │
+│   ├── functions/              # 핵심 메모리 연산 (~40개 파일)
+│   │   ├── observe.ts          # 원시 관찰 수집
+│   │   ├── compress.ts         # LLM 기반 압축
+│   │   ├── search.ts           # BM25 검색 인덱스
+│   │   ├── smart-search.ts     # 하이브리드 검색 (BM25+벡터+그래프)
+│   │   ├── remember.ts         # 명시적 메모리 저장
+│   │   ├── consolidate.ts      # 4단계 통합 파이프라인
+│   │   ├── summarize.ts        # 세션 요약
+│   │   ├── graph.ts            # 개념 그래프 관리
+│   │   ├── context.ts          # 컨텍스트 주입
+│   │   └── export-import.ts    # JSONL 내보내기/가져오기
+│   │
+│   ├── hooks/                  # 12개 자동 훅 (에이전트 세션 캡처)
+│   │   ├── session-start.ts    # 세션 시작 시 메모리 주입
+│   │   ├── session-end.ts      # 세션 종료 시 저장
+│   │   ├── post-tool-use.ts    # 도구 사용 후 관찰
+│   │   ├── pre-compact.ts      # 컨텍스트 압축 전
+│   │   ├── stop.ts             # 에이전트 중지 훅
+│   │   └── ...                 # task-completed, notification 등
+│   │
+│   ├── mcp/                    # MCP 서버
+│   │   ├── server.ts           # MCP 서버 메인
+│   │   ├── tools-registry.ts   # 53개 도구 정의 (CORE_TOOLS + 확장)
+│   │   ├── standalone.ts       # 독립형 MCP 패키지
+│   │   └── transport.ts        # stdio/SSE 전송
+│   │
+│   ├── providers/              # LLM + 임베딩 공급자
+│   │   ├── anthropic.ts        # Anthropic Claude
+│   │   ├── openai.ts           # OpenAI GPT
+│   │   ├── gemini.ts (via fetch)# Google Gemini
+│   │   ├── openrouter.ts       # OpenRouter
+│   │   ├── fallback-chain.ts   # 공급자 폴백 체인
+│   │   └── embedding/          # 로컬/OpenAI/Voyage/Cohere/Gemini 임베딩
+│   │
+│   ├── state/                  # 상태 관리
+│   │   ├── kv.ts               # iii KV 스토어 래퍼
+│   │   ├── schema.ts           # KV 키 상수 (KV 네임스페이스)
+│   │   ├── hybrid-search.ts    # BM25+벡터 하이브리드 검색
+│   │   ├── vector-index.ts     # 벡터 인덱스 (코사인 유사도)
+│   │   ├── search-index.ts     # BM25 역인덱스
+│   │   ├── index-persistence.ts# 샤딩된 인덱스 영속화
+│   │   └── keyed-mutex.ts      # 동시성 제어
+│   │
+│   ├── triggers/
+│   │   └── api.ts              # 모든 REST 엔드포인트 (/agentmemory/*)
+│   │
+│   ├── health/                 # 상태 모니터링
+│   ├── prompts/                # LLM 프롬프트 템플릿
+│   ├── replay/                 # JSONL 세션 재생
+│   └── viewer/                 # 실시간 웹 UI (index.html + 서버)
+│
+├── test/                       # Vitest 테스트 스위트 (110+ 파일)
+├── benchmark/                  # 스케일 + 품질 벤치마크
+├── eval/                       # 평가 실행기 (LongMemEval-S 등)
+├── integrations/               # 1st-party 플러그인 (hermes, openclaw, filesystem-watcher)
+├── plugin/                     # Claude Code 플러그인
+├── packages/                   # @agentmemory/mcp, @agentmemory/fs-watcher
+├── deploy/                     # 배포 템플릿 (fly.io, Railway, Render, Coolify)
+├── docs/                       # 벤치마크 결과, 레시피
+├── website/                    # 마케팅 사이트 (Next.js)
+├── iii-config.yaml             # iii-engine 워커 구성 (로컬)
+├── iii-config.docker.yaml      # iii-engine 워커 구성 (Docker)
+├── docker-compose.yml          # Docker Compose 스택
+├── tsconfig.json               # TypeScript 설정
+├── tsdown.config.ts            # 번들러 설정
+└── package.json                # npm 패키지 메타데이터 + 스크립트
+</code></pre>
+<p>핵심 모듈 간 의존 관계:
+- <code>cli.ts</code> → <code>cli/connect/*</code> → 각 에이전트 설정 파일 수정
+- <code>index.ts</code> → <code>iii-sdk.registerWorker()</code> → <code>functions/*</code> 등록 → <code>triggers/api.ts</code> 이벤트 처리
+- 훅 이벤트 흐름: <code>hooks/session-start.ts</code> → <code>functions/context.ts</code> (메모리 주입) / <code>hooks/session-end.ts</code> → <code>functions/observe.ts</code> → <code>functions/compress.ts</code> → <code>state/hybrid-search.ts</code> (인덱싱)
+- 검색 경로: <code>functions/smart-search.ts</code> → <code>state/hybrid-search.ts</code> (BM25 + 벡터) + <code>functions/graph-retrieval.ts</code> → RRF 퓨전</p>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">agentmemory/
+├── src/
+│   ├── cli.ts                  # CLI entry point (the `agentmemory` command)
+│   ├── index.ts                # iii-engine worker registration; initializes all functions
+│   ├── types.ts                # Core types: Session, RawObservation, CompressedObservation, etc.
+│   ├── config.ts               # Env var loading and provider auto-detection
+│   ├── auth.ts                 # Bearer token auth (timing-safe compare)
+│   ├── logger.ts               # Logging utility
+│   ├── version.ts              # Version constants
+│   │
+│   ├── cli/                    # CLI sub-commands
+│   │   ├── connect/            # Agent wiring (claude-code, codex, cursor, gemini-cli, etc.)
+│   │   ├── onboarding.ts       # First-boot onboarding
+│   │   ├── preferences.ts      # User preferences
+│   │   └── doctor-diagnostics.ts # Diagnostic tool
+│   │
+│   ├── functions/              # Core memory operations (~40 files)
+│   │   ├── observe.ts          # Raw observation ingestion
+│   │   ├── compress.ts         # LLM-backed compression
+│   │   ├── search.ts           # BM25 search index
+│   │   ├── smart-search.ts     # Hybrid search (BM25 + vector + graph)
+│   │   ├── remember.ts         # Explicit memory save
+│   │   ├── consolidate.ts      # 4-tier consolidation pipeline
+│   │   ├── summarize.ts        # Session summarization
+│   │   ├── graph.ts            # Concept graph management
+│   │   ├── context.ts          # Context injection
+│   │   └── export-import.ts    # JSONL export/import
+│   │
+│   ├── hooks/                  # 12 auto-hooks (agent session capture)
+│   │   ├── session-start.ts    # Inject memories at session start
+│   │   ├── session-end.ts      # Save observations at session end
+│   │   ├── post-tool-use.ts    # Observe after tool calls
+│   │   ├── pre-compact.ts      # Before context compaction
+│   │   ├── stop.ts             # Agent stop hook
+│   │   └── ...                 # task-completed, notification, etc.
+│   │
+│   ├── mcp/                    # MCP server
+│   │   ├── server.ts           # MCP server main
+│   │   ├── tools-registry.ts   # 53 tool definitions (CORE_TOOLS + extended)
+│   │   ├── standalone.ts       # Standalone MCP package
+│   │   └── transport.ts        # stdio / SSE transport
+│   │
+│   ├── providers/              # LLM + embedding providers
+│   │   ├── anthropic.ts        # Anthropic Claude
+│   │   ├── openai.ts           # OpenAI GPT
+│   │   ├── fallback-chain.ts   # Provider fallback chain
+│   │   └── embedding/          # Local / OpenAI / Voyage / Cohere / Gemini embeddings
+│   │
+│   ├── state/                  # State management
+│   │   ├── kv.ts               # iii KV store wrapper
+│   │   ├── schema.ts           # KV key constants (KV namespace)
+│   │   ├── hybrid-search.ts    # BM25 + vector hybrid search
+│   │   ├── vector-index.ts     # Vector index (cosine similarity)
+│   │   ├── search-index.ts     # BM25 inverted index
+│   │   ├── index-persistence.ts# Sharded index persistence
+│   │   └── keyed-mutex.ts      # Concurrency control
+│   │
+│   ├── triggers/
+│   │   └── api.ts              # All REST endpoints (/agentmemory/*)
+│   │
+│   ├── health/                 # Health monitoring
+│   ├── prompts/                # LLM prompt templates
+│   ├── replay/                 # JSONL session replay
+│   └── viewer/                 # Real-time web UI (index.html + server)
+│
+├── test/                       # Vitest test suite (110+ files)
+├── benchmark/                  # Scale + quality benchmarks
+├── eval/                       # Evaluation runners (LongMemEval-S, etc.)
+├── integrations/               # First-party plugins (hermes, openclaw, filesystem-watcher)
+├── plugin/                     # Claude Code plugin
+├── packages/                   # @agentmemory/mcp, @agentmemory/fs-watcher sub-packages
+├── deploy/                     # Deploy templates (fly.io, Railway, Render, Coolify)
+├── docs/                       # Benchmark results, recipes
+├── website/                    # Marketing site (Next.js)
+├── iii-config.yaml             # iii-engine worker config (local)
+├── iii-config.docker.yaml      # iii-engine worker config (Docker)
+├── docker-compose.yml          # Docker Compose stack
+├── tsconfig.json               # TypeScript config
+├── tsdown.config.ts            # Bundler config
+└── package.json                # npm package metadata + scripts
+</code></pre>
+<p>Key inter-module dependencies:
+- <code>cli.ts</code> → <code>cli/connect/*</code> → modifies agent-specific config files
+- <code>index.ts</code> → <code>iii-sdk.registerWorker()</code> → registers <code>functions/*</code> → <code>triggers/api.ts</code> handles events
+- Hook event flow: <code>hooks/session-start.ts</code> → <code>functions/context.ts</code> (inject memories) / <code>hooks/session-end.ts</code> → <code>functions/observe.ts</code> → <code>functions/compress.ts</code> → <code>state/hybrid-search.ts</code> (index)
+- Search path: <code>functions/smart-search.ts</code> → <code>state/hybrid-search.ts</code> (BM25 + vector) + <code>functions/graph-retrieval.ts</code> → RRF fusion</p>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li>
+<p><strong>빌드 명령어</strong>:
+  <code>bash
+  # 유일한 빌드 명령어 — 개발/프로덕션 구분 없음
+  npm run build</code>
+  내부적으로 <code>tsdown &amp;&amp; cp iii-config.yaml dist/ &amp;&amp; ... &amp;&amp; mkdir -p dist/viewer &amp;&amp; cp src/viewer/index.html dist/viewer/</code> 를 실행합니다.</p>
+</li>
+<li>
+<p><strong>빌드 결과물 위치</strong>:</p>
+</li>
+<li><code>dist/cli.mjs</code> — CLI 바이너리 (npm <code>bin</code> 진입점)</li>
+<li><code>dist/index.mjs</code> — 라이브러리 진입점</li>
+<li><code>dist/index.d.mts</code> — TypeScript 타입 선언</li>
+<li><code>dist/standalone.mjs</code> — 독립형 MCP 패키지 진입점</li>
+<li><code>dist/viewer/index.html</code> — 메모리 뷰어 UI</li>
+<li>
+<p><code>dist/iii-config.yaml</code> — 런타임 엔진 구성</p>
+</li>
+<li>
+<p><strong>자주 발생하는 빌드 오류</strong>:
+  | 오류 | 원인 | 해결 방법 |
+  |---|---|---|
+  | <code>TS2304: Cannot find name 'X'</code> | 타입 누락 | <code>npm install --legacy-peer-deps</code> 재실행 |
+  | <code>noUnusedLocals</code> / <code>noUnusedParameters</code> 오류 | strict TS 설정 | 미사용 변수/파라미터 제거 또는 <code>_</code> 접두사 사용 |
+  | <code>tsdown: command not found</code> | devDep 미설치 | <code>npm install --legacy-peer-deps</code> 실행 |
+  | <code>EACCES dist/</code> 권한 오류 | dist 폴더 권한 문제 | <code>rm -rf dist &amp;&amp; npm run build</code> |</p>
+</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li>
+<p><strong>Build commands</strong>:
+  <code>bash
+  # Single build command — no dev vs. production split
+  npm run build</code>
+  Internally runs <code>tsdown &amp;&amp; cp iii-config.yaml dist/ &amp;&amp; ... &amp;&amp; mkdir -p dist/viewer &amp;&amp; cp src/viewer/index.html dist/viewer/</code>.</p>
+</li>
+<li>
+<p><strong>Build output location and meaning</strong>:</p>
+</li>
+<li><code>dist/cli.mjs</code> — CLI binary (npm <code>bin</code> entry point)</li>
+<li><code>dist/index.mjs</code> — Library entry point</li>
+<li><code>dist/index.d.mts</code> — TypeScript type declarations</li>
+<li><code>dist/standalone.mjs</code> — Standalone MCP package entry point</li>
+<li><code>dist/viewer/index.html</code> — Memory viewer UI</li>
+<li>
+<p><code>dist/iii-config.yaml</code> — Runtime engine config</p>
+</li>
+<li>
+<p><strong>Common build errors</strong>:
+  | Error | Cause | Fix |
+  |---|---|---|
+  | <code>TS2304: Cannot find name 'X'</code> | Missing types | Re-run <code>npm install --legacy-peer-deps</code> |
+  | <code>noUnusedLocals</code> / <code>noUnusedParameters</code> | Strict TS config | Remove unused vars/params or prefix with <code>_</code> |
+  | <code>tsdown: command not found</code> | devDep not installed | Run <code>npm install --legacy-peer-deps</code> |
+  | <code>EACCES dist/</code> permission error | dist folder permission issue | <code>rm -rf dist &amp;&amp; npm run build</code> |</p>
+</li>
+</ul>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li>
+<p><strong>개발 모드</strong> (tsx로 TypeScript 직접 실행, 빌드 불필요):
+  <code>bash
+  npm run dev</code></p>
+</li>
+<li>
+<p><strong>프로덕션 모드</strong> (빌드 후 실행):
+  <code>bash
+  npm run build &amp;&amp; npm start
+  # 또는
+  node dist/cli.mjs</code></p>
+</li>
+<li>
+<p><strong>접속 URL 및 포트</strong>:
+  | 서비스 | URL |
+  |---|---|
+  | REST API | <code>http://localhost:3111</code> |
+  | Streams API | <code>http://localhost:3112</code> |
+  | 메모리 뷰어 UI | <code>http://localhost:3113</code> |
+  | iii-engine WebSocket | <code>ws://localhost:49134</code> |</p>
+</li>
+<li>
+<p><strong>Docker Compose 사용</strong>:
+  <code>bash
+  # iii-engine + agentmemory 워커 모두 실행
+  docker compose up
+  # 백그라운드 실행
+  docker compose up -d
+  # 중지 및 볼륨 유지
+  docker compose down
+  # 중지 및 볼륨 삭제 (데이터 초기화)
+  docker compose down -v</code></p>
+</li>
+<li>
+<p><strong>실행 확인 방법</strong>:
+  <code>bash
+  # Health check
+  curl http://localhost:3111/agentmemory/health
+  # 서버 상태 확인 (CLI)
+  agentmemory status
+  # 데모 세션 생성 및 리콜 테스트
+  agentmemory demo</code></p>
+</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li>
+<p><strong>Dev mode</strong> (runs TypeScript directly via tsx, no build needed):
+  <code>bash
+  npm run dev</code></p>
+</li>
+<li>
+<p><strong>Production mode</strong> (build first, then run):
+  <code>bash
+  npm run build &amp;&amp; npm start
+  # or
+  node dist/cli.mjs</code></p>
+</li>
+<li>
+<p><strong>Access URL and port information</strong>:
+  | Service | URL |
+  |---|---|
+  | REST API | <code>http://localhost:3111</code> |
+  | Streams API | <code>http://localhost:3112</code> |
+  | Memory viewer UI | <code>http://localhost:3113</code> |
+  | iii-engine WebSocket | <code>ws://localhost:49134</code> |</p>
+</li>
+<li>
+<p><strong>Docker / docker-compose commands</strong>:
+  <code>bash
+  # Start iii-engine + agentmemory worker
+  docker compose up
+  # Background
+  docker compose up -d
+  # Stop, keep volume
+  docker compose down
+  # Stop and delete volume (data reset)
+  docker compose down -v</code></p>
+</li>
+<li>
+<p><strong>Verify the app is running</strong>:
+  <code>bash
+  # Health check
+  curl http://localhost:3111/agentmemory/health
+  # CLI status
+  agentmemory status
+  # Seed demo sessions and prove recall
+  agentmemory demo</code></p>
+</li>
+</ul>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li>
+<p><strong>단위 테스트 실행</strong> (통합 테스트 제외 — 라이브 서버 불필요):
+  <code>bash
+  npm test
+  # 또는
+  npm run test:watch   # 파일 변경 감지 모드</code></p>
+</li>
+<li>
+<p><strong>통합 테스트 실행</strong> (<code>http://localhost:3111</code> 에 라이브 서버 필요):
+  <code>bash
+  # 터미널 1: 서버 시작
+  npm run dev
+  # 터미널 2: 통합 테스트 실행
+  npm run test:integration</code></p>
+</li>
+<li>
+<p><strong>모든 테스트 실행</strong>:
+  <code>bash
+  npm run test:all</code></p>
+</li>
+<li>
+<p><strong>특정 테스트 파일 실행</strong>:
+  <code>bash
+  npx vitest run test/smart-search.test.ts</code></p>
+</li>
+<li>
+<p><strong>테스트 커버리지</strong>: Vitest의 내장 커버리지 기능을 별도 설정 없이 사용하려면:
+  <code>bash
+  npx vitest run --coverage</code></p>
+</li>
+<li>
+<p><strong>테스트 데이터/픽스처</strong>: <code>test/fixtures/jsonl/</code> 에 JSONL 픽스처 파일이 있습니다 (<code>basic.jsonl</code>, <code>errors.jsonl</code>, <code>tool-use.jsonl</code>). <code>test/helpers/mocks.ts</code>에 공통 목(mock) 유틸리티가 있습니다.</p>
+</li>
+<li>
+<p><strong>CI 환경</strong>: CI(<code>ci.yml</code>)는 Ubuntu + macOS, Node 20 + 22 매트릭스로 실행됩니다. Windows는 현재 제외됩니다.</p>
+</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li>
+<p><strong>Unit tests</strong> (excluding integration tests — no live server needed):
+  <code>bash
+  npm test
+  # or
+  npm run test:watch   # watch mode</code></p>
+</li>
+<li>
+<p><strong>Integration tests</strong> (requires a live server at <code>http://localhost:3111</code>):
+  <code>bash
+  # Terminal 1: start the server
+  npm run dev
+  # Terminal 2: run integration tests
+  npm run test:integration</code></p>
+</li>
+<li>
+<p><strong>All tests</strong>:
+  <code>bash
+  npm run test:all</code></p>
+</li>
+<li>
+<p><strong>Run a specific test file</strong>:
+  <code>bash
+  npx vitest run test/smart-search.test.ts</code></p>
+</li>
+<li>
+<p><strong>Test coverage</strong>: To run with coverage using Vitest's built-in coverage:
+  <code>bash
+  npx vitest run --coverage</code></p>
+</li>
+<li>
+<p><strong>Test data / fixtures</strong>: JSONL fixture files live in <code>test/fixtures/jsonl/</code> (<code>basic.jsonl</code>, <code>errors.jsonl</code>, <code>tool-use.jsonl</code>). Common mock utilities are in <code>test/helpers/mocks.ts</code>.</p>
+</li>
+<li>
+<p><strong>CI environment</strong>: The CI pipeline (<code>ci.yml</code>) runs on Ubuntu + macOS, Node 20 + 22 matrix. Windows is currently excluded.</p>
+</li>
+</ul>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>브랜치 전략</strong>:
+  | 목적 | 브랜치 명명 규칙 |
+  |---|---|
+  | 기능 추가 | <code>feat/&lt;short-name&gt;</code> |
+  | 버그 수정 | <code>fix/&lt;issue-number&gt;-&lt;short-name&gt;</code> |
+  | 문서 | <code>docs/&lt;topic&gt;</code> |
+  | 리팩토링/기타 | <code>refactor/&lt;topic&gt;</code>, <code>chore/&lt;topic&gt;</code> |</li>
+<li>
+<p>항상 <code>main</code> 기반으로 브랜치 생성</p>
+</li>
+<li>
+<p><strong>커밋 메시지 컨벤션</strong>:</p>
+</li>
+<li>DCO(Developer Certificate of Origin) 서명 필수: <code>git commit -s -m "feat: 설명"</code></li>
+<li>Conventional Commits 스타일: <code>feat:</code>, <code>fix:</code>, <code>docs:</code>, <code>refactor:</code>, <code>chore:</code></li>
+<li>CHANGELOG는 PR 본문에서 수정하지 않음 — 릴리즈 PR에서만 수정</li>
+<li>
+<p><strong>주의</strong>: 커밋/PR 설명에 "Generated with Claude Code", "Co-Authored-By: Claude" 등 AI 귀속 헤더 금지</p>
+</li>
+<li>
+<p><strong>PR/코드 리뷰 절차</strong>:</p>
+</li>
+<li><code>npm run build</code> TypeScript 빌드 클린 확인</li>
+<li><code>npm test</code> 전체 테스트 통과 확인</li>
+<li>PR 설명에 "무엇을", "왜", "어떻게 확인하는지" 명시</li>
+<li>이슈 링크: <code>Fixes #NNN</code> 또는 <code>Closes #NNN</code></li>
+<li>CodeRabbit 자동 리뷰 후 피드백 해결</li>
+<li>리뷰 피드백은 새 커밋으로 반영 (force-push 금지)</li>
+<li>
+<p>유지관리자가 squash 병합</p>
+</li>
+<li>
+<p><strong>코딩 스타일 / 린트 규칙</strong>:</p>
+</li>
+<li>TypeScript strict 모드 (<code>noUnusedLocals</code>, <code>noUnusedParameters</code> 포함)</li>
+<li><code>any</code> 사용 시 주석으로 이유 설명 필수</li>
+<li>Prettier 포맷 (에디터 on-save, 저장소 전체 훅 없음)</li>
+<li>코드가 하는 일을 재서술하는 주석 금지 — "왜"가 불명확한 경우에만 주석</li>
+<li>사용하지 않는 import, 주석 처리된 코드 금지</li>
+<li>테스트는 <code>test/&lt;feature&gt;.test.ts</code> 에 작성, 이름은 구현이 아닌 동작 기준</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Branching strategy</strong>:
+  | Purpose | Branch naming |
+  |---|---|
+  | Features | <code>feat/&lt;short-name&gt;</code> |
+  | Bug fixes | <code>fix/&lt;issue-number&gt;-&lt;short-name&gt;</code> |
+  | Docs | <code>docs/&lt;topic&gt;</code> |
+  | Refactor/misc | <code>refactor/&lt;topic&gt;</code>, <code>chore/&lt;topic&gt;</code> |</li>
+<li>
+<p>Always branch from <code>main</code></p>
+</li>
+<li>
+<p><strong>Commit message conventions</strong>:</p>
+</li>
+<li>DCO sign-off required on every commit: <code>git commit -s -m "feat: description"</code></li>
+<li>Conventional Commits style: <code>feat:</code>, <code>fix:</code>, <code>docs:</code>, <code>refactor:</code>, <code>chore:</code></li>
+<li>Never touch CHANGELOG in feature PRs — only in release PRs</li>
+<li>
+<p><strong>Important</strong>: No AI attribution headers ("Generated with Claude Code", "Co-Authored-By: Claude", etc.) in commits or PR descriptions</p>
+</li>
+<li>
+<p><strong>PR / code review process</strong>:</p>
+</li>
+<li>Confirm <code>npm run build</code> compiles clean</li>
+<li>Confirm <code>npm test</code> passes</li>
+<li>PR description must state what it does, why, and how to verify</li>
+<li>Link the issue: <code>Fixes #NNN</code> or <code>Closes #NNN</code></li>
+<li>Resolve CodeRabbit auto-review comments before requesting human review</li>
+<li>Address review feedback in new commits — no force-pushing to the same branch</li>
+<li>
+<p>Maintainers squash-merge</p>
+</li>
+<li>
+<p><strong>Coding style and lint rules</strong>:</p>
+</li>
+<li>TypeScript strict mode (including <code>noUnusedLocals</code>, <code>noUnusedParameters</code>)</li>
+<li><code>any</code> usage requires a comment explaining why</li>
+<li>Prettier formatting (on-save in editor; no repo-wide pre-commit hook)</li>
+<li>No comments that restate what the code does — only comment the non-obvious "why"</li>
+<li>No dead code, no commented-out imports</li>
+<li>Tests live in <code>test/&lt;feature&gt;.test.ts</code>, named after behavior not implementation</li>
+</ul>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1: <code>npm install</code> 시 <code>EACCES</code> 또는 peer dependency 오류가 발생합니다.</strong></p>
+<p><code>--legacy-peer-deps</code> 플래그를 사용하세요. 저장소에는 <code>package-lock.json</code>이 커밋되어 있지 않으므로, CI처럼 두 단계로 실행합니다:</p>
+<pre><code class="language-bash">npm install --package-lock-only --legacy-peer-deps --no-audit --no-fund
+npm ci --legacy-peer-deps --no-audit --no-fund
+</code></pre>
+<p>전역 설치 시 EACCES는 nvm 또는 volta로 Node.js를 설치하면 해결됩니다.</p>
+<p><strong>Q2: 서버를 시작했는데 <code>http://localhost:3111/agentmemory/health</code> 가 연결을 거부합니다.</strong></p>
+<p>iii-engine이 아직 시작 중일 수 있습니다. 로그에서 <code>iii-engine ready</code> 또는 <code>worker registered</code> 메시지를 확인하세요. Docker를 사용하는 경우 <code>iii-init</code> 컨테이너가 완료되어야 합니다 (<code>docker compose logs iii-init</code>). 포트 충돌 여부도 확인: <code>lsof -i :3111</code>.</p>
+<p><strong>Q3: LLM API 키 없이 동작하나요?</strong></p>
+<p>네. 키 없이도 BM25 전용 하이브리드 검색과 synthetic(LLM 없음) 압축으로 완전히 동작합니다. 요약, 반성(reflection), 통합(consolidation) 기능만 비활성화됩니다. <code>agentmemory demo</code> 로 바로 테스트 가능합니다.</p>
+<p><strong>Q4: 새 MCP 도구를 추가하려면 어디를 수정해야 하나요?</strong></p>
+<p>총 4곳: (1) <code>src/functions/&lt;area&gt;.ts</code> 에 핵심 로직 구현, (2) <code>src/triggers/api.ts</code> 에 REST 트윈 등록, (3) <code>src/mcp/tools-registry.ts</code> 에 도구 정의 추가, (4) <code>src/mcp/standalone.ts</code> 에 독립형 MCP 구현. 그리고 <code>test/</code> 에 테스트 추가.</p>
+<p><strong>Q5: <code>npm test</code> 에서 일부 테스트가 타임아웃됩니다.</strong></p>
+<p><code>test/integration.test.ts</code> 와 <code>test/integration-plaintext-http.test.ts</code> 는 라이브 서버를 필요로 합니다. 기본 <code>npm test</code> 명령은 이들을 제외하므로, 만약 통합 테스트가 실행된다면 <code>npm run dev</code>를 먼저 실행하세요.</p>
+<p><strong>Q6: Windows에서 일부 테스트가 실패합니다.</strong></p>
+<p><code>test/obsidian-export.test.ts</code> 가 <code>/tmp/</code> 경로를 하드코딩합니다. Windows에서는 WSL2 사용을 권장하며, 이 테스트는 CI에서도 Windows를 제외합니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Q1: <code>npm install</code> fails with <code>EACCES</code> or peer dependency errors.</strong></p>
+<p>Use the <code>--legacy-peer-deps</code> flag. The repo has no committed <code>package-lock.json</code>, so run as CI does — in two steps:</p>
+<pre><code class="language-bash">npm install --package-lock-only --legacy-peer-deps --no-audit --no-fund
+npm ci --legacy-peer-deps --no-audit --no-fund
+</code></pre>
+<p>For global install EACCES, install Node.js via nvm or volta to avoid permission issues.</p>
+<p><strong>Q2: The server starts but <code>http://localhost:3111/agentmemory/health</code> refuses connection.</strong></p>
+<p>iii-engine may still be starting. Check logs for <code>iii-engine ready</code> or <code>worker registered</code>. With Docker, wait for <code>iii-init</code> to complete (<code>docker compose logs iii-init</code>). Also check for port conflicts: <code>lsof -i :3111</code>.</p>
+<p><strong>Q3: Does it work without any LLM API keys?</strong></p>
+<p>Yes. Without any keys it runs fully with BM25-only hybrid search and synthetic (zero-LLM) compression. Summarization, reflection, and consolidation are disabled. Run <code>agentmemory demo</code> to verify immediately.</p>
+<p><strong>Q4: Where do I make changes to add a new MCP tool?</strong></p>
+<p>Four places: (1) implement core logic in <code>src/functions/&lt;area&gt;.ts</code>, (2) register REST twin in <code>src/triggers/api.ts</code>, (3) add tool definition in <code>src/mcp/tools-registry.ts</code>, (4) implement in <code>src/mcp/standalone.ts</code> for the standalone MCP package. Then add a test under <code>test/</code>.</p>
+<p><strong>Q5: Some tests time out during <code>npm test</code>.</strong></p>
+<p><code>test/integration.test.ts</code> and <code>test/integration-plaintext-http.test.ts</code> need a live server. The default <code>npm test</code> command excludes them. If integration tests are running, start <code>npm run dev</code> first.</p>
+<p><strong>Q6: Some tests fail on Windows.</strong></p>
+<p><code>test/obsidian-export.test.ts</code> hardcodes <code>/tmp/</code> paths. Use WSL2 on Windows — this test is also excluded from Windows CI.</p>
+<h2 id="-">---</h2>
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>분류</strong>: 독립 실행 가능한 <strong>메모리 엔진 서버</strong> + <strong>MCP 서버 라이브러리</strong> + <strong>참조 구현</strong></li>
+<li><code>agentmemory</code>는 AI 코딩 에이전트의 세션 간 기억 유실 문제를 해결합니다. 에이전트가 세션마다 같은 아키텍처를 재설명해야 하거나, 이전 버그 수정 내용을 모르거나, 개인 코딩 선호도를 잊어버리는 상황에 사용합니다.</li>
+<li>실전 적용 사례:</li>
+<li><strong>장기 프로젝트</strong>: 수백 세션에 걸친 기술 결정, 파일 구조 변화, 팀 컨벤션을 영속적으로 보존</li>
+<li><strong>멀티 에이전트 환경</strong>: 여러 에이전트가 하나의 메모리 서버를 공유하여 일관된 컨텍스트 유지</li>
+<li><strong>팀 협업</strong>: <code>TEAM_MODE=shared</code>로 팀 전체의 코딩 패턴과 결정을 공유</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Classification</strong>: Standalone <strong>memory engine server</strong> + <strong>MCP server library</strong> + <strong>reference implementation</strong></li>
+<li><code>agentmemory</code> solves the session-amnesia problem for AI coding agents. It addresses the situation where an agent must re-explain the same architecture every session, doesn't know about a prior bug fix, or has forgotten your coding preferences.</li>
+<li>Real-world application use cases:</li>
+<li><strong>Long-running projects</strong>: Persistently preserve technical decisions, file structure changes, and team conventions across hundreds of sessions</li>
+<li><strong>Multi-agent environments</strong>: Multiple agents share one memory server for consistent context</li>
+<li><strong>Team collaboration</strong>: Share coding patterns and decisions across a whole team via <code>TEAM_MODE=shared</code></li>
+</ul>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li>
+<p><strong>전체 아키텍처</strong>: agentmemory는 iii-engine 위에 등록된 HTTP 워커입니다. iii-engine이 KV 스토어, 큐, PubSub, 크론, 스트림을 관리하고, agentmemory 워커가 비즈니스 로직을 담당합니다.</p>
+</li>
+<li>
+<p><strong>핵심 컴포넌트</strong>:
+  | 컴포넌트 | 역할 |
+  |---|---|
+  | iii-engine | 기반 런타임 (KV, HTTP, 스트림, 크론) |
+  | <code>src/triggers/api.ts</code> | REST API 엔드포인트 핸들러 |
+  | <code>src/hooks/</code> | 에이전트 이벤트 → 관찰 변환 (12개 훅) |
+  | <code>src/functions/observe.ts</code> | 원시 관찰 수신 및 저장 |
+  | <code>src/functions/compress.ts</code> | LLM 기반 관찰 압축 |
+  | <code>src/state/hybrid-search.ts</code> | BM25 + 벡터 하이브리드 검색 |
+  | <code>src/functions/smart-search.ts</code> | 그래프 강화 하이브리드 검색 (RRF 퓨전) |
+  | <code>src/functions/graph.ts</code> | 개념 그래프 (엔티티-관계 추출) |
+  | <code>src/mcp/server.ts</code> | MCP 도구 서버 (53개 도구) |
+  | <code>src/viewer/</code> | 실시간 메모리 뷰어 |
+  | <code>src/providers/</code> | LLM + 임베딩 공급자 추상화 |</p>
+</li>
+<li>
+<p><strong>데이터 흐름</strong>: 관찰 수집 → 압축 → 인덱싱(BM25+벡터) → 검색(RRF) → 컨텍스트 주입</p>
+</li>
+</ul>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph Agents[&quot;AI Agents&quot;]
+        CC[Claude Code]
+        CX[Codex CLI]
+        CU[Cursor / Windsurf]
+        GM[Gemini CLI]
+        OT[Other MCP Clients]
+    end
+
+    subgraph agentmemory[&quot;agentmemory Server (port 3111)&quot;]
+        direction TB
+
+        subgraph Capture[&quot;Capture Layer&quot;]
+            HOOKS[12 Auto-Hooks\nsession-start / stop\npost-tool-use\npre-compact\ntask-completed\nnotification]
+        end
+
+        subgraph Processing[&quot;Processing Layer&quot;]
+            OBS[observe.ts\nRaw Observation Ingestion]
+            COMP[compress.ts\nLLM Compression\nor Synthetic]
+            GRAPH[graph.ts\nConcept Graph Extraction]
+        end
+
+        subgraph Search[&quot;Search Layer&quot;]
+            BM25[search-index.ts\nBM25 Inverted Index]
+            VEC[vector-index.ts\nVector Index\nall-MiniLM-L6-v2]
+            HS[hybrid-search.ts\nBM25 + Vector Fusion]
+            GR[graph-retrieval.ts\nGraph Traversal Boost]
+            SS[smart-search.ts\nRRF Fusion]
+        end
+
+        subgraph API[&quot;API Layer&quot;]
+            REST[triggers/api.ts\nREST Endpoints]
+            MCP[mcp/server.ts\n53 MCP Tools]
+            VIEW[viewer/\nReal-time Web UI\nport 3113]
+        end
+
+        subgraph Context[&quot;Context Layer&quot;]
+            CTX[context.ts\nMemory Injection]
+            CONS[consolidate.ts\n4-tier Pipeline]
+            REM[remember.ts\nExplicit Save]
+        end
+    end
+
+    subgraph Engine[&quot;iii-engine (port 49134 WS)&quot;]
+        KV[(KV Store\nstate_store.db)]
+        STRM[(Stream Store)]
+        CRON[Cron / Queue / PubSub]
+    end
+
+    subgraph Providers[&quot;LLM / Embedding Providers&quot;]
+        ANT[Anthropic Claude]
+        OAI[OpenAI GPT]
+        GEM[Google Gemini]
+        OR[OpenRouter]
+        LOC[Local Xenova\nall-MiniLM-L6-v2]
+    end
+
+    Agents -- &quot;hooks / MCP calls / REST&quot; --&gt; REST
+    Agents -- &quot;MCP stdio/SSE&quot; --&gt; MCP
+    HOOKS --&gt; OBS
+    OBS --&gt; COMP
+    COMP --&gt; BM25
+    COMP --&gt; VEC
+    COMP --&gt; GRAPH
+    BM25 --&gt; HS
+    VEC --&gt; HS
+    HS --&gt; GR --&gt; SS
+    GR --&gt; KV
+    SS --&gt; CTX
+    CTX --&gt; Agents
+    REST --&gt; Processing
+    REST --&gt; Search
+    REST --&gt; Context
+    MCP --&gt; Search
+    MCP --&gt; Context
+    MCP --&gt; REM
+    Processing --&gt; KV
+    Search --&gt; KV
+    Context --&gt; KV
+    KV --&gt; STRM
+    CRON --&gt; CONS
+    COMP --&gt; Providers
+    VEC --&gt; LOC
+    VEC --&gt; Providers
+</code></pre>
+<p><strong>[English]</strong></p>
+<ul>
+<li>
+<p><strong>Overall architecture</strong>: agentmemory is an HTTP worker registered on top of iii-engine. The iii-engine manages the KV store, queues, PubSub, cron, and streams; the agentmemory worker handles business logic.</p>
+</li>
+<li>
+<p><strong>Core components</strong>:
+  | Component | Role |
+  |---|---|
+  | iii-engine | Underlying runtime (KV, HTTP, streams, cron) |
+  | <code>src/triggers/api.ts</code> | REST API endpoint handlers |
+  | <code>src/hooks/</code> | Agent events → observations (12 hooks) |
+  | <code>src/functions/observe.ts</code> | Raw observation ingestion and storage |
+  | <code>src/functions/compress.ts</code> | LLM-backed observation compression |
+  | <code>src/state/hybrid-search.ts</code> | BM25 + vector hybrid search |
+  | <code>src/functions/smart-search.ts</code> | Graph-boosted hybrid search (RRF fusion) |
+  | <code>src/functions/graph.ts</code> | Concept graph (entity-relation extraction) |
+  | <code>src/mcp/server.ts</code> | MCP tool server (53 tools) |
+  | <code>src/viewer/</code> | Real-time memory viewer |
+  | <code>src/providers/</code> | LLM + embedding provider abstraction |</p>
+</li>
+<li>
+<p><strong>Data flow</strong>: Observation capture → compression → indexing (BM25 + vector) → search (RRF) → context injection</p>
+</li>
+</ul>
+<pre><code class="language-mermaid">flowchart TB
+    subgraph Agents[&quot;AI Agents&quot;]
+        CC[Claude Code]
+        CX[Codex CLI]
+        CU[Cursor / Windsurf]
+        GM[Gemini CLI]
+        OT[Other MCP Clients]
+    end
+
+    subgraph agentmemory[&quot;agentmemory Server (port 3111)&quot;]
+        direction TB
+
+        subgraph Capture[&quot;Capture Layer&quot;]
+            HOOKS[12 Auto-Hooks\nsession-start / stop\npost-tool-use\npre-compact\ntask-completed\nnotification]
+        end
+
+        subgraph Processing[&quot;Processing Layer&quot;]
+            OBS[observe.ts\nRaw Observation Ingestion]
+            COMP[compress.ts\nLLM Compression\nor Synthetic]
+            GRAPH[graph.ts\nConcept Graph Extraction]
+        end
+
+        subgraph Search[&quot;Search Layer&quot;]
+            BM25[search-index.ts\nBM25 Inverted Index]
+            VEC[vector-index.ts\nVector Index\nall-MiniLM-L6-v2]
+            HS[hybrid-search.ts\nBM25 + Vector Fusion]
+            GR[graph-retrieval.ts\nGraph Traversal Boost]
+            SS[smart-search.ts\nRRF Fusion]
+        end
+
+        subgraph API[&quot;API Layer&quot;]
+            REST[triggers/api.ts\nREST Endpoints]
+            MCP[mcp/server.ts\n53 MCP Tools]
+            VIEW[viewer/\nReal-time Web UI\nport 3113]
+        end
+
+        subgraph Context[&quot;Context Layer&quot;]
+            CTX[context.ts\nMemory Injection]
+            CONS[consolidate.ts\n4-tier Pipeline]
+            REM[remember.ts\nExplicit Save]
+        end
+    end
+
+    subgraph Engine[&quot;iii-engine (port 49134 WS)&quot;]
+        KV[(KV Store\nstate_store.db)]
+        STRM[(Stream Store)]
+        CRON[Cron / Queue / PubSub]
+    end
+
+    subgraph Providers[&quot;LLM / Embedding Providers&quot;]
+        ANT[Anthropic Claude]
+        OAI[OpenAI GPT]
+        GEM[Google Gemini]
+        OR[OpenRouter]
+        LOC[Local Xenova\nall-MiniLM-L6-v2]
+    end
+
+    Agents -- &quot;hooks / MCP calls / REST&quot; --&gt; REST
+    Agents -- &quot;MCP stdio/SSE&quot; --&gt; MCP
+    HOOKS --&gt; OBS
+    OBS --&gt; COMP
+    COMP --&gt; BM25
+    COMP --&gt; VEC
+    COMP --&gt; GRAPH
+    BM25 --&gt; HS
+    VEC --&gt; HS
+    HS --&gt; GR --&gt; SS
+    GR --&gt; KV
+    SS --&gt; CTX
+    CTX --&gt; Agents
+    REST --&gt; Processing
+    REST --&gt; Search
+    REST --&gt; Context
+    MCP --&gt; Search
+    MCP --&gt; Context
+    MCP --&gt; REM
+    Processing --&gt; KV
+    Search --&gt; KV
+    Context --&gt; KV
+    KV --&gt; STRM
+    CRON --&gt; CONS
+    COMP --&gt; Providers
+    VEC --&gt; LOC
+    VEC --&gt; Providers
+</code></pre>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: Claude Code에 agentmemory 연결하여 장기 프로젝트 기억 유지</strong></p>
+<p>단계별 설명:
+1. 글로벌 설치 및 서버 시작:
+   <code>bash
+   npm install -g @agentmemory/agentmemory
+   agentmemory</code>
+2. Claude Code 연결 (MCP + 12개 훅 자동 설정):
+   <code>bash
+   agentmemory connect claude-code</code>
+3. 네이티브 스킬 설치 (에이전트가 언제 메모리 도구를 사용할지 알게 됨):
+   <code>bash
+   npx skills add rohitg00/agentmemory -y</code>
+4. Claude Code를 재시작하면 이후 모든 세션이 자동으로 캡처·인덱싱됩니다.
+5. 새 세션에서 에이전트가 이전 기억을 자동으로 주입받거나, <code>memory_recall</code> MCP 도구로 명시적 검색 가능.</p>
+<p><strong>시나리오 2: REST API를 통한 커스텀 에이전트 통합</strong></p>
+<p>MCP나 훅을 지원하지 않는 자체 에이전트에 REST API로 직접 통합:</p>
+<pre><code class="language-python">import requests
+
+BASE = &quot;http://localhost:3111&quot;
+HEADERS = {&quot;Authorization&quot;: &quot;Bearer your-secret&quot;}
+
+# 관찰 저장
+requests.post(f&quot;{BASE}/agentmemory/observe&quot;, headers=HEADERS, json={
+    &quot;sessionId&quot;: &quot;session-001&quot;,
+    &quot;hookType&quot;: &quot;conversation&quot;,
+    &quot;userPrompt&quot;: &quot;JWT 인증을 구현해 주세요&quot;,
+    &quot;assistantResponse&quot;: &quot;jose 라이브러리를 사용하는 방향으로...&quot;
+})
+
+# 기억 검색
+r = requests.get(f&quot;{BASE}/agentmemory/search&quot;,
+    headers=HEADERS, params={&quot;q&quot;: &quot;JWT 인증&quot;, &quot;limit&quot;: 5})
+memories = r.json()[&quot;results&quot;]
+</code></pre>
+<p><strong>시나리오 3: Docker를 이용한 팀 공유 메모리 서버 운영</strong></p>
+<pre><code class="language-bash"># 팀 공유 모드로 서버 실행
+TEAM_MODE=shared TEAM_ID=myteam AGENTMEMORY_SECRET=team-secret docker compose up -d
+
+# 각 팀원 설정 (개인 USER_ID 지정)
+USER_ID=alice AGENTMEMORY_URL=http://memory-server:3111 \
+  AGENTMEMORY_SECRET=team-secret agentmemory connect claude-code
+</code></pre>
+<p><strong>시나리오 4: Obsidian 볼트에 메모리 자동 내보내기</strong></p>
+<pre><code class="language-ini"># ~/.agentmemory/.env
+OBSIDIAN_AUTO_EXPORT=true
+OBSIDIAN_VAULT_PATH=/Users/you/ObsidianVault/agentmemory
+</code></pre>
+<p>통합 후 매 consolidation 사이클마다 메모리가 Obsidian-compatible 마크다운으로 자동 내보내집니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: Connect agentmemory to Claude Code for long-running project memory</strong></p>
+<p>Step-by-step:
+1. Install globally and start the server:
+   <code>bash
+   npm install -g @agentmemory/agentmemory
+   agentmemory</code>
+2. Wire Claude Code (auto-configures MCP + 12 hooks):
+   <code>bash
+   agentmemory connect claude-code</code>
+3. Install native skills (so the agent knows when to use memory tools):
+   <code>bash
+   npx skills add rohitg00/agentmemory -y</code>
+4. Restart Claude Code — all future sessions are automatically captured and indexed.
+5. In new sessions, the agent receives prior memories automatically, or can explicitly search via <code>memory_recall</code> MCP tool.</p>
+<p><strong>Scenario 2: Custom agent integration via REST API</strong></p>
+<p>For agents that don't support MCP or hooks, integrate directly via REST:</p>
+<pre><code class="language-python">import requests
+
+BASE = &quot;http://localhost:3111&quot;
+HEADERS = {&quot;Authorization&quot;: &quot;Bearer your-secret&quot;}
+
+# Store an observation
+requests.post(f&quot;{BASE}/agentmemory/observe&quot;, headers=HEADERS, json={
+    &quot;sessionId&quot;: &quot;session-001&quot;,
+    &quot;hookType&quot;: &quot;conversation&quot;,
+    &quot;userPrompt&quot;: &quot;Implement JWT auth please&quot;,
+    &quot;assistantResponse&quot;: &quot;Using the jose library...&quot;
+})
+
+# Search memories
+r = requests.get(f&quot;{BASE}/agentmemory/search&quot;,
+    headers=HEADERS, params={&quot;q&quot;: &quot;JWT auth&quot;, &quot;limit&quot;: 5})
+memories = r.json()[&quot;results&quot;]
+</code></pre>
+<p><strong>Scenario 3: Team-shared memory server via Docker</strong></p>
+<pre><code class="language-bash"># Start in team-shared mode
+TEAM_MODE=shared TEAM_ID=myteam AGENTMEMORY_SECRET=team-secret docker compose up -d
+
+# Each team member configures their agent with their USER_ID
+USER_ID=alice AGENTMEMORY_URL=http://memory-server:3111 \
+  AGENTMEMORY_SECRET=team-secret agentmemory connect claude-code
+</code></pre>
+<p><strong>Scenario 4: Auto-export memories to an Obsidian vault</strong></p>
+<pre><code class="language-ini"># ~/.agentmemory/.env
+OBSIDIAN_AUTO_EXPORT=true
+OBSIDIAN_VAULT_PATH=/Users/you/ObsidianVault/agentmemory
+</code></pre>
+<p>After configuration, every consolidation cycle exports memories as Obsidian-compatible markdown automatically.</p>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li>
+<p><strong>설정 변경 포인트</strong> (환경 변수, <code>~/.agentmemory/.env</code>):
+  | 환경 변수 | 기본값 | 설명 |
+  |---|---|---|
+  | <code>AGENTMEMORY_TOOLS</code> | <code>core</code> | <code>core</code> (7개) 또는 <code>all</code> (53개) MCP 도구 노출 |
+  | <code>BM25_WEIGHT</code> / <code>VECTOR_WEIGHT</code> | <code>0.4</code> / <code>0.6</code> | 하이브리드 검색 가중치 |
+  | <code>AGENTMEMORY_GRAPH_WEIGHT</code> | <code>0.2</code> | 그래프 순위 부스트 |
+  | <code>TOKEN_BUDGET</code> | <code>2000</code> | 세션 당 주입 토큰 한도 |
+  | <code>MAX_OBS_PER_SESSION</code> | <code>500</code> | 세션 당 최대 관찰 수 |
+  | <code>CONSOLIDATION_ENABLED</code> | <code>false</code> | 4단계 통합 파이프라인 활성화 |
+  | <code>GRAPH_EXTRACTION_ENABLED</code> | <code>false</code> | 개념 그래프 추출 활성화 |
+  | <code>AGENTMEMORY_INJECT_CONTEXT</code> | <code>false</code> | 에이전트 프롬프트에 메모리 자동 주입 |
+  | <code>AGENTMEMORY_AUTO_COMPRESS</code> | <code>false</code> | 모든 관찰 배치에 LLM 압축 실행 |
+  | <code>CLAUDE_MEMORY_BRIDGE</code> | <code>false</code> | 메모리를 CLAUDE.md에 미러링 |</p>
+</li>
+<li>
+<p><strong>기능 추가 시 수정해야 할 주요 파일/모듈</strong>:</p>
+</li>
+<li><strong>새 MCP 도구</strong>: <code>src/functions/</code>, <code>src/triggers/api.ts</code>, <code>src/mcp/tools-registry.ts</code>, <code>src/mcp/standalone.ts</code></li>
+<li><strong>새 훅 타입</strong>: <code>src/types.ts</code> (HookType 유니온), <code>src/hooks/&lt;hook-name&gt;.ts</code> (핸들러)</li>
+<li><strong>새 LLM 공급자</strong>: <code>src/providers/</code> 에 새 파일, <code>src/config.ts</code> detectProvider() 확장</li>
+<li><strong>새 임베딩 공급자</strong>: <code>src/providers/embedding/</code> 에 새 파일, <code>src/providers/embedding/index.ts</code> 등록</li>
+<li>
+<p><strong>버전 업</strong>: <code>src/version.ts</code>, <code>src/types.ts</code>, <code>src/functions/export-import.ts</code>, <code>test/export-import.test.ts</code> 동시 수정</p>
+</li>
+<li>
+<p><strong>플러그인 / 슬롯 구조</strong>: <code>AGENTMEMORY_SLOTS=memory</code> 환경 변수로 Claude Code 플러그인 슬롯 클레임. 새 에이전트 통합은 <code>src/cli/connect/</code> 에 파일 추가 후 <code>agentmemory connect &lt;agent-name&gt;</code> CLI에 등록.</p>
+</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li>
+<p><strong>Configuration touch points</strong> (env vars, <code>~/.agentmemory/.env</code>):
+  | Env var | Default | Description |
+  |---|---|---|
+  | <code>AGENTMEMORY_TOOLS</code> | <code>core</code> | <code>core</code> (7 tools) or <code>all</code> (53 tools) MCP surface |
+  | <code>BM25_WEIGHT</code> / <code>VECTOR_WEIGHT</code> | <code>0.4</code> / <code>0.6</code> | Hybrid search weights |
+  | <code>AGENTMEMORY_GRAPH_WEIGHT</code> | <code>0.2</code> | Graph ranking boost |
+  | <code>TOKEN_BUDGET</code> | <code>2000</code> | Token limit for injected context per session |
+  | <code>MAX_OBS_PER_SESSION</code> | <code>500</code> | Per-session observation cap |
+  | <code>CONSOLIDATION_ENABLED</code> | <code>false</code> | Enable 4-tier consolidation pipeline |
+  | <code>GRAPH_EXTRACTION_ENABLED</code> | <code>false</code> | Enable concept graph extraction |
+  | <code>AGENTMEMORY_INJECT_CONTEXT</code> | <code>false</code> | Auto-inject memories into agent prompts |
+  | <code>AGENTMEMORY_AUTO_COMPRESS</code> | <code>false</code> | Run LLM compression on every observation batch |
+  | <code>CLAUDE_MEMORY_BRIDGE</code> | <code>false</code> | Mirror compressed memories into CLAUDE.md |</p>
+</li>
+<li>
+<p><strong>Key files/modules to modify when adding features</strong>:</p>
+</li>
+<li><strong>New MCP tool</strong>: <code>src/functions/</code>, <code>src/triggers/api.ts</code>, <code>src/mcp/tools-registry.ts</code>, <code>src/mcp/standalone.ts</code></li>
+<li><strong>New hook type</strong>: <code>src/types.ts</code> (HookType union), <code>src/hooks/&lt;hook-name&gt;.ts</code> (handler)</li>
+<li><strong>New LLM provider</strong>: new file in <code>src/providers/</code>, extend <code>detectProvider()</code> in <code>src/config.ts</code></li>
+<li><strong>New embedding provider</strong>: new file in <code>src/providers/embedding/</code>, register in <code>src/providers/embedding/index.ts</code></li>
+<li>
+<p><strong>Version bump</strong>: simultaneously update <code>src/version.ts</code>, <code>src/types.ts</code>, <code>src/functions/export-import.ts</code>, <code>test/export-import.test.ts</code> (all 8 files per CONTRIBUTING.md)</p>
+</li>
+<li>
+<p><strong>Plugin / slot architecture</strong>: The <code>AGENTMEMORY_SLOTS=memory</code> env var lets the agentmemory CLI claim plugin slots in Claude Code. New agent integrations are added as files in <code>src/cli/connect/</code> and registered to the <code>agentmemory connect &lt;agent-name&gt;</code> CLI.</p>
+</li>
+</ul>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li>
+<p><strong>프로덕션 빌드 및 배포 절차</strong>:
+  <code>bash
+  # npm 글로벌 설치 (가장 단순한 방법)
+  npm install -g @agentmemory/agentmemory
+  agentmemory  # 서버 시작</code>
+  또는 Docker Compose:
+  <code>bash
+  docker compose up -d</code></p>
+</li>
+<li>
+<p><strong>환경별 설정 분리</strong>:</p>
+</li>
+<li>로컬: <code>~/.agentmemory/.env</code></li>
+<li>Docker: <code>docker compose</code> 환경 변수 또는 <code>.env</code> 파일</li>
+<li>클라우드 배포: 플랫폼 환경 변수 UI (fly.io Secrets, Railway/Render Variables)</li>
+<li>
+<p><code>AGENTMEMORY_SECRET</code> 는 운영 환경에서 반드시 설정 (loopback 이외 노출 시)</p>
+</li>
+<li>
+<p><strong>CI/CD 파이프라인</strong>: <code>.github/workflows/publish.yml</code>이 GitHub Release 트리거를 감지하여 <code>@agentmemory/agentmemory</code>, <code>@agentmemory/mcp</code>, <code>@agentmemory/fs-watcher</code> 를 npm에 프로비넌스(provenance)와 함께 자동 게시합니다.</p>
+</li>
+<li>
+<p><strong>컨테이너화 가이드 (Deploy 옵션)</strong>:
+  | 플랫폼 | 특징 | 최소 비용 |
+  |---|---|---|
+  | <strong>fly.io</strong> | 자동 중지, 최저 유휴 비용, cold-start 있음 | ~$0.15/월 |
+  | <strong>Railway</strong> | 대시보드 클릭으로 배포, 정액제 | $5/월 |
+  | <strong>Render</strong> | Blueprint 자동화, 디스크 스냅샷 | $7.25/월 |
+  | <strong>Coolify</strong> | 자체 VPS, Docker Compose 동일 스택 | VPS 비용만 |</p>
+</li>
+</ul>
+<p>모든 플랫폼 공통 보장사항: <code>/data</code>에 볼륨 마운트, 첫 부팅 시 HMAC 시크릿 자동 생성, 포트 3111만 외부 노출, TLS는 엣지 프록시에서 종료.</p>
+<p><code>bash
+  # fly.io 배포 예시
+  cd deploy/fly
+  fly launch --copy-config
+  flyctl secrets set AGENTMEMORY_SECRET=$(openssl rand -hex 32)
+  fly deploy</code></p>
+<p><strong>[English]</strong></p>
+<ul>
+<li>
+<p><strong>Production build and deployment steps</strong>:
+  <code>bash
+  # Simplest: npm global install
+  npm install -g @agentmemory/agentmemory
+  agentmemory  # start the server</code>
+  Or via Docker Compose:
+  <code>bash
+  docker compose up -d</code></p>
+</li>
+<li>
+<p><strong>Environment-specific configuration separation</strong>:</p>
+</li>
+<li>Local: <code>~/.agentmemory/.env</code></li>
+<li>Docker: docker compose env vars or <code>.env</code> file</li>
+<li>Cloud deployments: platform env variable UI (fly.io Secrets, Railway/Render Variables)</li>
+<li>
+<p><code>AGENTMEMORY_SECRET</code> <strong>must</strong> be set in production when exposed beyond loopback</p>
+</li>
+<li>
+<p><strong>CI/CD pipeline</strong>: <code>.github/workflows/publish.yml</code> listens for a GitHub Release trigger and automatically publishes <code>@agentmemory/agentmemory</code>, <code>@agentmemory/mcp</code>, and <code>@agentmemory/fs-watcher</code> to npm with provenance.</p>
+</li>
+<li>
+<p><strong>Containerization guide (Deploy options)</strong>:
+  | Platform | Characteristics | Cost floor |
+  |---|---|---|
+  | <strong>fly.io</strong> | Auto-stop, lowest idle cost, cold-start latency | ~$0.15/month |
+  | <strong>Railway</strong> | Dashboard-driven, flat monthly bill | $5/month |
+  | <strong>Render</strong> | Blueprint automation, disk snapshots | $7.25/month |
+  | <strong>Coolify</strong> | Self-hosted VPS, same Docker Compose stack | VPS cost only |</p>
+</li>
+</ul>
+<p>Guaranteed by all templates: volume at <code>/data</code>, HMAC secret auto-generated on first boot, only port 3111 exposed publicly, TLS terminated at edge proxy.</p>
+<p><code>bash
+  # fly.io deployment example
+  cd deploy/fly
+  fly launch --copy-config
+  flyctl secrets set AGENTMEMORY_SECRET=$(openssl rand -hex 32)
+  fly deploy</code></p>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>알려진 성능 특성</strong>:</li>
+<li>LongMemEval-S 기준 하이브리드 검색 R@5 95.2%, p50 지연 14ms</li>
+<li>100K 관찰 스케일 테스트: <code>benchmark/SCALE.md</code> 참조</li>
+<li>
+<p>벡터 인덱스는 차원 수가 384(all-MiniLM-L6-v2 기본값)로 고정되므로, 임베딩 공급자 변경 시 <code>AGENTMEMORY_DROP_STALE_INDEX=true</code> 로 인덱스를 재생성해야 합니다.</p>
+</li>
+<li>
+<p><strong>알려진 병목 지점</strong>:</p>
+</li>
+<li>벡터 인덱스 저장: 대형 메모리 컬렉션(100K+)에서 시작 시 인덱스 재적재 시간 증가. 샤딩된 영속화(<code>src/state/index-persistence.ts</code>)로 완화됨</li>
+<li>LLM 기반 압축: 기본적으로 비활성화(<code>AGENTMEMORY_AUTO_COMPRESS=false</code>). 활성화 시 LLM 응답 지연이 관찰 처리량에 직접 영향</li>
+<li>
+<p>그래프 추출: <code>GRAPH_EXTRACTION_BATCH_SIZE=8</code> (기본값)로 배치 처리되나, 대형 세션에서 LLM 비용 증가 가능</p>
+</li>
+<li>
+<p><strong>수평/수직 확장 전략</strong>:</p>
+</li>
+<li><strong>현재</strong>: 단일 인스턴스 (iii-engine 아키텍처 기반). 여러 에이전트가 같은 서버를 공유하는 것은 지원됨 (<code>TEAM_MODE</code>)</li>
+<li><strong>수직 확장</strong>: 메모리·CPU 증가로 더 큰 벡터 인덱스와 더 많은 동시 LLM 호출 지원</li>
+<li>
+<p><strong>수평 확장</strong>: 현재 버전은 단일 인스턴스 설계. v1.0 로드맵에서 분산 모드 계획 중 (<code>ROADMAP.md</code> 참조)</p>
+</li>
+<li>
+<p><strong>캐싱 전략</strong>:</p>
+</li>
+<li>벡터/BM25 인덱스: 샤딩된 디스크 영속화 (<code>state_store.db</code>, <code>stream_store</code>)</li>
+<li>스냅샷: <code>SNAPSHOT_ENABLED=true</code>, <code>SNAPSHOT_INTERVAL=3600</code> 으로 주기적 상태 스냅샷 활성화</li>
+<li>
+<p>그래프 쿼리: <code>/graph/query</code> 및 <code>/graph/stats</code> 엔드포인트에 top-degree 스냅샷 캐시 (최신 커밋: <code>fix(graph): top-degree snapshot cache</code>)</p>
+</li>
+<li>
+<p><strong>모니터링 및 로깅</strong>:
+  <code>bash
+  # 서버 진단
+  agentmemory doctor
+  # 실시간 메모리 뷰어
+  open http://localhost:3113
+  # OpenTelemetry (메모리 exporter, 샘플링 0.1)
+  # iii-config.yaml의 iii-observability 섹션에서 설정</code>
+  로그 파일: iii-engine이 <code>daemon.log</code>에 기록. 과도한 샘플링(<code>sampling_ratio: 1.0</code>)은 로그 피드백 루프를 유발할 수 있어 기본값 <code>0.1</code> 유지 권장</p>
+</li>
+</ul>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Known performance characteristics</strong>:</li>
+<li>Hybrid search R@5 95.2% on LongMemEval-S, p50 latency 14ms</li>
+<li>100K observation scale tests: see <code>benchmark/SCALE.md</code></li>
+<li>
+<p>The vector index dimension is fixed at 384 (all-MiniLM-L6-v2 default); changing the embedding provider requires index rebuild via <code>AGENTMEMORY_DROP_STALE_INDEX=true</code></p>
+</li>
+<li>
+<p><strong>Known performance bottlenecks</strong>:</p>
+</li>
+<li>Vector index reload: on startup with large memory collections (100K+), re-loading the index takes increasing time. Mitigated by sharded persistence (<code>src/state/index-persistence.ts</code>)</li>
+<li>LLM-backed compression: disabled by default (<code>AGENTMEMORY_AUTO_COMPRESS=false</code>). When enabled, LLM response latency directly affects observation throughput</li>
+<li>
+<p>Graph extraction: batched at <code>GRAPH_EXTRACTION_BATCH_SIZE=8</code> (default), but LLM cost grows with large sessions</p>
+</li>
+<li>
+<p><strong>Horizontal / vertical scaling strategies</strong>:</p>
+</li>
+<li><strong>Current</strong>: Single-instance design (iii-engine architecture). Multiple agents sharing the same server is supported via <code>TEAM_MODE</code></li>
+<li><strong>Vertical scaling</strong>: More RAM/CPU supports larger vector indexes and more concurrent LLM calls</li>
+<li>
+<p><strong>Horizontal scaling</strong>: Current version is single-instance. Distributed mode is planned in the v1.0 roadmap (see <code>ROADMAP.md</code>)</p>
+</li>
+<li>
+<p><strong>Caching strategy</strong>:</p>
+</li>
+<li>Vector/BM25 indexes: sharded disk persistence (<code>state_store.db</code>, <code>stream_store</code>)</li>
+<li>Snapshots: enable periodic state snapshots with <code>SNAPSHOT_ENABLED=true</code>, <code>SNAPSHOT_INTERVAL=3600</code></li>
+<li>
+<p>Graph queries: <code>/graph/query</code> and <code>/graph/stats</code> endpoints now have top-degree snapshot caching (latest commit: <code>fix(graph): top-degree snapshot cache</code>)</p>
+</li>
+<li>
+<p><strong>Monitoring and logging</strong>:
+  <code>bash
+  # Server diagnostics
+  agentmemory doctor
+  # Real-time memory viewer
+  open http://localhost:3113
+  # OpenTelemetry (memory exporter, 0.1 sampling ratio)
+  # Configured in iii-observability section of iii-config.yaml</code>
+  Log file: iii-engine writes to <code>daemon.log</code>. High sampling (<code>sampling_ratio: 1.0</code>) can create a log feedback loop — keep the default <code>0.1</code></p>
+</li>
+</ul>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>환경 변수 및 시크릿 관리</strong>:</li>
+<li><code>AGENTMEMORY_SECRET</code>: Bearer 토큰 인증. loopback 이외 노출 시 반드시 설정. 클라우드 배포 시 첫 부팅 시 <code>openssl rand -hex 32</code> 자동 생성, <code>/data/.hmac</code> 에 <code>chmod 600</code> 저장</li>
+<li>API 키(<code>ANTHROPIC_API_KEY</code> 등): 절대 코드나 VCS에 커밋하지 말 것. <code>.env.example</code> 은 저장소에 있지만 실제 키를 포함하지 않음</li>
+<li>
+<p><code>AGENTMEMORY_REQUIRE_HTTPS=1</code>: 비-loopback 호스트로 Bearer 전송 시 HTTPS 강제</p>
+</li>
+<li>
+<p><strong>인증/인가 구현 포인트</strong>:</p>
+</li>
+<li><code>src/auth.ts</code>: timing-safe 비교로 Bearer 토큰 검증</li>
+<li><code>src/triggers/api.ts</code>: 모든 엔드포인트에서 <code>checkAuth()</code> 호출</li>
+<li>
+<p>mesh 기능(<code>/agentmemory/mesh/*</code>): <code>AGENTMEMORY_SECRET</code> 설정 시만 활성화 (보안 어드바이저리 #04 참조)</p>
+</li>
+<li>
+<p><strong>의존성 취약점 점검</strong>:
+  <code>bash
+  npm audit
+  # CI에서는 --no-audit 플래그 사용 (CI 속도 최적화)</code>
+  <code>.github/dependabot.yml</code>로 자동 의존성 업데이트가 구성되어 있습니다.
+  런타임 프로덕션 의존성은 6개뿐 (<code>@anthropic-ai/sdk</code>, <code>@anthropic-ai/claude-agent-sdk</code>, <code>@clack/prompts</code>, <code>dotenv</code>, <code>iii-sdk</code>, <code>zod</code>).</p>
+</li>
+<li>
+<p><strong>알려진 보안 고려사항</strong> (<code>.github/security-advisories/</code> 참조):
+  | 어드바이저리 | 내용 | 상태 |
+  |---|---|---|
+  | #01 viewer-xss | 뷰어 XSS 취약점 | 패치됨 |
+  | #02 curl-sh-rce | curl-pipe-sh 설치 RCE | 해결됨 |
+  | #03 default-bind-0000 | 기본 바인드 0.0.0.0 (현재 loopback) | 수정됨 |
+  | #04 mesh-unauth | mesh 엔드포인트 미인증 접근 | 패치됨 |
+  | #05 obsidian-export-traversal | Obsidian 내보내기 경로 순회 | 패치됨 |
+  | #06 privacy-redaction-incomplete | 개인정보 리댁션 불완전 | 진행 중 확인 |</p>
+</li>
+<li>
+<p><strong>공급망 보안</strong>: npm tarball은 사전 빌드된 <code>dist/</code>를 포함하므로 설치 시 빌드 과정 없음. lockfile 미커밋 정책은 의도적 선택 (<code>SECURITY.md</code> 참조).</p>
+</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Environment variable and secret management</strong>:</li>
+<li><code>AGENTMEMORY_SECRET</code>: Bearer token auth. Required when exposing beyond loopback. Cloud deployments auto-generate it via <code>openssl rand -hex 32</code> on first boot, stored at <code>/data/.hmac</code> with <code>chmod 600</code></li>
+<li>API keys (<code>ANTHROPIC_API_KEY</code>, etc.): Never commit to code or VCS. <code>.env.example</code> is in the repo but contains no real keys</li>
+<li>
+<p><code>AGENTMEMORY_REQUIRE_HTTPS=1</code>: Enforce HTTPS when sending Bearer to non-loopback hosts</p>
+</li>
+<li>
+<p><strong>Authentication / authorization implementation points</strong>:</p>
+</li>
+<li><code>src/auth.ts</code>: Bearer token verification with timing-safe compare</li>
+<li><code>src/triggers/api.ts</code>: <code>checkAuth()</code> called on all endpoints</li>
+<li>
+<p>mesh feature (<code>/agentmemory/mesh/*</code>): only activates when <code>AGENTMEMORY_SECRET</code> is set (see security advisory #04)</p>
+</li>
+<li>
+<p><strong>Dependency vulnerability scanning</strong>:
+  <code>bash
+  npm audit
+  # CI uses --no-audit for speed, so run audit locally before PRs</code>
+  <code>.github/dependabot.yml</code> provides automated dependency update PRs.
+  Only 6 production runtime dependencies (<code>@anthropic-ai/sdk</code>, <code>@anthropic-ai/claude-agent-sdk</code>, <code>@clack/prompts</code>, <code>dotenv</code>, <code>iii-sdk</code>, <code>zod</code>).</p>
+</li>
+<li>
+<p><strong>Known security considerations</strong> (see <code>.github/security-advisories/</code>):
+  | Advisory | Issue | Status |
+  |---|---|---|
+  | #01 viewer-xss | Viewer XSS vulnerability | Patched |
+  | #02 curl-sh-rce | curl-pipe-sh install RCE | Resolved |
+  | #03 default-bind-0000 | Default bind 0.0.0.0 (now loopback) | Fixed |
+  | #04 mesh-unauth | Mesh endpoints unauthenticated | Patched |
+  | #05 obsidian-export-traversal | Obsidian export path traversal | Patched |
+  | #06 privacy-redaction-incomplete | Incomplete privacy redaction | Verify current status |</p>
+</li>
+<li>
+<p><strong>Supply-chain security</strong>: The npm tarball ships pre-built <code>dist/</code> — no build step at install time. The no-lockfile policy is intentional (see <code>SECURITY.md</code> for the rationale).</p>
+</li>
+</ul>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>공식 문서 링크</strong>:</li>
+<li>GitHub 저장소: <code>https://github.com/rohitg00/agentmemory</code></li>
+<li>npm 패키지: <code>https://www.npmjs.com/package/@agentmemory/agentmemory</code></li>
+<li>한국어 README: <code>READMEs/README.ko-KR.md</code></li>
+<li>벤치마크 결과: <code>benchmark/LONGMEMEVAL.md</code>, <code>benchmark/QUALITY.md</code>, <code>benchmark/SCALE.md</code></li>
+<li>비교 분석: <code>benchmark/COMPARISON.md</code></li>
+<li>보안 정책: <code>SECURITY.md</code></li>
+<li>기여 가이드: <code>CONTRIBUTING.md</code></li>
+<li>로드맵: <code>ROADMAP.md</code></li>
+<li>배포 가이드: <code>deploy/README.md</code></li>
+<li>
+<p>평가 실행 가이드: <code>eval/README.md</code></p>
+</li>
+<li>
+<p><strong>관련 프로젝트 / 에코시스템</strong>:</p>
+</li>
+<li><code>iii-engine</code>: agentmemory가 의존하는 기반 런타임</li>
+<li><code>codegraph</code>: 코드 그래프 인덱싱 (agentmemory와 페어링 권장)</li>
+<li><code>Understand Anything</code>: 멀티모달 지식 그래프</li>
+<li>
+<p><code>Graphify</code>: 문서/PDF/이미지 지식 그래프</p>
+</li>
+<li>
+<p><strong>유사 프로젝트 비교 (장단점)</strong>:</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>agentmemory</th>
+<th>mem0 (53K ⭐)</th>
+<th>Letta/MemGPT (22K ⭐)</th>
+<th>내장 (CLAUDE.md)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>타입</strong></td>
+<td>메모리 엔진 + MCP 서버</td>
+<td>메모리 레이어 API</td>
+<td>완전한 에이전트 런타임</td>
+<td>정적 파일</td>
+</tr>
+<tr>
+<td><strong>검색 R@5</strong></td>
+<td><strong>95.2%</strong></td>
+<td>68.5%</td>
+<td>83.2%</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>자동 캡처</strong></td>
+<td>12 훅 (제로 수동)</td>
+<td>수동 <code>add()</code> 호출</td>
+<td>에이전트 자가 편집</td>
+<td>수동 편집</td>
+</tr>
+<tr>
+<td><strong>외부 DB 의존</strong></td>
+<td><strong>없음</strong></td>
+<td>벡터 DB 필요</td>
+<td>DB 필요</td>
+<td>없음</td>
+</tr>
+<tr>
+<td><strong>에이전트 지원</strong></td>
+<td>20+ 에이전트</td>
+<td>API 기반</td>
+<td>MemGPT 에이전트만</td>
+<td>Claude Code</td>
+</tr>
+<tr>
+<td><strong>단점</strong></td>
+<td>단일 인스턴스, iii-engine 의존</td>
+<td>외부 DB 필요, 수동 통합</td>
+<td>무거운 런타임, 느린 시작</td>
+<td>200줄 제한, 구식</td>
+</tr>
+<tr>
+<td><strong>최적 적합</strong></td>
+<td>멀티 에이전트, 장기 프로젝트</td>
+<td>API-first 커스텀 통합</td>
+<td>MemGPT 기반 에이전트</td>
+<td>소규모 단순 설정</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Official documentation links</strong>:</li>
+<li>GitHub repository: <code>https://github.com/rohitg00/agentmemory</code></li>
+<li>npm package: <code>https://www.npmjs.com/package/@agentmemory/agentmemory</code></li>
+<li>Benchmark results: <code>benchmark/LONGMEMEVAL.md</code>, <code>benchmark/QUALITY.md</code>, <code>benchmark/SCALE.md</code></li>
+<li>Competitor comparison: <code>benchmark/COMPARISON.md</code></li>
+<li>Security policy: <code>SECURITY.md</code></li>
+<li>Contribution guide: <code>CONTRIBUTING.md</code></li>
+<li>Roadmap: <code>ROADMAP.md</code></li>
+<li>Deploy guide: <code>deploy/README.md</code></li>
+<li>
+<p>Evaluation guide: <code>eval/README.md</code></p>
+</li>
+<li>
+<p><strong>Related projects / ecosystem</strong>:</p>
+</li>
+<li><code>iii-engine</code>: The underlying runtime agentmemory depends on</li>
+<li><code>codegraph</code>: Code graph indexing (recommended pairing with agentmemory)</li>
+<li><code>Understand Anything</code>: Multi-modal knowledge graphs</li>
+<li>
+<p><code>Graphify</code>: Document/PDF/image knowledge graphs</p>
+</li>
+<li>
+<p><strong>Comparison with similar projects (pros and cons)</strong>:</p>
+</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>agentmemory</th>
+<th>mem0 (53K ⭐)</th>
+<th>Letta/MemGPT (22K ⭐)</th>
+<th>Built-in (CLAUDE.md)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Type</strong></td>
+<td>Memory engine + MCP server</td>
+<td>Memory layer API</td>
+<td>Full agent runtime</td>
+<td>Static file</td>
+</tr>
+<tr>
+<td><strong>Search R@5</strong></td>
+<td><strong>95.2%</strong></td>
+<td>68.5%</td>
+<td>83.2%</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>Auto-capture</strong></td>
+<td>12 hooks (zero manual)</td>
+<td>Manual <code>add()</code> calls</td>
+<td>Agent self-edits</td>
+<td>Manual editing</td>
+</tr>
+<tr>
+<td><strong>External DB</strong></td>
+<td><strong>None</strong></td>
+<td>Requires vector DB</td>
+<td>Requires DB</td>
+<td>None</td>
+</tr>
+<tr>
+<td><strong>Agent support</strong></td>
+<td>20+ agents</td>
+<td>API-based</td>
+<td>MemGPT agents only</td>
+<td>Claude Code</td>
+</tr>
+<tr>
+<td><strong>Cons</strong></td>
+<td>Single-instance, iii-engine dependency</td>
+<td>Needs external DB, manual integration</td>
+<td>Heavy runtime, slow startup</td>
+<td>200-line limit, goes stale</td>
+</tr>
+<tr>
+<td><strong>Best fit</strong></td>
+<td>Multi-agent, long-running projects</td>
+<td>API-first custom integrations</td>
+<td>MemGPT-based agents</td>
+<td>Small, simple config</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<hr />
+<h2 id="generation-report">생성 보고서 / Generation Report</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>생성된 가이드 내용 요약</strong> (파일 쓰기 없음 — 위 마크다운이 전체 결과물):</p>
+<table>
+<thead>
+<tr>
+<th>가이드</th>
+<th>대상 경로 (단일 모드)</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GUIDE4Junior.md</code></td>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>위 섹션 1–9로 완성</td>
+</tr>
+<tr>
+<td><code>GUIDE4ImpMethod.md</code></td>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>위 섹션 1–8로 완성</td>
+</tr>
+</tbody>
+</table>
+<p><strong>웹 검색에 의존한 섹션</strong>: 없음 — 모든 정보는 저장소 내 파일에서 직접 도출되었습니다 (<code>README.md</code>, <code>package.json</code>, <code>.env.example</code>, <code>CONTRIBUTING.md</code>, <code>SECURITY.md</code>, <code>docker-compose.yml</code>, <code>iii-config.yaml</code>, <code>.github/workflows/ci.yml</code>, <code>deploy/README.md</code>, <code>src/</code> 소스 코드).</p>
+<p><strong>적용 불가 섹션</strong>: 없음. 모든 섹션이 실제 프로젝트 증거에 기반합니다. 단, 아래 사항에 유의:
+- 섹션 5 (빌드): 개발/프로덕션 빌드 분리 없음 — <code>npm run build</code> 하나로 통합됨
+- 섹션 6 (테스트): 커버리지 리포팅이 별도 설정 없이 <code>npx vitest run --coverage</code> 로 사용 가능하나, <code>vitest.config.ts</code> 파일이 저장소에 없으므로 기본 설정 사용
+- 모든 배포 플랫폼 비용은 <code>deploy/README.md</code> 에서 직접 인용</p>
+<p><strong>[English]</strong></p>
+<p><strong>Generated guide summary</strong> (no files written — the markdown above is the complete output):</p>
+<table>
+<thead>
+<tr>
+<th>Guide</th>
+<th>Target path (single mode)</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GUIDE4Junior.md</code></td>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>Complete — sections 1–9 above</td>
+</tr>
+<tr>
+<td><code>GUIDE4ImpMethod.md</code></td>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>Complete — sections 1–8 above</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Sections relying on web search</strong>: None — all information was derived directly from files in the repository (<code>README.md</code>, <code>package.json</code>, <code>.env.example</code>, <code>CONTRIBUTING.md</code>, <code>SECURITY.md</code>, <code>docker-compose.yml</code>, <code>iii-config.yaml</code>, <code>.github/workflows/ci.yml</code>, <code>deploy/README.md</code>, and <code>src/</code> source code).</p>
+<p><strong>Skipped / not-applicable sections</strong>: None. All sections are grounded in actual project evidence. Notable observations:
+- Section 5 (Build): There is no dev/production build split — <code>npm run build</code> is the single unified command
+- Section 7 (Tests): Coverage reporting is available via <code>npx vitest run --coverage</code> with no extra config, but no <code>vitest.config.ts</code> exists in the repo so defaults apply
+- All deployment platform costs are quoted directly from <code>deploy/README.md</code></p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>rohitg00/agentmemory</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/rohitg00/agentmemory" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
