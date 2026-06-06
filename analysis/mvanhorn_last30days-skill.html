@@ -1,0 +1,2755 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mvanhorn/last30days-skill - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/mvanhorn/last30days-skill" target="_blank" rel="noopener">mvanhorn/last30days-skill</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">AI agent skill that researches any topic across Reddit, X, YouTube, HN, Polymarket, and the web - then synthesizes a grounded summary</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 28600</span>
+      <span class="badge badge-stars">+441 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-07
+대상 / Target: /tmp/github-dashboard-analysis/mvanhorn_last30days-skill
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved:</strong>
+Reddit, X(Twitter), YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub 등 15개 이상의 소셜·뉴스 소스에서 최근 30일간의 실제 참여 데이터(좋아요·업보트·배팅금 가중치)를 수집·집계하여, Claude Code 등 AI 에이전트 하네스에서 <code>/last30days &lt;주제&gt;</code> 슬래시 커맨드로 즉시 사용할 수 있는 리서치 자동화 도구를 제공한다.</p>
+<p>기존 Google 검색 기반 도구가 SEO 편향 결과를 반환하는 반면, 이 스킬은 <strong>실제 사람들이 실제로 반응한 콘텐츠</strong>를 참여도 가중 스코어링(관련성 45% + 최신성 25% + 참여도 30%)으로 순위화한다.</p>
+<p><strong>분류 / Classification:</strong> Tool (Agent Skill Package) — 직접 실행 가능한 CLI 엔진이자 50개 이상 AI 에이전트 하네스에 설치되는 슬래시 커맨드 패키지</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Python 3.12+ (uv 가상환경)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>없음 (프레임워크 미사용 — 순수 Python stdlib)</td>
+</tr>
+<tr>
+<td>외부 라이브러리 / External Libs</td>
+<td>프로덕션 의존성 <strong>0개</strong> (stdlib-only); Dev: pytest≥9.0.3, pytest-cov≥7</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>SQLite (옵션 — <code>--store</code> 플래그 활성화 시 트렌드 모니터링)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>HTTP (stdlib <code>urllib</code> / <code>http.client</code>); 소스별 공개 API, 쿠키 기반 크롤링</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Agent Skill 패키지 (<code>.skill</code> 아티팩트, <code>npx skills</code>, claude.ai web 업로드); Docker/K8s 없음</td>
+</tr>
+<tr>
+<td>AI 추론 백엔드 / AI Backends</td>
+<td>Gemini (Google), OpenAI, xAI Grok, OpenRouter (우선순위 순)</td>
+</tr>
+<tr>
+<td>웹 검색 백엔드 / Web Search</td>
+<td>Brave, Exa, Serper, Parallel AI, OpenRouter (우선순위 순)</td>
+</tr>
+<tr>
+<td>벤더 의존성 / Vendored</td>
+<td><code>lib/vendor/bird-search/</code> (MIT 라이선스 X 검색 클라이언트)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                   SKILL.md (1,709 lines)                        │
+│  Canonical runtime spec — harness reads on /last30days invoke   │
+├─────────────────────────────────────────────────────────────────┤
+│                 last30days.py (Entry Point)                      │
+│         CLI flags parsing → pipeline.py orchestration           │
+├────────────┬────────────┬────────────┬──────────────────────────┤
+│ planner.py │ pipeline.py│  render.py │  ui.py                   │
+│ Pre-research│ Fan-out   │ Output     │ Model interaction /      │
+│ resolution │ orchestrate│ (HTML/MD)  │ synthesis protocol       │
+├────────────┴────────────┴────────────┴──────────────────────────┤
+│              Source Adapters (per-platform modules)              │
+│  reddit.py  bird_x.py  youtube_yt.py  tiktok.py  github.py     │
+│  hackernews.py  bluesky.py  threads.py  instagram.py  digg.py  │
+│  polymarket.py  perplexity.py  pinterest.py  truthsocial.py    │
+├─────────────────────────────────────────────────────────────────┤
+│              Cross-cutting Infrastructure                        │
+│  env.py(인증)  http.py(HTTP)  schema.py(데이터모델)             │
+│  cluster.py(중복제거)  rerank.py(스코어링)  dedupe.py(dedup)   │
+│  signals.py(참여도)  normalize.py(정규화)                       │
+├─────────────────────────────────────────────────────────────────┤
+│              Optional / Peripheral                               │
+│  watchlist.py  briefing.py  setup_wizard.py  chrome/safari 쿠키│
+└─────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>아키텍처 패턴:</strong> 레이어드 파이프라인 (Layered Pipeline) + 어댑터 패턴 (Adapter Pattern per source). 핵심 오케스트레이션(pipeline.py, planner.py, render.py)과 소스별 어댑터가 명확히 분리되어 있어 확장성이 높다.</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>mvanhorn_last30days-skill/
+├── .github/workflows/          # CI/CD (release.yml, validate.yml, security.yml)
+├── .claude-plugin/             # Claude Code 마켓플레이스 메타데이터
+├── .agents/plugins/            # Agent Skills 레지스트리 메타데이터
+├── docs/                       # 설계 문서, 솔루션 DB, 릴리스 마케팅
+├── fixtures/                   # 테스트 픽스처 (7개 JSON)
+├── hooks/                      # 이벤트 훅 (hooks.json + scripts/)
+├── media/                      # PR 에셋
+├── skills/last30days/
+│   ├── SKILL.md                # 캐노니컬 런타임 스펙 (1,709줄)
+│   ├── agents/openai.yaml      # OpenAI 에이전트 정의
+│   ├── assets/                 # UI 에셋
+│   ├── references/             # 참조 문서
+│   └── scripts/
+│       ├── last30days.py       # 진입점 (CLI 엔트리)
+│       ├── briefing.py         # 정기 브리핑 생성기
+│       ├── watchlist.py        # 트렌드 모니터링 watchlist
+│       ├── build-skill.sh      # .skill 아티팩트 빌드 스크립트
+│       ├── setup-keychain.sh   # macOS Keychain 초기 설정
+│       └── lib/                # 55개 Python 모듈 (~21,700 LOC)
+│           ├── vendor/bird-search/  # 벤더링된 X 검색 클라이언트 (MIT)
+│           └── [54 modules]    # 소스 어댑터, 인프라, 렌더러
+├── tests/                      # 92개 테스트 파일 (1,012+ 케이스)
+├── LICENSE                     # MIT
+├── README.md                   # 사용자 문서 (24.7 KB)
+├── CHANGELOG.md                # 릴리스 히스토리 (47.7 KB)
+├── CONFIGURATION.md            # 설정 레퍼런스 (14.8 KB)
+├── AGENTS.md                   # 개발자 온보딩
+├── CONCEPTS.md                 # 도메인 용어집
+├── CONTRIBUTORS.md             # 기여자 목록
+├── HERMES_SETUP.md             # Hermes 하네스 설치 가이드
+└── pyproject.toml              # 빌드/테스트 설정 (648 bytes)
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>라이선스:</strong> MIT License
+<strong>저작권자:</strong> Copyright (c) 2026 Matt Van Horn
+<strong>파일 위치:</strong> <code>/LICENSE</code> (확인됨, 22줄 표준 MIT 전문)</p>
+<p><strong>핵심 의무사항:</strong>
+- 소스·바이너리 배포 시 저작권 고지 및 MIT 라이선스 전문 포함 의무
+- 소스 공개 의무 <strong>없음</strong>
+- 상업적 사용·수정·재배포·서브라이선싱 <strong>허용</strong>
+- 특허 조항: MIT에는 명시적 특허 허여(grant) 조항 <strong>없음</strong> (주의 필요)</p>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p><strong>프로덕션 의존성 (0개):</strong> <code>pyproject.toml</code>의 <code>dependencies = []</code> — 런타임에서 외부 라이브러리 의존성 <strong>전무</strong>. 모든 기능은 Python stdlib과 벤더링된 코드로 구현.</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lib/vendor/bird-search</code></td>
+<td>벤더링 내장</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 없음</td>
+</tr>
+<tr>
+<td><code>pytest</code></td>
+<td>≥9.0.3,&lt;10</td>
+<td>MIT</td>
+<td>Permissive (dev only)</td>
+<td>🟢 없음</td>
+</tr>
+<tr>
+<td><code>pytest-cov</code></td>
+<td>≥7,&lt;8</td>
+<td>MIT</td>
+<td>Permissive (dev only)</td>
+<td>🟢 없음</td>
+</tr>
+<tr>
+<td>Python stdlib</td>
+<td>3.12+</td>
+<td>PSF License v2</td>
+<td>Permissive</td>
+<td>🟢 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>외부 API/서비스 런타임 의존성 (라이선스 적용 대상 아님 — 호출 의존성):</strong></p>
+<table>
+<thead>
+<tr>
+<th>서비스 / Service</th>
+<th>용도 / Purpose</th>
+<th>요금/제약 / Cost</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Reddit API</td>
+<td>소셜 데이터</td>
+<td>무료 (OAuth)</td>
+</tr>
+<tr>
+<td>X / Twitter</td>
+<td>소셜 데이터</td>
+<td>다중 경로 (API/쿠키/Bird/xAI)</td>
+</tr>
+<tr>
+<td>YouTube (yt-dlp)</td>
+<td>영상/자막</td>
+<td>무료</td>
+</tr>
+<tr>
+<td>TikTok, Instagram 등</td>
+<td>소셜 데이터</td>
+<td>ScrapeCreators 유료 API</td>
+</tr>
+<tr>
+<td>Hacker News</td>
+<td>뉴스</td>
+<td>무료</td>
+</tr>
+<tr>
+<td>GitHub</td>
+<td>코드/이슈</td>
+<td>무료 (gh CLI)</td>
+</tr>
+<tr>
+<td>Polymarket</td>
+<td>예측 시장</td>
+<td>무료</td>
+</tr>
+<tr>
+<td>Brave/Exa/Serper</td>
+<td>웹 검색</td>
+<td>유료 API</td>
+</tr>
+<tr>
+<td>OpenAI/Google/xAI</td>
+<td>AI 추론</td>
+<td>유료 API</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD, ISC, PSF</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지 / Commercialization prohibited</td>
+</tr>
+</tbody>
+</table>
+<p><strong>본 프로젝트 해당 등급: 🟢 Permissive (MIT) — 전 의존성 동일</strong></p>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<ul>
+<li><strong>충돌 없음:</strong> 프로젝트 라이선스(MIT) + 벤더 코드(MIT) + Dev 의존성(MIT) + PSF stdlib. 동일 계열 퍼미시브 라이선스만 사용.</li>
+<li><strong>GPL 오염 위험 없음:</strong> GPL·LGPL·AGPL 라이선스 의존성 전무.</li>
+<li><strong>AGPL SaaS 위험 없음:</strong> AGPL 코드 미사용. SaaS로 이 스킬을 서비스화해도 소스 공개 의무 발생하지 않음.</li>
+<li><strong>Apache 2.0 vs MIT 혼용 없음:</strong> Apache 2.0 의존성 부재로 GPL-2.0 비호환 시나리오 해당 없음.</li>
+<li><strong>외부 API 서비스 약관:</strong> 외부 API(Reddit, X, YouTube 등)는 각 서비스의 ToS를 따르며 오픈소스 라이선스 적용 범위 밖. 상용 배포 시 개별 서비스 ToS 검토 필요 (특히 X/Twitter, TikTok, Instagram의 스크래핑 관련 조항).</li>
+</ul>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] MIT 저작권 고지 포함 방법 — 재배포 패키지에 <code>LICENSE</code> 파일 포함 (현재 <code>.gitattributes</code>에서 <code>dist/</code> 제외 확인 필요)</li>
+<li>[ ] NOTICE/고지문 배포 위치 — <strong>NOTICE 파일 부재</strong>. 상용 배포 시 제품 내 라이선스 메뉴 또는 인스톨러 포함 정책 정의 필요</li>
+<li>[x] 소스 공개 의무 없음 — MIT이므로 소스 공개 불필요</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<p><strong>SECURITY.md:</strong> 확인 불가 — 파일 부재 / Not found — file absent.
+취약점 보고 채널(e.g., <code>security@</code> 이메일, GitHub Security Advisory)이 공식적으로 정의되어 있지 않다.</p>
+<p><strong>Dependabot:</strong> <code>.github/dependabot.yml</code> 확인 불가 — 파일 부재. 자동화된 의존성 업데이트 구성 없음.
+단, 프로덕션 의존성이 0개이므로 실질적 위험은 크게 낮다.</p>
+<p><strong>보안 워크플로우 (<code>.github/workflows/security.yml</code>):</strong> 존재 확인됨.
+- <strong>pip-audit:</strong> <code>uv export</code>로 잠긴 의존성 목록 추출 후 CVE 스캔 (advisory-first, <code>continue-on-error: true</code>)
+- <strong>TruffleHog OSS:</strong> 전체 git 히스토리 시크릿 스캔 (<code>--only-verified</code> 플래그, <code>continue-on-error: true</code>)
+- <strong>중요 한계:</strong> 두 잡 모두 <code>continue-on-error: true</code>로 설정되어 현재는 <strong>차단 게이트(blocking gate)가 아닌 가시성 도구</strong>로만 작동.</p>
+<p><strong>Renovate / Snyk:</strong> 확인 불가 — 파일 부재. 추가 자동화 미적용.</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>의존성 취약점:</strong>
+- 프로덕션 의존성 0개 → 직접 의존성 CVE 위험 <strong>최소화</strong>
+- Dev 의존성(pytest, pytest-cov)은 프로덕션 빌드에 미포함</p>
+<p><strong>쿠키 기반 인증 취약점:</strong>
+<code>chrome_cookies.py</code>, <code>cookie_extract.py</code>, <code>safari_cookies.py</code> 모듈이 브라우저 쿠키를 추출하여 X, TikTok, Instagram 인증에 사용. 이 접근 방식은:
+- 브라우저 업데이트에 취약(brittle)
+- 사용자 세션 토큰이 로컬 파일에 접근 가능한 상태로 존재
+- 일부 플랫폼의 ToS 위반 소지</p>
+<p><strong>하드코딩된 시크릿:</strong>
+<code>env.py</code> 파일이 25.9 KB로 대형이며 다수의 API 키 환경변수를 처리. TruffleHog 스캔이 적용되어 있으나 <code>--only-verified</code> 플래그로 false positive를 줄이는 대신 일부 실제 시크릿을 놓칠 수 있음.
+실제 시크릿 커밋 여부는 직접 확인 불가이나, TruffleHog 스캔 존재 자체가 방어 의도를 시사.</p>
+<p><strong><code>continue-on-error: true</code> 보안 워크플로우:</strong>
+현재 보안 스캔이 PR 머지를 차단하지 않는다. 취약점/시크릿 발견 시에도 배포가 진행될 수 있음.</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>인증/인가:</strong>
+- env.py 중심의 환경변수 기반 인증 패턴 (권장)
+- macOS Keychain 지원 (setup-keychain.sh)
+- <code>.env</code> 파일 퍼미션 경고 (POSIX 600 체크)
+- 브라우저 쿠키 추출 경로는 보조 수단이나 보안 리스크 존재</p>
+<p><strong>시크릿 관리:</strong>
+- 환경변수 / <code>.env</code> 파일 / macOS Keychain 지원
+- 중앙화된 Vault, AWS SSM, GCP Secret Manager 미적용
+- 로컬 개인 사용 시 적절하나, 엔터프라이즈 집중 배포 시 추가 구성 필요</p>
+<p><strong>SBOM (Software Bill of Materials):</strong>
+확인 불가 — CycloneDX/SPDX 파일 부재. 릴리스 아티팩트(.skill)에 SBOM 포함 없음.</p>
+<p><strong>취약점 공개 채널:</strong>
+공식 보안 취약점 보고 채널(SECURITY.md) 미정의. 외부 연구자가 책임감 있는 공개(responsible disclosure) 경로를 찾기 어려움.</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06-06 (<code>chore(release): v3.3.2 (#485)</code>)</td>
+</tr>
+<tr>
+<td>릴리스 버전 / Current version</td>
+<td>v3.3.2</td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>v3.3.0 사이클에서 75+ PR 머지 (매우 활발)</td>
+</tr>
+<tr>
+<td>주요 기여자 / Main contributors</td>
+<td>1인 주 관리자 (Matt Van Horn @mvanhorn)</td>
+</tr>
+<tr>
+<td>커뮤니티 기여자 / Community</td>
+<td>v3 아이디어 기여자 8인 (CONTRIBUTORS.md 기재), 기능 기여자 다수</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>2026-06-06 (v3.3.2)</td>
+</tr>
+<tr>
+<td>CHANGELOG 규모 / Changelog size</td>
+<td>47.7 KB — v1.0.0부터 풍부한 릴리스 히스토리</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>직접 확인 불가 (GitHub API 미접근)</td>
+</tr>
+<tr>
+<td>PR #485 / PR count</td>
+<td>#485번 PR이 최신 → 짧은 기간에 500개 가까운 PR 처리</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>확인 불가 — 파일 부재 ❌</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>확인 불가 — 파일 부재 ❌</td>
+</tr>
+<tr>
+<td>AGENTS.md (개발자 온보딩)</td>
+<td>존재 ✅ (프로젝트 구조, 규칙, 명령어 포함)</td>
+</tr>
+<tr>
+<td>PULL_REQUEST_TEMPLATE.md</td>
+<td>존재 ✅ (<code>.github/PULL_REQUEST_TEMPLATE.md</code>)</td>
+</tr>
+<tr>
+<td>ISSUE_TEMPLATE</td>
+<td>존재 ✅ (bug_report.yml, feature_request.yml)</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>존재 ✅ (SemVer 준수, 47.7 KB)</td>
+</tr>
+<tr>
+<td>브랜치 전략</td>
+<td>main 브랜치 중심, PR 리뷰 프로세스 확인됨</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td><code>docs/plans/</code> 디렉토리에 일부 계획 문서 존재</td>
+</tr>
+</tbody>
+</table>
+<p>공식 CONTRIBUTING.md와 CODE_OF_CONDUCT.md는 부재하나, AGENTS.md가 개발자 온보딩 역할을 대체하고 있다. 오픈소스 프로젝트의 표준 거버넌스 문서 체계로 보기 어렵다.</p>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>유지 주체:</strong> 개인 개발자 단독 (Matt Van Horn). 기업 스폰서십, CNCF/ASF 소속, 재단 지원 <strong>없음</strong>.</li>
+<li><strong>단일 관리자 위험:</strong> 주 관리자의 이탈/비활성화 시 프로젝트 지속성 불확실. 상용 제품에 핵심 의존성으로 채택 시 높은 버스 팩터(bus factor) 위험.</li>
+<li><strong>베타 채널:</strong> <code>mvanhorn/last30days-skill-private</code>로 실험적 기능을 별도 관리하는 체계적 접근은 긍정적.</li>
+<li><strong>Agent Skills 플랫폼:</strong> <code>agentskills.io</code> 에코시스템에 귀속되어 있어 해당 플랫폼 성장에 간접적으로 연동.</li>
+<li><strong>릴리스 케이던스:</strong> v1.0.0(2026-01-15) → v2.1.0(2026-02-15) → v3.0.0(2026-04-11) → v3.3.2(2026-06-06) — 약 5개월간 메이저 3회 릴리스, 빠른 성장세.</li>
+<li><strong>SemVer 준수:</strong> CHANGELOG 구조상 SemVer 준수. LTS 버전 개념은 아직 없음.</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p><strong>확장성 평가:</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수평 확장</td>
+<td>❌ 미설계</td>
+<td>단일 프로세스 CLI 도구 — 서버 아키텍처 없음</td>
+</tr>
+<tr>
+<td>멀티 테넌시</td>
+<td>❌ 미지원</td>
+<td>env 변수 기반 단일 사용자 설계</td>
+</tr>
+<tr>
+<td>컨테이너화 (Docker)</td>
+<td>❌ 미지원</td>
+<td>Dockerfile/docker-compose 없음</td>
+</tr>
+<tr>
+<td>Kubernetes 지원</td>
+<td>❌ 미지원</td>
+<td>K8s 매니페스트/헬름 차트 없음</td>
+</tr>
+<tr>
+<td>헬스체크/프로브</td>
+<td>❌ 해당 없음</td>
+<td>서비스형 아키텍처 아님</td>
+</tr>
+<tr>
+<td>Prometheus 메트릭</td>
+<td>❌ 없음</td>
+<td>메트릭 노출 없음</td>
+</tr>
+<tr>
+<td>구조화 로깅</td>
+<td>⚠️ 최소</td>
+<td><code>log.py</code> 831 bytes — 매우 경량</td>
+</tr>
+<tr>
+<td>분산 트레이싱</td>
+<td>❌ 없음</td>
+<td></td>
+</tr>
+<tr>
+<td>12-Factor 설정 주입</td>
+<td>✅ 준수</td>
+<td>환경변수 기반 설정, env.py 중앙화</td>
+</tr>
+</tbody>
+</table>
+<p><strong>중요한 맥락:</strong> 이 프로젝트는 <strong>에이전트 스킬 패키지</strong>로, 웹 서비스나 마이크로서비스가 아니다. 컨테이너화·헬스체크·Prometheus 메트릭 등은 이 도구의 설계 범위 밖이다. 확장성 한계는 아키텍처 결함이 아니라 제품 카테고리의 특성이다.</p>
+<p>상용화 시 이 스킬을 API 서비스로 래핑하거나 배치 파이프라인에 통합하려면 별도의 서비스 레이어 구축이 필요하다.</p>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>테스트 파일 수</td>
+<td>92개 (<code>tests/</code>)</td>
+</tr>
+<tr>
+<td>테스트 케이스 수</td>
+<td>1,012+ (README 기재)</td>
+</tr>
+<tr>
+<td>단위 테스트</td>
+<td>✅ 광범위 (소스별 어댑터, 스코어링, 렌더링, 스토어, watchlist 등)</td>
+</tr>
+<tr>
+<td>통합 테스트</td>
+<td>✅ <code>_integration</code> 접미사 파일 다수 확인</td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td>❌ 명시적 E2E 없음 (CLI 레벨 스모크 테스트 미확인)</td>
+</tr>
+<tr>
+<td>커버리지 측정</td>
+<td>✅ pytest-cov, vendor 제외</td>
+</tr>
+<tr>
+<td>CI 자동화</td>
+<td>✅ PR·main push 시 <code>validate.yml</code>로 자동 실행</td>
+</tr>
+<tr>
+<td>테스트 격리</td>
+<td>✅ 픽스처에 명백한 더미 값만 사용</td>
+</tr>
+<tr>
+<td>코드 품질 도구</td>
+<td>❌ linter(ruff/flake8), mypy 타입 검사 미확인</td>
+</tr>
+</tbody>
+</table>
+<p><strong>평가:</strong> 1,012개 테스트는 단일 개인 프로젝트로서 매우 높은 수준. 통합 테스트도 존재하며 CI에서 자동화됨. E2E 시나리오 테스트와 정적 타입 검사 도입 시 품질 체계가 더욱 강화될 것.</p>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><strong>해당 없음 (N/A):</strong> Strong Copyleft(GPL/AGPL) 라이선스 모듈이 전무하므로 분리 설계 검토 불필요.</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>12-Factor 항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 코드베이스</td>
+<td>✅</td>
+<td>GitHub 단일 공개 저장소</td>
+</tr>
+<tr>
+<td>2. 의존성 명시</td>
+<td>✅</td>
+<td>pyproject.toml + <code>uv</code> lockfile</td>
+</tr>
+<tr>
+<td>3. 설정 환경변수화</td>
+<td>✅</td>
+<td>env.py 중앙 설정 — 하드코딩 없음</td>
+</tr>
+<tr>
+<td>4. 백엔드 서비스 분리</td>
+<td>✅</td>
+<td>API 키로 외부 서비스 교체 가능</td>
+</tr>
+<tr>
+<td>5. 빌드/릴리스/실행 분리</td>
+<td>✅</td>
+<td>build-skill.sh + GitHub Actions 릴리스</td>
+</tr>
+<tr>
+<td>6. 무상태 프로세스</td>
+<td>✅</td>
+<td>CLI 도구 — 세션 간 상태 없음 (SQLite는 옵션)</td>
+</tr>
+<tr>
+<td>7. 포트 바인딩</td>
+<td>N/A</td>
+<td>서비스형 아님</td>
+</tr>
+<tr>
+<td>8. 동시성</td>
+<td>N/A</td>
+<td>서비스형 아님</td>
+</tr>
+<tr>
+<td>9. 빠른 시작/종료</td>
+<td>✅</td>
+<td>CLI 즉시 실행</td>
+</tr>
+<tr>
+<td>10. Dev/Prod 동일성</td>
+<td>✅</td>
+<td>uv venv로 재현 가능 환경</td>
+</tr>
+<tr>
+<td>11. 로그 스트림화</td>
+<td>⚠️</td>
+<td>log.py는 매우 경량, 구조화 로그 없음</td>
+</tr>
+<tr>
+<td>12. 관리 프로세스</td>
+<td>✅</td>
+<td>watchlist.py, briefing.py 독립 실행 가능</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>⚠️ 부분</td>
+<td>LICENSE·벤더 MIT 확인됨; 공식 식별 프로세스 문서화 없음</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>⚠️ 부분</td>
+<td>TruffleHog + pip-audit 존재하나 차단 게이트 아님</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>❌ 미정의</td>
+<td>공식 remediation 프로세스 없음</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>⚠️ 부분</td>
+<td>PR 리뷰 프로세스 존재; OSPO 레벨 승인 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>❌ 부재</td>
+<td>NOTICE 파일 없음; 고지 배포 방법 미정의</td>
+</tr>
+</tbody>
+</table>
+<p><strong>OpenChain 인증:</strong> 현재 단계에서 ISO 5230 인증 수준에 미달. 소규모 오픈소스 프로젝트로서 이는 일반적이나, 엔터프라이즈 채택 시 내부 OSPO 프로세스를 별도로 구축해야 한다.</p>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권:</strong>
+- "last30days" 브랜드의 공식 상표 등록 여부 확인 불가.
+- 프로젝트 로고/이름의 상업적 사용 제한 조항이 LICENSE에 없음 (표준 MIT이므로 별도 제한 없음).
+- 상용 제품명으로 채택 시 "last30days" 상표권 클레임 위험은 낮으나, 브랜드 혼동 방지를 위한 명칭 차별화 권장.</p>
+<p><strong>특허 위험:</strong>
+- MIT 라이선스에는 <strong>명시적 특허 허여(patent grant) 없음</strong>.
+- 이는 코드를 사용하더라도 기여자 보유 특허에 대한 묵시적 허여를 주장하기 어렵다는 의미.
+- 단, 이 프로젝트는 알고리즘(스코어링, 클러스터링, 검색 어댑터)으로 구성되어 있으며 기초적 기술 수준에서 특허 위험은 낮다고 판단.
+- Apache 2.0 의존성이 없으므로 명시적 특허 허여 부재는 유일한 특허 관련 주의사항.</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>해당 없음:</strong> 프로젝트 전체에서 GPL/AGPL 코드가 사용되지 않는다. SaaS 배포 또는 프로덕트 내장 시에도 소스 공개 의무가 발생하지 않는다.</p>
+<p><strong>외부 서비스 ToS 관련 법적 리스크 (별도 주의 사항):</strong></p>
+<table>
+<thead>
+<tr>
+<th>서비스</th>
+<th>주요 리스크</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>X (Twitter)</td>
+<td>비공식 쿠키·클라이언트 경로 사용 시 API ToS 위반 소지</td>
+</tr>
+<tr>
+<td>TikTok / Instagram</td>
+<td>제3자 스크래핑(ScrapeCreators) 활용 — 플랫폼 ToS 위반 위험</td>
+</tr>
+<tr>
+<td>YouTube</td>
+<td>yt-dlp 활용 — YouTube ToS 5.1(k) 관련 법적 불확실성 존재</td>
+</tr>
+</tbody>
+</table>
+<p>위 항목은 오픈소스 라이선스 문제는 아니나, 상용 제품에 통합 시 각 플랫폼의 법무팀 검토가 필요하다.</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>MIT 전체 스택, 프로덕션 의존성 0, GPL/AGPL 완전 부재</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🔵 Review</td>
+<td>보안 워크플로우 존재하나 비차단; SECURITY.md·Dependabot 부재</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟡 Caution</td>
+<td>극히 활발하나 단일 관리자; 기업 스폰서·재단 지원 없음</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🔵 Review</td>
+<td>Agent Skill로서 적절; 서비스 래핑 시 추가 인프라 필요</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🔵 Review</td>
+<td>도구 카테고리에서 성숙; 멀티 테넌시·서비스화는 추가 작업 필요</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>MIT 라이선스는 안전; 외부 API ToS 및 NOTICE 체계 미비</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li>
+<p><strong>완전 퍼미시브 라이선스 스택 (🟢):</strong> MIT + 프로덕션 의존성 0개라는 조합은 라이선스 관점에서 가능한 가장 안전한 상태. 소스 공개 의무, 전파 위험, 호환성 충돌이 모두 없다.</p>
+</li>
+<li>
+<p><strong>높은 코드 품질 및 테스트 성숙도:</strong> 1,012+ 테스트, 92개 테스트 파일, CI 자동화. 개인 오픈소스 프로젝트 대비 엔터프라이즈 수준의 품질 관리.</p>
+</li>
+<li>
+<p><strong>모듈화된 소스 어댑터 아키텍처:</strong> 각 플랫폼(Reddit, X, YouTube 등)이 독립 모듈로 분리되어 특정 소스 통합/제거가 프레임워크 수정 없이 가능. 유지보수·확장성 우수.</p>
+</li>
+<li>
+<p><strong>풍부한 문서 생태계:</strong> SKILL.md(1,709줄), CONFIGURATION.md(14.8 KB), AGENTS.md, CONCEPTS.md, CHANGELOG.md(47.7 KB), README.md(24.7 KB) — 실무 채택·운영·기여에 필요한 문서가 잘 갖춰져 있다.</p>
+</li>
+<li>
+<p><strong>빠른 릴리스 케이던스와 실용적 기능 개발:</strong> 5개월 내 v1→v3 진화, SemVer 준수, 베타 채널 분리 운영. 상용 기준에서도 충분히 빠른 혁신 속도.</p>
+</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li>
+<p><strong>단일 관리자 버스 팩터 (🟡):</strong> Matt Van Horn 개인이 전체 프로젝트를 유지. 장기 상용 의존성으로는 높은 위험. 기업 포크·내부 소유권 이전 또는 공식 스폰서십 확보 검토 필요.</p>
+</li>
+<li>
+<p><strong>외부 API ToS 컴플라이언스 불확실성 (🟡):</strong> X 쿠키 기반 인증, TikTok/Instagram ScrapeCreators 의존, YouTube yt-dlp 사용이 각 플랫폼 ToS와 충돌할 수 있다. 상용 제품 통합 시 법무 검토 필수.</p>
+</li>
+<li>
+<p><strong>보안 게이트 미차단 (🔵):</strong> <code>security.yml</code>의 <code>continue-on-error: true</code> 설정으로 취약점/시크릿 발견 시에도 PR 머지가 차단되지 않는다. SECURITY.md와 Dependabot 설정도 부재.</p>
+</li>
+<li>
+<p><strong>NOTICE 파일·OpenChain 컴플라이언스 미정비 (🟡):</strong> 배포 아티팩트에 NOTICE 파일이 없고, OpenChain 5단계 중 3-5단계가 미정의. 엔터프라이즈 외부 감사 대응 시 취약.</p>
+</li>
+<li>
+<p><strong>멀티 테넌시·서비스화 갭 (🔵):</strong> 현재 설계는 단일 사용자 로컬 도구. 여러 사용자·조직에 서비스로 제공하려면 인증 레이어, 격리 실행 환경, 사용량 제한 등 별도 서비스 레이어가 필요.</p>
+</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict: 🔵 Review (조건부 채택 — 추가 검토 필요)</strong></p>
+<p><strong>상세 근거:</strong></p>
+<p>라이선스 관점에서 이 프로젝트는 <strong>이상적에 가까운 상태</strong>다. MIT 라이선스 + 프로덕션 의존성 0 + GPL/AGPL 전무라는 조합은 오픈소스 상용화 우려를 사실상 제거한다. 코드 품질(1,012+ 테스트)과 문서화 수준도 상업적 채택을 지지한다.</p>
+<p>그러나 <strong>단일 관리자 리스크와 외부 API ToS 불확실성</strong>이 즉시 채택의 주요 장벽이다. 특히 X, TikTok, Instagram 데이터 수집에 사용되는 비공식 경로(쿠키 추출, 제3자 스크래퍼)는 법적 불확실성이 있으며, 이 기능에 의존하는 상용 제품은 플랫폼 정책 변경 또는 법적 클레임에 노출될 수 있다.</p>
+<p><strong>채택 전제 조건:</strong>
+1. 사용 소스 범위를 ToS 허용 경로로 제한하거나 법무팀의 ToS 검토 완료
+2. 내부 포크 또는 기업 스폰서십으로 버스 팩터 리스크 완화
+3. 보안 게이트 강화 (security.yml을 blocking으로 전환, SECURITY.md 추가)
+4. NOTICE 파일 및 SBOM 생성 체계 구축</p>
+<p>상기 조건 충족 시 <strong>🟢 Safe</strong> 등급으로 격상 가능.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>✅ Permissive 분류 확인 (MIT)</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 소스 공개 의무 없음 확인</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 라이선스 호환성 충돌 없음</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ 외부 API ToS 법무 검토</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>✅ MIT 저작권 문구 LICENSE 파일 존재</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ NOTICE 파일 없음</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 고지문 배포 위치 미정의</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>✅ Strong Copyleft 미사용 — 의무 없음</td>
+<td>✅ 해당 없음</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>⚠️ TruffleHog + pip-audit 존재하나 비차단</td>
+<td>⚠️ 부분</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ SECURITY.md 취약점 보고 채널 없음</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ Dependabot / Renovate 자동화 없음</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 프로덕션 의존성 0 → 직접 CVE 위험 최소</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>✅ 매우 활발한 유지보수 확인</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 기업 스폰서/컨설팅 채널 없음</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ CONTRIBUTING.md 없음</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>✅ 테스트 CI 자동화 (validate.yml)</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ 라이선스 스캔 자동화 (security.yml 존재, 비차단)</td>
+<td>⚠️ 부분</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 오픈소스 BOM(SBOM) 자동 생성 없음</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 위반 라이선스 빌드 차단 게이트 없음</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>❌ 외부 API ToS 검토 미수행</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 외부 감사 대비 문서(NOTICE, BOM, 보고서) 미비</td>
+<td>❌ 미완</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong>외부 API ToS 법무 검토 실시:</strong> X(Twitter)/TikTok/Instagram 데이터 수집에 사용되는 쿠키 기반 인증 및 제3자 스크래퍼(ScrapeCreators) 경로에 대한 각 플랫폼 ToS 검토. 상용 제품에서 사용 시 ToS 허용 경로(공식 API)로 제한하거나 법무 의견서 확보.</p>
+</li>
+<li>
+<p><strong>보안 워크플로우 차단 게이트 전환:</strong> <code>.github/workflows/security.yml</code>의 <code>continue-on-error: true</code>를 제거하여 시크릿 스캔 및 CVE 감지 시 PR 머지를 차단. 최소한 시크릿 스캔 잡은 즉시 차단으로 전환.</p>
+</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>SECURITY.md 추가:</strong> 취약점 보고 이메일 또는 GitHub Security Advisory 경로 정의. 최소 형식: 보고 방법, 예상 응답 시간, 공개 정책.</p>
+</li>
+<li>
+<p><strong>NOTICE 파일 생성 및 배포 정책 수립:</strong> MIT 저작권 고지를 포함한 NOTICE 파일 생성. <code>.skill</code> 아티팩트 빌드 스크립트(<code>build-skill.sh</code>)에 NOTICE 포함 로직 추가.</p>
+</li>
+<li>
+<p><strong>단일 관리자 위험 완화 계획:</strong> 내부 기술 포크 유지, 공동 관리자 지정 요청, 또는 엔터프라이즈 지원 계약 협의. 버스 팩터 리스크에 대한 비상 계획 문서화.</p>
+</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>SBOM 자동 생성 CI 통합:</strong> 릴리스 워크플로우(<code>release.yml</code>)에 CycloneDX 또는 SPDX SBOM 생성 단계 추가. 프로덕션 의존성이 0개이므로 구현 부담 낮음.</p>
+</li>
+<li>
+<p><strong>CONTRIBUTING.md 및 CODE_OF_CONDUCT.md 추가:</strong> 오픈소스 거버넌스 표준 문서 추가. 외부 기여자 유치 및 엔터프라이즈 신뢰도 향상에 기여.</p>
+</li>
+<li>
+<p><strong>Dependabot 설정 추가:</strong> 프로덕션 의존성이 없더라도 dev 의존성(pytest, pytest-cov) 및 GitHub Actions 버전 자동 업데이트를 위해 <code>.github/dependabot.yml</code> 추가.</p>
+</li>
+<li>
+<p><strong>정적 타입 검사 도입:</strong> <code>mypy</code> 또는 <code>pyright</code> CI 통합으로 타입 안전성 강화. 55개 모듈의 대규모 코드베이스에서 런타임 오류 사전 방지.</p>
+</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>ISO 5230/OpenChain 컴플라이언스 점진적 구축:</strong> 내부 OSPO 프로세스와 연계하여 OpenChain 5단계(식별→검사→해결→승인→배포) 체계 수립. 연 1회 외부 감사 대응 패키지(NOTICE, BOM, 컴플라이언스 보고서) 갱신.</p>
+</li>
+<li>
+<p><strong>주요 소스 공식 API 전환 로드맵:</strong> 쿠키 기반·비공식 경로(X, TikTok, Instagram)를 공식 API 또는 허용된 데이터 파트너십으로 단계적 전환. ToS 리스크를 구조적으로 제거.</p>
+</li>
+<li>
+<p><strong>기업 스폰서십 또는 재단 소속 검토:</strong> 프로젝트의 빠른 성장세를 고려할 때 CNCF Sandbox 신청 또는 기업 스폰서 유치를 검토하여 장기 지속 가능성 확보.</p>
+</li>
+</ol></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>Now I have everything I need to write both guides. Producing the full output now.</p>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong>
+- <strong>last30days-skill</strong>은 Reddit, X(Twitter), YouTube, TikTok, Hacker News, Polymarket, GitHub 등 다양한 커뮤니티 소스에서 최근 30일간의 실시간 의견과 트렌드를 집계하는 AI 에이전트 리서치 스킬입니다.
+- 편집자가 선별한 뉴스가 아닌 업보트, 좋아요, 실제 베팅 금액 등 커뮤니티 지표로 콘텐츠를 순위화하며, 주제에 대한 "실제 커뮤니티 컨센서스"를 찾는 데 특화되어 있습니다.
+- Claude Code, Codex, Cursor, GitHub Copilot, Gemini CLI 등 50개 이상의 Agent Skills 호스트에서 <code>/last30days &lt;주제&gt;</code> 슬래시 커맨드로 실행됩니다.
+- <strong>버전:</strong> 3.3.2 | <strong>언어:</strong> Python 3.12+ | <strong>의존성:</strong> 외부 라이브러리 없음(순수 표준 라이브러리)
+- <strong>주요 기술 스택:</strong> Python 3.12+, uv (패키지 관리), pytest, Agent Skills 형식, SQLite(선택적 트렌드 저장), vendored Bird client(X 검색)</p>
+<p><strong>[English]</strong>
+- <strong>last30days-skill</strong> is an AI agent research skill that aggregates real-time opinions and trends from the last 30 days across Reddit, X (Twitter), YouTube, TikTok, Hacker News, Polymarket, GitHub, and more.
+- Content is ranked by community engagement signals — upvotes, likes, real prediction-market money — not editors, making it specialized for finding genuine community consensus on any topic.
+- It runs as a <code>/last30days &lt;topic&gt;</code> slash command across 50+ Agent Skills hosts including Claude Code, Codex, Cursor, GitHub Copilot, and Gemini CLI.
+- <strong>Version:</strong> 3.3.2 | <strong>Language:</strong> Python 3.12+ | <strong>Dependencies:</strong> none (pure stdlib)
+- <strong>Key tech stack:</strong> Python 3.12+, uv (package manager), pytest, Agent Skills format, SQLite (optional trend storage), vendored Bird client (X search)</p>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>필수 도구:</strong>
+| 도구 | 버전 | 용도 |
+|------|------|------|
+| Python | <strong>3.12 이상</strong> (필수) | 메인 런타임 |
+| uv | 최신 버전 | 가상환경 및 개발 의존성 관리 |
+| Git | 2.x+ | 저장소 관리 |
+| Node.js + npm/npx | 18+ (스킬 설치 시) | <code>npx skills add</code> 명령어 실행 |</p>
+<p><strong>선택적 도구 (소스별):</strong>
+| 도구 | 용도 |
+|------|------|
+| <code>yt-dlp</code> | YouTube 트랜스크립트 검색 |
+| <code>gh</code> (GitHub CLI) | GitHub 검색 (인증 포함) |
+| Chrome/Chromium 또는 Safari | 브라우저 쿠키로 X 인증 |</p>
+<p><strong>권장 IDE:</strong>
+- <strong>VS Code</strong> with Python 확장 (<code>ms-python.python</code>), Pylance, Ruff
+- <strong>PyCharm</strong> Professional 또는 Community</p>
+<p><strong>OS별 주의사항:</strong>
+- <strong>macOS:</strong> <code>setup-keychain.sh</code> 스크립트로 macOS Keychain에 API 키 저장 가능. <code>yt-dlp</code>는 <code>brew install yt-dlp</code>로 설치 권장.
+- <strong>Windows:</strong> Python 3.12는 Microsoft Store 또는 python.org에서 설치. Unicode 인코딩 이슈 방지를 위해 PowerShell에서 <code>$env:PYTHONUTF8=1</code> 설정 권장.
+- <strong>Linux:</strong> <code>python3.12-dev</code> 패키지 설치 필요할 수 있음. <code>uv</code> 설치 후 <code>.venv</code> 자동 생성.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Required tools:</strong>
+| Tool | Version | Purpose |
+|------|---------|---------|
+| Python | <strong>3.12+</strong> (mandatory) | Main runtime |
+| uv | latest | Virtual environment and dev dependency management |
+| Git | 2.x+ | Repository management |
+| Node.js + npm/npx | 18+ (for skill install) | Running <code>npx skills add</code> |</p>
+<p><strong>Optional tools (per source):</strong>
+| Tool | Purpose |
+|------|---------|
+| <code>yt-dlp</code> | YouTube transcript search |
+| <code>gh</code> (GitHub CLI) | GitHub search with authentication |
+| Chrome/Chromium or Safari | Browser cookie auth for X |</p>
+<p><strong>Recommended IDE:</strong>
+- <strong>VS Code</strong> with Python extension (<code>ms-python.python</code>), Pylance, Ruff
+- <strong>PyCharm</strong> Professional or Community</p>
+<p><strong>OS-specific notes:</strong>
+- <strong>macOS:</strong> The <code>setup-keychain.sh</code> script can store API keys in macOS Keychain. Install <code>yt-dlp</code> via <code>brew install yt-dlp</code>.
+- <strong>Windows:</strong> Install Python 3.12 from Microsoft Store or python.org. Set <code>$env:PYTHONUTF8=1</code> in PowerShell to avoid Unicode encoding issues.
+- <strong>Linux:</strong> May need <code>python3.12-dev</code> package. After installing <code>uv</code>, the <code>.venv</code> is created automatically.</p>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>1단계: 저장소 클론</strong></p>
+<pre><code class="language-bash">git clone https://github.com/mvanhorn/last30days-skill.git
+cd last30days-skill
+</code></pre>
+<p><strong>2단계: uv 설치 (미설치 시)</strong></p>
+<pre><code class="language-bash"># macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows (PowerShell)
+powershell -c &quot;irm https://astral.sh/uv/install.ps1 | iex&quot;
+</code></pre>
+<p><strong>3단계: 가상환경 및 개발 의존성 설치</strong></p>
+<pre><code class="language-bash"># uv가 .venv를 생성하고 pytest + pytest-cov를 설치합니다
+uv sync
+</code></pre>
+<blockquote>
+<p>주의: 프로덕션 의존성(<code>dependencies = []</code>)은 없습니다. uv는 <code>[dependency-groups].dev</code> 항목만 설치합니다.</p>
+</blockquote>
+<p><strong>4단계: 환경 변수 설정</strong></p>
+<p>두 위치 중 하나에 <code>.env</code> 파일을 생성합니다:
+- <strong>프로젝트 스코프:</strong> <code>.claude/last30days.env</code> (우선 순위 높음)
+- <strong>사용자 전역:</strong> <code>~/.config/last30days/.env</code> (폴백)</p>
+<pre><code class="language-bash"># .env 예시 파일 (.claude/last30days.env 또는 ~/.config/last30days/.env)
+# --------- 무료 소스 (키 불필요) ---------
+# Reddit, Hacker News, Polymarket, GitHub (gh CLI 인증 시), YouTube (yt-dlp 설치 시)
+# 위 소스들은 설정 없이 즉시 사용 가능합니다.
+
+# --------- X/Twitter (하나 선택) ---------
+# 옵션 A: 브라우저 쿠키 (FROM_BROWSER=1 만 설정하면 자동 추출)
+FROM_BROWSER=1
+
+# 옵션 B: xAI API (grok.x.com에서 발급)
+# XAI_API_KEY=your_xai_key_here
+
+# 옵션 C: ScrapeCreators API (X + TikTok + Instagram + Threads + Pinterest)
+# SCRAPECREATORS_API_KEY=your_sc_key_here
+
+# --------- YouTube (yt-dlp 없이 사용 시) ---------
+# YOUTUBE_API_KEY=your_youtube_key_here
+
+# --------- 웹 검색 백엔드 (우선순위 순) ---------
+# BRAVE_API_KEY=your_brave_key_here
+# EXA_API_KEY=your_exa_key_here
+
+# --------- Bluesky ---------
+# BSKY_HANDLE=yourhandle.bsky.social
+# BSKY_APP_PASSWORD=your_app_password_here
+
+# --------- 출력 저장 위치 변경 (선택) ---------
+# LAST30DAYS_MEMORY_DIR=/custom/save/path
+</code></pre>
+<p><strong>5단계: 선택적 외부 도구 설치</strong></p>
+<pre><code class="language-bash"># YouTube 검색을 위한 yt-dlp
+pip install yt-dlp
+# 또는
+brew install yt-dlp  # macOS
+
+# GitHub 검색 인증을 위한 gh CLI
+gh auth login
+</code></pre>
+<p><strong>6단계: 설치 검증</strong></p>
+<pre><code class="language-bash"># 테스트 스위트 실행 (모두 통과하면 환경 정상)
+uv run pytest
+
+# 엔진 직접 실행 테스트 (개발/디버깅용)
+python3 skills/last30days/scripts/last30days.py &quot;test query&quot; --emit=compact
+
+# 스킬을 Agent Skills 호스트에 설치 (Claude Code 등)
+npx skills add . -g -y
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Step 1: Clone the repository</strong></p>
+<pre><code class="language-bash">git clone https://github.com/mvanhorn/last30days-skill.git
+cd last30days-skill
+</code></pre>
+<p><strong>Step 2: Install uv (if not already installed)</strong></p>
+<pre><code class="language-bash"># macOS/Linux
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
+# Windows (PowerShell)
+powershell -c &quot;irm https://astral.sh/uv/install.ps1 | iex&quot;
+</code></pre>
+<p><strong>Step 3: Create virtual environment and install dev dependencies</strong></p>
+<pre><code class="language-bash"># uv creates .venv and installs pytest + pytest-cov
+uv sync
+</code></pre>
+<blockquote>
+<p>Note: There are no production dependencies (<code>dependencies = []</code>). uv only installs <code>[dependency-groups].dev</code> entries.</p>
+</blockquote>
+<p><strong>Step 4: Configure environment variables</strong></p>
+<p>Create a <code>.env</code> file in one of two locations:
+- <strong>Project-scoped:</strong> <code>.claude/last30days.env</code> (higher priority)
+- <strong>User-global:</strong> <code>~/.config/last30days/.env</code> (fallback)</p>
+<pre><code class="language-bash"># Example .env file (.claude/last30days.env or ~/.config/last30days/.env)
+# --------- Free sources (no keys needed) ---------
+# Reddit, Hacker News, Polymarket, GitHub (when gh CLI is authed), YouTube (when yt-dlp installed)
+# These work immediately with no configuration.
+
+# --------- X/Twitter (choose one) ---------
+# Option A: Browser cookies (set FROM_BROWSER=1; cookies extracted automatically)
+FROM_BROWSER=1
+
+# Option B: xAI API (get from grok.x.com)
+# XAI_API_KEY=your_xai_key_here
+
+# Option C: ScrapeCreators API (X + TikTok + Instagram + Threads + Pinterest)
+# SCRAPECREATORS_API_KEY=your_sc_key_here
+
+# --------- YouTube (if yt-dlp not installed) ---------
+# YOUTUBE_API_KEY=your_youtube_key_here
+
+# --------- Web search backends (in priority order) ---------
+# BRAVE_API_KEY=your_brave_key_here
+# EXA_API_KEY=your_exa_key_here
+
+# --------- Bluesky ---------
+# BSKY_HANDLE=yourhandle.bsky.social
+# BSKY_APP_PASSWORD=your_app_password_here
+
+# --------- Change output save location (optional) ---------
+# LAST30DAYS_MEMORY_DIR=/custom/save/path
+</code></pre>
+<p><strong>Step 5: Install optional external tools</strong></p>
+<pre><code class="language-bash"># yt-dlp for YouTube search
+pip install yt-dlp
+# or
+brew install yt-dlp  # macOS
+
+# gh CLI for authenticated GitHub search
+gh auth login
+</code></pre>
+<p><strong>Step 6: Verify the installation</strong></p>
+<pre><code class="language-bash"># Run the test suite (all passing = environment is correct)
+uv run pytest
+
+# Test the engine directly (for development/debugging)
+python3 skills/last30days/scripts/last30days.py &quot;test query&quot; --emit=compact
+
+# Install the skill into Agent Skills hosts (e.g., Claude Code)
+npx skills add . -g -y
+</code></pre>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">last30days-skill/
+├── skills/last30days/
+│   ├── SKILL.md                  # [핵심] 런타임 명세 — 합성 모델이 따르는 계약
+│   ├── scripts/
+│   │   ├── last30days.py         # [진입점] 메인 리서치 엔진 CLI
+│   │   ├── watchlist.py          # 반복 토픽 트렌드 모니터링
+│   │   ├── briefing.py           # 요약 다이제스트 생성
+│   │   ├── store.py              # SQLite 영속성 저장소
+│   │   └── lib/                  # [핵심 모듈 64개]
+│   │       ├── __init__.py       # 빈 패키지 마커 (임포트 없음)
+│   │       ├── pipeline.py       # 멀티소스 병렬 검색 오케스트레이터
+│   │       ├── schema.py         # 데이터 모델 (SourceItem, Candidate, Report)
+│   │       ├── planner.py        # 쿼리 계획 및 서브쿼리 해석
+│   │       ├── resolve.py        # 엔티티 해석 (@핸들, 서브레딧, 해시태그)
+│   │       ├── rerank.py         # 멀티시그널 관련성 점수 계산
+│   │       ├── cluster.py        # 소스 간 클러스터링/중복 제거
+│   │       ├── render.py         # 마크다운 출력 생성
+│   │       ├── html_render.py    # HTML 브리프 생성 (다크모드, CSS 인라인)
+│   │       ├── env.py            # 환경 변수 및 자격증명 로딩
+│   │       ├── providers.py      # 추론/웹검색 프로바이더 선택
+│   │       ├── reddit*.py        # Reddit 검색 모듈 (7개)
+│   │       ├── bird_x.py         # X 검색 (vendored Bird 클라이언트)
+│   │       ├── xai_x.py          # X 검색 (xAI API)
+│   │       ├── youtube_yt.py     # YouTube (yt-dlp)
+│   │       ├── hackernews.py     # Hacker News
+│   │       ├── polymarket.py     # Polymarket 예측 시장
+│   │       ├── github.py         # GitHub 검색
+│   │       ├── bluesky.py        # Bluesky (AT Protocol)
+│   │       └── vendor/bird-search/  # vendored X 검색 클라이언트
+├── tests/                        # [105개 테스트 파일]
+│   ├── conftest.py               # pytest 픽스처
+│   └── test_*.py                 # 단위/통합 테스트
+├── docs/
+│   └── solutions/                # 과거 버그/패턴 해결 문서
+├── .github/workflows/
+│   ├── validate.yml              # PR 검증 (pytest)
+│   ├── release.yml               # 태그 → GH 릴리즈
+│   └── security.yml              # 시크릿 스캔
+├── pyproject.toml                # 프로젝트 메타데이터 + pytest 설정
+├── uv.lock                       # 의존성 잠금 파일
+├── README.md                     # 제품 문서
+├── AGENTS.md                     # 에이전트 패키지 구조 (이 파일)
+├── CONCEPTS.md                   # 공유 도메인 어휘
+├── CONFIGURATION.md              # 사용자 설정 레퍼런스
+└── CHANGELOG.md                  # 릴리즈 히스토리
+</code></pre>
+<p><strong>핵심 모듈 의존 관계:</strong></p>
+<pre><code>슬래시 커맨드 (/last30days &lt;topic&gt;)
+        ↓ SKILL.md가 모델에게 지시
+last30days.py (CLI 진입점)
+        ↓
+lib/planner.py      → 쿼리 계획 수립
+        ↓
+lib/pipeline.py     → 소스별 병렬 검색 실행
+    ├── reddit*.py, bird_x.py, youtube_yt.py, hackernews.py, ...
+        ↓
+lib/cluster.py      → 결과 클러스터링 + 중복 제거
+lib/rerank.py       → 관련성 점수화
+        ↓
+lib/render.py       → 마크다운 출력
+lib/html_render.py  → HTML 출력 (--emit=html)
+</code></pre>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">last30days-skill/
+├── skills/last30days/
+│   ├── SKILL.md                  # [Core] Runtime spec — the contract the synthesizing model follows
+│   ├── scripts/
+│   │   ├── last30days.py         # [Entry point] Main research engine CLI
+│   │   ├── watchlist.py          # Recurring topic trend monitoring
+│   │   ├── briefing.py           # Digest generation
+│   │   ├── store.py              # SQLite persistence
+│   │   └── lib/                  # [64 core modules]
+│   │       ├── __init__.py       # Bare package marker (no imports)
+│   │       ├── pipeline.py       # Multi-source parallel search orchestrator
+│   │       ├── schema.py         # Data models (SourceItem, Candidate, Report)
+│   │       ├── planner.py        # Query planning and sub-query resolution
+│   │       ├── resolve.py        # Entity resolution (@handles, subreddits, hashtags)
+│   │       ├── rerank.py         # Multi-signal relevance scoring
+│   │       ├── cluster.py        # Cross-source clustering + deduplication
+│   │       ├── render.py         # Markdown output generation
+│   │       ├── html_render.py    # HTML brief (dark mode, CSS inlined)
+│   │       ├── env.py            # Env var and credential loading
+│   │       ├── providers.py      # Reasoning/web-search provider selection
+│   │       ├── reddit*.py        # Reddit search modules (7 files)
+│   │       ├── bird_x.py         # X search (vendored Bird client)
+│   │       ├── xai_x.py          # X search (xAI API)
+│   │       ├── youtube_yt.py     # YouTube (yt-dlp)
+│   │       ├── hackernews.py     # Hacker News
+│   │       ├── polymarket.py     # Polymarket prediction markets
+│   │       ├── github.py         # GitHub search
+│   │       ├── bluesky.py        # Bluesky (AT Protocol)
+│   │       └── vendor/bird-search/  # Vendored X search client
+├── tests/                        # [105 test files]
+│   ├── conftest.py               # pytest fixtures
+│   └── test_*.py                 # Unit and integration tests
+├── docs/
+│   └── solutions/                # Documented bug/pattern solutions
+├── .github/workflows/
+│   ├── validate.yml              # PR validation (pytest)
+│   ├── release.yml               # Tag → GitHub Release
+│   └── security.yml             # Secret scanning
+├── pyproject.toml                # Project metadata + pytest config
+├── uv.lock                       # Dependency lock file
+├── README.md                     # Product documentation
+├── AGENTS.md                     # Agent package structure (this file)
+├── CONCEPTS.md                   # Shared domain vocabulary
+├── CONFIGURATION.md              # User-facing config reference
+└── CHANGELOG.md                  # Release history
+</code></pre>
+<p><strong>Core module dependency flow:</strong></p>
+<pre><code>Slash command (/last30days &lt;topic&gt;)
+        ↓ SKILL.md instructs the synthesizing model
+last30days.py (CLI entry point)
+        ↓
+lib/planner.py      → builds query plan + sub-queries
+        ↓
+lib/pipeline.py     → runs parallel per-source searches
+    ├── reddit*.py, bird_x.py, youtube_yt.py, hackernews.py, ...
+        ↓
+lib/cluster.py      → clusters results + removes duplicates
+lib/rerank.py       → multi-signal relevance scoring
+        ↓
+lib/render.py       → markdown output
+lib/html_render.py  → HTML output (--emit=html)
+</code></pre>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 프로젝트는 <strong>순수 Python 패키지</strong>로 컴파일이나 빌드 스텝이 없습니다. 단, 배포용 <code>.skill</code> 아티팩트 생성은 <code>release.yml</code> CI에서 자동으로 처리됩니다.</p>
+<p><strong>개발용 환경 준비:</strong></p>
+<pre><code class="language-bash"># 가상환경 생성 + 개발 의존성 설치 (한 번만 실행)
+uv sync
+
+# 소스 수정 후 스킬 설치 동기화 (로컬 심링크 방식 권장)
+ln -sfn &quot;$PWD/skills/last30days&quot; ~/.agents/skills/last30days
+# 위 명령어는 실제 파일을 복사하지 않고 워킹트리를 직접 참조합니다.
+# (npx skills add . -g -y 는 복사본을 만들어 자동 동기화 안 됨)
+</code></pre>
+<p><strong>배포 아티팩트 빌드 (CI/CD 방식):</strong></p>
+<pre><code class="language-bash"># 태그 푸시 시 release.yml이 자동으로 실행됨:
+# 1. dist/last30days.skill 파일 생성
+# 2. GitHub Release 생성 + 아티팩트 첨부
+git tag v3.x.x
+git push origin v3.x.x
+</code></pre>
+<p><strong>자주 발생하는 빌드 오류:</strong></p>
+<table>
+<thead>
+<tr>
+<th>오류</th>
+<th>원인</th>
+<th>해결 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Python 3.12+ required</code></td>
+<td>구버전 Python</td>
+<td><code>uv python install 3.12</code></td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError: lib</code></td>
+<td>잘못된 실행 경로</td>
+<td><code>scripts/</code> 디렉토리에서가 아닌 프로젝트 루트에서 실행</td>
+</tr>
+<tr>
+<td><code>lib/__init__.py</code> 관련 임포트 오류</td>
+<td><strong>init</strong>.py에 임포트 추가됨</td>
+<td><code>lib/__init__.py</code>는 주석만 있어야 함 (규칙)</td>
+</tr>
+<tr>
+<td><code>npx skills add</code> 후 변경사항 미반영</td>
+<td>설치 시 복사본 고정됨</td>
+<td>심링크 방식으로 변경 또는 re-run</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p>This is a <strong>pure Python package</strong> with no compilation or build step. The distributable <code>.skill</code> artifact is produced automatically by <code>release.yml</code> CI on git tags.</p>
+<p><strong>Development environment setup:</strong></p>
+<pre><code class="language-bash"># Create venv + install dev dependencies (run once)
+uv sync
+
+# After modifying source, sync skill install (symlink method recommended)
+ln -sfn &quot;$PWD/skills/last30days&quot; ~/.agents/skills/last30days
+# This points the install directly at the working tree rather than a frozen copy.
+# (npx skills add . -g -y creates a copy that won't auto-sync on edits)
+</code></pre>
+<p><strong>Distributable artifact build (CI/CD):</strong></p>
+<pre><code class="language-bash"># Pushing a tag triggers release.yml automatically:
+# 1. Builds dist/last30days.skill
+# 2. Creates GitHub Release with the artifact attached
+git tag v3.x.x
+git push origin v3.x.x
+</code></pre>
+<p><strong>Common build errors:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Python 3.12+ required</code></td>
+<td>Older Python version</td>
+<td><code>uv python install 3.12</code></td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError: lib</code></td>
+<td>Wrong working directory</td>
+<td>Run from project root, not from <code>scripts/</code></td>
+</tr>
+<tr>
+<td>Import errors related to <code>lib/__init__.py</code></td>
+<td>Imports added to <code>__init__.py</code></td>
+<td><code>lib/__init__.py</code> must contain only a comment (enforced rule)</td>
+</tr>
+<tr>
+<td>Changes not reflected after <code>npx skills add</code></td>
+<td>Install creates a frozen copy</td>
+<td>Switch to symlink method or re-run the command</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>주의:</strong> 이 프로젝트의 <strong>주요 실행 방법은 슬래시 커맨드</strong>입니다. CLI 직접 실행은 개발/테스트/크론 전용입니다.</p>
+<p><strong>슬래시 커맨드 (권장, 에이전트 호스트에서):</strong></p>
+<pre><code># Claude Code, Codex, Cursor, Gemini CLI 등 에이전트 호스트에서:
+/last30days AI coding tools
+/last30days React vs Vue 2025
+/last30days @sama  # X 유저 리서치
+</code></pre>
+<p><strong>CLI 직접 실행 (개발/디버깅/크론 전용):</strong></p>
+<pre><code class="language-bash"># 기본 실행 (마크다운 출력)
+python3 skills/last30days/scripts/last30days.py &quot;AI coding tools&quot;
+
+# 출력 형식 선택
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --emit=compact   # 압축형
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --emit=html      # HTML 브리프
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --emit=json      # JSON 원시 데이터
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --emit=context   # 에이전트 컨텍스트용
+
+# 특정 소스만 검색
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --search=reddit,hn
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --search=x,youtube
+
+# 결과 저장
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --store   # SQLite에 저장
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --save-dir=/path/to/save
+
+# 트렌드 모니터링
+python3 skills/last30days/scripts/watchlist.py --add &quot;AI coding tools&quot;
+python3 skills/last30days/scripts/briefing.py
+</code></pre>
+<p><strong>스킬 설치 확인:</strong></p>
+<pre><code class="language-bash"># 스킬이 올바르게 설치되었는지 확인
+ls ~/.agents/skills/last30days/
+
+# Claude Code의 경우 /last30days 커맨드가 인식되는지 확인
+# (Claude Code 재시작 후 확인)
+</code></pre>
+<p><strong>실행 확인 방법:</strong>
+- CLI 실행 시 마크다운/HTML 출력이 stdout에 표시되면 정상
+- 오류 없이 종료되면 환경 정상
+- <code>--emit=compact</code>로 빠른 동작 확인 가능</p>
+<p><strong>[English]</strong></p>
+<p><strong>Important:</strong> The <strong>primary way to run this project is via slash command</strong>. Direct CLI invocation is for development, testing, and cron only.</p>
+<p><strong>Slash command (recommended, from an agent host):</strong></p>
+<pre><code># From Claude Code, Codex, Cursor, Gemini CLI, etc.:
+/last30days AI coding tools
+/last30days React vs Vue 2025
+/last30days @sama  # X user research
+</code></pre>
+<p><strong>Direct CLI invocation (development / debugging / cron only):</strong></p>
+<pre><code class="language-bash"># Basic run (markdown output to stdout)
+python3 skills/last30days/scripts/last30days.py &quot;AI coding tools&quot;
+
+# Select output format
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --emit=compact   # condensed
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --emit=html      # HTML brief
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --emit=json      # raw JSON
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --emit=context   # agent context mode
+
+# Restrict to specific sources
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --search=reddit,hn
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --search=x,youtube
+
+# Persist results
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --store   # write to SQLite
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --save-dir=/path/to/save
+
+# Trend monitoring
+python3 skills/last30days/scripts/watchlist.py --add &quot;AI coding tools&quot;
+python3 skills/last30days/scripts/briefing.py
+</code></pre>
+<p><strong>Verify skill installation:</strong></p>
+<pre><code class="language-bash"># Check the skill is correctly installed
+ls ~/.agents/skills/last30days/
+
+# For Claude Code: verify /last30days command is recognized
+# (restart Claude Code, then try typing /last30days)
+</code></pre>
+<p><strong>How to confirm it's working:</strong>
+- CLI run shows markdown/HTML output on stdout with no errors
+- <code>--emit=compact</code> gives the fastest smoke-test of the engine
+- All 105 pytest tests passing confirms the environment is healthy</p>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-bash"># 전체 테스트 스위트 실행 (105개 파일)
+uv run pytest
+
+# 단일 파일 실행
+uv run pytest tests/test_dedupe_v3.py
+
+# 특정 테스트 케이스만 실행
+uv run pytest tests/test_dedupe_v3.py -k &quot;test_some_case&quot;
+
+# 커버리지 포함 실행 (vendor/ 및 dist/ 제외)
+uv run pytest --cov
+
+# 상세 출력
+uv run pytest -v
+
+# 첫 번째 실패 시 중단
+uv run pytest -x
+
+# 특정 소스 모듈 테스트
+uv run pytest tests/test_reddit_listing.py tests/test_bird_x.py
+
+# 환경 변수 관련 테스트
+uv run pytest tests/test_env_v3.py tests/test_env_cookies.py
+</code></pre>
+<p><strong>커버리지 리포트 생성:</strong></p>
+<pre><code class="language-bash">uv run pytest --cov --cov-report=html
+# htmlcov/index.html 파일로 브라우저에서 확인 가능
+</code></pre>
+<p><strong>테스트 구조:</strong>
+- <code>tests/conftest.py</code>: 공용 pytest 픽스처 (가짜 API 응답, 더미 환경 변수)
+- <code>tests/fixtures/</code>: 실제 API 응답 형태의 테스트 데이터 (진짜 자격증명 없음)
+- 실제 API 호출 없이 실행: 모든 외부 API는 모킹/픽스처로 대체
+- <code>lib/vendor/</code> 경로는 커버리지에서 제외 (<code>pyproject.toml</code> 설정)</p>
+<p><strong>테스트 데이터 원칙:</strong>
+- 픽스처는 <strong>명백한 더미값</strong>만 사용 (실제 API 키, 쿠키, 토큰 없음)
+- 보안 규칙: 실제 자격증명이 포함된 픽스처는 절대 커밋 금지</p>
+<p><strong>[English]</strong></p>
+<pre><code class="language-bash"># Run the full test suite (105 files)
+uv run pytest
+
+# Run a single file
+uv run pytest tests/test_dedupe_v3.py
+
+# Run a specific test case
+uv run pytest tests/test_dedupe_v3.py -k &quot;test_some_case&quot;
+
+# Run with coverage (excludes vendor/ and dist/)
+uv run pytest --cov
+
+# Verbose output
+uv run pytest -v
+
+# Stop at first failure
+uv run pytest -x
+
+# Run source-specific tests
+uv run pytest tests/test_reddit_listing.py tests/test_bird_x.py
+
+# Run environment/credential tests
+uv run pytest tests/test_env_v3.py tests/test_env_cookies.py
+</code></pre>
+<p><strong>Generate a coverage report:</strong></p>
+<pre><code class="language-bash">uv run pytest --cov --cov-report=html
+# Opens htmlcov/index.html in a browser
+</code></pre>
+<p><strong>Test structure:</strong>
+- <code>tests/conftest.py</code>: Shared pytest fixtures (fake API responses, dummy env vars)
+- <code>tests/fixtures/</code>: Test data shaped like real API responses, but with no real credentials
+- Runs offline: all external APIs are mocked or replaced with fixtures
+- <code>lib/vendor/</code> is excluded from coverage tracking (configured in <code>pyproject.toml</code>)</p>
+<p><strong>Test data principles:</strong>
+- Fixtures use <strong>obvious dummy values only</strong> (no real API keys, cookies, or tokens)
+- Security rule: never commit fixtures containing real credentials</p>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>브랜치 전략:</strong>
+- <code>main</code> — 안정 브랜치, 직접 푸시 금지
+- 기능/버그 수정: <code>feature/&lt;설명&gt;</code> 또는 <code>fix/&lt;설명&gt;</code> 브랜치 생성
+- 실험적 변경: <code>mvanhorn/last30days-skill-private</code> (베타 채널)에서 먼저 테스트 후 공개 PR 생성</p>
+<p><strong>커밋 메시지 컨벤션:</strong>
+- Keep a Changelog + Conventional Commits 스타일 권장</p>
+<pre><code>feat: add TikTok engagement weighting
+fix: reddit lstrip bug for r/ prefix  
+chore(release): v3.3.2 (#485)
+docs: update CONFIGURATION.md with new BSKY_ vars
+test: add test_bluesky_auth_fallback case
+</code></pre>
+<p><strong>PR 절차:</strong>
+1. <code>.github/PULL_REQUEST_TEMPLATE.md</code> 양식 사용
+2. <code>validate.yml</code> CI(pytest) 통과 확인 필수
+3. 새 환경 변수 추가 시 <code>CONFIGURATION.md</code> 업데이트 (유지 보수 규칙)
+4. 새 슬래시 커맨드 플래그 추가 시 <code>SKILL.md</code> 업데이트 필수 (미업데이트 시 미완성 기능)
+5. 실험적 변경 시 베타 채널(<code>last30days-skill-private</code>)에서 먼저 테스트
+6. 보안 워크플로우(<code>security.yml</code>) 비활성화 금지</p>
+<p><strong>코딩 스타일:</strong>
+- <code>lib/__init__.py</code>는 주석만 포함 (빈 패키지 마커, 임포트 추가 금지)
+- 외부 의존성 추가 금지 (<code>dependencies = []</code> 유지, 표준 라이브러리만 사용)
+- 새 소스 모듈은 <code>lib/</code> 디렉토리에 배치, 소스별 독립 모듈 패턴 준수
+- 자격증명은 항상 <code>lib/env.py</code> 패턴 사용 (환경 변수/Keychain)
+- 픽스처에 실제 자격증명 절대 사용 금지</p>
+<p><strong>린트/포맷 규칙:</strong>
+- 명시적 린터 설정 없음 (추가 가능: Ruff 또는 flake8)
+- 타입 힌트 권장하지만 필수 아님</p>
+<p><strong>[English]</strong></p>
+<p><strong>Branching strategy:</strong>
+- <code>main</code> — stable branch, no direct push
+- Features/fixes: create <code>feature/&lt;description&gt;</code> or <code>fix/&lt;description&gt;</code> branches
+- Experimental changes: test on <code>mvanhorn/last30days-skill-private</code> (beta channel) first, then open a public PR here</p>
+<p><strong>Commit message conventions:</strong>
+- Keep a Changelog + Conventional Commits style recommended</p>
+<pre><code>feat: add TikTok engagement weighting
+fix: reddit lstrip bug for r/ prefix  
+chore(release): v3.3.2 (#485)
+docs: update CONFIGURATION.md with new BSKY_ vars
+test: add test_bluesky_auth_fallback case
+</code></pre>
+<p><strong>PR process:</strong>
+1. Use <code>.github/PULL_REQUEST_TEMPLATE.md</code>
+2. <code>validate.yml</code> CI (pytest) must pass
+3. If adding new env vars, update <code>CONFIGURATION.md</code> (maintenance rule)
+4. If adding new slash-command flags, update <code>SKILL.md</code> — without it the feature is incomplete (the model won't know the flag exists)
+5. For experimental changes, test in the beta channel (<code>last30days-skill-private</code>) first
+6. Never disable or weaken the security workflow (<code>security.yml</code>)</p>
+<p><strong>Coding style:</strong>
+- <code>lib/__init__.py</code> must contain only a comment (bare package marker, no imports)
+- No external dependencies (<code>dependencies = []</code>; stdlib only)
+- New source modules go under <code>lib/</code>, following the per-platform independent module pattern
+- Credentials always go through <code>lib/env.py</code> patterns (env vars / Keychain)
+- Never use real credentials in fixtures</p>
+<p><strong>Lint/format rules:</strong>
+- No explicit linter config checked in (Ruff or flake8 can be added)
+- Type hints are encouraged but not enforced</p>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1: <code>uv run pytest</code> 실행 시 "Python 3.12+ required" 오류가 납니다.</strong>
+- <code>python --version</code>으로 버전 확인. 3.12 미만이면:
+  <code>bash
+  uv python install 3.12
+  uv sync</code>
+- uv는 자동으로 pyproject.toml의 <code>requires-python = "&gt;=3.12"</code> 요건을 확인합니다.</p>
+<p><strong>Q2: <code>npx skills add . -g -y</code>로 설치했는데 코드 변경사항이 반영되지 않습니다.</strong>
+- <code>npx skills add</code>는 파일을 <code>~/.agents/skills/last30days/</code>에 <strong>복사</strong>합니다. 워킹트리 수정 시 자동 동기화 안 됩니다.
+- <strong>해결책:</strong> 심링크 방식으로 전환:
+  <code>bash
+  ln -sfn "$PWD/skills/last30days" ~/.agents/skills/last30days</code>
+  또는 변경 후 <code>npx skills add . -g -y</code> 재실행.</p>
+<p><strong>Q3: Reddit, HN, Polymarket은 작동하는데 X/YouTube가 작동하지 않습니다.</strong>
+- X와 YouTube는 키 또는 외부 도구가 필요합니다:
+  - <strong>X:</strong> <code>.env</code>에 <code>FROM_BROWSER=1</code> 추가(자동 쿠키 추출) 또는 <code>XAI_API_KEY</code> 또는 <code>SCRAPECREATORS_API_KEY</code> 설정
+  - <strong>YouTube:</strong> <code>yt-dlp</code> 설치(<code>pip install yt-dlp</code> 또는 <code>brew install yt-dlp</code>) 또는 <code>YOUTUBE_API_KEY</code> 설정
+- Reddit, HN, Polymarket은 설정 없이 무료로 작동합니다.</p>
+<p><strong>Q4: <code>/last30days @somehandle</code>이 엉뚱한 결과를 반환합니다.</strong>
+- <code>@핸들</code>은 X 유저 리서치 모드를 트리거합니다. <code>lib/resolve.py</code>가 엔티티 해석을 담당합니다.
+- 기대 결과가 GitHub 유저라면: <code>/last30days github:username</code> 형식 사용
+- 기대 결과가 서브레딧이라면: <code>/last30days r/subredditname</code> 형식 사용</p>
+<p><strong>Q5: <code>lib/__init__.py</code>에 임포트를 추가했더니 테스트가 깨집니다.</strong>
+- 프로젝트 규칙: <code>lib/__init__.py</code>는 <strong>주석 전용</strong>입니다. 임포트 추가 금지.
+- 이 규칙은 순환 임포트 방지와 개별 모듈의 독립 로딩을 위해 존재합니다.
+- 추가한 임포트를 제거하고 필요한 모듈을 직접 임포트하세요.</p>
+<p><strong>Q6: <code>.env</code> 파일 위치를 어디에 두어야 하나요?</strong>
+- 우선순위: <code>.claude/last30days.env</code> (프로젝트 폴더) → <code>~/.config/last30days/.env</code> (사용자 전역)
+- <code>LAST30DAYS_CONFIG_DIR</code> 환경 변수로 기본 위치 변경 가능</p>
+<p><strong>Q7: 테스트는 모두 통과하는데 실제 실행 시 API 오류가 납니다.</strong>
+- 테스트는 모킹/픽스처로 실행되므로 실제 자격증명이 없어도 통과됩니다.
+- 실제 실행에는 <code>.env</code>에 적절한 API 키가 설정되어야 합니다.
+- <code>python3 skills/last30days/scripts/last30days.py "topic" --emit=compact</code>로 먼저 엔진을 직접 테스트하세요.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Q1: Getting "Python 3.12+ required" when running <code>uv run pytest</code>.</strong>
+- Check your version with <code>python --version</code>. If below 3.12:
+  <code>bash
+  uv python install 3.12
+  uv sync</code>
+- uv enforces <code>requires-python = "&gt;=3.12"</code> from <code>pyproject.toml</code> automatically.</p>
+<p><strong>Q2: Code changes aren't reflected after <code>npx skills add . -g -y</code>.</strong>
+- <code>npx skills add</code> <strong>copies</strong> files to <code>~/.agents/skills/last30days/</code>. Working-tree edits don't auto-sync.
+- <strong>Fix:</strong> Switch to the symlink method:
+  <code>bash
+  ln -sfn "$PWD/skills/last30days" ~/.agents/skills/last30days</code>
+  Or re-run <code>npx skills add . -g -y</code> after each change.</p>
+<p><strong>Q3: Reddit, HN, Polymarket work but X/YouTube don't.</strong>
+- X and YouTube require a key or external tool:
+  - <strong>X:</strong> Add <code>FROM_BROWSER=1</code> to your <code>.env</code> (auto-extracts browser cookies), or set <code>XAI_API_KEY</code> or <code>SCRAPECREATORS_API_KEY</code>
+  - <strong>YouTube:</strong> Install <code>yt-dlp</code> (<code>pip install yt-dlp</code> or <code>brew install yt-dlp</code>), or set <code>YOUTUBE_API_KEY</code>
+- Reddit, HN, and Polymarket work for free with no configuration.</p>
+<p><strong>Q4: <code>/last30days @somehandle</code> returns irrelevant results.</strong>
+- <code>@handle</code> syntax triggers X user research mode, resolved by <code>lib/resolve.py</code>.
+- For GitHub users: use <code>/last30days github:username</code>
+- For subreddits: use <code>/last30days r/subredditname</code></p>
+<p><strong>Q5: Added an import to <code>lib/__init__.py</code> and tests broke.</strong>
+- Project rule: <code>lib/__init__.py</code> is <strong>comment-only</strong>. No imports allowed.
+- This prevents circular imports and allows individual modules to load independently.
+- Remove the import from <code>__init__.py</code> and import directly from the specific module.</p>
+<p><strong>Q6: Where should I place the <code>.env</code> file?</strong>
+- Priority order: <code>.claude/last30days.env</code> (project folder) → <code>~/.config/last30days/.env</code> (user global)
+- Override the default location with the <code>LAST30DAYS_CONFIG_DIR</code> environment variable.</p>
+<p><strong>Q7: Tests pass but I get API errors when actually running the skill.</strong>
+- Tests run against mocks/fixtures, so they pass without real credentials.
+- Actual execution requires valid API keys in your <code>.env</code> file.
+- Debug by running the engine directly first: <code>python3 skills/last30days/scripts/last30days.py "topic" --emit=compact</code></p>
+<h2 id="-">---</h2>
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>분류:</strong> Agent Skills 패키지 — 에이전트 런타임(하네스)에 설치하여 슬래시 커맨드로 실행하는 플러그인형 스킬</p>
+<p><strong>해결하는 문제:</strong>
+1. <strong>정보 과부하 해소:</strong> 주제에 대한 "에디터가 선택한 뉴스"가 아닌 커뮤니티 실제 의견 집계 — Reddit 업보트, X 좋아요, Polymarket 베팅 금액, HN 포인트로 순위화
+2. <strong>다중 소스 검색 자동화:</strong> 각 플랫폼 API를 개별적으로 호출하고 결과를 수동으로 합치는 반복 작업 제거
+3. <strong>실시간 컨센서스 파악:</strong> 최근 30일 데이터에 집중하여 "지금 커뮤니티에서 무슨 말을 하고 있는가"에 답변
+4. <strong>에이전트 컨텍스트 주입:</strong> <code>--emit=context</code> 플래그로 에이전트가 다른 작업을 수행할 때 실시간 커뮤니티 인텔리전스를 컨텍스트로 제공</p>
+<p><strong>실전 활용 패턴:</strong>
+- 미팅 전 특정 기술/제품에 대한 커뮤니티 여론 파악
+- 경쟁사/대안 솔루션 비교 (<code>/last30days React vs Vue</code>)
+- 특정 트위터 유저나 GitHub 저장소 주변 커뮤니티 반응 파악
+- <code>watchlist.py</code> + <code>briefing.py</code>로 매일/매주 자동 트렌드 브리핑 생성</p>
+<p><strong>[English]</strong></p>
+<p><strong>Classification:</strong> Agent Skills package — a plugin-style skill installed into an agent runtime (harness) and triggered via slash command</p>
+<p><strong>Problems it solves:</strong>
+1. <strong>Information overload:</strong> Aggregates genuine community opinion — ranked by Reddit upvotes, X likes, Polymarket betting volume, HN points — not editor-curated news
+2. <strong>Multi-source search automation:</strong> Eliminates the repetitive work of calling each platform's API individually and manually merging results
+3. <strong>Real-time consensus detection:</strong> Focuses on the last 30 days of data to answer "what is the community actually saying right now"
+4. <strong>Agent context injection:</strong> The <code>--emit=context</code> flag injects live community intelligence into other agent workflows</p>
+<p><strong>Real-world usage patterns:</strong>
+- Pre-meeting research on a technology or product
+- Competitor/alternative comparison (<code>/last30days React vs Vue</code>)
+- Gauging community reaction around a specific X user or GitHub repository
+- Automated daily/weekly trend briefings using <code>watchlist.py</code> + <code>briefing.py</code></p>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>핵심 컴포넌트와 역할:</strong></p>
+<table>
+<thead>
+<tr>
+<th>컴포넌트</th>
+<th>위치</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKILL.md</code></td>
+<td><code>skills/last30days/</code></td>
+<td>합성 모델이 따르는 출력 계약 (프로즈 명세)</td>
+</tr>
+<tr>
+<td><code>last30days.py</code></td>
+<td><code>scripts/</code></td>
+<td>CLI 진입점, 인수 파싱, 출력 직렬화</td>
+</tr>
+<tr>
+<td><code>lib/planner.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>쿼리 인텐트 분류 + 서브쿼리 계획</td>
+</tr>
+<tr>
+<td><code>lib/pipeline.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>소스별 병렬 검색 팬아웃</td>
+</tr>
+<tr>
+<td>소스 모듈들</td>
+<td><code>scripts/lib/</code></td>
+<td>각 플랫폼 API/스크래핑 (reddit*.py, bird_x.py 등)</td>
+</tr>
+<tr>
+<td><code>lib/cluster.py</code> + <code>lib/dedupe.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>소스 간 중복 제거 및 클러스터링</td>
+</tr>
+<tr>
+<td><code>lib/rerank.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>신선도, 참여도, 관련성 다중 신호 점수화</td>
+</tr>
+<tr>
+<td><code>lib/render.py</code> / <code>lib/html_render.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>마크다운/HTML 출력 생성</td>
+</tr>
+<tr>
+<td><code>lib/env.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>자격증명 로딩 (env vars, .env, Keychain)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>데이터 흐름:</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+    A[&quot;/last30days &amp;lt;topic&amp;gt;&quot;] --&gt;|Harness invokes| B[SKILL.md\nRuntime Contract]
+    B --&gt;|Calls engine| C[last30days.py\nCLI Entry Point]
+    C --&gt; D[lib/planner.py\nQuery Plan + Sub-queries]
+    D --&gt; E[lib/pipeline.py\nParallel Source Fanout]
+    E --&gt; F1[reddit*.py]
+    E --&gt; F2[bird_x.py / xai_x.py]
+    E --&gt; F3[youtube_yt.py]
+    E --&gt; F4[hackernews.py]
+    E --&gt; F5[polymarket.py]
+    E --&gt; F6[github.py]
+    E --&gt; F7[bluesky.py / tiktok.py / ...]
+    F1 &amp; F2 &amp; F3 &amp; F4 &amp; F5 &amp; F6 &amp; F7 --&gt; G[lib/cluster.py\nCross-source Clustering]
+    G --&gt; H[lib/dedupe.py\nDeduplication]
+    H --&gt; I[lib/rerank.py\nMulti-signal Scoring\nfreshness + engagement + relevance]
+    I --&gt; J{--emit flag}
+    J --&gt;|md / compact| K[lib/render.py\nMarkdown Output]
+    J --&gt;|html| L[lib/html_render.py\nHTML Brief]
+    J --&gt;|json| M[Raw JSON]
+    J --&gt;|context| N[Agent Context Payload]
+    K &amp; L &amp; M &amp; N --&gt; O[stdout / --save-dir]
+    O --&gt;|--store| P[store.py\nSQLite Persistence]
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Core components and roles:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Location</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SKILL.md</code></td>
+<td><code>skills/last30days/</code></td>
+<td>Output contract (prose spec) the synthesizing model must follow</td>
+</tr>
+<tr>
+<td><code>last30days.py</code></td>
+<td><code>scripts/</code></td>
+<td>CLI entry point — argument parsing, output serialization</td>
+</tr>
+<tr>
+<td><code>lib/planner.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>Query intent classification + sub-query planning</td>
+</tr>
+<tr>
+<td><code>lib/pipeline.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>Per-source parallel search fanout</td>
+</tr>
+<tr>
+<td>Source modules</td>
+<td><code>scripts/lib/</code></td>
+<td>Per-platform API/scraping (reddit*.py, bird_x.py, etc.)</td>
+</tr>
+<tr>
+<td><code>lib/cluster.py</code> + <code>lib/dedupe.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>Cross-source deduplication and clustering</td>
+</tr>
+<tr>
+<td><code>lib/rerank.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>Multi-signal scoring: freshness, engagement, relevance</td>
+</tr>
+<tr>
+<td><code>lib/render.py</code> / <code>lib/html_render.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>Markdown/HTML output generation</td>
+</tr>
+<tr>
+<td><code>lib/env.py</code></td>
+<td><code>scripts/lib/</code></td>
+<td>Credential loading (env vars, .env files, Keychain)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data flow:</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+    A[&quot;/last30days &amp;lt;topic&amp;gt;&quot;] --&gt;|Harness invokes| B[SKILL.md\nRuntime Contract]
+    B --&gt;|Calls engine| C[last30days.py\nCLI Entry Point]
+    C --&gt; D[lib/planner.py\nQuery Plan + Sub-queries]
+    D --&gt; E[lib/pipeline.py\nParallel Source Fanout]
+    E --&gt; F1[reddit*.py]
+    E --&gt; F2[bird_x.py / xai_x.py]
+    E --&gt; F3[youtube_yt.py]
+    E --&gt; F4[hackernews.py]
+    E --&gt; F5[polymarket.py]
+    E --&gt; F6[github.py]
+    E --&gt; F7[bluesky.py / tiktok.py / ...]
+    F1 &amp; F2 &amp; F3 &amp; F4 &amp; F5 &amp; F6 &amp; F7 --&gt; G[lib/cluster.py\nCross-source Clustering]
+    G --&gt; H[lib/dedupe.py\nDeduplication]
+    H --&gt; I[lib/rerank.py\nMulti-signal Scoring\nfreshness + engagement + relevance]
+    I --&gt; J{--emit flag}
+    J --&gt;|md / compact| K[lib/render.py\nMarkdown Output]
+    J --&gt;|html| L[lib/html_render.py\nHTML Brief]
+    J --&gt;|json| M[Raw JSON]
+    J --&gt;|context| N[Agent Context Payload]
+    K &amp; L &amp; M &amp; N --&gt; O[stdout / --save-dir]
+    O --&gt;|--store| P[store.py\nSQLite Persistence]
+</code></pre>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: 에이전트 워크플로우에 실시간 커뮤니티 인텔리전스 주입</strong></p>
+<p>목표: 다른 AI 에이전트 태스크(예: 기술 문서 작성)를 수행하기 전에 해당 기술에 대한 최신 커뮤니티 의견을 컨텍스트로 제공</p>
+<p>단계:
+1. <code>--emit=context</code> 플래그로 엔진 실행 → 구조화된 컨텍스트 페이로드 생성
+2. 에이전트 시스템 프롬프트 또는 유저 컨텍스트로 주입
+3. 에이전트가 커뮤니티 실제 의견을 반영한 응답 생성</p>
+<pre><code class="language-bash"># 에이전트 컨텍스트 페이로드 생성
+CONTEXT=$(python3 skills/last30days/scripts/last30days.py &quot;Rust vs Go 2025&quot; --emit=context)
+
+# 다른 에이전트 도구에 컨텍스트 전달 (예시)
+echo &quot;Based on recent community data: $CONTEXT&quot; | your-agent-tool
+</code></pre>
+<p><strong>시나리오 2: 자동화된 경쟁사 모니터링 대시보드</strong></p>
+<p>목표: 매주 특정 기술/제품 카테고리의 커뮤니티 여론 변화 추적</p>
+<p>단계:
+1. <code>watchlist.py</code>로 모니터링 토픽 등록
+2. cron 또는 GitHub Actions 스케줄러로 주기적 실행
+3. <code>briefing.py</code>로 요약 다이제스트 생성
+4. Slack/이메일/노션 등으로 전달</p>
+<pre><code class="language-bash"># 1. 모니터링 토픽 등록
+python3 skills/last30days/scripts/watchlist.py --add &quot;React vs Vue&quot;
+python3 skills/last30days/scripts/watchlist.py --add &quot;AI coding tools&quot;
+
+# 2. 데이터 수집 (SQLite 저장)
+python3 skills/last30days/scripts/last30days.py &quot;React vs Vue&quot; --store
+python3 skills/last30days/scripts/last30days.py &quot;AI coding tools&quot; --store
+
+# 3. 요약 브리핑 생성
+python3 skills/last30days/scripts/briefing.py &gt; weekly-brief.md
+</code></pre>
+<p><strong>시나리오 3: 개발팀 프리-미팅 인텔리전스 자동화</strong></p>
+<p>목표: 회의 전에 논의 주제에 대한 커뮤니티 의견 요약을 자동 생성</p>
+<p>단계:
+1. 회의 주제를 슬래시 커맨드로 리서치
+2. HTML 브리프 생성 (<code>--emit=html</code>)으로 읽기 쉬운 형식 공유
+3. <code>--save-dir</code>로 팀 공유 폴더에 저장</p>
+<pre><code class="language-bash"># 미팅 준비 HTML 브리프 생성
+python3 skills/last30days/scripts/last30days.py \
+  &quot;PostgreSQL vs MySQL 2025&quot; \
+  --emit=html \
+  --save-dir=/team-shared/pre-meeting-briefs
+</code></pre>
+<p><strong>시나리오 4: 멀티-하네스 스킬 배포</strong></p>
+<p>목표: 팀 내 다양한 AI 도구(Claude Code, Cursor, Gemini CLI 등)에서 동일한 스킬을 사용</p>
+<p>단계:
+1. 저장소에서 스킬 설치 (<code>npx skills add . -g -y</code>)
+2. 각 에이전트 호스트에서 <code>/last30days</code> 커맨드 사용 가능
+3. 자격증명은 <code>~/.config/last30days/.env</code>에 한 번만 설정</p>
+<pre><code class="language-bash"># 한 번 설치로 모든 지원 하네스에서 사용 가능
+npx skills add . -g -y
+
+# 각 하네스에서 동일한 커맨드:
+# Claude Code: /last30days AI tools
+# Cursor: /last30days AI tools
+# Gemini CLI: /last30days AI tools
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: Injecting real-time community intelligence into agent workflows</strong></p>
+<p>Goal: Provide up-to-date community context before performing another AI agent task (e.g., writing technical documentation)</p>
+<p>Steps:
+1. Run the engine with <code>--emit=context</code> → generates a structured context payload
+2. Inject the payload into an agent system prompt or user context
+3. The downstream agent produces responses grounded in real community opinion</p>
+<pre><code class="language-bash"># Generate an agent context payload
+CONTEXT=$(python3 skills/last30days/scripts/last30days.py &quot;Rust vs Go 2025&quot; --emit=context)
+
+# Pass context to another agent tool (example)
+echo &quot;Based on recent community data: $CONTEXT&quot; | your-agent-tool
+</code></pre>
+<p><strong>Scenario 2: Automated competitor monitoring dashboard</strong></p>
+<p>Goal: Track weekly changes in community sentiment across a technology or product category</p>
+<p>Steps:
+1. Register monitoring topics via <code>watchlist.py</code>
+2. Schedule periodic runs via cron or GitHub Actions
+3. Generate a summary digest via <code>briefing.py</code>
+4. Deliver to Slack/email/Notion</p>
+<pre><code class="language-bash"># 1. Register topics to monitor
+python3 skills/last30days/scripts/watchlist.py --add &quot;React vs Vue&quot;
+python3 skills/last30days/scripts/watchlist.py --add &quot;AI coding tools&quot;
+
+# 2. Collect data (persist to SQLite)
+python3 skills/last30days/scripts/last30days.py &quot;React vs Vue&quot; --store
+python3 skills/last30days/scripts/last30days.py &quot;AI coding tools&quot; --store
+
+# 3. Generate summary briefing
+python3 skills/last30days/scripts/briefing.py &gt; weekly-brief.md
+</code></pre>
+<p><strong>Scenario 3: Pre-meeting intelligence automation for development teams</strong></p>
+<p>Goal: Auto-generate a community opinion summary on meeting topics before the meeting starts</p>
+<p>Steps:
+1. Research meeting topics via slash command
+2. Generate an HTML brief (<code>--emit=html</code>) for easy sharing
+3. Save to a team-shared folder via <code>--save-dir</code></p>
+<pre><code class="language-bash"># Generate a pre-meeting HTML brief
+python3 skills/last30days/scripts/last30days.py \
+  &quot;PostgreSQL vs MySQL 2025&quot; \
+  --emit=html \
+  --save-dir=/team-shared/pre-meeting-briefs
+</code></pre>
+<p><strong>Scenario 4: Multi-harness skill deployment across a team</strong></p>
+<p>Goal: Use the same skill across different AI tools (Claude Code, Cursor, Gemini CLI, etc.)</p>
+<p>Steps:
+1. Install the skill from the repository (<code>npx skills add . -g -y</code>)
+2. The <code>/last30days</code> command becomes available in every supported host
+3. Credentials configured once in <code>~/.config/last30days/.env</code> apply everywhere</p>
+<pre><code class="language-bash"># One install, all supported harnesses
+npx skills add . -g -y
+
+# Same command in every harness:
+# Claude Code: /last30days AI tools
+# Cursor: /last30days AI tools
+# Gemini CLI: /last30days AI tools
+</code></pre>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>설정 변경 포인트:</strong></p>
+<table>
+<thead>
+<tr>
+<th>설정 계층</th>
+<th>위치</th>
+<th>우선 순위</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>퍼-런 플래그</td>
+<td>CLI <code>--emit</code>, <code>--search</code>, <code>--store</code>, <code>--save-dir</code>, <code>--save-suffix</code></td>
+<td>1 (최고)</td>
+</tr>
+<tr>
+<td>환경 변수</td>
+<td>현재 셸 <code>export LAST30DAYS_MEMORY_DIR=...</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>프로젝트 <code>.env</code></td>
+<td><code>.claude/last30days.env</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td>사용자 전역 <code>.env</code></td>
+<td><code>~/.config/last30days/.env</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td>macOS Keychain</td>
+<td><code>setup-keychain.sh</code>로 등록</td>
+<td>5</td>
+</tr>
+<tr>
+<td>기본값</td>
+<td><code>lib/env.py</code> 하드코딩</td>
+<td>6 (최저)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>새 소스 추가 방법:</strong></p>
+<ol>
+<li><code>skills/last30days/scripts/lib/new_source.py</code> 생성</li>
+<li>표준 인터페이스 구현: <code>search(query, **kwargs) -&gt; list[SourceItem]</code></li>
+<li><code>lib/pipeline.py</code>의 <code>SEARCH_ALIAS</code> 레지스트리에 소스 등록</li>
+<li><code>CONFIGURATION.md</code>에 필요 API 키 문서화</li>
+<li><code>SKILL.md</code>에 소스 이름/플래그 추가 (에이전트가 인식하도록)</li>
+<li><code>tests/test_new_source.py</code> 테스트 작성</li>
+<li><code>lib/env.py</code>에 자격증명 로딩 패턴 추가</li>
+</ol>
+<p><strong>카테고리별 서브레딧 커스터마이징:</strong></p>
+<p><code>lib/categories.py</code>에 카테고리-피어 서브레딧 매핑 테이블이 있습니다. 특정 도메인에 맞는 서브레딧 그룹 추가 가능:</p>
+<pre><code class="language-python"># categories.py 예시 구조
+CATEGORY_PEERS = {
+    &quot;webdev&quot;: [&quot;r/webdev&quot;, &quot;r/javascript&quot;, &quot;r/reactjs&quot;, &quot;r/vuejs&quot;],
+    &quot;devops&quot;: [&quot;r/devops&quot;, &quot;r/kubernetes&quot;, &quot;r/docker&quot;, &quot;r/aws&quot;],
+    # 새 카테고리 추가:
+    &quot;fintech&quot;: [&quot;r/fintech&quot;, &quot;r/personalfinance&quot;, &quot;r/investing&quot;],
+}
+</code></pre>
+<p><strong>경쟁사 비교 커스터마이징:</strong></p>
+<p><code>--competitors-plan</code> 플래그로 사전 정의된 비교 계획 JSON 파일 지정:</p>
+<pre><code class="language-bash">python3 skills/last30days/scripts/last30days.py &quot;database&quot; \
+  --competitors-plan='{&quot;entities&quot;: [&quot;PostgreSQL&quot;, &quot;MySQL&quot;, &quot;SQLite&quot;]}'
+</code></pre>
+<p><strong>출력 저장 위치 커스터마이징:</strong></p>
+<pre><code class="language-bash"># 클라이언트별 저장 분리
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --save-suffix=client-a
+# → ~/Documents/Last30Days/topic-client-a.md로 저장
+
+# 완전히 다른 위치로 저장
+LAST30DAYS_MEMORY_DIR=/custom/path python3 skills/last30days/scripts/last30days.py &quot;topic&quot;
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Configuration touch points:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Config layer</th>
+<th>Location</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Per-run flags</td>
+<td>CLI <code>--emit</code>, <code>--search</code>, <code>--store</code>, <code>--save-dir</code>, <code>--save-suffix</code></td>
+<td>1 (highest)</td>
+</tr>
+<tr>
+<td>Environment variables</td>
+<td>Current shell <code>export LAST30DAYS_MEMORY_DIR=...</code></td>
+<td>2</td>
+</tr>
+<tr>
+<td>Project <code>.env</code></td>
+<td><code>.claude/last30days.env</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td>User-global <code>.env</code></td>
+<td><code>~/.config/last30days/.env</code></td>
+<td>4</td>
+</tr>
+<tr>
+<td>macOS Keychain</td>
+<td>Registered via <code>setup-keychain.sh</code></td>
+<td>5</td>
+</tr>
+<tr>
+<td>Defaults</td>
+<td>Hardcoded in <code>lib/env.py</code></td>
+<td>6 (lowest)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>How to add a new source:</strong></p>
+<ol>
+<li>Create <code>skills/last30days/scripts/lib/new_source.py</code></li>
+<li>Implement the standard interface: <code>search(query, **kwargs) -&gt; list[SourceItem]</code></li>
+<li>Register the source in the <code>SEARCH_ALIAS</code> registry in <code>lib/pipeline.py</code></li>
+<li>Document required API keys in <code>CONFIGURATION.md</code></li>
+<li>Add the source name/flag to <code>SKILL.md</code> (so the synthesizing model knows it exists)</li>
+<li>Write tests in <code>tests/test_new_source.py</code></li>
+<li>Add credential loading pattern to <code>lib/env.py</code></li>
+</ol>
+<p><strong>Customizing category-peer subreddits:</strong></p>
+<p><code>lib/categories.py</code> contains a category-to-peer-subreddits mapping table. Add domain-specific subreddit groups:</p>
+<pre><code class="language-python"># categories.py example structure
+CATEGORY_PEERS = {
+    &quot;webdev&quot;: [&quot;r/webdev&quot;, &quot;r/javascript&quot;, &quot;r/reactjs&quot;, &quot;r/vuejs&quot;],
+    &quot;devops&quot;: [&quot;r/devops&quot;, &quot;r/kubernetes&quot;, &quot;r/docker&quot;, &quot;r/aws&quot;],
+    # Add new category:
+    &quot;fintech&quot;: [&quot;r/fintech&quot;, &quot;r/personalfinance&quot;, &quot;r/investing&quot;],
+}
+</code></pre>
+<p><strong>Customizing competitor comparisons:</strong></p>
+<p>Use the <code>--competitors-plan</code> flag to specify a pre-defined comparison plan JSON:</p>
+<pre><code class="language-bash">python3 skills/last30days/scripts/last30days.py &quot;database&quot; \
+  --competitors-plan='{&quot;entities&quot;: [&quot;PostgreSQL&quot;, &quot;MySQL&quot;, &quot;SQLite&quot;]}'
+</code></pre>
+<p><strong>Customizing output save locations:</strong></p>
+<pre><code class="language-bash"># Per-client output separation
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; --save-suffix=client-a
+# → saves to ~/Documents/Last30Days/topic-client-a.md
+
+# Redirect to a completely different location
+LAST30DAYS_MEMORY_DIR=/custom/path python3 skills/last30days/scripts/last30days.py &quot;topic&quot;
+</code></pre>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>배포 방식 1: Agent Skills 마켓플레이스 배포 (기본)</strong></p>
+<p><code>release.yml</code> 워크플로우가 태그 푸시 시 자동으로 처리:
+1. <code>dist/last30days.skill</code> 아티팩트 빌드
+2. GitHub Release 생성 + 아티팩트 첨부
+3. 사용자는 <code>npx skills add mvanhorn/last30days-skill -g -y</code>로 최신 버전 설치</p>
+<p><strong>배포 방식 2: 자체 호스팅 / 팀 내 배포</strong></p>
+<pre><code class="language-bash"># 특정 버전 태그로 배포
+git tag v3.x.x
+git push origin v3.x.x
+# release.yml이 자동 실행
+
+# 팀 멤버 설치 방법
+npx skills add mvanhorn/last30days-skill -g -y
+# 또는 특정 버전:
+npx skills add mvanhorn/last30days-skill@3.3.2 -g -y
+</code></pre>
+<p><strong>CI/CD 파이프라인 연동 (GitHub Actions):</strong></p>
+<pre><code class="language-yaml"># .github/workflows/validate.yml (기존 설정)
+name: validate
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: &quot;3.12&quot;
+      - run: uv run pytest
+</code></pre>
+<p><strong>환경별 설정 분리:</strong></p>
+<pre><code class="language-bash"># 개발 환경: .claude/last30days.env (프로젝트 스코프)
+# 스테이징: ~/.config/last30days/.env with staging API keys
+# 프로덕션 크론: systemd 유닛 파일 또는 GitHub Actions secrets로 키 주입
+
+# GitHub Actions에서 시크릿 주입 예시:
+env:
+  XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+  SCRAPECREATORS_API_KEY: ${{ secrets.SCRAPECREATORS_API_KEY }}
+</code></pre>
+<p><strong>크론 기반 자동 트렌드 모니터링:</strong></p>
+<pre><code class="language-bash"># crontab -e 에 추가 (매일 오전 8시 실행):
+0 8 * * * cd /path/to/last30days-skill &amp;&amp; \
+  python3 skills/last30days/scripts/last30days.py &quot;AI coding tools&quot; --store &amp;&amp; \
+  python3 skills/last30days/scripts/briefing.py &gt; /tmp/daily-brief.md
+
+# GitHub Actions 스케줄 방식:
+on:
+  schedule:
+    - cron: '0 8 * * *'
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+uv를 GitHub Actions에서 사용하려면 <code>astral-sh/setup-uv@v5</code> 액션을 사용하는 것을 권장합니다.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Deployment method 1: Agent Skills marketplace (default)</strong></p>
+<p>The <code>release.yml</code> workflow handles this automatically on tag push:
+1. Builds <code>dist/last30days.skill</code> artifact
+2. Creates a GitHub Release with the artifact attached
+3. End users install the latest version via <code>npx skills add mvanhorn/last30days-skill -g -y</code></p>
+<p><strong>Deployment method 2: Self-hosted / team-internal</strong></p>
+<pre><code class="language-bash"># Tag and push a version
+git tag v3.x.x
+git push origin v3.x.x
+# release.yml runs automatically
+
+# Team member installation
+npx skills add mvanhorn/last30days-skill -g -y
+# Or pin to a specific version:
+npx skills add mvanhorn/last30days-skill@3.3.2 -g -y
+</code></pre>
+<p><strong>CI/CD pipeline integration (GitHub Actions):</strong></p>
+<pre><code class="language-yaml"># .github/workflows/validate.yml (existing config)
+name: validate
+on:
+  push:
+    branches: [main]
+  pull_request:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: &quot;3.12&quot;
+      - run: uv run pytest
+</code></pre>
+<p><strong>Environment-specific configuration separation:</strong></p>
+<pre><code class="language-bash"># Development: .claude/last30days.env (project-scoped)
+# Staging: ~/.config/last30days/.env with staging API keys
+# Production cron: inject keys via systemd unit file or GitHub Actions secrets
+
+# Example: injecting secrets in GitHub Actions
+env:
+  XAI_API_KEY: ${{ secrets.XAI_API_KEY }}
+  SCRAPECREATORS_API_KEY: ${{ secrets.SCRAPECREATORS_API_KEY }}
+</code></pre>
+<p><strong>Cron-based automated trend monitoring:</strong></p>
+<pre><code class="language-bash"># Add to crontab (runs daily at 8 AM):
+0 8 * * * cd /path/to/last30days-skill &amp;&amp; \
+  python3 skills/last30days/scripts/last30days.py &quot;AI coding tools&quot; --store &amp;&amp; \
+  python3 skills/last30days/scripts/briefing.py &gt; /tmp/daily-brief.md
+
+# GitHub Actions schedule equivalent:
+on:
+  schedule:
+    - cron: '0 8 * * *'
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+For GitHub Actions, use <code>astral-sh/setup-uv@v5</code> to install uv efficiently with caching.</p>
+</blockquote>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>알려진 성능 특성:</strong></p>
+<table>
+<thead>
+<tr>
+<th>특성</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>병렬 팬아웃</td>
+<td><code>lib/fanout.py</code>가 소스별 검색을 병렬 실행 → 총 실행 시간 = 가장 느린 소스 응답 시간</td>
+</tr>
+<tr>
+<td>외부 의존성 없음</td>
+<td>표준 라이브러리만 사용 → 임포트 오버헤드 최소</td>
+</tr>
+<tr>
+<td>네트워크 제한</td>
+<td>실제 병목은 외부 API 응답 속도 (Reddit, X API, YouTube 등)</td>
+</tr>
+<tr>
+<td>SQLite 저장</td>
+<td><code>--store</code> 플래그 사용 시 로컬 SQLite에 결과 저장 → 반복 쿼리 성능 향상 가능성 있음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>병목 지점 및 해결 전략:</strong></p>
+<ol>
+<li><strong>느린 소스 제거:</strong> <code>--search=reddit,hn</code>으로 빠른 소스만 선택하거나 <code>EXCLUDE_SOURCES</code> 환경 변수로 느린 소스 제외</li>
+<li><strong>타임아웃 조정:</strong> <code>lib/http.py</code>의 urllib 래퍼에서 재시도/타임아웃 조정 가능</li>
+<li><strong><code>--emit=compact</code>:</strong> 전체 출력 대신 압축형 출력으로 응답 크기 감소</li>
+<li><strong>캐시/SQLite:</strong> <code>--store</code> 플래그로 결과를 SQLite에 영속화하여 동일 쿼리 재실행 비용 감소</li>
+</ol>
+<p><strong>수평/수직 확장:</strong></p>
+<ul>
+<li><strong>수직 확장:</strong> Python GIL 제약으로 멀티코어 활용 제한적. 메모리/CPU 증설보다 네트워크 지연 최적화가 우선</li>
+<li><strong>수평 확장:</strong> 다중 인스턴스 실행 + 토픽별 분산 처리가 가장 현실적 (각 인스턴스는 독립 실행)</li>
+<li><strong>크론 기반 사전 집계:</strong> 실시간 요청이 아닌 사전 주기적 실행 + SQLite 저장으로 응답 속도 개선</li>
+</ul>
+<p><strong>모니터링 설정:</strong></p>
+<pre><code class="language-bash"># 실행 로그 확인
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; 2&gt;&amp;1 | tee run.log
+
+# SQLite 결과 현황 확인
+python3 -c &quot;import sqlite3; c=sqlite3.connect('~/.last30days.db').cursor(); c.execute('SELECT COUNT(*) FROM results'); print(c.fetchone())&quot;
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+Python 비동기 네트워킹(<code>asyncio</code> + <code>aiohttp</code>)으로 팬아웃을 리팩토링하면 외부 API 병목을 크게 줄일 수 있지만, 현재 구현은 외부 의존성 제로 원칙을 유지하기 위해 표준 라이브러리만 사용합니다.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Known performance characteristics:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Characteristic</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Parallel fanout</td>
+<td><code>lib/fanout.py</code> runs per-source searches in parallel → total run time = slowest source response</td>
+</tr>
+<tr>
+<td>Zero external dependencies</td>
+<td>stdlib only → minimal import overhead</td>
+</tr>
+<tr>
+<td>Network-bound</td>
+<td>Real bottleneck is external API response times (Reddit, X API, YouTube, etc.)</td>
+</tr>
+<tr>
+<td>SQLite persistence</td>
+<td><code>--store</code> flag persists results to local SQLite → can reduce cost of repeated queries</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Bottleneck mitigation strategies:</strong></p>
+<ol>
+<li><strong>Exclude slow sources:</strong> Use <code>--search=reddit,hn</code> to select fast sources only, or set <code>EXCLUDE_SOURCES</code> to exclude slow ones</li>
+<li><strong>Adjust timeouts:</strong> The urllib wrapper in <code>lib/http.py</code> controls retry/timeout behavior</li>
+<li><strong><code>--emit=compact</code>:</strong> Reduces output size vs. the default full markdown output</li>
+<li><strong>Cache with SQLite:</strong> <code>--store</code> flag persists results so repeated queries don't re-fetch</li>
+</ol>
+<p><strong>Horizontal/vertical scaling:</strong></p>
+<ul>
+<li><strong>Vertical scaling:</strong> Python GIL limits multi-core utilization. Optimizing network latency (source selection, timeouts) yields more than adding CPU/RAM</li>
+<li><strong>Horizontal scaling:</strong> Running multiple independent instances with topic partitioning is the most practical approach (each instance is stateless)</li>
+<li><strong>Cron-based pre-aggregation:</strong> Pre-running topics on a schedule and reading from SQLite is faster than on-demand fetching for known recurring topics</li>
+</ul>
+<p><strong>Monitoring setup:</strong></p>
+<pre><code class="language-bash"># Capture run logs
+python3 skills/last30days/scripts/last30days.py &quot;topic&quot; 2&gt;&amp;1 | tee run.log
+
+# Check SQLite result count
+python3 -c &quot;import sqlite3; c=sqlite3.connect('~/.last30days.db').cursor(); c.execute('SELECT COUNT(*) FROM results'); print(c.fetchone())&quot;
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+Refactoring the fanout to use <code>asyncio</code> + <code>aiohttp</code> would significantly reduce the external API bottleneck, but the current implementation intentionally uses only the stdlib to maintain the zero-dependency principle.</p>
+</blockquote>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>환경 변수 및 시크릿 관리:</strong>
+- [ ] 실제 API 키를 코드나 픽스처에 절대 하드코딩하지 않을 것
+- [ ] <code>.env</code> 파일은 <code>.gitignore</code>에 등록되어 있는지 확인 (<code>.claude/last30days.env</code>, <code>~/.config/last30days/.env</code>)
+- [ ] 자격증명은 반드시 <code>lib/env.py</code> 패턴 사용 (환경 변수, <code>.env</code> 파일, macOS Keychain)
+- [ ] macOS 환경에서는 <code>setup-keychain.sh</code>로 Keychain 저장 권장
+- [ ] <code>LAST30DAYS_CONFIG_DIR</code>을 사용해 <code>.env</code> 파일 위치를 안전한 경로로 지정 가능</p>
+<p><strong>CI/CD 시크릿 관리:</strong>
+- [ ] GitHub Actions에서 API 키는 <code>secrets.*</code> 컨텍스트로 주입
+- [ ] <code>security.yml</code> 워크플로우 (비활성화 금지) → 하드코딩된 키 자동 스캔
+- [ ] PR에서 <code>.env</code> 파일, 쿠키 덤프, 토큰이 포함된 픽스처 업로드 금지</p>
+<p><strong>의존성 취약점 점검:</strong></p>
+<pre><code class="language-bash"># 프로덕션 의존성 없음 (dependencies = []) → 공급망 공격 표면 최소
+# 개발 의존성만 점검 필요:
+uv run pip audit   # 또는 pip-audit 설치 후 실행
+</code></pre>
+<p><strong>알려진 보안 고려사항:</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>브라우저 쿠키 추출</td>
+<td><code>chrome_cookies.py</code>, <code>safari_cookies.py</code>가 로컬 브라우저 쿠키에 접근 — 개인 PC에서만 사용 권장, 공용 서버에서 미사용</td>
+</tr>
+<tr>
+<td>vendored Bird 클라이언트</td>
+<td><code>lib/vendor/bird-search/</code>는 외부 업데이트 추적 필요 — 취약점 발견 시 수동 업데이트</td>
+</tr>
+<tr>
+<td>X 인증 토큰</td>
+<td><code>AUTH_TOKEN + CT0</code> 방식은 쿠키 기반이므로 노출 시 계정 접근 위험 — <code>.env</code>에만 저장</td>
+</tr>
+<tr>
+<td>Perplexity API</td>
+<td>쿼리당 ~$0.90 비용 발생 — API 키 노출 시 무단 사용 위험</td>
+</tr>
+</tbody>
+</table>
+<p><strong>인증/인가 구현 포인트:</strong>
+- 모든 인증은 <code>lib/env.py</code> 통해 로딩 → 단일 진입점으로 감사 용이
+- 소스별 인증 로직은 각 소스 모듈에 캡슐화 (예: <code>lib/bluesky.py</code>의 AT Protocol 인증)</p>
+<p><strong>[English]</strong></p>
+<p><strong>Environment variable and secret management:</strong>
+- [ ] Never hardcode real API keys in code or fixtures
+- [ ] Ensure <code>.env</code> files are in <code>.gitignore</code> (<code>.claude/last30days.env</code>, <code>~/.config/last30days/.env</code>)
+- [ ] Always use the <code>lib/env.py</code> patterns for credential access (env vars, <code>.env</code> files, macOS Keychain)
+- [ ] On macOS, store credentials in Keychain via <code>setup-keychain.sh</code>
+- [ ] Use <code>LAST30DAYS_CONFIG_DIR</code> to point to a secure <code>.env</code> file location</p>
+<p><strong>CI/CD secret management:</strong>
+- [ ] Inject API keys via <code>secrets.*</code> context in GitHub Actions
+- [ ] Keep <code>security.yml</code> enabled (never disable it) — it auto-scans for hardcoded keys
+- [ ] Never upload <code>.env</code> files, cookie dumps, or token-containing fixtures to PRs</p>
+<p><strong>Dependency vulnerability scanning:</strong></p>
+<pre><code class="language-bash"># No production dependencies (dependencies = []) → minimal supply chain attack surface
+# Only dev dependencies need scanning:
+uv run pip audit   # or install pip-audit and run it
+</code></pre>
+<p><strong>Known security considerations:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Browser cookie extraction</td>
+<td><code>chrome_cookies.py</code>, <code>safari_cookies.py</code> access local browser cookies — use on personal machines only, not shared servers</td>
+</tr>
+<tr>
+<td>Vendored Bird client</td>
+<td><code>lib/vendor/bird-search/</code> needs manual upstream vulnerability tracking</td>
+</tr>
+<tr>
+<td>X auth tokens</td>
+<td><code>AUTH_TOKEN + CT0</code> are cookie-based — exposure risks account access; store in <code>.env</code> only</td>
+</tr>
+<tr>
+<td>Perplexity API</td>
+<td>~$0.90/query cost — API key exposure risks unauthorized charges</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Authentication/authorization implementation points:</strong>
+- All credential loading flows through <code>lib/env.py</code> → single audit point
+- Per-source authentication is encapsulated in each source module (e.g., AT Protocol auth in <code>lib/bluesky.py</code>)</p>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서:</strong>
+- <a href="https://github.com/mvanhorn/last30days-skill">GitHub 저장소</a> — 소스 코드, 릴리즈, 이슈
+- <code>SKILL.md</code> (로컬) — 런타임 계약 명세 (합성 모델이 따르는 출력 규칙)
+- <code>CONFIGURATION.md</code> (로컬) — 모든 환경 변수 및 설정 옵션
+- <code>CHANGELOG.md</code> (로컬) — 버전별 변경 내역
+- <code>CONCEPTS.md</code> (로컬) — Skill / Engine / Harness / Beta Channel 용어 정의
+- <code>HERMES_SETUP.md</code> (로컬) — Hermes 하네스 전용 설치 가이드</p>
+<p><strong>관련 생태계:</strong>
+- <a href="https://agentskills.io">Agent Skills</a> — 50개 이상의 하네스에 걸쳐 설치 가능한 스킬 포맷
+- <a href="https://docs.astral.sh/uv/">uv 공식 문서</a> — Python 패키지 관리자
+- <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a> — YouTube 트랜스크립트 수집 도구
+- <a href="https://cli.github.com/">GitHub CLI (<code>gh</code>)</a> — GitHub 검색 인증용</p>
+<p><strong>유사 프로젝트 비교:</strong></p>
+<table>
+<thead>
+<tr>
+<th>프로젝트</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>last30days-skill</strong></td>
+<td>커뮤니티 신호 기반 랭킹, 외부 의존성 없음, 50+ 하네스 지원, 오프라인 가능(Reddit+HN)</td>
+<td>API 키 필요(X, YouTube 등), Python 3.12+ 필요</td>
+</tr>
+<tr>
+<td><strong>Perplexity</strong></td>
+<td>웹 전반 검색, 최신 정보</td>
+<td>소셜 미디어 참여도 신호 없음, 비용($0.90/쿼리), 특정 플랫폼 깊이 부족</td>
+</tr>
+<tr>
+<td><strong>Exa AI</strong></td>
+<td>시맨틱 검색, 최신 콘텐츠</td>
+<td>Reddit/X/YouTube 커뮤니티 신호 없음, API 비용</td>
+</tr>
+<tr>
+<td><strong>Tavily</strong></td>
+<td>빠른 웹 검색, 에이전트 친화적 API</td>
+<td>소셜 미디어 커버리지 없음, 커뮤니티 참여도 신호 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>커뮤니티 리소스:</strong>
+- GitHub Issues: 버그 리포트 및 기능 요청 (<code>.github/ISSUE_TEMPLATE/</code> 양식 사용)
+- <code>docs/solutions/</code>: 과거 버그 해결 패턴 및 모범 사례 (YAML 프론트매터로 분류)
+- <code>CONTRIBUTORS.md</code>: v3 기여자 목록 및 비고</p>
+<p><strong>[English]</strong></p>
+<p><strong>Official documentation:</strong>
+- <a href="https://github.com/mvanhorn/last30days-skill">GitHub Repository</a> — source code, releases, issues
+- <code>SKILL.md</code> (local) — runtime contract spec (output rules the synthesizing model follows)
+- <code>CONFIGURATION.md</code> (local) — all environment variables and configuration options
+- <code>CHANGELOG.md</code> (local) — per-version change history
+- <code>CONCEPTS.md</code> (local) — definitions for Skill / Engine / Harness / Beta Channel
+- <code>HERMES_SETUP.md</code> (local) — Hermes harness-specific installation guide</p>
+<p><strong>Related ecosystem:</strong>
+- <a href="https://agentskills.io">Agent Skills</a> — skill format installable across 50+ harnesses
+- <a href="https://docs.astral.sh/uv/">uv documentation</a> — Python package manager
+- <a href="https://github.com/yt-dlp/yt-dlp">yt-dlp</a> — YouTube transcript collection tool
+- <a href="https://cli.github.com/">GitHub CLI (<code>gh</code>)</a> — for authenticated GitHub search</p>
+<p><strong>Comparison with similar projects:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>last30days-skill</strong></td>
+<td>Community-signal-based ranking, zero external dependencies, 50+ harness support, offline-capable (Reddit+HN)</td>
+<td>Requires API keys for X/YouTube, Python 3.12+ required</td>
+</tr>
+<tr>
+<td><strong>Perplexity</strong></td>
+<td>Broad web search, up-to-date info</td>
+<td>No social engagement signals, ~$0.90/query cost, lacks platform depth</td>
+</tr>
+<tr>
+<td><strong>Exa AI</strong></td>
+<td>Semantic search, recent content</td>
+<td>No Reddit/X/YouTube community signals, API cost</td>
+</tr>
+<tr>
+<td><strong>Tavily</strong></td>
+<td>Fast web search, agent-friendly API</td>
+<td>No social media coverage, no community engagement signals</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Community resources:</strong>
+- GitHub Issues: bug reports and feature requests (use <code>.github/ISSUE_TEMPLATE/</code> forms)
+- <code>docs/solutions/</code>: historical bug resolution patterns and best practices (categorized with YAML frontmatter)
+- <code>CONTRIBUTORS.md</code>: v3 contributor list with bios</p>
+<hr />
+<h2 id="final-report">최종 리포트 / Final Report</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>생성된 문서 경로 (단일 프로젝트 모드):</strong>
+- <code>.review/GUIDE4Junior.md</code> — 주니어 개발자 가이드
+- <code>.review/GUIDE4ImpMethod.md</code> — 실전 구현 활용 가이드</p>
+<p><strong>웹 검색 의존 섹션:</strong> 이 분석은 전적으로 프로젝트 로컬 파일(README.md, AGENTS.md, CONCEPTS.md, CONFIGURATION.md, CHANGELOG.md, pyproject.toml, .github/workflows/, tests/ 디렉토리 목록)에서 도출되었습니다. 공식 문서 기반 권장 사항으로 표시된 항목(uv GitHub Actions 사용, asyncio 리팩토링 제안, pip-audit 사용)은 기술 스택 지식을 기반으로 보완되었습니다.</p>
+<p><strong>해당 없음으로 처리된 섹션:</strong>
+- <strong>로컬 빌드 (GUIDE4Junior §5):</strong> 컴파일/빌드 스텝 없음 — 명확히 기술
+- <strong>Docker/docker-compose:</strong> 프로젝트에 컨테이너화 설정 없음 — 해당 없음으로 처리</p>
+<p><strong>[English]</strong></p>
+<p><strong>Generated file paths (single-project mode):</strong>
+- <code>.review/GUIDE4Junior.md</code> — Junior developer guide
+- <code>.review/GUIDE4ImpMethod.md</code> — Implementation method guide</p>
+<p><strong>Sections relying on web search / external knowledge:</strong> This analysis was derived entirely from local project files (README.md, AGENTS.md, CONCEPTS.md, CONFIGURATION.md, CHANGELOG.md, pyproject.toml, .github/workflows/, tests/ directory listing). Items annotated as "Recommended based on official documentation" (uv in GitHub Actions, asyncio refactor suggestion, pip-audit) were supplemented from tech-stack knowledge rather than web search.</p>
+<p><strong>Sections marked not applicable:</strong>
+- <strong>Local Build (GUIDE4Junior §5):</strong> No compile/build step exists — stated explicitly in both languages
+- <strong>Docker/docker-compose:</strong> No containerization configuration present in the project — treated as not applicable</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>mvanhorn/last30days-skill</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/mvanhorn/last30days-skill" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

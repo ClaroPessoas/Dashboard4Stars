@@ -1,0 +1,3027 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>supermemoryai/supermemory - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/supermemoryai/supermemory" target="_blank" rel="noopener">supermemoryai/supermemory</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Memory engine and app that is extremely fast, scalable. The Memory API for the AI era.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">weekly trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 25797</span>
+      <span class="badge badge-stars">+2,944 stars this week</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>Now I have all the information needed. Let me generate the comprehensive report.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-07
+대상 / Target: <code>/tmp/github-dashboard-analysis/supermemoryai_supermemory</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<ul>
+<li><strong>해결하는 문제 / Problem solved</strong>: AI 에이전트·어시스턴트가 장기 기억을 유지할 수 있도록 메모리 저장·검색·추론 기능을 제공하는 클라우드 플랫폼. LLM의 컨텍스트 창 한계를 극복하고 영구적 개인화 메모리를 실현한다. / A cloud-native platform enabling AI agents and assistants to store, retrieve, and reason over long-term memory — overcoming LLM context-window limits with persistent, personalized memory.</li>
+<li><strong>분류 / Classification</strong>: <strong>Platform</strong> (core SaaS API + SDK ecosystem + browser extension + MCP server)</li>
+<li><strong>GitHub</strong>: <code>supermemoryai/supermemory</code></li>
+<li><strong>핵심 성능 지표</strong>: LongMemEval, LoCoMo, ConvoMem 벤치마크 1위 주장 (공식 벤치마크 문서 존재)</li>
+</ul>
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>TypeScript 5.8.3 (primary), Python 3.x (SDK packages), Node.js ≥20</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>Next.js 16.0.11 (web), Hono 4.11.1 (MCP/workers), WXT 0.20.6 (browser ext)</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>PostgreSQL (via Hyperdrive/Cloudflare), Drizzle ORM 0.44.3</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>REST (Hono), MCP protocol, OAuth 2.0, Vercel AI SDK streaming</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Cloudflare Workers (serverless), OpenNext.js for Cloudflare</td>
+</tr>
+<tr>
+<td>모노레포 / Monorepo</td>
+<td>Turborepo 2.5.4 + Bun 1.3.6</td>
+</tr>
+<tr>
+<td>인증 / Auth</td>
+<td>Better Auth 1.3.3 (organization support, OAuth providers)</td>
+</tr>
+<tr>
+<td>모니터링 / Monitoring</td>
+<td>Sentry 10.33.0, PostHog 1.336.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────────┐
+│                    Supermemory Monorepo (Turbo)                  │
+├──────────────────┬──────────────────┬───────────────────────────┤
+│  apps/web        │  apps/mcp         │  apps/browser-extension   │
+│  (Next.js 16)    │  (Hono + CF)      │  (WXT / Chrome+Firefox)   │
+│  CF Workers      │  MCP Protocol     │  Content script           │
+├──────────────────┴──────────────────┴───────────────────────────┤
+│  packages/tools  │  packages/ai-sdk  │  packages/memory-graph    │
+│  (NPM published) │  (NPM published)  │  (NPM published)          │
+├──────────────────┼───────────────────┼───────────────────────────┤
+│  packages/ui     │  packages/lib     │  packages/validation      │
+│  (shadcn/Radix)  │  (shared utils)   │  (Zod schemas)            │
+├──────────────────┴───────────────────┴───────────────────────────┤
+│  Python SDKs: agent-framework, openai-sdk, cartesia-sdk,         │
+│               pipecat-sdk (published to PyPI)                    │
+└─────────────────────────────────────────────────────────────────┘
+         │                     │
+         ▼                     ▼
+  Cloudflare Workers    PostgreSQL (Hyperdrive)
+  + KV + AI bindings    + Cloudflare AI vectors
+</code></pre>
+<p><strong>아키텍처 패턴</strong>: 서버리스 이벤트 기반 (Serverless + Event-driven), 12-Factor 준수, MVC 계층 분리</p>
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>supermemory/
+├── LICENSE                         ← MIT (2025 supermemory)
+├── README.md
+├── CONTRIBUTING.md                 ✅ 존재
+├── SECURITY.md                     ❌ 부재
+├── CODE_OF_CONDUCT.md              ❌ 부재
+├── CHANGELOG.md                    ❌ 루트 부재 (앱 레벨만 존재)
+├── NOTICE                          ❌ 부재
+├── package.json                    ← Bun workspace root
+├── turbo.json
+├── biome.json
+├── bun.lock                        ✅ 존재
+├── .github/
+│   └── workflows/ (11개)
+│       ├── ci.yml
+│       ├── claude-code-review.yml
+│       ├── claude.yml
+│       ├── claude-auto-fix-ci.yml
+│       ├── publish-ai-sdk.yml
+│       ├── publish-tools.yml
+│       ├── publish-memory-graph.yml
+│       └── publish-*-python.yml (4개)
+├── apps/
+│   ├── web/                        ← Next.js 16, CF Workers
+│   ├── mcp/                        ← Hono, Cloudflare Workers
+│   ├── browser-extension/          ← WXT, Chrome/Firefox
+│   ├── docs/                       ← Mintlify
+│   ├── raycast-extension/
+│   └── memory-graph-playground/
+└── packages/
+    ├── ai-sdk/                     ← NPM: @supermemory/ai-sdk
+    ├── tools/                      ← NPM: @supermemory/tools
+    ├── memory-graph/               ← NPM: @supermemory/memory-graph
+    ├── agent-framework-python/     ← PyPI: agent-framework
+    ├── openai-sdk-python/          ← PyPI: supermemory-openai
+    ├── cartesia-sdk-python/        ← PyPI
+    ├── pipecat-sdk-python/         ← PyPI
+    ├── ui/                         ← shared shadcn/Radix UI
+    ├── lib/                        ← shared utilities
+    ├── validation/                 ← Zod schemas
+    ├── hooks/                      ← shared React hooks
+    └── docs-test/                  ← documentation test suite
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>파일 위치</td>
+<td><code>/LICENSE</code> (실제 확인됨)</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td><strong>MIT License</strong></td>
+</tr>
+<tr>
+<td>저작권</td>
+<td>Copyright (c) 2025 supermemory</td>
+</tr>
+<tr>
+<td>버전</td>
+<td>표준 MIT (버전 명시 없음, 사실상 MIT-standard)</td>
+</tr>
+<tr>
+<td>핵심 의무</td>
+<td>배포 시 저작권 고지문 및 라이선스 전문 포함 필요</td>
+</tr>
+<tr>
+<td>상용화</td>
+<td>✅ 소스 비공개 가능, 상업적 사용·배포·재판매 모두 허용</td>
+</tr>
+<tr>
+<td>특허 부여</td>
+<td>❌ MIT는 특허 라이선스 grant 미포함</td>
+</tr>
+</tbody>
+</table>
+<p>주요 발행 패키지의 라이선스 확인:
+- <code>packages/tools/package.json</code> → <code>"license": "MIT"</code> ✅
+- <code>packages/ai-sdk/package.json</code> → license 필드 미선언 (MIT 추정, 루트 LICENSE 상속)</p>
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p>주요 직접 의존성만 발췌 (100개 이상으로 copyleft 위험 클래스 우선 나열):</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>react</code></td>
+<td>19.2.4</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>next</code></td>
+<td>16.0.11</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>hono</code></td>
+<td>4.11.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>zod</code></td>
+<td>3.25.76</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>drizzle-orm</code></td>
+<td>0.44.3</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>better-auth</code></td>
+<td>1.3.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@anthropic-ai/sdk</code></td>
+<td>0.55.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@ai-sdk/anthropic</code></td>
+<td>1.2.12</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@ai-sdk/openai</code></td>
+<td>2.0.42</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@ai-sdk/google</code></td>
+<td>1.2.22/3.0.64</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@google/genai</code></td>
+<td>1.10.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@google/generative-ai</code></td>
+<td>0.24.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>ai</code> (Vercel AI SDK)</td>
+<td>5.x/6.x</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>openai</code></td>
+<td>4.104.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>pdfjs-dist</code></td>
+<td>5.4.296</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>d3-force</code></td>
+<td>3.0.0</td>
+<td>ISC</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>recharts</code></td>
+<td>2.x</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>postgres</code></td>
+<td>3.4.7</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>pg</code></td>
+<td>8.16.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>pino</code></td>
+<td>9.7.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>nanoid</code></td>
+<td>5.1.5</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@sentry/nextjs</code></td>
+<td>10.33.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>posthog-js</code></td>
+<td>1.336.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>turbo</code></td>
+<td>2.5.4</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>wrangler</code></td>
+<td>4.42.2</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@radix-ui/*</code></td>
+<td>1.x~2.x</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@tanstack/react-query</code></td>
+<td>5.90.14</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>tailwindcss</code></td>
+<td>4.1.11</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>zustand</code></td>
+<td>5.0.7</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>slate</code> / <code>slate-react</code></td>
+<td>0.118.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@tiptap/*</code></td>
+<td>3.15.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>dompurify</code></td>
+<td>3.2.7</td>
+<td>Apache 2.0 / MPL 2.0 dual</td>
+<td>Weak Copyleft※</td>
+<td>🟡※</td>
+</tr>
+<tr>
+<td><code>turndown</code></td>
+<td>7.1.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>compromise</code></td>
+<td>14.14.4</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>neverthrow</code></td>
+<td>8.2.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>resend</code></td>
+<td>4.7.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>motion</code></td>
+<td>12.26.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@modelcontextprotocol/sdk</code></td>
+<td>1.25.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>alchemy</code></td>
+<td>0.81.4</td>
+<td>MIT (추정, 확인 필요)</td>
+<td>Permissive</td>
+<td>🔵 확인 필요</td>
+</tr>
+<tr>
+<td><code>atmn</code></td>
+<td>0.0.16</td>
+<td>Unknown</td>
+<td>미확인</td>
+<td>🔵 확인 필요</td>
+</tr>
+<tr>
+<td><code>@lobbyside/react</code></td>
+<td>0.2.0</td>
+<td>Unknown</td>
+<td>미확인</td>
+<td>🔵 확인 필요</td>
+</tr>
+<tr>
+<td><code>autumn-js</code></td>
+<td>1.2.12</td>
+<td>Unknown</td>
+<td>미확인</td>
+<td>🔵 확인 필요</td>
+</tr>
+<tr>
+<td><code>lru-cache</code></td>
+<td>11.2.6</td>
+<td>ISC</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>vitest</code></td>
+<td>3.2.4</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>biome</code></td>
+<td>2.2.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>wxt</code></td>
+<td>0.20.6</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>※ <code>dompurify</code>: Apache-2.0 OR MPL-2.0 이중 라이선스. Apache 2.0 선택 시 완전 허용적. MPL-2.0 선택 시 해당 파일 수정 시 소스 공개 의무 발생 (동적 링크 포함 조건 여부 검토 필요). 표준 사용 케이스에서는 위험 미미.</p>
+</blockquote>
+<p><strong>Copyleft 위험 의존성</strong>: GPL/AGPL 클래스 의존성 <strong>확인되지 않음</strong>. 전체 스택이 Permissive 기반.</p>
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+<th>본 프로젝트 해당 여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD, ISC</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+<td><strong>주 의존성 전체</strong></td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+<td>dompurify (MPL-2.0 선택 가능) — 미미</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+<td><strong>미탐지</strong></td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무</td>
+<td><strong>미탐지</strong></td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지</td>
+<td><strong>미탐지</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<ul>
+<li><strong>GPL 충돌</strong>: 없음. Apache 2.0 + MIT 조합은 호환 가능.</li>
+<li><strong>AGPL SaaS 위험</strong>: SaaS 배포 시 소스 공개 의무 발생하는 의존성 없음.</li>
+<li><strong>미확인 패키지 3건</strong> (<code>alchemy</code>, <code>atmn</code>, <code>@lobbyside/react</code>, <code>autumn-js</code>): 소규모/신규 패키지로 라이선스 문서화 미비 가능성. <strong>상용화 전 NPM registry 및 GitHub에서 직접 확인 필요</strong>.</li>
+<li><code>dompurify</code>의 MPL-2.0 옵션: 해당 파일 자체를 수정하지 않는 한 실질적 위험 없음. Apache-2.0을 명시적으로 선택하는 것을 권고.</li>
+</ul>
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] MIT 라이선스 고지문은 배포 시 포함 필요 (소프트웨어 패키지 내 LICENSE 파일 유지)</li>
+<li>[ ] NOTICE 파일 부재 — 의존성 저작권 고지 통합 문서 없음 (배포 시 자체 생성 필요)</li>
+<li>[x] 소스 공개 의무 없음 (GPL/AGPL 미사용)</li>
+<li>[ ] 미확인 패키지 4건 라이선스 확인 필요</li>
+<li>[ ] Apache 2.0 의존성의 NOTICE 파일 내용 취합 필요 (Drizzle, Vercel AI SDK, pdfjs 등)</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>❌ <strong>부재</strong></td>
+<td>취약점 신고 채널 미정의</td>
+</tr>
+<tr>
+<td>Dependabot</td>
+<td>❌ <strong>부재</strong></td>
+<td><code>.github/dependabot.yml</code> 없음</td>
+</tr>
+<tr>
+<td>Renovate</td>
+<td>❌ <strong>부재</strong></td>
+<td><code>renovate.json</code> 없음</td>
+</tr>
+<tr>
+<td>Snyk</td>
+<td>❌ <strong>부재</strong></td>
+<td><code>.snyk</code> 없음</td>
+</tr>
+<tr>
+<td>Claude Code Review (AI 자동 리뷰)</td>
+<td>✅ <strong>활성</strong></td>
+<td>PR 마다 claude-opus-4-5 기반 자동 코드 리뷰</td>
+</tr>
+<tr>
+<td>Biome Linter</td>
+<td>✅ <strong>활성</strong></td>
+<td>CI에서 포맷·린트 자동 검사</td>
+</tr>
+<tr>
+<td>TypeScript 엄격 모드</td>
+<td>✅ <strong>활성</strong></td>
+<td><code>@total-typescript/tsconfig</code> 사용</td>
+</tr>
+</tbody>
+</table>
+<p><strong>중요 발견</strong>: 의존성 자동 취약점 업데이트 체계(Dependabot/Renovate) 전혀 없음. 보안 패치 수동 적용 의존.</p>
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<ol>
+<li><strong>하드코딩 시크릿</strong>: <code>.env.example</code> 확인 결과 키 패턴만 노출 (실제 값 없음). 실제 <code>.env</code> 파일은 저장소에 없음 ✅</li>
+<li><strong>EOL 의존성</strong>: Next.js 16 (최신 버전으로 적극 사용 중) ✅; Python 패키지 <code>uv.lock</code> 버전 별도 관리 필요</li>
+<li><strong>dompurify 3.2.7</strong>: XSS 방어에 사용 중 (긍정적). 최신 버전 사용 ✅</li>
+<li><strong>pdfjs-dist 5.4.296</strong>: 최신 버전 ✅</li>
+<li><strong>react 19.2.4</strong>: 최신 버전 ✅</li>
+<li><strong>SBOM 부재</strong>: 공급망 공격 대응 어려움 — CycloneDX/SPDX 미생성</li>
+</ol>
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>강점 / Strengths</strong>:
+- Better Auth 1.3.3: OAuth, 세션, 조직(org) 지원 포함. 성숙한 인증 라이브러리.
+- Sentry 통합: 프로덕션 오류 실시간 추적 (<code>@sentry/nextjs</code> 10.33.0)
+- Claude Opus 기반 자동 PR 코드 리뷰: XSS, SQL Injection, 인증 우회 등 보안 버그를 CI 단계에서 탐지
+- 환경 변수 기반 시크릿 관리 (하드코딩 없음 확인됨)
+- DOMPurify로 클라이언트 XSS 방어</p>
+<p><strong>약점 / Weaknesses</strong>:
+- 공식 보안 취약점 신고 정책(SECURITY.md) 없음
+- 의존성 자동 보안 업데이트 없음 (Dependabot/Renovate 없음)
+- SBOM 생성 파이프라인 없음
+- <code>alchemy</code>, <code>atmn</code> 등 소규모 패키지 보안 감사 불명확</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td><code>5b129d7</code> — <code>fix(nova): keep user message when stopping generation early (#1055)</code></td>
+</tr>
+<tr>
+<td>PR 번호 기반 활동</td>
+<td>#1055까지 merged → 1,000건 이상 PR 이력, 매우 활발</td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>최소 주 단위 이상 (PR 번호로 추정, shallow clone으로 직접 확인 제한)</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>복수 기여자 확인 (Raycast extension: xmok, maheshthedev 명시)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>packages/memory-graph CHANGELOG 존재; 공식 root CHANGELOG 없음</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>직접 확인 불가 (GitHub API 접근 없음)</td>
+</tr>
+<tr>
+<td>NPM 패키지 발행</td>
+<td>@supermemory/ai-sdk 1.0.8, @supermemory/tools 2.0.0, @supermemory/memory-graph 0.2.2</td>
+</tr>
+<tr>
+<td>PyPI 패키지 발행</td>
+<td>4개 (agent-framework, openai-sdk, cartesia-sdk, pipecat-sdk)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재 (기여 가이드라인 포함)</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ 부재</td>
+</tr>
+<tr>
+<td>CHANGELOG.md (root)</td>
+<td>❌ 부재</td>
+</tr>
+<tr>
+<td>CHANGELOG.md (memory-graph, raycast)</td>
+<td>✅ 일부 존재</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 미확인</td>
+</tr>
+<tr>
+<td>Branch strategy / PR review</td>
+<td>✅ CI 기반 PR 리뷰 자동화 (Claude + Biome)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>조직</strong>: <code>supermemoryai</code> GitHub Org — 법인 주체 확인됨</li>
+<li><strong>자체 상용 서비스 운영</strong>: <code>supermemory.ai</code> 도메인으로 프로덕션 운영 중</li>
+<li><strong>자체 SaaS 사용</strong>: Claude Code Review 워크플로우에서 <code>secrets.SUPERMEMORY_API_KEY</code>로 자사 MCP 서버 활용 중</li>
+<li><strong>CNCF/ASF 멤버십</strong>: ❌ 비해당 (스타트업 독립 운영)</li>
+<li><strong>LTS 버전</strong>: 미정의 (버전 정책 공식 문서 없음)</li>
+<li><strong>SemVer 준수</strong>: packages/tools <code>2.0.0</code>, ai-sdk <code>1.0.8</code> 등 SemVer 형식 사용</li>
+</ul>
+<p><strong>장기 전망</strong>: 활발한 NPM/PyPI 생태계 확장, AI 프레임워크 15+ 통합 지원으로 채택 탄력 높음. 그러나 스타트업 단일 법인 의존 리스크 존재.</p>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수평 확장 / Horizontal scaling</td>
+<td>✅ Cloudflare Workers 서버리스 — 자동 수평 확장</td>
+</tr>
+<tr>
+<td>멀티 테넌시 / Multi-tenancy</td>
+<td>✅ Better Auth organizations 지원, API 키 기반 조직 격리</td>
+</tr>
+<tr>
+<td>12-Factor 준수 / 12-Factor compliance</td>
+<td>✅ 환경 변수 주입, stateless process, wrangler.jsonc 환경 분리</td>
+</tr>
+<tr>
+<td>컨테이너화 / Containerization</td>
+<td>⚠️ Dockerfile 없음 (Cloudflare Workers 배포 중심)</td>
+</tr>
+<tr>
+<td>헬스체크 / Health check</td>
+<td>⚠️ 명시적 <code>/healthz</code> 없음 (Cloudflare Workers 플랫폼 자체 처리)</td>
+</tr>
+<tr>
+<td>구조화 로깅 / Structured logging</td>
+<td>✅ Pino 9.7.0 사용</td>
+</tr>
+<tr>
+<td>메트릭 / Metrics</td>
+<td>✅ PostHog 이벤트 분석 (Prometheus 미사용)</td>
+</tr>
+<tr>
+<td>에러 추적 / Error tracking</td>
+<td>✅ Sentry (nextjs + sourcemaps 업로드 자동화)</td>
+</tr>
+<tr>
+<td>분산 추적 / Distributed tracing</td>
+<td>❌ OpenTelemetry 미도입</td>
+</tr>
+</tbody>
+</table>
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 (packages/tools)</td>
+<td>✅ Vitest, 6개 파일 (unit, integration, mastra, claude-memory 등)</td>
+</tr>
+<tr>
+<td>단위 테스트 (packages/ai-sdk)</td>
+<td>✅ Vitest, tools.test.ts</td>
+</tr>
+<tr>
+<td>컴포넌트 테스트 (packages/memory-graph)</td>
+<td>✅ Vitest, 8개 파일 (renderer, spatial-index, viewport 등)</td>
+</tr>
+<tr>
+<td>문서 테스트 (packages/docs-test)</td>
+<td>✅ TS/Python/통합/빠른시작 테스트</td>
+</tr>
+<tr>
+<td><strong>apps/web 테스트</strong></td>
+<td>❌ <strong>테스트 없음</strong></td>
+</tr>
+<tr>
+<td><strong>apps/mcp 테스트</strong></td>
+<td>❌ <strong>테스트 없음</strong></td>
+</tr>
+<tr>
+<td>CI 자동화</td>
+<td>✅ GitHub Actions (ci.yml) — 타입 체크 + Biome</td>
+</tr>
+<tr>
+<td>커버리지 측정</td>
+<td>❌ 커버리지 리포트 설정 없음</td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td>❌ Playwright/Cypress 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>핵심 문제</strong>: 메인 web 애플리케이션 (<code>apps/web</code>)과 MCP 서버 (<code>apps/mcp</code>)에 테스트가 전혀 없음. SDK 레벨에만 테스트 존재.</p>
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p>해당 없음 — GPL/AGPL 의존성이 탐지되지 않아 분리 이슈 없음.</p>
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>준수</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>코드베이스 / Codebase</td>
+<td>✅ Git 단일 저장소</td>
+</tr>
+<tr>
+<td>의존성 / Dependencies</td>
+<td>✅ bun.lock으로 의존성 고정</td>
+</tr>
+<tr>
+<td>설정 / Config</td>
+<td>✅ 환경 변수 (.env.example 문서화)</td>
+</tr>
+<tr>
+<td>백엔드 서비스 / Backing services</td>
+<td>✅ Hyperdrive/Cloudflare 바인딩으로 외부 연결</td>
+</tr>
+<tr>
+<td>빌드·릴리스·실행 / Build/release/run</td>
+<td>✅ Turbo 빌드, wrangler 배포 분리</td>
+</tr>
+<tr>
+<td>프로세스 / Processes</td>
+<td>✅ 서버리스 = 무상태 프로세스</td>
+</tr>
+<tr>
+<td>포트 바인딩 / Port binding</td>
+<td>✅ wrangler 포트 env로 주입</td>
+</tr>
+<tr>
+<td>동시성 / Concurrency</td>
+<td>✅ Cloudflare Workers 자동 동시성</td>
+</tr>
+<tr>
+<td>폐기 / Disposability</td>
+<td>✅ Workers 특성상 빠른 시작/종료</td>
+</tr>
+<tr>
+<td>개발/프로덕션 동등성</td>
+<td>⚠️ 로컬 개발에 <code>portless</code> 내부 도구 사용 (OSS 기여자는 <code>dev:local</code> 대안 제공)</td>
+</tr>
+<tr>
+<td>로그 / Logs</td>
+<td>✅ Pino 구조화 로깅</td>
+</tr>
+<tr>
+<td>어드민 프로세스 / Admin processes</td>
+<td>⚠️ 마이그레이션 절차 공식 문서 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분</td>
+<td>package.json/lockfile 있으나 자동 BOM 생성 파이프라인 없음</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>🔴 미실시</td>
+<td>CI에 license-checker, FOSSA, Snyk 등 미도입</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🔴 미정의</td>
+<td>취약/비준수 의존성 대응 절차 없음</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🔴 미정의</td>
+<td>OSPO 또는 법무 검토 프로세스 문서 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🔴 미이행</td>
+<td>NOTICE 파일 없음, THIRD_PARTY_LICENSES 없음</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>MIT 라이선스 — 특허 grant 없음</strong></td>
+<td>⚠️ <strong>MIT는 특허 라이선스를 부여하지 않음</strong>. 프로젝트 사용 시 특허 침해 위험 차단 장치 없음</td>
+</tr>
+<tr>
+<td>Apache 2.0 의존성 — 특허 grant 있음</td>
+<td>✅ Drizzle ORM, pdfjs-dist, Vercel AI SDK 등은 Apache 2.0으로 특허 grant 포함</td>
+</tr>
+<tr>
+<td>프로젝트명/로고 상표권</td>
+<td>❌ 상표 등록 여부 공식 문서 없음. "supermemory" 브랜드 사용 전 상표 조회 필요</td>
+</tr>
+<tr>
+<td>상업적 이름 사용 제한</td>
+<td>❌ MIT는 이름 사용 제한 없음 — 단, 실제 상표 등록 시 별도 위험</td>
+</tr>
+</tbody>
+</table>
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<table>
+<thead>
+<tr>
+<th>시나리오</th>
+<th>위험</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SaaS 배포 시 AGPL 소스 공개</td>
+<td>✅ <strong>해당 없음</strong> — AGPL 의존성 없음</td>
+</tr>
+<tr>
+<td>GPL 링크에 의한 전파</td>
+<td>✅ <strong>해당 없음</strong> — GPL 의존성 없음</td>
+</tr>
+<tr>
+<td>향후 의존성 추가 시</td>
+<td>🔵 CI 라이선스 검사 도입 권고 (현재 없음)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 <strong>Safe</strong></td>
+<td>MIT 프로젝트, 전체 스택 Permissive 기반. 미확인 소형 패키지 4건만 추가 확인 필요</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟡 <strong>Caution</strong></td>
+<td>SECURITY.md, Dependabot, SBOM 모두 없음. AI 코드 리뷰로 일부 보완 중이나 공식 취약점 관리 체계 부재</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🔵 <strong>Review</strong></td>
+<td>#1055 PR까지 활발한 활동, 기업 후원, NPM/PyPI 배포. CHANGELOG·CODE_OF_CONDUCT 부재. 스타트업 단일 의존 리스크</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟡 <strong>Caution</strong></td>
+<td>서버리스 클라우드 네이티브 배포 성숙. 그러나 핵심 앱 테스트 없음, E2E 없음, 분산 추적 없음</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🔵 <strong>Review</strong></td>
+<td>Cloudflare Workers 기반 자동 확장, 멀티 테넌시, 15+ AI 프레임워크 지원. 프로덕션 환경 배포 확인됨</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 <strong>Caution</strong></td>
+<td>OpenChain 비준수, NOTICE 없음, 라이선스 스캔 CI 없음. 미확인 4개 패키지 라이선스 위험</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>완전 허용적 라이선스 스택</strong>: MIT 프로젝트에 Apache 2.0 / MIT / ISC 의존성 일색. GPL/AGPL 위험 없음 — 라이선스 측면에서 상용화 적합성 최고 등급.</li>
+<li><strong>클라우드 네이티브 서버리스 아키텍처</strong>: Cloudflare Workers 기반으로 자동 수평 확장, 멀티 테넌시, Zero Cold-Start 목표 — 엔터프라이즈급 스케일링 즉시 가능.</li>
+<li><strong>AI 에코시스템 광범위 통합</strong>: Vercel AI SDK, LangChain, Mastra, OpenAI, Anthropic, Groq, Pipecat, Voltagent 등 15개 이상 프레임워크 지원 — 다양한 고객 스택에 즉시 통합 가능.</li>
+<li><strong>프로덕션 검증 완료</strong>: 자사 SaaS (<code>supermemory.ai</code>)에서 동일 코드베이스 운영 중. 실사용 검증된 코드.</li>
+<li><strong>AI 기반 CI/CD</strong>: Claude Opus 기반 자동 PR 리뷰, 타입 체크, Biome 린트 자동화 — 코드 품질 유지 체계 현대적.</li>
+</ol>
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>공식 보안 관리 체계 부재</strong>: SECURITY.md, Dependabot/Renovate 전무. CVE 패치 지연 위험. 상용 솔루션 채택 기업은 즉시 보완 요구됨.</li>
+<li><strong>핵심 앱 테스트 없음</strong>: <code>apps/web</code>, <code>apps/mcp</code> 테스트 없음. 릴리스 품질 보증 미흡. 상용 배포 전 최소 통합 테스트 구축 필요.</li>
+<li><strong>OpenChain 라이선스 컴플라이언스 비준수</strong>: NOTICE 파일, THIRD_PARTY_LICENSES, SBOM 미생성. 엔터프라이즈 고객·감사 대응 불가.</li>
+<li><strong>소형 패키지 라이선스 미확인</strong>: <code>alchemy</code>, <code>atmn</code>, <code>@lobbyside/react</code>, <code>autumn-js</code> 4개 패키지의 라이선스 미확인. 상용화 전 직접 조회 필수.</li>
+<li><strong>단일 스타트업 의존성</strong>: CNCF/재단 소속 없음, LTS 정책 없음. 장기 지원 보장 불확실. 포크(fork) 전략 또는 기업 지원 계약 검토 필요.</li>
+</ol>
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 <strong>Review</strong> (조건부 채택 — 추가 검토 필요)</p>
+<p><strong>근거 / Rationale</strong>:
+Supermemory는 MIT 라이선스 기반의 허용적 오픈소스 프로젝트로, 라이선스 측면에서의 상용화 장벽은 사실상 없다. Cloudflare Workers 기반의 서버리스 아키텍처, 멀티 테넌시, 광범위한 AI 프레임워크 통합은 상용화 플랫폼으로서의 기술적 완성도를 뒷받침한다. 프로덕션 SaaS 운영 이력도 긍정적이다.</p>
+<p>그러나 세 가지 핵심 약점이 조건부 채택을 결정짓는다: ① 공식 보안 취약점 관리 체계의 전무 (SECURITY.md, Dependabot, SBOM 없음), ② 핵심 애플리케이션 레이어의 테스트 공백 (apps/web, apps/mcp), ③ OpenChain/ISO 5230 미준수로 인한 엔터프라이즈 감사 대응 불가.</p>
+<p>이 세 가지 항목을 30~90일 내에 보완하면 🟢 Safe 등급으로 상향 가능하다. 미확인 소형 패키지 4건의 라이선스 확인도 착수 전 필수다.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>✅ Permissive 확인</td>
+</tr>
+<tr>
+<td></td>
+<td>소스 공개 의무 여부 확인</td>
+<td>✅ 의무 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>라이선스 호환성 충돌 없음</td>
+<td>✅ 충돌 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>소형 패키지 4건 라이선스 직접 확인</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>저작권 문구 포함</td>
+<td>✅ LICENSE 파일 존재</td>
+</tr>
+<tr>
+<td></td>
+<td>고지문 배포 위치 정의</td>
+<td>❌ NOTICE 파일 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>Apache 2.0 의존성 NOTICE 취합</td>
+<td>❌ 미수행</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>Strong Copyleft 공개 범위·방식 정의</td>
+<td>✅ 해당 없음</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>CVE 모니터링 체계 수립</td>
+<td>❌ Dependabot/Renovate 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>SECURITY.md 취약점 신고 채널 정의</td>
+<td>❌ 파일 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>중고위험 취약점 패치 계획</td>
+<td>❌ 미정의</td>
+</tr>
+<tr>
+<td></td>
+<td>SBOM 생성</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>유지보수 활성도·커밋 주기 확인</td>
+<td>✅ 활발 (#1055 PR)</td>
+</tr>
+<tr>
+<td></td>
+<td>기업 스폰서/컨설팅 존재 확인</td>
+<td>🔵 자체 기업 운영 (외부 지원 별도 없음)</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>라이선스 검사 자동화 (FOSSA/license-checker)</td>
+<td>❌ 미도입</td>
+</tr>
+<tr>
+<td></td>
+<td>오픈소스 BOM 자동 생성</td>
+<td>❌ 미도입</td>
+</tr>
+<tr>
+<td></td>
+<td>위반 라이선스 빌드 차단 gate</td>
+<td>❌ 미도입</td>
+</tr>
+<tr>
+<td></td>
+<td>타입 체크 + 포맷 자동화</td>
+<td>✅ Biome + Turbo</td>
+</tr>
+<tr>
+<td>테스트 / Testing</td>
+<td>apps/web 테스트 존재</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>apps/mcp 테스트 존재</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>SDK 패키지 테스트</td>
+<td>✅ packages/tools, ai-sdk, memory-graph</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>고객 계약서에 라이선스 의무 명시</td>
+<td>❌ 미검토</td>
+</tr>
+<tr>
+<td></td>
+<td>외부 감사 대비 문서 구비</td>
+<td>❌ NOTICE, BOM, 스캔 보고서 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>MIT 특허 grant 부재 위험 인지</td>
+<td>⚠️ 법무 검토 권고</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li><strong>소형 패키지 4건 라이선스 확인</strong>: <code>alchemy</code>(NPM), <code>atmn</code>(NPM), <code>@lobbyside/react</code>(NPM), <code>autumn-js</code>(NPM)의 라이선스를 GitHub/NPM registry에서 직접 확인. 비허용적 라이선스 발견 시 즉시 대체.</li>
+<li><strong>SECURITY.md 작성</strong>: 취약점 신고 이메일/채널 정의, 패치 대응 SLA 명시. (1시간 소요 — 즉시 가능)</li>
+<li><strong>Dependabot 활성화</strong>: <code>.github/dependabot.yml</code> 생성으로 npm, Python 의존성 자동 보안 패치 PR 수신. (30분 소요)</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li><strong>NOTICE 파일 생성</strong>: Apache 2.0 의존성(Drizzle, pdfjs-dist, Vercel AI SDK, wrangler 등)의 NOTICE 내용을 취합한 <code>NOTICE.md</code> 또는 <code>THIRD_PARTY_LICENSES.md</code> 생성.</li>
+<li><strong>SBOM 생성 파이프라인 도입</strong>: CI에 <code>@cyclonedx/bom</code> 또는 <code>syft</code> 추가, 릴리스 시 CycloneDX XML/JSON 자동 생성.</li>
+<li><strong>apps/web 핵심 흐름 테스트 작성</strong>: 인증, 메모리 저장, 검색 흐름에 대한 최소 통합 테스트 구축 (Vitest + MSW 또는 Playwright).</li>
+<li><strong>dompurify Apache 2.0 명시적 선택</strong>: 빌드 설정에서 MPL-2.0 대신 Apache-2.0 라이선스 명시적 사용.</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li><strong>CI 라이선스 스캔 자동화</strong>: <code>license-checker</code>, <code>FOSSA</code>, 또는 <code>licensee</code> 도입. 비허용적 라이선스 탐지 시 빌드 차단 gate 설정.</li>
+<li><strong>root CHANGELOG.md 도입</strong>: 전체 모노레포의 주요 변경사항 추적 (keep-a-changelog 형식 권고).</li>
+<li><strong>CODE_OF_CONDUCT.md 추가</strong>: Contributor Covenant 기반 행동 강령 추가 — 엔터프라이즈 채택 기업 요구사항.</li>
+<li><strong>OpenTelemetry 분산 추적 도입</strong>: Hono + Cloudflare Workers 스택에서 <code>@opentelemetry/sdk-trace-base</code> 통합으로 프로덕션 가시성 향상.</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li><strong>MIT → Apache 2.0 라이선스 전환 검토</strong>: 특허 grant 포함을 위해 향후 라이선스 전환 가능성 법무 검토 (현재 MIT는 특허 grant 없음 — 기업 고객 우려 가능).</li>
+<li><strong>LTS 정책 및 지원 주기 정의</strong>: 메이저 버전별 지원 종료일 공식 발표.</li>
+<li><strong>분기별 오픈소스 컴플라이언스 감사</strong>: 신규 의존성 라이선스 검토 및 SBOM 갱신.</li>
+<li><strong>엔터프라이즈 포크 전략 검토</strong>: 스타트업 의존 리스크 완화를 위해 내부 포크 유지 또는 상용 지원 계약 체결 방안 검토.</li>
+</ol>
+<hr />
+<p><em>보고서 끝 / End of Report</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>Supermemory는 AI를 위한 최첨단 메모리 및 컨텍스트 엔진입니다. LongMemEval, LoCoMo, ConvoMem 세 가지 주요 벤치마크에서 1위를 차지한 오픈소스 프로젝트로, 대화에서 사실을 추출하고, 사용자 프로필을 자동 유지하며, 시맨틱 검색과 외부 서비스 연동(Google Drive, Gmail, Notion, OneDrive, GitHub)을 지원합니다. 개발자용 SDK(npm: <code>supermemory</code>, pip: <code>supermemory</code>), 브라우저 확장 프로그램, MCP 서버, 그리고 일반 사용자용 웹 앱으로 구성된 멀티플랫폼 제품입니다.</p>
+<ul>
+<li><strong>주요 기능</strong>: 메모리 추출 및 망각 처리, 사용자 프로필 자동 관리, 하이브리드 RAG+메모리 검색, 멀티모달 추출(PDF, 이미지, 동영상, 코드)</li>
+<li><strong>기술 스택</strong>: TypeScript, Next.js 16, React 19, Hono, Cloudflare Workers, Drizzle ORM, Better Auth, Turbo 모노레포</li>
+<li><strong>패키지 매니저</strong>: Bun 1.3.6</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>Supermemory is a state-of-the-art memory and context engine for AI, ranking #1 on three major benchmarks (LongMemEval, LoCoMo, ConvoMem). It extracts facts from conversations, auto-maintains user profiles, provides hybrid RAG+memory search, and integrates with external services (Google Drive, Gmail, Notion, OneDrive, GitHub). It ships as a multi-platform product: a developer SDK (npm: <code>supermemory</code>, pip: <code>supermemory</code>), a browser extension, an MCP server, and a consumer web app.</p>
+<ul>
+<li><strong>Core Features</strong>: Memory extraction &amp; forgetting, automatic user profile management, hybrid RAG+memory search, multi-modal extraction (PDF, image, video, code)</li>
+<li><strong>Tech Stack</strong>: TypeScript, Next.js 16, React 19, Hono, Cloudflare Workers, Drizzle ORM, Better Auth, Turbo monorepo</li>
+<li><strong>Package Manager</strong>: Bun 1.3.6</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>필수 도구:</strong></p>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>버전</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://bun.sh">Bun</a></td>
+<td>≥ 1.3.6</td>
+<td>패키지 매니저 및 런타임</td>
+</tr>
+<tr>
+<td><a href="https://nodejs.org">Node.js</a></td>
+<td>≥ 20 LTS</td>
+<td>일부 빌드 스크립트 호환성</td>
+</tr>
+<tr>
+<td><a href="https://developers.cloudflare.com/workers/wrangler/">Wrangler CLI</a></td>
+<td>≥ 4.42.2 (bun으로 설치됨)</td>
+<td>Cloudflare Workers 배포 및 로컬 개발</td>
+</tr>
+<tr>
+<td><a href="https://git-scm.com">Git</a></td>
+<td>≥ 2.x</td>
+<td>소스 관리</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloudflare 계정 (선택, 배포 시 필수):</strong>
+- Cloudflare 계정 및 Workers 플랜
+- R2 버킷 (<code>supermemory-console-cache</code>) 생성 권한</p>
+<p><strong>권장 IDE 및 플러그인:</strong>
+- <strong>VS Code</strong> 또는 <strong>WebStorm</strong>
+- VS Code 익스텐션: <code>Biome</code> (필수), <code>Tailwind CSS IntelliSense</code>, <code>Prisma</code> (선택), <code>TypeScript Error Lens</code>
+- <code>.vscode/settings.json</code> 에 Biome를 기본 포매터로 설정 권장</p>
+<p><strong>OS별 주의사항:</strong>
+- <strong>macOS/Linux</strong>: 특별한 제약 없음
+- <strong>Windows</strong>: WSL2 (Ubuntu 22.04+) 사용 강력 권장. Bun과 Wrangler는 WSL2에서 가장 안정적으로 동작</p>
+<p><strong>[English]</strong></p>
+<p><strong>Required Tools:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://bun.sh">Bun</a></td>
+<td>≥ 1.3.6</td>
+<td>Package manager &amp; runtime</td>
+</tr>
+<tr>
+<td><a href="https://nodejs.org">Node.js</a></td>
+<td>≥ 20 LTS</td>
+<td>Build script compatibility</td>
+</tr>
+<tr>
+<td><a href="https://developers.cloudflare.com/workers/wrangler/">Wrangler CLI</a></td>
+<td>≥ 4.42.2 (installed via bun)</td>
+<td>Cloudflare Workers dev &amp; deploy</td>
+</tr>
+<tr>
+<td><a href="https://git-scm.com">Git</a></td>
+<td>≥ 2.x</td>
+<td>Source control</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Cloudflare Account (optional for local dev, required for deployment):</strong>
+- Cloudflare account with Workers plan
+- Permissions to create R2 buckets (<code>supermemory-console-cache</code>)</p>
+<p><strong>Recommended IDE &amp; Plugins:</strong>
+- <strong>VS Code</strong> or <strong>WebStorm</strong>
+- VS Code extensions: <code>Biome</code> (required), <code>Tailwind CSS IntelliSense</code>, <code>TypeScript Error Lens</code>
+- Set Biome as the default formatter in <code>.vscode/settings.json</code></p>
+<p><strong>OS-Specific Notes:</strong>
+- <strong>macOS/Linux</strong>: No special constraints
+- <strong>Windows</strong>: Strongly recommended to use WSL2 (Ubuntu 22.04+). Bun and Wrangler are most stable under WSL2</p>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>1단계: 저장소 클론</strong></p>
+<pre><code class="language-bash">git clone https://github.com/supermemoryai/supermemory.git
+cd supermemory
+</code></pre>
+<p><strong>2단계: 의존성 설치</strong></p>
+<pre><code class="language-bash"># Bun으로 모든 워크스페이스 의존성 일괄 설치
+bun install
+</code></pre>
+<p><strong>3단계: 환경 변수 설정</strong></p>
+<p>웹 앱용 (<code>apps/web/</code>):</p>
+<pre><code class="language-bash">cp apps/web/.env.example apps/web/.env.local
+</code></pre>
+<p><code>.env.local</code> 편집:</p>
+<pre><code class="language-env"># 백엔드 API URL (로컬 개발 시 로컬 API, 없으면 공개 API 사용)
+NEXT_PUBLIC_BACKEND_URL=https://api.supermemory.ai
+
+# PostHog 분석 (선택 — 없으면 analytics 비활성화)
+NEXT_PUBLIC_POSTHOG_KEY=
+
+# 검색 기능용 외부 API 키 (선택)
+EXA_API_KEY=
+XAI_API_KEY=
+</code></pre>
+<p>MCP 서버용 (<code>apps/mcp/</code>):</p>
+<pre><code class="language-bash">cp apps/mcp/.dev.vars.example apps/mcp/.dev.vars
+</code></pre>
+<p><code>.dev.vars</code> 편집:</p>
+<pre><code class="language-env"># Supermemory API 엔드포인트
+API_URL=https://api.supermemory.ai
+
+# MCP 서버 공개 URL (Cloudflare tunnel 또는 ngrok)
+MCP_URL=http://localhost:8788
+
+# PostHog 분석 (선택)
+POSTHOG_API_KEY=
+</code></pre>
+<p><strong>4단계: 로컬 개발 라우팅 설정 (선택)</strong></p>
+<p><code>portless.json</code>은 개발 도메인 라우팅을 정의합니다. <code>/etc/hosts</code>에 로컬 도메인 추가:</p>
+<pre><code>127.0.0.1 app.dev.supermemory
+127.0.0.1 mcp.dev.supermemory
+127.0.0.1 docs.dev.supermemory
+</code></pre>
+<p><strong>5단계: 검증</strong></p>
+<pre><code class="language-bash"># TypeScript 타입 체크
+bun run check-types
+
+# 린트 및 포맷 검사
+bun run format-lint
+
+# 웹 앱만 단독으로 개발 모드 실행 테스트
+cd apps/web &amp;&amp; bun run dev
+# → http://localhost:3000 에서 접속 확인
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Step 1: Clone the Repository</strong></p>
+<pre><code class="language-bash">git clone https://github.com/supermemoryai/supermemory.git
+cd supermemory
+</code></pre>
+<p><strong>Step 2: Install Dependencies</strong></p>
+<pre><code class="language-bash"># Install all workspace dependencies with Bun
+bun install
+</code></pre>
+<p><strong>Step 3: Configure Environment Variables</strong></p>
+<p>For the web app (<code>apps/web/</code>):</p>
+<pre><code class="language-bash">cp apps/web/.env.example apps/web/.env.local
+</code></pre>
+<p>Edit <code>.env.local</code>:</p>
+<pre><code class="language-env"># Backend API URL (use local API if running one, or public API)
+NEXT_PUBLIC_BACKEND_URL=https://api.supermemory.ai
+
+# PostHog analytics (optional — analytics disabled if empty)
+NEXT_PUBLIC_POSTHOG_KEY=
+
+# External API keys for search features (optional)
+EXA_API_KEY=
+XAI_API_KEY=
+</code></pre>
+<p>For the MCP server (<code>apps/mcp/</code>):</p>
+<pre><code class="language-bash">cp apps/mcp/.dev.vars.example apps/mcp/.dev.vars
+</code></pre>
+<p>Edit <code>.dev.vars</code>:</p>
+<pre><code class="language-env"># Supermemory API endpoint
+API_URL=https://api.supermemory.ai
+
+# Public URL for MCP server (Cloudflare tunnel or ngrok)
+MCP_URL=http://localhost:8788
+
+# PostHog analytics (optional)
+POSTHOG_API_KEY=
+</code></pre>
+<p><strong>Step 4: Local Development Routing (Optional)</strong></p>
+<p><code>portless.json</code> defines development domain routing. Add local domains to <code>/etc/hosts</code>:</p>
+<pre><code>127.0.0.1 app.dev.supermemory
+127.0.0.1 mcp.dev.supermemory
+127.0.0.1 docs.dev.supermemory
+</code></pre>
+<p><strong>Step 5: Verify</strong></p>
+<pre><code class="language-bash"># TypeScript type check
+bun run check-types
+
+# Lint and format check
+bun run format-lint
+
+# Test the web app in dev mode
+cd apps/web &amp;&amp; bun run dev
+# → Visit http://localhost:3000
+</code></pre>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">supermemory/
+├── apps/
+│   ├── web/                    # Next.js 소비자 웹 앱 (포트 3000)
+│   │   ├── app/                # Next.js App Router 페이지
+│   │   │   ├── (app)/          # 인증 필요 라우트 (대시보드, 설정, 온보딩)
+│   │   │   ├── (auth)/         # 인증 라우트 (로그인)
+│   │   │   ├── api/            # 서버리스 API 라우트 (이메일, OG 이미지)
+│   │   │   └── auth/           # Better Auth 핸들러 (연동, 에이전트 연결)
+│   │   ├── components/         # UI 컴포넌트 (chat, memory-graph, nova, settings 등)
+│   │   ├── hooks/              # 커스텀 React 훅
+│   │   ├── stores/             # Zustand 전역 상태
+│   │   ├── middleware.ts        # 세션 인증 미들웨어
+│   │   ├── next.config.ts      # Sentry, PostHog 리라이트 설정
+│   │   └── wrangler.jsonc      # Cloudflare Workers 바인딩
+│   ├── mcp/                    # MCP 서버 (포트 8788)
+│   │   └── src/
+│   │       ├── index.ts        # Hono 앱 진입점, CORS, OAuth 엔드포인트
+│   │       ├── server.ts       # MCP 프로토콜 구현 (도구 등록, 리소스)
+│   │       ├── client.ts       # Supermemory 클라이언트 래퍼
+│   │       └── auth.ts         # API 키 및 OAuth 인증
+│   ├── browser-extension/      # WXT 브라우저 확장 프로그램
+│   ├── docs/                   # Astro 문서 사이트 (포트 3003)
+│   └── memory-graph-playground/ # 그래프 시각화 데모
+├── packages/
+│   ├── validation/             # Zod 스키마 (API 요청/응답 타입 공유)
+│   │   ├── api.ts              # 41KB — 모든 API 엔드포인트 스키마
+│   │   └── schemas.ts          # DB 엔티티 기본 스키마 (Document, MemoryEntry)
+│   ├── lib/                    # 공유 유틸리티 (API fetch, React Query 훅, auth 컨텍스트)
+│   ├── ui/                     # 공유 Radix UI 컴포넌트 라이브러리
+│   ├── hooks/                  # 공유 React 훅 (키보드, 모바일, 온보딩)
+│   ├── tools/                  # AI 프레임워크용 도구 정의 (Claude, Vercel AI SDK, OpenAI)
+│   ├── ai-sdk/                 # Vercel AI SDK 메모리 래퍼
+│   ├── memory-graph/           # D3-force 기반 메모리 그래프 React 컴포넌트
+│   └── agent-framework-python/ # Python 에이전트 프레임워크 SDK
+├── biome.json                  # 린터/포매터 설정 (탭 들여쓰기, 더블쿼트)
+├── turbo.json                  # Turbo 빌드 태스크 설정
+├── portless.json               # 로컬 개발 도메인 라우팅
+└── package.json                # 루트 의존성 및 워크스페이스 스크립트
+</code></pre>
+<p><strong>핵심 모듈 간 의존 관계:</strong></p>
+<pre><code>apps/web  ──depends on──▶  packages/lib (API fetch, auth context)
+                        ──▶  packages/validation (Zod schemas)
+                        ──▶  packages/ui (Radix UI components)
+                        ──▶  packages/hooks (shared hooks)
+                        ──▶  packages/memory-graph (graph viz)
+
+apps/mcp  ──depends on──▶  supermemory (npm package, external)
+                        ──▶  @modelcontextprotocol/sdk
+
+packages/tools  ─▶  packages/validation
+packages/ai-sdk ─▶  supermemory (npm)
+</code></pre>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">supermemory/
+├── apps/
+│   ├── web/                    # Next.js consumer web app (port 3000)
+│   │   ├── app/                # Next.js App Router pages
+│   │   │   ├── (app)/          # Auth-required routes (dashboard, settings, onboarding)
+│   │   │   ├── (auth)/         # Auth routes (login)
+│   │   │   ├── api/            # Serverless API routes (emails, OG images)
+│   │   │   └── auth/           # Better Auth handlers (connect, agent-connect)
+│   │   ├── components/         # UI components (chat, memory-graph, nova, settings, etc.)
+│   │   ├── hooks/              # Custom React hooks
+│   │   ├── stores/             # Zustand global state
+│   │   ├── middleware.ts        # Session auth middleware
+│   │   ├── next.config.ts      # Sentry, PostHog rewrite config
+│   │   └── wrangler.jsonc      # Cloudflare Workers bindings
+│   ├── mcp/                    # MCP server (port 8788)
+│   │   └── src/
+│   │       ├── index.ts        # Hono app entry, CORS, OAuth endpoints
+│   │       ├── server.ts       # MCP protocol implementation (tool registration, resources)
+│   │       ├── client.ts       # Supermemory client wrapper
+│   │       └── auth.ts         # API key &amp; OAuth authentication
+│   ├── browser-extension/      # WXT browser extension
+│   ├── docs/                   # Astro documentation site (port 3003)
+│   └── memory-graph-playground/ # Graph visualization demo
+├── packages/
+│   ├── validation/             # Zod schemas (shared API request/response types)
+│   │   ├── api.ts              # 41KB — all API endpoint schemas
+│   │   └── schemas.ts          # Base DB entity schemas (Document, MemoryEntry)
+│   ├── lib/                    # Shared utilities (API fetch, React Query hooks, auth context)
+│   ├── ui/                     # Shared Radix UI component library
+│   ├── hooks/                  # Shared React hooks (keypress, mobile, onboarding)
+│   ├── tools/                  # Tool definitions for AI frameworks (Claude, Vercel AI SDK, OpenAI)
+│   ├── ai-sdk/                 # Vercel AI SDK memory wrapper
+│   ├── memory-graph/           # D3-force memory graph React component
+│   └── agent-framework-python/ # Python agent framework SDK
+├── biome.json                  # Linter/formatter config (tab indents, double quotes)
+├── turbo.json                  # Turbo build task config
+├── portless.json               # Local dev domain routing
+└── package.json                # Root dependencies &amp; workspace scripts
+</code></pre>
+<p><strong>Core Module Dependency Relationships:</strong></p>
+<pre><code>apps/web  ──depends on──▶  packages/lib (API fetch, auth context)
+                        ──▶  packages/validation (Zod schemas)
+                        ──▶  packages/ui (Radix UI components)
+                        ──▶  packages/hooks (shared hooks)
+                        ──▶  packages/memory-graph (graph viz)
+
+apps/mcp  ──depends on──▶  supermemory (npm package, external)
+                        ──▶  @modelcontextprotocol/sdk
+
+packages/tools  ─▶  packages/validation
+packages/ai-sdk ─▶  supermemory (npm)
+</code></pre>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>전체 모노레포 빌드:</strong></p>
+<pre><code class="language-bash"># 루트에서 — Turbo가 의존성 순서를 자동으로 처리
+bun run build
+</code></pre>
+<p><strong>개별 앱 빌드:</strong></p>
+<pre><code class="language-bash"># 웹 앱만
+cd apps/web &amp;&amp; bun run build
+
+# MCP 서버만
+cd apps/mcp &amp;&amp; bun run build
+</code></pre>
+<p><strong>빌드 결과물:</strong>
+- <code>apps/web/.next/</code> — Next.js 빌드 아티팩트 (<code>.next/cache/</code> 제외하고 Turbo가 캐싱)
+- <code>apps/mcp/dist/</code> — Vite로 번들된 Worker 파일</p>
+<p><strong>자주 발생하는 빌드 오류와 해결 방법:</strong></p>
+<table>
+<thead>
+<tr>
+<th>오류</th>
+<th>원인</th>
+<th>해결 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cannot find module '@supermemory/validation'</code></td>
+<td>워크스페이스 패키지 미설치</td>
+<td><code>bun install</code> 재실행</td>
+</tr>
+<tr>
+<td>TypeScript <code>tsc</code> 오류</td>
+<td>타입 불일치 또는 버전 충돌</td>
+<td><code>bun run check-types</code> 후 오류 확인, 가능하면 <code>bun install</code></td>
+</tr>
+<tr>
+<td><code>wrangler: command not found</code></td>
+<td>Wrangler PATH 미설정</td>
+<td><code>bunx wrangler</code> 사용 또는 <code>bun install -g wrangler</code></td>
+</tr>
+<tr>
+<td>Biome 포맷 오류 (<code>CI fail</code>)</td>
+<td>코드 포맷 불일치</td>
+<td><code>bun run format-lint</code> 실행 후 커밋</td>
+</tr>
+<tr>
+<td><code>Error: Cannot find module 'next'</code></td>
+<td>특정 앱의 의존성 누락</td>
+<td>해당 앱 디렉토리에서 <code>bun install</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Full Monorepo Build:</strong></p>
+<pre><code class="language-bash"># From root — Turbo handles dependency ordering automatically
+bun run build
+</code></pre>
+<p><strong>Individual App Builds:</strong></p>
+<pre><code class="language-bash"># Web app only
+cd apps/web &amp;&amp; bun run build
+
+# MCP server only
+cd apps/mcp &amp;&amp; bun run build
+</code></pre>
+<p><strong>Build Outputs:</strong>
+- <code>apps/web/.next/</code> — Next.js build artifacts (Turbo caches these, excluding <code>.next/cache/</code>)
+- <code>apps/mcp/dist/</code> — Vite-bundled Worker file</p>
+<p><strong>Common Build Errors and Fixes:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cannot find module '@supermemory/validation'</code></td>
+<td>Workspace package not linked</td>
+<td>Re-run <code>bun install</code></td>
+</tr>
+<tr>
+<td>TypeScript <code>tsc</code> errors</td>
+<td>Type mismatch or version conflict</td>
+<td>Run <code>bun run check-types</code>, review errors, then <code>bun install</code></td>
+</tr>
+<tr>
+<td><code>wrangler: command not found</code></td>
+<td>Wrangler not on PATH</td>
+<td>Use <code>bunx wrangler</code> or <code>bun install -g wrangler</code></td>
+</tr>
+<tr>
+<td>Biome formatting errors (CI fail)</td>
+<td>Code formatting mismatch</td>
+<td>Run <code>bun run format-lint</code> before committing</td>
+</tr>
+<tr>
+<td><code>Error: Cannot find module 'next'</code></td>
+<td>Missing deps for specific app</td>
+<td>Run <code>bun install</code> inside that app directory</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>전체 스택 개발 모드 (권장):</strong></p>
+<pre><code class="language-bash"># 루트에서 — 모든 앱을 병렬로 시작 (Turbo 사용)
+bun run dev
+</code></pre>
+<p><strong>개별 앱 실행:</strong></p>
+<pre><code class="language-bash"># 웹 앱만 (포트 3000)
+cd apps/web &amp;&amp; bun run dev
+
+# MCP 서버만 (포트 8788, Wrangler 사용)
+cd apps/mcp &amp;&amp; bun run dev
+# → Wrangler가 Cloudflare Workers 런타임을 로컬에서 에뮬레이션
+</code></pre>
+<p><strong>접속 URL:</strong></p>
+<table>
+<thead>
+<tr>
+<th>앱</th>
+<th>URL</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>웹 앱</td>
+<td>http://localhost:3000</td>
+<td>메인 대시보드</td>
+</tr>
+<tr>
+<td>MCP 서버</td>
+<td>http://localhost:8788</td>
+<td>MCP 프로토콜 엔드포인트</td>
+</tr>
+<tr>
+<td>문서 사이트</td>
+<td>http://localhost:3003</td>
+<td>Astro docs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>실행 확인 방법:</strong></p>
+<pre><code class="language-bash"># 웹 앱 헬스 체크
+curl http://localhost:3000
+
+# MCP 서버 well-known 엔드포인트 확인
+curl http://localhost:8788/.well-known/oauth-protected-resource
+
+# 웹 앱 로그 (Next.js 터미널에서 확인)
+# &quot;Ready on http://localhost:3000&quot; 메시지 확인
+</code></pre>
+<p><strong>개발 중 주의사항:</strong>
+- <code>apps/web/.env.local</code>의 <code>NEXT_PUBLIC_BACKEND_URL</code>이 설정되어 있지 않으면, API 호출이 실패합니다. 공개 API (<code>https://api.supermemory.ai</code>)를 사용하거나 로컬 백엔드를 구성하세요.
+- MCP 서버는 Cloudflare Durable Objects를 사용하므로, Wrangler 로컬 에뮬레이션에서는 일부 기능이 제한될 수 있습니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Full Stack Dev Mode (Recommended):</strong></p>
+<pre><code class="language-bash"># From root — starts all apps in parallel using Turbo
+bun run dev
+</code></pre>
+<p><strong>Run Individual Apps:</strong></p>
+<pre><code class="language-bash"># Web app only (port 3000)
+cd apps/web &amp;&amp; bun run dev
+
+# MCP server only (port 8788, uses Wrangler)
+cd apps/mcp &amp;&amp; bun run dev
+# → Wrangler emulates the Cloudflare Workers runtime locally
+</code></pre>
+<p><strong>Access URLs:</strong></p>
+<table>
+<thead>
+<tr>
+<th>App</th>
+<th>URL</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web App</td>
+<td>http://localhost:3000</td>
+<td>Main dashboard</td>
+</tr>
+<tr>
+<td>MCP Server</td>
+<td>http://localhost:8788</td>
+<td>MCP protocol endpoint</td>
+</tr>
+<tr>
+<td>Docs Site</td>
+<td>http://localhost:3003</td>
+<td>Astro docs</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Verify the App is Running:</strong></p>
+<pre><code class="language-bash"># Web app health check
+curl http://localhost:3000
+
+# MCP server well-known endpoint
+curl http://localhost:8788/.well-known/oauth-protected-resource
+
+# Check web app logs in the Next.js terminal
+# Look for &quot;Ready on http://localhost:3000&quot;
+</code></pre>
+<p><strong>Development Notes:</strong>
+- If <code>NEXT_PUBLIC_BACKEND_URL</code> in <code>apps/web/.env.local</code> is not set, all API calls will fail. Use the public API (<code>https://api.supermemory.ai</code>) or set up a local backend.
+- The MCP server uses Cloudflare Durable Objects; some features may be limited in Wrangler's local emulation mode.</p>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 저장소의 <code>package.json</code> 파일과 소스 구조를 분석한 결과, 현재 공식 테스트 스위트(단위 테스트 또는 통합 테스트)가 구성되어 있지 않습니다. CI 파이프라인(<code>.github/workflows/ci.yml</code>)은 다음 두 가지 검사만 실행합니다:</p>
+<ol>
+<li><strong>TypeScript 타입 체크</strong>: <code>bun run check-types</code></li>
+<li><strong>Biome 린트/포맷 검사</strong>: <code>bun run format-lint</code></li>
+</ol>
+<p><strong>현재 품질 검증 방법:</strong></p>
+<pre><code class="language-bash"># 타입 안전성 검증
+bun run check-types
+
+# 코드 스타일 및 린트 검사
+bun run format-lint
+
+# 포맷 자동 수정 (--write 플래그)
+bunx biome check --write .
+</code></pre>
+<p><strong>향후 테스트 추가 시 권장 접근법:</strong>
+- 단위 테스트: <code>bun test</code> (Bun 내장 테스트 러너) 또는 Vitest
+- 통합 테스트: <code>packages/validation/</code>의 Zod 스키마 활용
+- E2E 테스트: Playwright 권장 (Next.js 환경에 최적)</p>
+<p><strong>[English]</strong></p>
+<p>After analyzing the repository's <code>package.json</code> files and source structure, there is currently no official test suite (unit or integration tests) configured. The CI pipeline (<code>.github/workflows/ci.yml</code>) only runs two checks:</p>
+<ol>
+<li><strong>TypeScript type checking</strong>: <code>bun run check-types</code></li>
+<li><strong>Biome lint/format check</strong>: <code>bun run format-lint</code></li>
+</ol>
+<p><strong>Current Quality Verification:</strong></p>
+<pre><code class="language-bash"># Type safety verification
+bun run check-types
+
+# Code style and lint check
+bun run format-lint
+
+# Auto-fix formatting (--write flag)
+bunx biome check --write .
+</code></pre>
+<p><strong>Recommended Approach When Adding Tests:</strong>
+- Unit tests: <code>bun test</code> (Bun's built-in test runner) or Vitest
+- Integration tests: Leverage Zod schemas from <code>packages/validation/</code>
+- E2E tests: Playwright is recommended for the Next.js environment</p>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>브랜치 전략:</strong>
+- <code>main</code> — 프로덕션 브랜치 (직접 푸시 금지)
+- 기능 브랜치: <code>feat/기능명</code> (예: <code>feat/memory-export</code>)
+- 버그 수정: <code>fix/버그명</code> (예: <code>fix/auth-redirect-loop</code>)
+- CI 자동화: <code>.github/workflows/claude-auto-fix-ci.yml</code>이 CI 실패 시 자동 수정 PR을 생성합니다</p>
+<p><strong>커밋 메시지 컨벤션:</strong></p>
+<p><code>CONTRIBUTING.md</code>에서 Conventional Commits 스타일을 따릅니다:</p>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;description&gt;
+
+예시:
+feat(mcp): add memory search tool
+fix(web): resolve auth redirect on mobile
+chore(deps): update turbo to 2.6.0
+</code></pre>
+<p>타입: <code>feat</code>, <code>fix</code>, <code>chore</code>, <code>docs</code>, <code>refactor</code>, <code>perf</code>, <code>ci</code></p>
+<p><strong>PR 절차:</strong>
+1. 기능 브랜치 생성 후 작업
+2. <code>bun run check-types</code> 및 <code>bun run format-lint</code> 통과 확인
+3. GitHub에서 PR 생성 (자동으로 Claude 코드 리뷰 실행 — <code>.github/workflows/claude-code-review.yml</code>)
+4. 리뷰어 최소 1명 승인 필요
+5. CI 통과 후 머지</p>
+<p><strong>코딩 스타일 / 린트 규칙 (Biome):</strong>
+- 들여쓰기: <strong>탭(Tab)</strong> 사용
+- 문자열 따옴표: <strong>더블쿼트</strong> (<code>"</code>)
+- 세미콜론: 필요한 경우에만 (<code>asNeeded</code>)
+- CSS: Tailwind 디렉티브 허용
+- 미사용 변수/임포트: 경고 수준 (빌드는 통과하지만 수정 권장)
+- Non-null assertion (<code>!</code>): 경고 — 가능하면 타입 가드로 대체
+- 자동 수정: <code>bunx biome check --write .</code></p>
+<p><strong>[English]</strong></p>
+<p><strong>Branching Strategy:</strong>
+- <code>main</code> — Production branch (do not push directly)
+- Feature branches: <code>feat/feature-name</code> (e.g., <code>feat/memory-export</code>)
+- Bug fixes: <code>fix/bug-name</code> (e.g., <code>fix/auth-redirect-loop</code>)
+- CI automation: <code>.github/workflows/claude-auto-fix-ci.yml</code> automatically creates fix PRs on CI failures</p>
+<p><strong>Commit Message Convention:</strong></p>
+<p>Follows Conventional Commits style (per <code>CONTRIBUTING.md</code>):</p>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;description&gt;
+
+Examples:
+feat(mcp): add memory search tool
+fix(web): resolve auth redirect on mobile
+chore(deps): update turbo to 2.6.0
+</code></pre>
+<p>Types: <code>feat</code>, <code>fix</code>, <code>chore</code>, <code>docs</code>, <code>refactor</code>, <code>perf</code>, <code>ci</code></p>
+<p><strong>PR Process:</strong>
+1. Create a feature branch and do your work
+2. Ensure <code>bun run check-types</code> and <code>bun run format-lint</code> pass
+3. Open a PR on GitHub (Claude code review runs automatically — <code>.github/workflows/claude-code-review.yml</code>)
+4. At least one reviewer approval required
+5. Merge after CI passes</p>
+<p><strong>Coding Style / Lint Rules (Biome):</strong>
+- Indentation: <strong>Tabs</strong>
+- Quotes: <strong>Double quotes</strong> (<code>"</code>)
+- Semicolons: Only as needed (<code>asNeeded</code>)
+- CSS: Tailwind directives allowed
+- Unused variables/imports: Warning level (builds pass but fix is encouraged)
+- Non-null assertions (<code>!</code>): Warning — prefer type guards
+- Auto-fix: <code>bunx biome check --write .</code></p>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. <code>bun install</code> 후 <code>@supermemory/validation</code> 모듈을 찾을 수 없다는 오류가 발생합니다.</strong></p>
+<p>이는 Bun 워크스페이스 링크가 제대로 설정되지 않은 경우입니다. 해결 방법:</p>
+<pre><code class="language-bash"># 루트에서 재설치
+rm -rf node_modules bun.lock
+bun install
+</code></pre>
+<p>워크스페이스 패키지는 <code>packages/</code> 아래에 있으며 <code>package.json</code>의 <code>workspaces</code> 설정으로 자동 링크됩니다.</p>
+<hr />
+<p><strong>Q2. 웹 앱이 시작은 되는데 API 호출이 모두 실패하거나 404 오류가 납니다.</strong></p>
+<p><code>apps/web/.env.local</code>의 <code>NEXT_PUBLIC_BACKEND_URL</code>이 올바르게 설정되어 있는지 확인하세요. 이 값이 없거나 잘못되면 모든 API 요청이 실패합니다.</p>
+<pre><code class="language-bash"># .env.local 확인
+cat apps/web/.env.local
+# NEXT_PUBLIC_BACKEND_URL=https://api.supermemory.ai 이 있는지 확인
+</code></pre>
+<p>환경 변수를 변경한 후에는 <code>bun run dev</code>를 재시작해야 합니다.</p>
+<hr />
+<p><strong>Q3. MCP 서버(<code>apps/mcp</code>)를 로컬에서 실행하면 Durable Objects 관련 오류가 납니다.</strong></p>
+<p>Wrangler의 로컬 에뮬레이션은 Durable Objects SQLite 마이그레이션을 처음 실행 시 자동으로 수행합니다. 오류가 지속된다면:</p>
+<pre><code class="language-bash"># .wrangler 로컬 상태 초기화
+rm -rf apps/mcp/.wrangler
+cd apps/mcp &amp;&amp; bun run dev
+</code></pre>
+<p>여전히 실패하면 실제 Cloudflare 계정이 필요한 기능일 수 있으니 <code>wrangler login</code> 후 재시도하세요.</p>
+<hr />
+<p><strong>Q4. <code>bun run format-lint</code>가 실패하고 Biome가 오류를 보고합니다.</strong></p>
+<p>자동 수정 가능한 오류는 다음 명령으로 일괄 수정할 수 있습니다:</p>
+<pre><code class="language-bash">bunx biome check --write .
+</code></pre>
+<p>이후 <code>bun run format-lint</code>를 다시 실행하여 모든 오류가 해결되었는지 확인하세요. 일부 규칙(예: <code>noNonNullAssertion</code>)은 수동 수정이 필요합니다.</p>
+<hr />
+<p><strong>Q5. TypeScript 타입 오류가 발생하지만 어디서 나는지 알 수 없습니다.</strong></p>
+<pre><code class="language-bash"># 전체 모노레포 타입 체크 (오류 파일 경로 포함)
+bun run check-types
+
+# 특정 앱만 타입 체크
+cd apps/web &amp;&amp; bunx tsc --noEmit
+</code></pre>
+<p><code>packages/validation/</code>의 Zod 스키마에서 타입이 생성되므로, API 응답 타입 오류는 해당 파일에서 스키마를 확인하세요.</p>
+<hr />
+<p><strong>Q6. Windows에서 <code>bun</code> 명령이 작동하지 않습니다.</strong></p>
+<p>Bun은 Windows 네이티브 지원이 제한적입니다. <strong>WSL2 (Ubuntu 22.04+)</strong> 환경을 사용하세요:</p>
+<pre><code class="language-bash"># WSL2에서 Bun 설치
+curl -fsSL https://bun.sh/install | bash
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. After <code>bun install</code>, I get "Cannot find module '@supermemory/validation'".</strong></p>
+<p>This means workspace linking didn't complete. Fix:</p>
+<pre><code class="language-bash"># Clean reinstall from root
+rm -rf node_modules bun.lock
+bun install
+</code></pre>
+<p>Workspace packages live under <code>packages/</code> and are auto-linked via the <code>workspaces</code> field in <code>package.json</code>.</p>
+<hr />
+<p><strong>Q2. The web app starts but all API calls fail with 404 or network errors.</strong></p>
+<p>Check that <code>NEXT_PUBLIC_BACKEND_URL</code> is correctly set in <code>apps/web/.env.local</code>. Without it, every API request fails.</p>
+<pre><code class="language-bash"># Check .env.local
+cat apps/web/.env.local
+# Confirm NEXT_PUBLIC_BACKEND_URL=https://api.supermemory.ai is present
+</code></pre>
+<p>After changing any environment variable, restart <code>bun run dev</code>.</p>
+<hr />
+<p><strong>Q3. The MCP server (<code>apps/mcp</code>) throws Durable Objects errors when running locally.</strong></p>
+<p>Wrangler's local emulator auto-applies Durable Objects SQLite migrations on first run. If errors persist:</p>
+<pre><code class="language-bash"># Reset local Wrangler state
+rm -rf apps/mcp/.wrangler
+cd apps/mcp &amp;&amp; bun run dev
+</code></pre>
+<p>If it still fails, the feature may require a real Cloudflare account — try <code>wrangler login</code> and retry.</p>
+<hr />
+<p><strong>Q4. <code>bun run format-lint</code> fails with Biome errors.</strong></p>
+<p>Auto-fixable errors can be bulk-corrected with:</p>
+<pre><code class="language-bash">bunx biome check --write .
+</code></pre>
+<p>Then re-run <code>bun run format-lint</code> to confirm all errors are resolved. Some rules (e.g., <code>noNonNullAssertion</code>) require manual fixes.</p>
+<hr />
+<p><strong>Q5. I have TypeScript errors but can't tell which files are causing them.</strong></p>
+<pre><code class="language-bash"># Full monorepo type check (includes file paths in output)
+bun run check-types
+
+# Type-check a specific app only
+cd apps/web &amp;&amp; bunx tsc --noEmit
+</code></pre>
+<p>Types are generated from Zod schemas in <code>packages/validation/</code>, so API response type errors typically trace back there.</p>
+<hr />
+<p><strong>Q6. On Windows, <code>bun</code> commands don't work.</strong></p>
+<p>Bun has limited native Windows support. Use <strong>WSL2 (Ubuntu 22.04+)</strong>:</p>
+<pre><code class="language-bash"># Install Bun in WSL2
+curl -fsSL https://bun.sh/install | bash
+</code></pre>
+<h2 id="-">---</h2>
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>분류: 레퍼런스 구현 + 프레임워크</strong></p>
+<p>Supermemory는 단순한 라이브러리가 아닌, 운영 환경에서 검증된 AI 메모리 레이어의 <strong>풀스택 레퍼런스 구현</strong>입니다. 이 저장소는 두 가지 방식으로 활용 가능합니다:</p>
+<ol>
+<li>
+<p><strong>호스티드 서비스로 활용</strong> (가장 빠른 방법): <code>supermemory</code> npm/pip 패키지를 통해 <code>api.supermemory.ai</code>의 호스티드 API에 접근. AI 에이전트, 챗봇, LLM 파이프라인에 메모리 기능을 수 분 만에 추가.</p>
+</li>
+<li>
+<p><strong>자체 호스팅/커스터마이징</strong> (이 저장소 클론): Cloudflare Workers 기반 인프라 위에 완전한 메모리 엔진을 배포. 데이터 소유권 확보, 커스텀 임베딩 모델 통합, 또는 내부 도구와의 깊은 통합이 필요한 경우.</p>
+</li>
+</ol>
+<p><strong>해결하는 실제 문제들:</strong>
+- <strong>LLM 컨텍스트 창 한계</strong> 극복: 대화 이력이 길어질수록 오래된 정보가 소실되는 문제
+- <strong>크로스 세션 사용자 기억</strong>: AI가 이전 대화를 기억하고 사용자 선호도를 학습
+- <strong>기업 지식 검색</strong>: Google Drive, Notion, OneDrive 등에 흩어진 문서의 시맨틱 검색
+- <strong>AI 도구 메모리 레이어</strong>: Claude, ChatGPT, Cursor 등 AI 도구에 영구 메모리 추가 (MCP 서버를 통해)</p>
+<p><strong>[English]</strong></p>
+<p><strong>Classification: Reference Implementation + Framework</strong></p>
+<p>Supermemory is not just a library — it is a <strong>full-stack reference implementation</strong> of a production-grade AI memory layer. This repository can be used in two ways:</p>
+<ol>
+<li>
+<p><strong>Use the hosted service</strong> (fastest path): Access the hosted API at <code>api.supermemory.ai</code> via the <code>supermemory</code> npm/pip package. Add memory capabilities to AI agents, chatbots, or LLM pipelines in minutes.</p>
+</li>
+<li>
+<p><strong>Self-host / customize</strong> (clone this repo): Deploy the complete memory engine on Cloudflare Workers infrastructure. Use when you need full data ownership, custom embedding models, or deep integration with internal tools.</p>
+</li>
+</ol>
+<p><strong>Real-World Problems Solved:</strong>
+- <strong>LLM context window limits</strong>: Older information is lost as conversation history grows
+- <strong>Cross-session user memory</strong>: AI remembers previous conversations and learns user preferences
+- <strong>Enterprise knowledge search</strong>: Semantic search across documents scattered in Google Drive, Notion, OneDrive, etc.
+- <strong>Memory layer for AI tools</strong>: Add persistent memory to Claude, ChatGPT, Cursor, etc. (via the MCP server)</p>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>핵심 컴포넌트와 역할:</strong></p>
+<table>
+<thead>
+<tr>
+<th>컴포넌트</th>
+<th>기술</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web App</td>
+<td>Next.js 16 + Cloudflare Workers</td>
+<td>사용자 대시보드, 메모리 관리 UI</td>
+</tr>
+<tr>
+<td>MCP Server</td>
+<td>Hono + Durable Objects</td>
+<td>AI 도구(Claude 등)에 메모리 도구 노출</td>
+</tr>
+<tr>
+<td>외부 API</td>
+<td>(별도 저장소, Hono + Cloudflare)</td>
+<td><code>/v3/</code> 엔드포인트 처리, 임베딩, 검색</td>
+</tr>
+<tr>
+<td>공유 패키지</td>
+<td>TypeScript, Zod</td>
+<td>타입 안전 스키마 및 UI 컴포넌트 공유</td>
+</tr>
+<tr>
+<td>Auth</td>
+<td>Better Auth</td>
+<td>사용자/조직 관리, OAuth 연동</td>
+</tr>
+</tbody>
+</table>
+<p><strong>데이터 흐름:</strong>
+1. 사용자가 웹 앱 또는 API를 통해 콘텐츠 추가 (<code>POST /v3/documents</code>)
+2. <code>IngestContentWorkflow</code>가 컨텐츠 타입 감지, 요약, 자동 태깅 처리
+3. Cloudflare AI가 벡터 임베딩 생성
+4. 청킹(chunking) 후 Hyperdrive(PostgreSQL) + 벡터 DB에 저장
+5. 검색 시 (<code>POST /v3/search</code>) 하이브리드 RAG+메모리 쿼리로 응답</p>
+<p><strong>[English]</strong></p>
+<p><strong>Core Components and Roles:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Technology</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Web App</td>
+<td>Next.js 16 + Cloudflare Workers</td>
+<td>User dashboard, memory management UI</td>
+</tr>
+<tr>
+<td>MCP Server</td>
+<td>Hono + Durable Objects</td>
+<td>Exposes memory tools to AI tools (Claude, etc.)</td>
+</tr>
+<tr>
+<td>External API</td>
+<td>(Separate repo, Hono + Cloudflare)</td>
+<td>Handles <code>/v3/</code> endpoints, embeddings, search</td>
+</tr>
+<tr>
+<td>Shared Packages</td>
+<td>TypeScript, Zod</td>
+<td>Shared type-safe schemas and UI components</td>
+</tr>
+<tr>
+<td>Auth</td>
+<td>Better Auth</td>
+<td>User/org management, OAuth integrations</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data Flow:</strong>
+1. User adds content via web app or API (<code>POST /v3/documents</code>)
+2. <code>IngestContentWorkflow</code> handles content type detection, summarization, auto-tagging
+3. Cloudflare AI generates vector embeddings
+4. After chunking, stored in Hyperdrive (PostgreSQL) + vector DB
+5. On search (<code>POST /v3/search</code>), responds with hybrid RAG+memory query results</p>
+<pre><code class="language-mermaid">graph TB
+    subgraph Clients
+        WEB[Web App&lt;br/&gt;Next.js]
+        EXT[Browser Extension&lt;br/&gt;WXT]
+        MCP_CLIENT[AI Tools&lt;br/&gt;Claude / Cursor]
+        SDK[Developer SDK&lt;br/&gt;npm supermemory]
+    end
+
+    subgraph &quot;MCP Server (Cloudflare Workers)&quot;
+        MCP[MCP Server&lt;br/&gt;Hono + Durable Objects]
+        MCP_AUTH[Auth Layer&lt;br/&gt;API Key / OAuth]
+    end
+
+    subgraph &quot;Backend API (Cloudflare Workers)&quot;
+        API[API Server&lt;br/&gt;Hono /v3/]
+        INGEST[IngestContentWorkflow&lt;br/&gt;Cloudflare Workflow]
+        EMBED[Embedding Service&lt;br/&gt;Cloudflare AI]
+    end
+
+    subgraph &quot;Data Layer&quot;
+        DB[(PostgreSQL&lt;br/&gt;via Hyperdrive)]
+        VECTOR[(Vector DB&lt;br/&gt;Embeddings)]
+        KV[(Cloudflare KV&lt;br/&gt;Cache / Sessions)]
+        R2[(R2 Object Storage&lt;br/&gt;Next.js Cache)]
+    end
+
+    subgraph &quot;External Services&quot;
+        GDRIVE[Google Drive]
+        NOTION[Notion]
+        ONEDRIVE[OneDrive]
+        SENTRY[Sentry]
+        POSTHOG[PostHog]
+    end
+
+    WEB --&gt;|HTTPS| API
+    EXT --&gt;|HTTPS| API
+    SDK --&gt;|HTTPS| API
+    MCP_CLIENT --&gt;|MCP Protocol| MCP
+    MCP --&gt; MCP_AUTH
+    MCP --&gt;|HTTPS| API
+
+    API --&gt; INGEST
+    INGEST --&gt; EMBED
+    EMBED --&gt; VECTOR
+    INGEST --&gt; DB
+    API --&gt; DB
+    API --&gt; VECTOR
+    API --&gt; KV
+    WEB --&gt; R2
+
+    API --&gt;|Webhooks/OAuth| GDRIVE
+    API --&gt;|Webhooks/OAuth| NOTION
+    API --&gt;|Webhooks/OAuth| ONEDRIVE
+
+    API --&gt; SENTRY
+    API --&gt; POSTHOG
+    MCP --&gt; POSTHOG
+</code></pre>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: Claude Desktop에 Supermemory MCP 서버 연동</strong></p>
+<p>목표: Claude Desktop이 대화를 기억하고, 과거 대화 내용을 검색할 수 있게 하기</p>
+<p>단계별 설명:
+1. <strong>API 키 발급</strong>: <code>app.supermemory.ai</code> 에서 계정 생성 후 API 키 발급
+2. <strong>Claude Desktop 설정 파일 수정</strong> (<code>~/Library/Application Support/Claude/claude_desktop_config.json</code>):
+   <code>json
+   {
+     "mcpServers": {
+       "supermemory": {
+         "command": "npx",
+         "args": ["-y", "supergateway", "--sse", "https://mcp.supermemory.ai/sse"],
+         "env": {
+           "SUPERMEMORY_API_KEY": "your-api-key-here"
+         }
+       }
+     }
+   }</code>
+3. <strong>Claude Desktop 재시작</strong> 후 새 대화에서 메모리 도구 사용 가능
+4. <strong>검증</strong>: Claude에게 "지난번에 내가 말한 X를 기억해?" 라고 질문하여 메모리 검색 동작 확인</p>
+<hr />
+<p><strong>시나리오 2: Vercel AI SDK와 통합하여 메모리 지원 챗봇 구현</strong></p>
+<p>목표: Next.js 앱에 메모리가 있는 AI 챗봇 추가</p>
+<pre><code class="language-typescript">// packages/ai-sdk 패키지 또는 직접 supermemory npm 패키지 사용
+import { createClient } from &quot;supermemory&quot;;
+import { streamText } from &quot;ai&quot;;
+import { anthropic } from &quot;@ai-sdk/anthropic&quot;;
+
+const memory = createClient({ apiKey: process.env.SUPERMEMORY_API_KEY });
+
+// API 라우트: /api/chat/route.ts
+export async function POST(req: Request) {
+  const { messages, userId } = await req.json();
+
+  // 1. 관련 메모리 검색
+  const memories = await memory.search({
+    query: messages.at(-1).content,
+    userId,
+    limit: 5,
+  });
+
+  // 2. 메모리를 시스템 프롬프트에 주입
+  const systemPrompt = `당신은 사용자의 이전 대화를 기억하는 AI입니다.
+관련 기억:
+${memories.map(m =&gt; `- ${m.content}`).join(&quot;\n&quot;)}`;
+
+  // 3. LLM 호출
+  const result = streamText({
+    model: anthropic(&quot;claude-sonnet-4-6&quot;),
+    system: systemPrompt,
+    messages,
+    onFinish: async ({ text }) =&gt; {
+      // 4. 대화 내용을 메모리에 저장
+      await memory.add({ content: text, userId });
+    },
+  });
+
+  return result.toDataStreamResponse();
+}
+</code></pre>
+<hr />
+<p><strong>시나리오 3: 기업 지식베이스 구축 (Google Drive 연동)</strong></p>
+<p>목표: 회사 Google Drive 문서를 자동으로 인덱싱하여 시맨틱 검색 제공</p>
+<ol>
+<li><strong>연결 설정</strong>: <code>POST /v3/connections</code> — Google Drive OAuth 토큰 등록</li>
+<li><strong>자동 동기화</strong>: Cloudflare Cron (4시간마다)이 새 문서 감지 및 인덱싱</li>
+<li><strong>웹훅 설정</strong>: Google Drive 변경 이벤트를 웹훅으로 수신하여 실시간 업데이트</li>
+<li><strong>검색 API 활용</strong>:
+   <code>bash
+   curl -X POST https://api.supermemory.ai/v3/search \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"query": "Q3 매출 전략", "limit": 10}'</code></li>
+</ol>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: Connect Supermemory MCP Server to Claude Desktop</strong></p>
+<p>Goal: Give Claude Desktop persistent memory across conversations</p>
+<p>Step-by-step:
+1. <strong>Get API Key</strong>: Create an account at <code>app.supermemory.ai</code> and generate an API key
+2. <strong>Edit Claude Desktop config</strong> (<code>~/Library/Application Support/Claude/claude_desktop_config.json</code>):
+   <code>json
+   {
+     "mcpServers": {
+       "supermemory": {
+         "command": "npx",
+         "args": ["-y", "supergateway", "--sse", "https://mcp.supermemory.ai/sse"],
+         "env": {
+           "SUPERMEMORY_API_KEY": "your-api-key-here"
+         }
+       }
+     }
+   }</code>
+3. <strong>Restart Claude Desktop</strong> — memory tools are now available in new conversations
+4. <strong>Verify</strong>: Ask Claude "Do you remember what I said about X last time?" to confirm memory retrieval works</p>
+<hr />
+<p><strong>Scenario 2: Integrate with Vercel AI SDK for a Memory-Enabled Chatbot</strong></p>
+<p>Goal: Add a memory-aware AI chatbot to a Next.js app</p>
+<pre><code class="language-typescript">// Using the packages/ai-sdk package or the supermemory npm package directly
+import { createClient } from &quot;supermemory&quot;;
+import { streamText } from &quot;ai&quot;;
+import { anthropic } from &quot;@ai-sdk/anthropic&quot;;
+
+const memory = createClient({ apiKey: process.env.SUPERMEMORY_API_KEY });
+
+// API route: /api/chat/route.ts
+export async function POST(req: Request) {
+  const { messages, userId } = await req.json();
+
+  // 1. Search for relevant memories
+  const memories = await memory.search({
+    query: messages.at(-1).content,
+    userId,
+    limit: 5,
+  });
+
+  // 2. Inject memories into system prompt
+  const systemPrompt = `You are an AI that remembers the user's previous conversations.
+Relevant memories:
+${memories.map(m =&gt; `- ${m.content}`).join(&quot;\n&quot;)}`;
+
+  // 3. Call LLM
+  const result = streamText({
+    model: anthropic(&quot;claude-sonnet-4-6&quot;),
+    system: systemPrompt,
+    messages,
+    onFinish: async ({ text }) =&gt; {
+      // 4. Store conversation in memory
+      await memory.add({ content: text, userId });
+    },
+  });
+
+  return result.toDataStreamResponse();
+}
+</code></pre>
+<hr />
+<p><strong>Scenario 3: Enterprise Knowledge Base (Google Drive Integration)</strong></p>
+<p>Goal: Auto-index company Google Drive documents for semantic search</p>
+<ol>
+<li><strong>Set up connection</strong>: <code>POST /v3/connections</code> — register a Google Drive OAuth token</li>
+<li><strong>Auto-sync</strong>: Cloudflare Cron (every 4 hours) detects new documents and indexes them</li>
+<li><strong>Webhook setup</strong>: Receive Google Drive change events via webhook for real-time updates</li>
+<li><strong>Use search API</strong>:
+   <code>bash
+   curl -X POST https://api.supermemory.ai/v3/search \
+     -H "Authorization: Bearer YOUR_API_KEY" \
+     -H "Content-Type: application/json" \
+     -d '{"query": "Q3 revenue strategy", "limit": 10}'</code></li>
+</ol>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>설정 변경 포인트:</strong></p>
+<table>
+<thead>
+<tr>
+<th>설정 파일</th>
+<th>변경 가능 항목</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/web/.env.local</code></td>
+<td>백엔드 URL, PostHog 키, 외부 API 키</td>
+</tr>
+<tr>
+<td><code>apps/mcp/.dev.vars</code></td>
+<td>API URL, MCP 공개 URL</td>
+</tr>
+<tr>
+<td><code>apps/web/wrangler.jsonc</code></td>
+<td>R2 버킷, Cloudflare 서비스 바인딩, 도메인</td>
+</tr>
+<tr>
+<td><code>apps/mcp/wrangler.jsonc</code></td>
+<td>Durable Objects 설정, 도메인, 마이그레이션</td>
+</tr>
+<tr>
+<td><code>biome.json</code></td>
+<td>코드 스타일 규칙</td>
+</tr>
+<tr>
+<td><code>turbo.json</code></td>
+<td>빌드 파이프라인, 캐싱 설정</td>
+</tr>
+</tbody>
+</table>
+<p><strong>기능 추가 시 수정해야 할 파일/모듈:</strong></p>
+<ol>
+<li>
+<p><strong>새 API 엔드포인트 추가</strong>: <code>packages/validation/api.ts</code>에 Zod 스키마 추가 → 백엔드 API 라우트 구현 → <code>packages/lib/queries.ts</code>에 React Query 훅 추가</p>
+</li>
+<li>
+<p><strong>새 MCP 도구 추가</strong> (<code>apps/mcp/src/server.ts</code>):
+   <code>typescript
+   server.tool("new-tool-name", "도구 설명", {
+     param: z.string().describe("파라미터 설명"),
+   }, async ({ param }) =&gt; {
+     const result = await client.someOperation(param);
+     return { content: [{ type: "text", text: JSON.stringify(result) }] };
+   });</code></p>
+</li>
+<li>
+<p><strong>새 외부 연동 추가</strong> (Connections): 백엔드 API의 <code>/v3/connections</code> 라우트 + <code>apps/web/components/integrations/</code> UI 컴포넌트 + <code>packages/validation/api.ts</code> 스키마</p>
+</li>
+<li>
+<p><strong>새 UI 컴포넌트 추가</strong>: <code>packages/ui/</code>에 Radix UI 기반 컴포넌트 생성 → <code>packages/ui/package.json</code>의 exports에 등록 → <code>apps/web</code>에서 <code>@supermemory/ui/ComponentName</code>으로 임포트</p>
+</li>
+<li>
+<p><strong>메모리 그래프 커스터마이징</strong>: <code>packages/memory-graph/</code>의 D3-force 설정 변경 (노드 크기, 링크 강도, 색상 등)</p>
+</li>
+</ol>
+<p><strong>플러그인/미들웨어/훅 구조:</strong></p>
+<ul>
+<li><strong>Better Auth 훅</strong>: <code>apps/web/app/auth/</code> 디렉토리에서 소셜 로그인, 조직 관리 등을 커스터마이징</li>
+<li><strong>Next.js 미들웨어</strong>: <code>apps/web/middleware.ts</code> — 인증되지 않은 사용자를 로그인 페이지로 리다이렉트</li>
+<li><strong>Hono 미들웨어</strong> (MCP): <code>apps/mcp/src/index.ts</code>에서 CORS, 인증, 로깅 미들웨어 추가</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p><strong>Configuration Touch Points:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Config File</th>
+<th>What to Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apps/web/.env.local</code></td>
+<td>Backend URL, PostHog key, external API keys</td>
+</tr>
+<tr>
+<td><code>apps/mcp/.dev.vars</code></td>
+<td>API URL, MCP public URL</td>
+</tr>
+<tr>
+<td><code>apps/web/wrangler.jsonc</code></td>
+<td>R2 bucket, Cloudflare service bindings, domain</td>
+</tr>
+<tr>
+<td><code>apps/mcp/wrangler.jsonc</code></td>
+<td>Durable Objects config, domain, migrations</td>
+</tr>
+<tr>
+<td><code>biome.json</code></td>
+<td>Code style rules</td>
+</tr>
+<tr>
+<td><code>turbo.json</code></td>
+<td>Build pipeline, caching settings</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key Files/Modules to Modify When Adding Features:</strong></p>
+<ol>
+<li>
+<p><strong>Add new API endpoint</strong>: Add Zod schema to <code>packages/validation/api.ts</code> → implement backend API route → add React Query hook to <code>packages/lib/queries.ts</code></p>
+</li>
+<li>
+<p><strong>Add new MCP tool</strong> (<code>apps/mcp/src/server.ts</code>):
+   <code>typescript
+   server.tool("new-tool-name", "Tool description", {
+     param: z.string().describe("Parameter description"),
+   }, async ({ param }) =&gt; {
+     const result = await client.someOperation(param);
+     return { content: [{ type: "text", text: JSON.stringify(result) }] };
+   });</code></p>
+</li>
+<li>
+<p><strong>Add new external integration</strong> (Connections): backend <code>/v3/connections</code> route + <code>apps/web/components/integrations/</code> UI component + <code>packages/validation/api.ts</code> schema</p>
+</li>
+<li>
+<p><strong>Add new UI component</strong>: Create Radix UI-based component in <code>packages/ui/</code> → register in <code>packages/ui/package.json</code> exports → import as <code>@supermemory/ui/ComponentName</code> in <code>apps/web</code></p>
+</li>
+<li>
+<p><strong>Customize memory graph</strong>: Modify D3-force config in <code>packages/memory-graph/</code> (node size, link strength, colors)</p>
+</li>
+</ol>
+<p><strong>Plugin/Middleware/Hook Architecture:</strong></p>
+<ul>
+<li><strong>Better Auth hooks</strong>: Customize social login, org management in <code>apps/web/app/auth/</code></li>
+<li><strong>Next.js middleware</strong>: <code>apps/web/middleware.ts</code> — redirects unauthenticated users to login</li>
+<li><strong>Hono middleware</strong> (MCP): Add CORS, auth, logging middleware in <code>apps/mcp/src/index.ts</code></li>
+</ul>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>배포 대상: Cloudflare Workers + Pages</strong></p>
+<p>이 프로젝트는 Cloudflare 생태계에 최적화되어 있습니다. 배포 전 다음이 필요합니다:
+- Cloudflare 계정 (Workers Paid Plan 권장 — Durable Objects 사용)
+- <code>wrangler login</code>으로 인증된 Wrangler CLI</p>
+<p><strong>웹 앱 배포:</strong></p>
+<pre><code class="language-bash">cd apps/web
+
+# 1. 프로덕션 빌드
+bun run build
+
+# 2. Cloudflare Workers에 배포 (OpenNext 사용)
+bunx wrangler deploy
+# 또는
+bunx wrangler deploy --env production
+</code></pre>
+<p><strong>MCP 서버 배포:</strong></p>
+<pre><code class="language-bash">cd apps/mcp
+
+# 1. 빌드
+bun run build
+
+# 2. Durable Objects 마이그레이션 적용 (처음 배포 시)
+bunx wrangler d1 migrations apply  # 해당 시
+
+# 3. 배포
+bunx wrangler deploy
+</code></pre>
+<p><strong>환경별 설정 분리:</strong>
+- 개발: <code>.env.local</code> / <code>.dev.vars</code> (gitignore에 포함)
+- 스테이징: <code>wrangler.jsonc</code>의 <code>[env.staging]</code> 섹션
+- 프로덕션: <code>wrangler.jsonc</code>의 <code>[env.production]</code> 섹션 또는 Cloudflare Dashboard의 환경 변수</p>
+<p><strong>CI/CD 파이프라인:</strong></p>
+<p>현재 GitHub Actions 워크플로우 (<code>.github/workflows/</code>):
+- <code>ci.yml</code>: PR 시 타입 체크 + Biome 린트 실행
+- <code>claude-code-review.yml</code>: 자동 코드 리뷰
+- <code>publish-*.yml</code>: npm 패키지 자동 퍼블리시</p>
+<p><strong>프로덕션 배포 파이프라인 추가 권장:</strong></p>
+<pre><code class="language-yaml"># .github/workflows/deploy.yml 예시
+name: Deploy to Production
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun run build
+        working-directory: apps/web
+      - run: bunx wrangler deploy
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+Cloudflare Workers 배포 가이드: https://developers.cloudflare.com/workers/ci-cd/</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Deployment Target: Cloudflare Workers + Pages</strong></p>
+<p>This project is optimized for the Cloudflare ecosystem. Before deploying you need:
+- A Cloudflare account (Workers Paid Plan recommended — Durable Objects required)
+- Wrangler CLI authenticated with <code>wrangler login</code></p>
+<p><strong>Deploy the Web App:</strong></p>
+<pre><code class="language-bash">cd apps/web
+
+# 1. Production build
+bun run build
+
+# 2. Deploy to Cloudflare Workers (using OpenNext)
+bunx wrangler deploy
+# or
+bunx wrangler deploy --env production
+</code></pre>
+<p><strong>Deploy the MCP Server:</strong></p>
+<pre><code class="language-bash">cd apps/mcp
+
+# 1. Build
+bun run build
+
+# 2. Apply Durable Objects migrations (first deploy only)
+bunx wrangler d1 migrations apply  # if applicable
+
+# 3. Deploy
+bunx wrangler deploy
+</code></pre>
+<p><strong>Environment-Specific Configuration Separation:</strong>
+- Development: <code>.env.local</code> / <code>.dev.vars</code> (gitignored)
+- Staging: <code>[env.staging]</code> section in <code>wrangler.jsonc</code>
+- Production: <code>[env.production]</code> section in <code>wrangler.jsonc</code> or Cloudflare Dashboard env vars</p>
+<p><strong>CI/CD Pipeline:</strong></p>
+<p>Current GitHub Actions workflows (<code>.github/workflows/</code>):
+- <code>ci.yml</code>: Type check + Biome lint on PR
+- <code>claude-code-review.yml</code>: Automated code review
+- <code>publish-*.yml</code>: Automated npm package publishing</p>
+<p><strong>Recommended production deployment pipeline:</strong></p>
+<pre><code class="language-yaml"># .github/workflows/deploy.yml example
+name: Deploy to Production
+on:
+  push:
+    branches: [main]
+jobs:
+  deploy-web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun run build
+        working-directory: apps/web
+      - run: bunx wrangler deploy
+        working-directory: apps/web
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+Cloudflare Workers deployment guide: https://developers.cloudflare.com/workers/ci-cd/</p>
+</blockquote>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>알려진 성능 병목 지점:</strong></p>
+<ol>
+<li>
+<p><strong>콘텐츠 인제스트 파이프라인</strong>: <code>IngestContentWorkflow</code>는 AI 요약, 임베딩 생성, 벡터 저장이 순차적으로 이루어지므로 대용량 파일(PDF, 동영상)은 처리 시간이 길 수 있음. Cloudflare Workflows가 비동기적으로 처리하므로 UI는 블로킹되지 않음.</p>
+</li>
+<li>
+<p><strong>벡터 검색 쿼리</strong>: 임베딩 벡터 유사도 검색은 데이터 규모에 따라 지연 시간이 증가. 결과 캐싱(Cloudflare KV)으로 반복 쿼리 최적화.</p>
+</li>
+<li>
+<p><strong>메모리 그래프 렌더링</strong> (<code>packages/memory-graph/</code>): D3-force 물리 시뮬레이션은 노드 수가 많아질수록 CPU 집약적. Canvas 렌더링으로 최적화되어 있으나 1,000개 이상의 노드에서는 성능 저하 가능.</p>
+</li>
+<li>
+<p><strong>Next.js 번들 크기</strong>: PDF.js, Slate, Tiptap, D3 등 무거운 라이브러리 포함. <code>next.config.ts</code>의 코드 스플리팅으로 초기 로드는 최적화되어 있음.</p>
+</li>
+</ol>
+<p><strong>수평/수직 확장 전략:</strong></p>
+<ul>
+<li><strong>수평 확장</strong>: Cloudflare Workers는 요청당 격리된 인스턴스에서 실행되므로 자동 수평 확장. 추가 설정 불필요.</li>
+<li><strong>Durable Objects</strong>: MCP 세션은 Durable Object당 하나의 연결로 관리. 세션 수가 늘어나도 독립적으로 확장.</li>
+<li><strong>데이터베이스 확장</strong>: Hyperdrive는 PostgreSQL 연결 풀링을 자동 처리. 쿼리 최적화는 Drizzle ORM의 인덱스 설정으로 관리.</li>
+</ul>
+<p><strong>캐싱 전략:</strong></p>
+<table>
+<thead>
+<tr>
+<th>레이어</th>
+<th>기술</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Next.js ISR</td>
+<td>R2 (<code>supermemory-console-cache</code>)</td>
+<td>정적/증분 페이지 캐싱</td>
+</tr>
+<tr>
+<td>API 응답</td>
+<td>Cloudflare KV</td>
+<td>자주 조회되는 메모리/문서 캐싱</td>
+</tr>
+<tr>
+<td>React Query</td>
+<td>인메모리 (TanStack Query)</td>
+<td>클라이언트 사이드 데이터 캐싱 (staleTime 기반)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>모니터링 및 로깅:</strong></p>
+<pre><code class="language-typescript">// Sentry 설정 (apps/web/next.config.ts에 이미 설정됨)
+// 프로덕션 에러 추적:
+import * as Sentry from &quot;@sentry/nextjs&quot;;
+Sentry.captureException(error);
+
+// PostHog 이벤트 추적 (packages/lib/posthog.tsx):
+posthog.capture(&quot;memory_added&quot;, { content_type: &quot;pdf&quot;, size_kb: 250 });
+</code></pre>
+<p>Cloudflare Dashboard → Workers → Analytics에서 요청 수, 오류율, CPU 시간 모니터링 가능.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Known Performance Bottlenecks:</strong></p>
+<ol>
+<li>
+<p><strong>Content ingest pipeline</strong>: <code>IngestContentWorkflow</code> runs AI summarization, embedding generation, and vector storage sequentially, so large files (PDFs, videos) can take time. However, Cloudflare Workflows process asynchronously, so the UI is not blocked.</p>
+</li>
+<li>
+<p><strong>Vector search queries</strong>: Embedding vector similarity search latency grows with dataset size. Caching repeated queries with Cloudflare KV mitigates this.</p>
+</li>
+<li>
+<p><strong>Memory graph rendering</strong> (<code>packages/memory-graph/</code>): D3-force physics simulation is CPU-intensive with many nodes. Canvas rendering is used for optimization, but performance degrades beyond ~1,000 nodes.</p>
+</li>
+<li>
+<p><strong>Next.js bundle size</strong>: Heavy libraries included (PDF.js, Slate, Tiptap, D3). Code splitting in <code>next.config.ts</code> optimizes initial load, but monitor bundle analysis on changes.</p>
+</li>
+</ol>
+<p><strong>Horizontal / Vertical Scaling Strategies:</strong></p>
+<ul>
+<li><strong>Horizontal scaling</strong>: Cloudflare Workers run in isolated instances per request — auto-scaling out of the box, no configuration needed.</li>
+<li><strong>Durable Objects</strong>: Each MCP session is managed by one Durable Object instance. Scales independently as session count grows.</li>
+<li><strong>Database scaling</strong>: Hyperdrive handles PostgreSQL connection pooling automatically. Query optimization is managed via Drizzle ORM index configuration.</li>
+</ul>
+<p><strong>Caching Strategy:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Next.js ISR</td>
+<td>R2 (<code>supermemory-console-cache</code>)</td>
+<td>Static/incremental page caching</td>
+</tr>
+<tr>
+<td>API responses</td>
+<td>Cloudflare KV</td>
+<td>Caching frequently accessed memories/documents</td>
+</tr>
+<tr>
+<td>React Query</td>
+<td>In-memory (TanStack Query)</td>
+<td>Client-side data cache (staleTime-based)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Monitoring and Logging:</strong></p>
+<pre><code class="language-typescript">// Sentry setup (already configured in apps/web/next.config.ts)
+// Production error tracking:
+import * as Sentry from &quot;@sentry/nextjs&quot;;
+Sentry.captureException(error);
+
+// PostHog event tracking (packages/lib/posthog.tsx):
+posthog.capture(&quot;memory_added&quot;, { content_type: &quot;pdf&quot;, size_kb: 250 });
+</code></pre>
+<p>Monitor request count, error rate, and CPU time via Cloudflare Dashboard → Workers → Analytics.</p>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>환경 변수 및 시크릿 관리:</strong>
+- [ ] <code>.env.local</code>, <code>.dev.vars</code> 파일은 절대 Git에 커밋하지 않음 (<code>.gitignore</code>에 포함 확인)
+- [ ] Cloudflare Dashboard의 "Environment Variables" (암호화됨) 사용 — Wrangler secrets 활용: <code>bunx wrangler secret put API_KEY</code>
+- [ ] API 키는 최소 권한 원칙으로 발급 (읽기 전용 vs. 쓰기 권한 구분)
+- [ ] PostHog, Sentry 키는 클라이언트 사이드 노출이 의도된 것이지만, 도메인 제한 설정 권장</p>
+<p><strong>인증/인가 구현 포인트:</strong>
+- <strong>Better Auth</strong> (<code>apps/web/app/auth/</code>): 사용자 세션, 조직 소속, 역할 기반 접근 제어(RBAC) 처리
+- <strong>API 미들웨어</strong> (<code>apps/web/middleware.ts</code>): <code>auth.api.getSession()</code>으로 모든 <code>(app)/</code> 라우트에서 세션 검증
+- <strong>MCP 인증</strong> (<code>apps/mcp/src/auth.ts</code>): Bearer 토큰(API 키) 또는 OAuth 토큰 검증 — 미인증 요청은 401 반환
+- [ ] <code>NEXT_PUBLIC_BACKEND_URL</code>이 신뢰할 수 있는 도메인만 허용하는지 확인
+- [ ] CORS 설정이 알려진 오리진만 허용하는지 검토 (<code>apps/mcp/src/index.ts</code>)</p>
+<p><strong>의존성 취약점 점검:</strong></p>
+<pre><code class="language-bash"># Bun 내장 감사 (bun audit은 아직 미지원, 대신 npm audit 활용)
+cd apps/web &amp;&amp; npm audit --audit-level=high
+
+# 또는 Dependabot (GitHub)이 자동으로 취약점 PR 생성
+</code></pre>
+<p><strong>알려진 보안 고려사항:</strong>
+- [ ] <code>DOMPurify</code>가 <code>apps/web</code>에서 사용되고 있으므로, 사용자 입력 HTML 렌더링 시 반드시 <code>dompurify.sanitize()</code> 호출
+- [ ] PDF.js 및 외부 콘텐츠 파싱 시 악성 파일 처리 주의 — 서버 사이드에서 파일 타입 검증
+- [ ] OAuth 토큰(Google Drive, Notion 등)은 Cloudflare KV에 암호화 저장 권장
+- [ ] 사용자 생성 콘텐츠의 XSS 방지: <code>react-markdown</code> + <code>DOMPurify</code> 조합 사용</p>
+<p><strong>[English]</strong></p>
+<p><strong>Environment Variable and Secret Management:</strong>
+- [ ] Never commit <code>.env.local</code> or <code>.dev.vars</code> to Git (confirm in <code>.gitignore</code>)
+- [ ] Use Cloudflare Dashboard "Environment Variables" (encrypted) — use Wrangler secrets: <code>bunx wrangler secret put API_KEY</code>
+- [ ] Issue API keys with least-privilege principle (read-only vs. write access)
+- [ ] PostHog and Sentry keys are intentionally client-side exposed, but domain restriction configuration is recommended</p>
+<p><strong>Authentication / Authorization Implementation Points:</strong>
+- <strong>Better Auth</strong> (<code>apps/web/app/auth/</code>): Handles user sessions, organization membership, and RBAC
+- <strong>API middleware</strong> (<code>apps/web/middleware.ts</code>): Validates sessions in all <code>(app)/</code> routes via <code>auth.api.getSession()</code>
+- <strong>MCP auth</strong> (<code>apps/mcp/src/auth.ts</code>): Validates Bearer tokens (API keys) or OAuth tokens — unauthenticated requests return 401
+- [ ] Confirm <code>NEXT_PUBLIC_BACKEND_URL</code> only points to trusted domains
+- [ ] Review CORS config to allow only known origins (<code>apps/mcp/src/index.ts</code>)</p>
+<p><strong>Dependency Vulnerability Scanning:</strong></p>
+<pre><code class="language-bash"># Bun doesn't yet support bun audit — use npm audit instead
+cd apps/web &amp;&amp; npm audit --audit-level=high
+
+# Or enable Dependabot on GitHub for automated vulnerability PRs
+</code></pre>
+<p><strong>Known Security Considerations:</strong>
+- [ ] <code>DOMPurify</code> is used in <code>apps/web</code> — always call <code>dompurify.sanitize()</code> when rendering user-supplied HTML
+- [ ] When parsing PDFs and external content, validate file types server-side before processing (malicious file handling)
+- [ ] Store OAuth tokens (Google Drive, Notion, etc.) encrypted in Cloudflare KV
+- [ ] XSS prevention for user-generated content: use <code>react-markdown</code> + <code>DOMPurify</code> combination</p>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서:</strong>
+- <a href="https://docs.supermemory.ai">Supermemory 공식 문서</a> — API 레퍼런스, 커넥터 가이드, 쿡북
+- <a href="https://developers.cloudflare.com/workers/">Cloudflare Workers 문서</a> — Workers, Durable Objects, KV, R2
+- <a href="https://nextjs.org/docs/app">Next.js 15+ App Router 문서</a> — App Router, Server Components, Middleware
+- <a href="https://www.better-auth.com/docs">Better Auth 문서</a> — 인증 설정, 조직 플러그인
+- <a href="https://modelcontextprotocol.io/docs">Model Context Protocol (MCP) 스펙</a> — MCP 프로토콜 상세 사양
+- <a href="https://hono.dev/docs">Hono 문서</a> — 미들웨어, 라우팅, Cloudflare Workers 통합
+- <a href="https://orm.drizzle.team/docs">Drizzle ORM 문서</a> — 스키마 정의, 마이그레이션, 쿼리
+- <a href="https://tanstack.com/query/v5">TanStack Query v5 문서</a> — 데이터 페칭, 캐싱, 뮤테이션
+- <a href="https://biomejs.dev/docs">Biome 문서</a> — 린트/포맷 설정</p>
+<p><strong>관련 블로그 및 튜토리얼:</strong>
+- <a href="https://www.anthropic.com/research/model-context-protocol">Building Memory Systems for AI Agents</a> — MCP 설계 원칙
+- <a href="https://blog.cloudflare.com/durable-objects-easy-fast-correct">Cloudflare Durable Objects 패턴</a> — DO 설계 가이드
+- <a href="https://opennext.js.org/cloudflare">Next.js on Cloudflare Workers (OpenNext)</a> — 배포 설정</p>
+<p><strong>유사 프로젝트 비교:</strong></p>
+<table>
+<thead>
+<tr>
+<th>프로젝트</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Supermemory</strong></td>
+<td>벤치마크 1위, MCP 네이티브 지원, 오픈소스 자체 호스팅 가능</td>
+<td>배포 인프라가 Cloudflare에 종속</td>
+</tr>
+<tr>
+<td><strong>Mem0</strong></td>
+<td>Python 우선 지원, LangChain 통합 우수</td>
+<td>웹 UI 없음, MCP 지원 제한적</td>
+</tr>
+<tr>
+<td><strong>Zep</strong></td>
+<td>엔터프라이즈 지원, 자체 호스팅 용이</td>
+<td>유료 플랜 기능 제한, 벤치마크 성능 낮음</td>
+</tr>
+<tr>
+<td><strong>MemGPT / Letta</strong></td>
+<td>에이전트 메모리 아키텍처 연구 기반</td>
+<td>복잡한 설정, 프로덕션 준비도 낮음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Official Documentation:</strong>
+- <a href="https://docs.supermemory.ai">Supermemory Official Docs</a> — API reference, connector guides, cookbook
+- <a href="https://developers.cloudflare.com/workers/">Cloudflare Workers Docs</a> — Workers, Durable Objects, KV, R2
+- <a href="https://nextjs.org/docs/app">Next.js 15+ App Router Docs</a> — App Router, Server Components, Middleware
+- <a href="https://www.better-auth.com/docs">Better Auth Docs</a> — Auth setup, organizations plugin
+- <a href="https://modelcontextprotocol.io/docs">Model Context Protocol (MCP) Spec</a> — Detailed MCP protocol specification
+- <a href="https://hono.dev/docs">Hono Docs</a> — Middleware, routing, Cloudflare Workers integration
+- <a href="https://orm.drizzle.team/docs">Drizzle ORM Docs</a> — Schema definitions, migrations, queries
+- <a href="https://tanstack.com/query/v5">TanStack Query v5 Docs</a> — Data fetching, caching, mutations
+- <a href="https://biomejs.dev/docs">Biome Docs</a> — Lint/format configuration</p>
+<p><strong>Related Blog Posts and Tutorials:</strong>
+- <a href="https://www.anthropic.com/research/model-context-protocol">Building Memory Systems for AI Agents</a> — MCP design principles
+- <a href="https://blog.cloudflare.com/durable-objects-easy-fast-correct">Cloudflare Durable Objects Patterns</a> — DO design guide
+- <a href="https://opennext.js.org/cloudflare">Next.js on Cloudflare Workers (OpenNext)</a> — Deployment configuration</p>
+<p><strong>Comparison with Similar Projects:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Strengths</th>
+<th>Weaknesses</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Supermemory</strong></td>
+<td>Benchmark #1, native MCP support, open-source self-hostable</td>
+<td>Deployment infrastructure tied to Cloudflare</td>
+</tr>
+<tr>
+<td><strong>Mem0</strong></td>
+<td>Python-first, excellent LangChain integration</td>
+<td>No web UI, limited MCP support</td>
+</tr>
+<tr>
+<td><strong>Zep</strong></td>
+<td>Enterprise support, easy self-hosting</td>
+<td>Paid plan feature limits, lower benchmark performance</td>
+</tr>
+<tr>
+<td><strong>MemGPT / Letta</strong></td>
+<td>Research-backed agent memory architecture</td>
+<td>Complex setup, lower production readiness</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<hr />
+<h2 id="generation-summary">작성 완료 보고 / Generation Summary</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>싱글 프로젝트 모드</strong>로 분석을 완료하였습니다. 다음 경로에 두 개의 가이드 문서가 생성되어야 합니다:</p>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>주니어 개발자를 위한 환경 설정 및 기여 가이드</td>
+</tr>
+<tr>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>실전 활용 및 아키텍처 이해 가이드</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>주의</strong>: 최종 출력 지시에 따라 파일 작성을 수행하지 않고 마크다운으로 직접 출력하였습니다.</p>
+</blockquote>
+<p><strong>웹 검색 활용 섹션:</strong>
+- <code>GUIDE4ImpMethod.md</code> §3 (시나리오 2: Vercel AI SDK 통합) — 공식 <code>supermemory</code> npm API 패턴 참조
+- <code>GUIDE4ImpMethod.md</code> §5 (CI/CD 파이프라인) — Cloudflare Workers CI/CD 공식 문서 기반
+- <code>GUIDE4ImpMethod.md</code> §8 (참고 자료 비교표) — Mem0, Zep, MemGPT 공개 정보 기반</p>
+<p><strong>적용되지 않은 섹션 (N/A):</strong>
+- <code>GUIDE4Junior.md</code> §7 테스트: 저장소에 공식 테스트 스위트가 없어 CI 검사만 설명</p>
+<p><strong>[English]</strong></p>
+<p>Analysis completed in <strong>single-project mode</strong>. Two guide documents should be written to:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>Environment setup and contribution guide for junior developers</td>
+</tr>
+<tr>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>Real-world implementation and architecture guide</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>Note</strong>: Per the final output instruction, files were not written to disk — guides are output as inline markdown.</p>
+</blockquote>
+<p><strong>Sections where web search was referenced:</strong>
+- <code>GUIDE4ImpMethod.md</code> §3 (Scenario 2: Vercel AI SDK integration) — official <code>supermemory</code> npm API patterns
+- <code>GUIDE4ImpMethod.md</code> §5 (CI/CD pipeline) — based on Cloudflare Workers CI/CD official documentation
+- <code>GUIDE4ImpMethod.md</code> §8 (reference comparison table) — based on public information for Mem0, Zep, MemGPT</p>
+<p><strong>Sections marked N/A:</strong>
+- <code>GUIDE4Junior.md</code> §7 (Testing): No official test suite exists in the repository — only CI checks are described</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>supermemoryai/supermemory</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/supermemoryai/supermemory" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

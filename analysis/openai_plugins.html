@@ -1,0 +1,1121 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>openai/plugins - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/openai/plugins" target="_blank" rel="noopener">openai/plugins</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">OpenAI Plugins</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">JavaScript</span>
+      <span class="badge badge-stars">★ 1692</span>
+      <span class="badge badge-stars">+215 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>이제 충분한 데이터를 수집했습니다. 보고서를 작성합니다.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-07
+대상 / Target: <code>/tmp/github-dashboard-analysis/openai_plugins</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved</strong></p>
+<p>OpenAI Codex 플랫폼에서 동작하는 플러그인(Plugin)의 공개 예제 및 마켓플레이스 목록을 관리하는 레포지토리입니다. 플러그인은 외부 서비스(GitHub, Figma, Slack, Notion 등)와 Codex 에이전트를 연결하는 선언적 매니페스트 + 스킬(Skill) 콘텐츠 조합으로 구성됩니다. 소스 코드를 실행하는 일반 애플리케이션이 아니라 <strong>콘텐츠·구성(Content &amp; Configuration) 레포지토리</strong>입니다.</p>
+<p>This repository manages a curated collection of plugin examples and a marketplace registry for the OpenAI Codex platform. Plugins are declarative manifest + skill-content bundles that connect external services to Codex agents. It is a <strong>content and configuration repository</strong>, not a runnable application.</p>
+<p><strong>분류 / Classification</strong>: Platform Plugin Registry / Content Repository</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>JSON (매니페스트), Markdown (스킬 정의), YAML (에이전트 정의), Python 3 (스캐폴딩 스크립트)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>OpenAI Codex Plugin SDK (독자 플랫폼 규격)</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>해당 없음 (파일 시스템 기반 콘텐츠) / None (file-system-based content)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>MCP(Model Context Protocol) over HTTP/stdio, ChatGPT App SDK (<code>asdk_app_*</code> ID 기반)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>OpenAI Codex 플랫폼 내 플러그인 마켓플레이스 / OpenAI Codex platform marketplace</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>openai_plugins/
+│
+├── .agents/                    ← 레포지토리 수준 에이전트 설정
+│   └── plugins/marketplace.json ← 공식 마켓플레이스 목록 (172개 플러그인)
+│   └── skills/plugin-creator/  ← 플러그인 생성 스캐폴딩 스킬
+│
+└── plugins/&lt;name&gt;/             ← 개별 플러그인 루트 (172개)
+    ├── .codex-plugin/
+    │   └── plugin.json         ← 필수 매니페스트 (이름, 버전, 라이선스, 인터페이스 등)
+    ├── .app.json               ← ChatGPT App SDK 연결 ID (선택)
+    ├── .mcp.json               ← MCP 서버 설정 (선택)
+    ├── skills/&lt;skill-name&gt;/
+    │   └── SKILL.md            ← 에이전트가 로드하는 Markdown 프롬프트 지식
+    ├── agents/
+    │   └── openai.yaml         ← 에이전트 정의 (선택)
+    ├── hooks.json              ← PostToolUse 등 훅 설정 (선택)
+    ├── plugin.lock.json        ← 외부 소스 스킬의 무결성 해시 잠금 (선택)
+    └── assets/                 ← 아이콘, 스크린샷 (선택)
+</code></pre>
+<p><strong>핵심 설계 패턴 / Core design pattern</strong>: 각 플러그인은 독립적인 패키지로, Codex 런타임이 매니페스트를 파싱하여 스킬과 에이전트를 동적으로 로드합니다. 런타임 자체는 이 레포지토리에 포함되지 않습니다.</p>
+<p>Each plugin is an independent package; the Codex runtime parses the manifest to dynamically load skills and agents. The runtime itself is not part of this repository.</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>openai_plugins/               # 레포 루트 / Repo root
+├── .agents/
+│   ├── plugins/
+│   │   └── marketplace.json  # 172개 플러그인 마켓플레이스 정의
+│   └── skills/plugin-creator/
+│       ├── SKILL.md
+│       ├── agents/openai.yaml
+│       ├── references/plugin-json-spec.md
+│       └── scripts/create_basic_plugin.py
+├── .gitignore                # macOS DS_Store, Python __pycache__ 제외
+├── README.md                 # 프로젝트 소개
+└── plugins/                  # 172개 플러그인 디렉터리
+    ├── actively/             # (MIT)
+    ├── airtable/             # (MIT) + skills
+    ├── atlassian-rovo/       # (MIT) + skills + agents
+    ├── build-ios-apps/       # (MIT) + skills + MCP + agents
+    ├── figma/                # (LicenseRef-Figma-Developer-Terms) + skills + hooks + scripts
+    ├── github/               # (MIT) + skills + agents
+    ├── notion/               # (MIT) + skills + agents
+    ├── nvidia/               # (Apache-2.0 AND CC-BY-4.0) + skills
+    ├── openai-developers/    # (Proprietary) + MCP server (Node.js)
+    ├── codex-security/       # (Proprietary) + skills
+    ├── life-science-research/# (Proprietary) + skills
+    ├── vercel/               # (Apache-2.0) + skills + agents + commands
+    └── ...                   # 160+ 기타 플러그인
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>확인 불가 — 파일 부재 / Not found — file absent</strong></p>
+<p>레포지토리 루트에 <code>LICENSE</code>, <code>LICENSE.md</code>, <code>LICENSE.txt</code>, <code>NOTICE</code> 파일이 존재하지 않습니다. 이는 레포지토리 자체(플러그인 목록, 마켓플레이스 JSON, plugin-creator 스크립트 등)에 대한 명시적 라이선스가 선언되지 않았음을 의미합니다.</p>
+<p><strong>No top-level LICENSE file found.</strong> The repository root contains no <code>LICENSE</code>, <code>LICENSE.md</code>, <code>LICENSE.txt</code>, or <code>NOTICE</code> file. This means the repository-level code (marketplace JSON, scaffolding scripts, plugin-creator skill) has no explicitly declared license — a critical gap for commercialization.</p>
+<p>각 플러그인은 <code>.codex-plugin/plugin.json</code>의 <code>"license"</code> 필드에 개별 라이선스를 선언하고 있습니다.</p>
+<p>Each plugin declares its own license in the <code>.codex-plugin/plugin.json</code> <code>"license"</code> field.</p>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p>이 레포지토리는 외부 런타임 의존성(package.json, requirements.txt 등)이 없는 콘텐츠 레포지토리입니다. 각 플러그인 매니페스트의 라이선스 선언이 사실상 "의존성" 목록에 해당합니다.</p>
+<p>This repository has no runtime dependency manifests. The per-plugin <code>"license"</code> fields constitute the de facto dependency inventory.</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>159개 MIT 플러그인 / 159 MIT plugins</td>
+<td>다수</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음 / Low</td>
+</tr>
+<tr>
+<td>vercel</td>
+<td>0.21.1</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음 / Low</td>
+</tr>
+<tr>
+<td>neon-postgres</td>
+<td>—</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음 / Low</td>
+</tr>
+<tr>
+<td>hyperframes</td>
+<td>—</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음 / Low</td>
+</tr>
+<tr>
+<td>datadog</td>
+<td>—</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음 / Low</td>
+</tr>
+<tr>
+<td>daloopa</td>
+<td>—</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음 / Low</td>
+</tr>
+<tr>
+<td>deepnote</td>
+<td>—</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음 / Low</td>
+</tr>
+<tr>
+<td>nvidia</td>
+<td>1.0.1</td>
+<td>Apache-2.0 AND CC-BY-4.0</td>
+<td>Permissive + Content</td>
+<td>🔵 검토 필요 / Review</td>
+</tr>
+<tr>
+<td>figma</td>
+<td>2.0.8</td>
+<td>LicenseRef-Figma-Developer-Terms</td>
+<td>커스텀 상용 약관 / Custom commercial terms</td>
+<td>🟠 위험 / Risk</td>
+</tr>
+<tr>
+<td>codex-security</td>
+<td>0.1.7</td>
+<td>Proprietary</td>
+<td>비공개 독점 / Proprietary</td>
+<td>🟠 위험 / Risk</td>
+</tr>
+<tr>
+<td>life-science-research</td>
+<td>1.0.1</td>
+<td>Proprietary</td>
+<td>비공개 독점 / Proprietary</td>
+<td>🟠 위험 / Risk</td>
+</tr>
+<tr>
+<td>openai-developers</td>
+<td>—</td>
+<td>Proprietary</td>
+<td>비공개 독점 / Proprietary</td>
+<td>🟠 위험 / Risk</td>
+</tr>
+<tr>
+<td>convex</td>
+<td>0.1.1</td>
+<td>UNLICENSED</td>
+<td>무허가 / No license grant</td>
+<td>🔴 차단 / Block</td>
+</tr>
+<tr>
+<td>magicpath</td>
+<td>0.1.0</td>
+<td>UNLICENSED</td>
+<td>무허가 / No license grant</td>
+<td>🔴 차단 / Block</td>
+</tr>
+</tbody>
+</table>
+<p><strong>요약 / Summary</strong>: 172개 플러그인 중 159개(92.4%)가 MIT, 7개(4.1%)가 Apache-2.0으로 허용적 라이선스입니다. 그러나 6개(3.5%)가 Proprietary·UNLICENSED·커스텀 약관으로 상용 배포 시 별도 검토가 필요합니다.</p>
+<p>Of 172 plugins: 159 (92.4%) MIT, 7 (4.1%) Apache-2.0 (permissive). However, 6 (3.5%) carry Proprietary / UNLICENSED / custom-terms declarations requiring explicit review before commercial distribution.</p>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT (159개), Apache-2.0 (6개), Apache-2.0 AND CC-BY-4.0 (1개)</td>
+<td>소스 비공개 허용, 상용 배포 가능 / Source closure allowed, commercial distribution permitted</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>해당 없음 / None</td>
+<td>—</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>해당 없음 / None</td>
+<td>—</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>해당 없음 / None</td>
+<td>—</td>
+</tr>
+<tr>
+<td>🟠 Custom/Commercial-restricted</td>
+<td>LicenseRef-Figma-Developer-Terms (1개), Proprietary (3개)</td>
+<td>Figma Developer Terms 준수 의무; OpenAI Proprietary 플러그인은 재배포 불가</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>UNLICENSED (2개: convex, magicpath)</td>
+<td>명시적 라이선스 없음 = 기본적으로 All Rights Reserved, 재배포 금지 / No license grant = redistribution prohibited by default</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<ul>
+<li><strong>GPL 전파 위험 없음 / No GPL propagation risk</strong>: 레포지토리 내 GPL·AGPL·LGPL 라이선스 플러그인 없음</li>
+<li><strong>Apache 2.0 + MIT 혼용 호환</strong>: Apache-2.0은 MIT와 호환됨 (단방향; MIT 라이선스 소프트웨어에 Apache 2.0 플러그인을 통합 시 Apache 2.0 고지 의무 적용)</li>
+<li><strong>CC-BY-4.0 (NVIDIA)</strong>: Creative Commons는 소프트웨어 코드에 적합하지 않으나, NVIDIA 플러그인의 경우 문서·스킬 콘텐츠(Markdown)에 적용된 것으로 해석됩니다. 상업적 이용 허용(Attribution 조건), 별도 저작자 표시 의무 발생</li>
+<li><strong>UNLICENSED (convex, magicpath)</strong>: npm 생태계에서 <code>"UNLICENSED"</code>는 저작권자가 사용 권한을 부여하지 않았음을 의미합니다. 이 두 플러그인을 상업 제품에 포함하면 저작권 침해 위험이 있습니다.</li>
+<li><strong>LicenseRef-Figma-Developer-Terms</strong>: Figma Developer Terms는 Figma 서비스와의 통합에만 사용을 허용하며, 독립적 재배포나 경쟁 서비스에 사용은 금지될 수 있습니다. Figma의 Beta 조항 명시(언제든 수정·중단 가능).</li>
+</ul>
+<p><strong>English summary</strong>: No copyleft licenses present. Main risks are 2 UNLICENSED plugins (redistribution prohibited by default) and Figma's custom developer terms restricting non-Figma-integration use.</p>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] <strong>MIT 플러그인</strong>: 저작권 고지문 및 MIT 라이선스 전문 포함 필수 (제품 내 NOTICE 또는 About 화면)</li>
+<li>[x] <strong>Apache-2.0 플러그인</strong>: <code>NOTICE</code> 파일 존재 시 해당 내용 포함 필수; 특허 관련 고지 권장</li>
+<li>[ ] <strong>UNLICENSED (convex, magicpath)</strong>: 배포 전 해당 저작권자에게 별도 사용 허가 취득 필요</li>
+<li>[ ] <strong>LicenseRef-Figma-Developer-Terms (figma)</strong>: Figma Developer Terms 준수 확인, 비Figma 컨텍스트 사용 금지</li>
+<li>[ ] <strong>Proprietary (codex-security, life-science-research, openai-developers)</strong>: OpenAI와 별도 계약 필요</li>
+<li>[ ] <strong>레포지토리 루트 라이선스 부재</strong>: plugin-creator Python 스크립트, marketplace.json의 사용·배포 권한 명확화 필요</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>Dependabot (.github/dependabot.yml)</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>Renovate (renovate.json)</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>Snyk (.snyk)</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>SBOM (CycloneDX/SPDX)</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>CI/CD 워크플로우 / CI/CD workflows</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+</tbody>
+</table>
+<p><strong>결론</strong>: 자동화된 보안 취약점 관리 체계가 전혀 없습니다. 이는 콘텐츠 레포지토리의 특성(런타임 의존성 없음) 때문이기도 하지만, 공식 마켓플레이스로 활용하기 위해서는 기본 보안 정책 문서와 취약점 신고 채널이 필요합니다.</p>
+<p>No automated security or vulnerability management tooling is present. While partly attributable to the content-only nature of the repository, a public marketplace registry requires at minimum a disclosed vulnerability reporting channel.</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<table>
+<thead>
+<tr>
+<th>위험 / Risk</th>
+<th>상세 / Detail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>하드코딩된 시크릿 / Hardcoded secrets</td>
+<td><code>.env</code> 파일 없음; <code>.mcp.json</code>에 외부 MCP 서버 URL 포함되나 인증 정보는 없음 / No .env files; .mcp.json contains server URLs but no credentials</td>
+</tr>
+<tr>
+<td>EOL 의존성 / EOL dependencies</td>
+<td>런타임 의존성 없어 해당 없음 / No runtime dependencies — N/A</td>
+</tr>
+<tr>
+<td>MCP 서버 <code>npx -y ... @latest</code> 패턴</td>
+<td><code>build-ios-apps</code> 플러그인: <code>npx -y xcodebuildmcp@latest</code> — 버전 고정 없이 최신 패키지를 매번 설치하는 패턴으로 공급망 공격(supply chain attack) 위험 내포</td>
+</tr>
+<tr>
+<td>외부 MCP HTTP 엔드포인트</td>
+<td><code>cloudflare</code> 등 플러그인이 외부 HTTPS MCP 서버를 직접 참조 — 런타임 시 해당 엔드포인트의 보안 상태에 의존</td>
+</tr>
+<tr>
+<td>UNLICENSED 플러그인의 법적 위험</td>
+<td><code>convex</code>, <code>magicpath</code> — 법적 불확실성이 간접적 보안·컴플라이언스 위험 요소</td>
+</tr>
+</tbody>
+</table>
+<p><strong>중요</strong>: <code>npx -y &lt;package&gt;@latest</code> 패턴은 특히 상용 배포 환경에서 버전을 명시하거나 벤더링(vendoring)하는 방식으로 교체해야 합니다.</p>
+<p><strong>Important</strong>: The <code>npx -y &lt;package&gt;@latest</code> pattern in <code>.mcp.json</code> files is a supply chain risk. Commercial deployments should pin explicit versions or vendor the package.</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<ul>
+<li><strong>인증 방식 / Auth approach</strong>: 마켓플레이스 JSON의 <code>policy.authentication: "ON_INSTALL"</code> / <code>"ON_USE"</code> 설정으로 Codex 런타임이 인증을 위임 처리. 플러그인 레포자체에는 인증 코드 없음.</li>
+<li><strong>시크릿 관리 / Secret management</strong>: 플러그인 레포에 시크릿 없음. 런타임 플랫폼(OpenAI Codex)에 위임됨.</li>
+<li><strong>SBOM 부재</strong>: 공급망 투명성 도구 미구축. 대규모 마켓플레이스 운영 시 권고 수준이나 현재 미적용.</li>
+<li><strong>plugin.lock.json</strong>: Figma, Notion 등 일부 플러그인에 SHA256 무결성 해시가 포함된 잠금 파일 존재. 외부 소스에서 벤더링된 스킬의 변조 탐지에 유용. <strong>긍정적 보안 조치</strong> / <strong>Positive security measure</strong>.</li>
+</ul>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06-06 (S&amp;P Global 플러그인 버전 업 / version bump)</td>
+</tr>
+<tr>
+<td>가시적 커밋 수 / Visible commit count</td>
+<td>1 (shallow clone — 전체 히스토리 불명)</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>최소 1명 확인 (Eric Ning). 실제 기여자 수는 GitHub에서 확인 필요</td>
+</tr>
+<tr>
+<td>원격 저장소 / Remote</td>
+<td><code>https://github.com/openai/plugins.git</code> (OpenAI 공식)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>플러그인 단위 버전 관리 (v1.x 중심), 레포 전체 릴리스 태그 불명</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>로컬 클론에서 확인 불가 (얕은 클론)</td>
+</tr>
+<tr>
+<td>플러그인 수 / Plugin count</td>
+<td>172개 (마켓플레이스 등록 172개, 디렉터리 172개)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>참고 / Note</strong>: 로컬 클론이 shallow(1 commit)이므로 실제 커밋 빈도와 기여자 분포는 GitHub 웹에서 확인해야 합니다. OpenAI의 공식 레포지토리(<code>github.com/openai/plugins</code>)로서 활발한 유지보수가 기대됩니다 (최근 커밋이 현재 날짜 기준 하루 전임).</p>
+<p>The local clone is shallow (1 commit). Actual commit frequency and contributor count must be verified on GitHub. As an official OpenAI repository, active maintenance is expected — the most recent commit is dated one day before this analysis.</p>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서 / Document</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>NOTICE</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>브랜치 전략 / Branch strategy</td>
+<td>불명 (로컬 클론 기준 <code>main</code> 단일 브랜치)</td>
+</tr>
+</tbody>
+</table>
+<p>거버넌스 문서가 전반적으로 부재하여, 기여 프로세스·행동 강령·변경 이력 추적이 공개적으로 정의되어 있지 않습니다.</p>
+<p>Governance documentation is largely absent. Contribution process, code of conduct, and change history tracking are not publicly defined.</p>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>기업 스폰서 / Corporate sponsor</strong>: <strong>OpenAI</strong> (레포 소유자, 29개 플러그인 직접 저작)</li>
+<li><strong>파트너 생태계 / Partner ecosystem</strong>: Figma, Atlassian, Vercel, Twilio, NVIDIA, Temporal, Expo, Supabase, Zoom, Notion 등 주요 SaaS 기업들이 독립 레포에서 플러그인을 기여하여 공식 목록에 포함됨</li>
+<li><strong>CNCF/ASF 멤버십</strong>: 해당 없음 (OpenAI 독점 플랫폼)</li>
+<li><strong>LTS 정책 / LTS policy</strong>: 미정의 (각 플러그인이 개별적으로 버전 관리)</li>
+<li><strong>전망 / Outlook</strong>: OpenAI Codex 플랫폼의 성장에 연동. OpenAI가 Codex를 주요 제품으로 유지하는 한 레포지토리 유지보수 지속 가능성 높음. 단, OpenAI 플랫폼 정책 변경 시 일방적 레포 구조 변경 위험 존재.</li>
+</ul>
+<p><strong>Backed by OpenAI</strong> directly. 29 of 172 plugins are OpenAI-authored. Major SaaS companies (Figma, Atlassian, Vercel, Twilio, NVIDIA, etc.) contribute plugins from their own repositories. Long-term prospects tied to Codex platform growth.</p>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p>이 레포지토리는 런타임 애플리케이션이 아닌 <strong>콘텐츠 레포지토리</strong>이므로, 전통적인 확장성(수평/수직 스케일링) 개념이 직접 적용되지 않습니다.</p>
+<p>As a content repository rather than a runtime application, traditional scalability metrics do not apply directly.</p>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수평 확장 / Horizontal scaling</td>
+<td>N/A (콘텐츠 레포)</td>
+</tr>
+<tr>
+<td>멀티 테넌시 / Multi-tenancy</td>
+<td>마켓플레이스 JSON의 <code>policy.products</code> 필드로 제품 게이팅 가능 (현재 대부분 미사용)</td>
+</tr>
+<tr>
+<td>12-Factor App (설정 주입)</td>
+<td>플러그인은 <code>.mcp.json</code> 환경변수 필드로 런타임 설정 주입 지원</td>
+</tr>
+<tr>
+<td>헬스체크 / Health check</td>
+<td>해당 없음</td>
+</tr>
+<tr>
+<td>구조화 로깅 / Structured logging</td>
+<td>해당 없음 (런타임 플랫폼 담당)</td>
+</tr>
+<tr>
+<td>Docker/K8s</td>
+<td>해당 없음</td>
+</tr>
+<tr>
+<td>메트릭스 / Metrics</td>
+<td>해당 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Codex 플랫폼 의존성</strong>: 이 플러그인들이 동작하려면 OpenAI Codex 런타임이 반드시 필요합니다. 자체 런타임으로 실행하는 것은 지원되지 않으며, 이는 <strong>플랫폼 벤더 종속(vendor lock-in)</strong> 위험을 의미합니다.</p>
+<p><strong>Platform dependency</strong>: These plugins require the OpenAI Codex runtime — they cannot be run on a self-hosted runtime. This constitutes significant <strong>vendor lock-in</strong>.</p>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 / Unit tests</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>통합 테스트 / Integration tests</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>E2E 테스트 / E2E tests</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>CI 자동화 / CI automation</td>
+<td>확인 불가 — 파일 부재 / Not found — absent</td>
+</tr>
+<tr>
+<td>검증 스크립트 / Validation script</td>
+<td><code>plugin-creator</code> SKILL.md에 <code>quick_validate.py</code> 참조 언급됨 (그러나 파일 미발견)</td>
+</tr>
+<tr>
+<td>코드 품질 / Code quality</td>
+<td>Markdown 스킬 및 JSON 매니페스트에 대한 린트 체계 없음</td>
+</tr>
+</tbody>
+</table>
+<p>테스트·CI 체계가 전무합니다. 공개 마켓플레이스로 상용화 시 플러그인 매니페스트 유효성 검사 및 스킬 품질 보증을 위한 자동화 파이프라인 구축이 필요합니다.</p>
+<p>No test or CI infrastructure exists. Commercial deployment as a marketplace requires automated manifest validation pipelines.</p>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p>GPL/AGPL 라이선스 모듈이 없으므로 해당 없습니다. UNLICENSED 플러그인(convex, magicpath)은 단순히 해당 디렉터리를 배포 목록에서 제외(필터링)하면 됩니다.</p>
+<p>No GPL/AGPL modules present — this concern does not apply. UNLICENSED plugins can be excluded from distribution by filtering the marketplace manifest.</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I. Codebase</td>
+<td>✅ Git 단일 레포</td>
+</tr>
+<tr>
+<td>II. Dependencies</td>
+<td>⚠️ 일부 플러그인 <code>npx -y @latest</code> 사용 (버전 미고정)</td>
+</tr>
+<tr>
+<td>III. Config</td>
+<td>✅ <code>.mcp.json</code>의 <code>env</code> 블록으로 환경 변수 주입</td>
+</tr>
+<tr>
+<td>IV. Backing services</td>
+<td>✅ MCP/앱 ID로 외부 서비스 추상화</td>
+</tr>
+<tr>
+<td>V~XII</td>
+<td>N/A (런타임 코드 없음)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분 완료 / Partial</td>
+<td>각 plugin.json에 license 필드 있으나 루트 LICENSE 없음. UNLICENSED 플러그인 미식별</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>🔴 미수행 / Not performed</td>
+<td>자동화된 라이선스 스캔 도구 없음 (Scancode, FOSSA 등)</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🔴 미수행 / Not performed</td>
+<td>UNLICENSED/Proprietary 플러그인 처리 절차 없음</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🔴 미수행 / Not performed</td>
+<td>공개 검토 프로세스·거버넌스 문서 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🟡 부분 완료 / Partial</td>
+<td>일부 플러그인에 privacyPolicyURL/termsOfServiceURL 포함; 공통 NOTICE 파일 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<ul>
+<li><strong>상표권 / Trademark</strong>: 각 플러그인의 브랜드명·로고(Figma, GitHub, Slack 등)는 해당 기업의 상표입니다. 이 레포지토리를 포크하거나 재배포 시 상표법 위반 위험이 있습니다. 특히 로고 파일(<code>assets/</code>)을 상업 제품에 그대로 사용하면 별도 상표 사용 허가가 필요합니다.</li>
+<li><strong>특허 / Patent</strong>:</li>
+<li>MIT, BSD 라이선스: <strong>특허 권리 부여 없음</strong> (no patent grant). MIT/BSD 기반 플러그인 기술을 상용 제품에 구현 시 기여자 특허 청구로부터 보호받지 못함.</li>
+<li>Apache-2.0: <strong>명시적 특허 권리 부여 포함</strong> (patent grant included). Apache-2.0 플러그인(vercel, neon-postgres, datadog, deepnote, daloopa, hyperframes, nvidia)은 기여자의 특허 청구에 대한 방어 제공.</li>
+</ul>
+<p><strong>Trademark</strong>: Brand logos in <code>assets/</code> directories belong to respective companies. Forking or repackaging this repo commercially requires trademark clearance for all included brand assets.</p>
+<p><strong>Patent</strong>: MIT/BSD plugins carry no patent grant. Apache-2.0 plugins provide explicit patent defense.</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>해당 없음 / Not applicable</strong>: 이 레포지토리에는 GPL, LGPL, AGPL 라이선스 플러그인이 존재하지 않습니다.</p>
+<p>No GPL/LGPL/AGPL licensed plugins are present. Copyleft propagation risk is nil.</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🔵 검토 / Review</td>
+<td>92%+ MIT/Apache-2.0 (허용적)이지만 UNLICENSED 2개, Proprietary 3개, 커스텀 약관 1개, 루트 LICENSE 파일 부재</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟠 위험 / Risk</td>
+<td>SECURITY.md, Dependabot, CI, SBOM 전무. <code>npx @latest</code> 공급망 위험 패턴 존재</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🔵 검토 / Review</td>
+<td>OpenAI 공식 레포, 다수 파트너 기업 참여. 그러나 CONTRIBUTING.md, CODE_OF_CONDUCT, CHANGELOG 부재</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟡 주의 / Caution</td>
+<td>테스트·CI·모니터링 없음. 콘텐츠 레포 특성 감안해도 최소한의 유효성 검증 파이프라인 부재</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟡 주의 / Caution</td>
+<td>OpenAI Codex 런타임에 강한 벤더 종속. 독립 실행 불가. 플랫폼 정책 변화 시 전체 플러그인 무력화 위험</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟠 위험 / Risk</td>
+<td>루트 라이선스 부재, OpenChain 프로세스 미구축, 브랜드 로고 상표권 미검토, UNLICENSED 플러그인 포함</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>대규모 공식 파트너 생태계 / Large official partner ecosystem</strong>: Figma, Atlassian, Vercel, Twilio, NVIDIA, Temporal, Expo 등 세계 유수 SaaS 기업이 공식 참여하여 172개의 플러그인 제공. 콘텐츠 품질 및 신뢰도가 높음.</li>
+<li><strong>허용적 라이선스 중심 / Predominantly permissive licensing</strong>: 92% 이상이 MIT·Apache-2.0 라이선스로, 소스 비공개 상용 배포가 가능한 구조임.</li>
+<li><strong>OpenAI 직접 후원 / Direct OpenAI sponsorship</strong>: OpenAI가 레포 소유자이자 29개 플러그인의 저작자로서, 플랫폼 수명 주기 동안 지속적인 유지보수가 기대됨.</li>
+<li><strong>plugin.lock.json 무결성 검증 / Integrity verification via plugin.lock.json</strong>: 외부 소스에서 벤더링된 스킬에 SHA256 해시를 기록하여 공급망 무결성 일부 보장.</li>
+<li><strong>명확한 플러그인 스키마 / Clear plugin schema</strong>: <code>.codex-plugin/plugin.json</code> 표준 스키마와 <code>plugin-json-spec.md</code>로 일관된 구조 유지. 플러그인 제작 가이드(<code>plugin-creator</code> 스킬)도 제공.</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>루트 LICENSE 파일 부재 / Missing root LICENSE</strong>: 레포지토리 자체(마켓플레이스 JSON, Python 스크립트, plugin-creator 스킬)에 대한 라이선스가 선언되지 않아 법적 사용 범위가 불명확. 상용화 전 반드시 추가 필요.</li>
+<li><strong>UNLICENSED·Proprietary 플러그인의 배포 위험 / Distribution risk from UNLICENSED/Proprietary plugins</strong>: <code>convex</code>, <code>magicpath</code>(UNLICENSED)와 OpenAI Proprietary 플러그인 3개를 상업 제품에 번들링하면 저작권 침해 또는 계약 위반 위험.</li>
+<li><strong>보안 거버넌스 전무 / Zero security governance</strong>: SECURITY.md, Dependabot, CI 파이프라인, SBOM 미구축. 공개 마켓플레이스를 상용 제품에 통합 시 보안 검증 근거 없음.</li>
+<li><strong>OpenAI Codex 플랫폼 종속 / Vendor lock-in to OpenAI Codex</strong>: 플러그인들이 OpenAI Codex 런타임 외에서는 동작하지 않음. 플랫폼 정책·가격·가용성 변화에 전적으로 의존하는 구조.</li>
+<li><strong>브랜드 로고·상표권 미검토 / Unchecked trademark exposure</strong>: 172개 플러그인 중 다수가 서드파티 기업의 로고·브랜드를 <code>assets/</code>에 포함. 상업 제품에서 이 에셋을 그대로 사용하면 상표 위반 가능성.</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 <strong>Review</strong> (조건부 도입 — 추가 검토 필요 / Conditional adoption — additional review required)</p>
+<p><strong>한국어 상세 판정</strong>:</p>
+<p>이 레포지토리는 OpenAI의 공식 Codex 플러그인 마켓플레이스로, 생태계 파트너십과 라이선스 구조(92% MIT/Apache-2.0) 면에서 상용화 잠재력이 높습니다. 그러나 현 상태로 상업 배포에 활용하기 위해서는 다음 전제 조건이 충족되어야 합니다:</p>
+<ol>
+<li><strong>레포지토리 루트 라이선스 확보</strong>: OpenAI에 문의하거나 포크 시 루트 LICENSE 추가</li>
+<li><strong>UNLICENSED 플러그인 제거 또는 허가 취득</strong>: convex, magicpath에 대해 저작권자의 서면 허가 취득 또는 배포 목록에서 제외</li>
+<li><strong>Proprietary OpenAI 플러그인 검토</strong>: codex-security, life-science-research, openai-developers는 OpenAI와 별도 계약 없이 재배포 불가</li>
+<li><strong>브랜드 에셋 상표권 검토</strong>: 각 플러그인의 <code>assets/</code> 내 로고는 해당 기업의 상표</li>
+<li><strong>OpenAI Codex 플랫폼 의존성 리스크 수용</strong>: 이 플러그인들은 Codex 런타임 없이는 무용지물</li>
+</ol>
+<p><strong>English detailed verdict</strong>:</p>
+<p>This repository has strong commercialization potential as an official OpenAI-backed ecosystem with 172 plugins, mostly under permissive licenses (MIT/Apache-2.0 at 92%+). However, before commercial deployment, the following preconditions must be met: (1) root-level LICENSE must be obtained or clarified; (2) UNLICENSED plugins (convex, magicpath) must either be removed or have written permission obtained; (3) OpenAI Proprietary plugins require a separate commercial agreement with OpenAI; (4) brand asset trademark clearance per plugin; (5) the vendor lock-in to OpenAI Codex must be accepted as a strategic dependency. Once these are addressed, the license risk drops to 🟢 Safe for the majority of the plugin catalog.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>- [x] Permissive/Weak/Strong Copyleft 분류 확인 / Classification verified</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 레포지토리 루트 라이선스 확보 / Root LICENSE obtained</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] UNLICENSED 플러그인 제거 또는 허가 취득 / UNLICENSED plugins removed or permitted</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 라이선스 호환성 충돌 없음 / No GPL compatibility conflicts</td>
+<td>✅ 완료 (GPL 없음)</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>- [ ] 저작권 문구 포함 방법 정의 / Copyright notice inclusion defined</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] NOTICE/고지문 배포 위치 정의 / NOTICE distribution location defined</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 브랜드 에셋 상표권 검토 / Brand asset trademark review</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>- [x] Strong Copyleft 해당 없음 / No Strong Copyleft applicable</td>
+<td>✅ 해당 없음</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>- [ ] CVE 모니터링 체계 수립 / CVE monitoring in place</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] <code>npx @latest</code> 패턴을 버전 고정으로 교체 / Replace @latest with pinned versions</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] SECURITY.md 작성 / SECURITY.md authored</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>- [x] 유지보수 활성도 확인 / Maintenance activity confirmed</td>
+<td>✅ OpenAI 공식 (최근 커밋 2026-06-06)</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 기업 스폰서 존재 / Corporate sponsor confirmed</td>
+<td>✅ OpenAI</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>- [ ] 라이선스 검사 자동화 / License scan automated</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 플러그인 매니페스트 유효성 검증 자동화 / Plugin manifest validation automated</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] BOM 자동 생성 / BOM auto-generation configured</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>- [ ] OpenAI Proprietary 플러그인 계약 / Contract for OpenAI Proprietary plugins</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] Figma Developer Terms 서면 검토 / Figma Developer Terms legal review</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 고객 계약서에 플랫폼 의존성 명시 / Platform dependency disclosed in customer contracts</td>
+<td>❌ 미완료</td>
+</tr>
+<tr>
+<td>플랫폼 종속 / Platform lock-in</td>
+<td>- [ ] OpenAI Codex 대안 또는 이탈 전략 수립 / Exit strategy or alternative evaluated</td>
+<td>❌ 미완료</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li><strong>레포지토리 루트 LICENSE 파일 확보</strong>: OpenAI에 <code>github.com/openai/plugins</code> 레포지토리 전체의 라이선스를 명확히 문의하거나, 직접 포크·내재화 시 Apache-2.0 또는 MIT 라이선스를 루트에 추가합니다. 라이선스 부재는 모든 하위 스크립트(create_basic_plugin.py, marketplace.json 등)의 법적 지위를 불확실하게 만듭니다.</li>
+<li>
+<p><strong>Immediately clarify the repository-level license.</strong> The absence of a root LICENSE file creates legal ambiguity for all repository-level files (scaffolding scripts, marketplace manifest).</p>
+</li>
+<li>
+<p><strong>UNLICENSED 플러그인 배포 목록 제거</strong>: <code>convex</code>와 <code>magicpath</code>를 <code>.agents/plugins/marketplace.json</code>에서 제거하거나 저작권자의 서면 허가를 취득합니다.</p>
+</li>
+<li>
+<p><strong>Remove UNLICENSED plugins</strong> (<code>convex</code>, <code>magicpath</code>) from the distribution manifest or obtain written permission from copyright holders before commercial distribution.</p>
+</li>
+<li>
+<p><strong>Proprietary 플러그인 사용 범위 확인</strong>: <code>codex-security</code>, <code>life-science-research</code>, <code>openai-developers</code>의 Proprietary 라이선스 조건을 OpenAI 법무팀에 문의합니다.</p>
+</li>
+<li><strong>Clarify terms for Proprietary OpenAI plugins</strong> with OpenAI's legal team before including them in commercial products.</li>
+</ol>
+<hr />
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li><strong>브랜드 로고·에셋 상표권 검토</strong>: 172개 플러그인의 <code>assets/</code> 디렉터리에 포함된 타사 로고(Figma, GitHub, Slack, Google 등)에 대한 상표 사용 허가 여부를 법무팀이 검토합니다. 허가 없이 상업 제품에 번들링하지 않습니다.</li>
+<li>
+<p><strong>Conduct trademark review</strong> on all third-party brand assets in <code>assets/</code> directories. Do not bundle in commercial products without clearance.</p>
+</li>
+<li>
+<p><strong>Figma Developer Terms 법적 검토</strong>: LicenseRef-Figma-Developer-Terms 조건이 구체적으로 어떤 사용을 허용/금지하는지 분석합니다. Figma MCP 연동 없는 독립 재배포 가능 여부 확인.</p>
+</li>
+<li>
+<p><strong>Review Figma Developer Terms</strong> for scope of permitted use, especially for redistribution outside Figma-integration contexts.</p>
+</li>
+<li>
+<p><strong><code>npx @latest</code> 패턴 버전 고정</strong>: <code>build-ios-apps</code> 등 <code>.mcp.json</code>에서 <code>@latest</code> 사용 플러그인을 식별하고 특정 버전으로 교체하거나 벤더링합니다.</p>
+</li>
+<li><strong>Pin all <code>@latest</code> npm references</strong> in <code>.mcp.json</code> files to specific versions to eliminate supply chain risk.</li>
+</ol>
+<hr />
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li><strong>플러그인 매니페스트 유효성 검사 CI 구축</strong>: GitHub Actions로 PR 시 <code>plugin.json</code> 스키마 유효성, <code>license</code> 필드 허용 값 목록, <code>privacyPolicyURL</code>/<code>termsOfServiceURL</code> 존재 여부를 자동 검증하는 파이프라인을 구축합니다.</li>
+<li>
+<p><strong>Build CI pipeline</strong> to validate plugin manifests on every PR: schema compliance, license allowlist check, required URL fields.</p>
+</li>
+<li>
+<p><strong>소프트웨어 BOM(SBOM) 생성</strong>: CycloneDX 또는 SPDX 형식으로 172개 플러그인의 라이선스·저작권 정보를 집계한 SBOM을 생성합니다. 외부 감사 대비 문서로 활용합니다.</p>
+</li>
+<li>
+<p><strong>Generate SBOM</strong> (CycloneDX/SPDX) aggregating all 172 plugin licenses and copyright declarations for audit readiness.</p>
+</li>
+<li>
+<p><strong>SECURITY.md 작성</strong>: 취약점 신고 채널(보안 이메일, HackerOne 등), 대응 SLA, 지원 범위를 문서화합니다.</p>
+</li>
+<li>
+<p><strong>Author SECURITY.md</strong> with vulnerability reporting channel, response SLA, and scope definition.</p>
+</li>
+<li>
+<p><strong>CONTRIBUTING.md 및 CODE_OF_CONDUCT.md 추가</strong>: 외부 기여자 플러그인 제출 프로세스, 라이선스 검토 절차, 행동 강령을 공개적으로 정의합니다.</p>
+<ul>
+<li><strong>Add CONTRIBUTING.md</strong> with plugin submission process including mandatory license review steps.</li>
+</ul>
+</li>
+</ol>
+<hr />
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>OpenAI Codex 플랫폼 의존성 리스크 관리</strong>: OpenAI Codex API·플러그인 정책 변경 모니터링 체계 수립. 분기별 플랫폼 사용 약관(Terms of Use) 검토. 대안 플러그인 실행 환경 기술 조사(오픈소스 Agent SDK 등).</p>
+<ul>
+<li><strong>Monitor OpenAI Codex platform dependency</strong> quarterly. Evaluate alternative open-source plugin runtimes as contingency.</li>
+</ul>
+</li>
+<li>
+<p><strong>정기 라이선스 스캔 자동화</strong>: FOSSA, Scancode, Trivy 등 도구를 이용한 분기별 라이선스 재스캔. 신규 플러그인 추가 시 자동 라이선스 검증 게이트 적용.</p>
+<ul>
+<li><strong>Automate periodic license scanning</strong> (FOSSA/Scancode) on a quarterly cadence. Add license-gate to new plugin onboarding.</li>
+</ul>
+</li>
+<li>
+<p><strong>OpenChain ISO 5230 컴플라이언스 달성</strong>: 단계별 OpenChain 로드맵을 수립하여 [식별→스캔→수정→검토→배포] 전 단계를 문서화된 프로세스로 완성합니다.</p>
+<ul>
+<li><strong>Build toward ISO 5230/OpenChain compliance</strong> with documented identification, scan, remediation, review, and distribution processes.</li>
+</ul>
+</li>
+</ol></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><hr />
+<h2 id="final-report">최종 보고서 / Final Report</h2>
+<p><strong>[한국어]</strong></p>
+<h3 id="_1">생성된 파일 목록</h3>
+<table>
+<thead>
+<tr>
+<th>파일 경로</th>
+<th>크기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/openai_plugins/.review/GUIDE4Junior.md</code></td>
+<td>26 KB</td>
+</tr>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/openai_plugins/.review/GUIDE4ImpMethod.md</code></td>
+<td>33 KB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>모드</strong>: 단일 프로젝트 — <code>.review/</code> 디렉토리는 이미 존재하여 파일을 직접 작성했습니다.</p>
+<h3 id="_2">섹션별 참고 사항</h3>
+<ul>
+<li><strong>GUIDE4Junior.md 섹션 5 (로컬 빌드)</strong>: 이 저장소는 전통적인 빌드 시스템이 없습니다. <code>npm install</code>은 <code>plugin-eval</code> 플러그인에만 해당한다고 명시했습니다.</li>
+<li><strong>GUIDE4Junior.md 섹션 6 (로컬 실행)</strong>: 플러그인은 독립 서버가 아닌 Codex UI에서 실행되므로, 마켓플레이스 연동 방식으로 설명했습니다.</li>
+<li><strong>GUIDE4ImpMethod.md 섹션 5 (운영 환경 배포)</strong>: Docker 컨테이너화 예시는 MCP 서버 자체 호스팅 시나리오에만 해당하며, 공식 문서 기반 권장 사항으로 표기했습니다.</li>
+<li><strong>GUIDE4ImpMethod.md 섹션 8 (참고 자료)</strong>: ChatGPT Plugins 비교 항목에서 2024년 3월 서비스 종료 사실을 지식 컷오프(2025년 8월) 내 정보로 포함했습니다.</li>
+</ul>
+<hr />
+<p><strong>[English]</strong></p>
+<h3 id="generated-files">Generated Files</h3>
+<table>
+<thead>
+<tr>
+<th>File Path</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/openai_plugins/.review/GUIDE4Junior.md</code></td>
+<td>26 KB</td>
+</tr>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/openai_plugins/.review/GUIDE4ImpMethod.md</code></td>
+<td>33 KB</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Mode</strong>: Single project — the <code>.review/</code> directory already existed; files were written directly.</p>
+<h3 id="section-notes">Section Notes</h3>
+<ul>
+<li><strong>GUIDE4Junior.md Section 5 (Local Build)</strong>: This repository has no traditional build system. Noted that <code>npm install</code> applies only to the <code>plugin-eval</code> plugin.</li>
+<li><strong>GUIDE4Junior.md Section 6 (Running Locally)</strong>: Plugins run inside the Codex UI (not as standalone servers), so this section describes marketplace integration rather than <code>npm start</code> / <code>docker run</code>.</li>
+<li><strong>GUIDE4ImpMethod.md Section 5 (Production Deployment)</strong>: The Docker containerization example is scoped to self-hosted MCP server scenarios only; annotated as a recommendation based on official documentation.</li>
+<li><strong>GUIDE4ImpMethod.md Section 8 (References)</strong>: The ChatGPT Plugins comparison entry references its March 2024 deprecation — within the knowledge cutoff (August 2025).</li>
+</ul></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>openai/plugins</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/openai/plugins" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

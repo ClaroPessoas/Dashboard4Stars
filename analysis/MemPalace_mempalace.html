@@ -1,0 +1,1218 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MemPalace/mempalace - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/MemPalace/mempalace" target="_blank" rel="noopener">MemPalace/mempalace</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">The best-benchmarked open-source AI memory system. And it's free.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 54155</span>
+      <span class="badge badge-stars">+441 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-07
+대상 / Target: <code>/tmp/github-dashboard-analysis/MemPalace_mempalace</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved</strong></p>
+<p>AI 어시스턴트(특히 Claude Code, Gemini CLI 등 MCP 클라이언트)는 세션 간 컨텍스트를 잃는다. MemPalace는 모든 대화·프로젝트 파일을 사용자 로컬 머신에 <strong>원문 그대로(verbatim)</strong> 저장하여, 어떤 세션에서도 이전 대화·지식을 즉시 검색·주입할 수 있는 장기 기억 시스템을 제공한다. "요약 없음, 외부 API 없음, 100% 재현율(recall)"이 핵심 설계 요구사항이다.</p>
+<p><strong>분류 / Classification</strong>: Platform (Memory/RAG) + Tool (CLI + MCP Server)
+- 29개 MCP 도구, 4개 플러그인 스토리지 백엔드, CLI 디스패처 포함
+- 사용자에게는 설치형 툴로 동작하며, AI 에이전트에게는 장기기억 플랫폼으로 동작</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Python 3.9+ (3.9, 3.11, 3.13 CI 검증)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>자체 Palace 아키텍처 (MCP via stdio JSON-RPC), hatchling 빌드</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>ChromaDB 1.5.x (기본), SQLite (지식 그래프·FTS5), pgvector, qdrant, sqlite_exact</td>
+</tr>
+<tr>
+<td>임베딩 / Embedding</td>
+<td>ONNX Runtime + embeddinggemma-300m (다국어 기본), all-MiniLM-L6-v2 (영어 전용 옵션)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>MCP over stdio, CLI, HTTP REST (qdrant 백엔드 사용 시)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>PyPI, Docker (CPU/GPU), uv tool install</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌──────────────────────────────────────────────────────────────────┐
+│ User                                                             │
+│  ├─ CLI (mempalace) ──────────────────────────────────────────── │
+│  └─ MCP Client (Claude Code / Gemini CLI / ...)                  │
+│         │ JSON-RPC over stdio                                     │
+│         ▼                                                         │
+│  ┌──────────────────────────────────────┐                         │
+│  │  MCP Server (mcp_server.py)          │                         │
+│  │  29 tools: search, add, delete, ...  │                         │
+│  │  + query_sanitizer (prompt injection)│                         │
+│  └──────────┬───────────────────────────┘                         │
+│             │                                                     │
+│    ┌────────┴────────────────────────────────────────────────┐   │
+│    │         Palace Core (palace.py, palace_graph.py)        │   │
+│    │  Wing → Room → Drawer 계층 구조                          │   │
+│    │  AAAK 압축 인덱스 (dialect.py)                           │   │
+│    │  Searcher: BM25 + Vector Hybrid (searcher.py)           │   │
+│    │  Layers L0–L3 Wake-up Stack (layers.py)                 │   │
+│    └────────┬────────────────────────────────────────────────┘   │
+│             │                                                     │
+│    ┌────────┴──────────────────────────────────────────┐         │
+│    │  Storage Backend (RFC 001 — pluggable)            │         │
+│    │  chroma (default) │ pgvector │ qdrant │ sqlite_ex │         │
+│    └───────────────────┬───────────────────────────────┘         │
+│                        │                                         │
+│    ┌───────────────────┴──────────────────────────────┐          │
+│    │  SQLite — knowledge_graph.py                     │          │
+│    │  Temporal entity–relationship triples            │          │
+│    │  (valid_from / valid_to per triple)              │          │
+│    └──────────────────────────────────────────────────┘          │
+│                                                                  │
+│  Background Hooks (hooks/mempal_save_hook.sh)                    │
+│    Stop/PreCompact → auto-save → mine → file → index            │
+└──────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>아키텍처 패턴</strong>: 헥사고날 아키텍처 일부 적용 (Backend 추상 인터페이스 RFC 001), 이벤트 기반 백그라운드(Hook), 플러그인 등록(entry-point group)</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>MemPalace_mempalace/
+├── mempalace/               # 메인 패키지 (47개 Python 모듈)
+│   ├── mcp_server.py        # MCP 서버 (29 tools)
+│   ├── cli.py               # CLI 디스패처
+│   ├── config.py            # 설정 + 입력 검증
+│   ├── searcher.py          # 하이브리드 BM25 + 벡터 검색
+│   ├── knowledge_graph.py   # 시간 기반 엔티티-관계 그래프 (SQLite)
+│   ├── palace.py / palace_graph.py  # Palace 공유 연산 + 방 순회
+│   ├── dialect.py           # AAAK 압축 방언
+│   ├── backends/            # 플러그인 스토리지 백엔드
+│   │   ├── base.py          # 추상 인터페이스 (RFC 001)
+│   │   ├── chroma.py        # ChromaDB 레퍼런스 구현
+│   │   ├── pgvector.py      # pgvector (PostgreSQL)
+│   │   ├── qdrant.py        # Qdrant REST
+│   │   └── sqlite_exact.py  # SQLite 완전 일치
+│   ├── i18n/                # 13개 언어 번역 파일
+│   ├── sources/             # RFC 002 소스 어댑터 (확장 가능)
+│   ├── layers.py / onboarding.py / repair.py / dedup.py / ...
+│   └── version.py           # 버전 단일 소스 (3.4.0)
+├── tests/                   # 125개 테스트 파일 + 벤치마크
+├── hooks/                   # Claude Code 자동저장 셸 스크립트
+├── .github/                 # CI, Dependabot, 이슈 템플릿, CODEOWNERS
+├── website/                 # VitePress 문서
+├── docs/                    # 복구 가이드, RFC 스펙, 스키마
+├── Dockerfile               # 멀티스테이지 (uv 기반)
+├── pyproject.toml           # hatchling 빌드 매니페스트
+├── LICENSE                  # MIT
+├── SECURITY.md              # 취약점 보고 정책
+├── CONTRIBUTING.md          # 기여 가이드
+├── MISSION.md               # 프로젝트 창설 배경
+└── CLAUDE.md                # AI 에이전트용 코드베이스 가이드
+</code></pre>
+<p><strong>부재 파일 / Absent files</strong>:
+- <code>NOTICE</code> — 확인 불가, 파일 부재 / Not found — file absent
+- <code>THIRD_PARTY_LICENSES</code> — 확인 불가, 파일 부재 / Not found — file absent
+- <code>CODE_OF_CONDUCT.md</code> — 확인 불가, 파일 부재 / Not found — file absent
+- <code>SBOM</code> (SPDX/CycloneDX) — 확인 불가, 파일 부재 / Not found — file absent</p>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>라이선스</strong>: MIT License
+<strong>저작권자</strong>: Copyright (c) 2026 MemPalace Contributors</p>
+<p><strong>핵심 의무 / Key Obligations</strong>:
+- 저작권 고지문 및 본 라이선스 문구를 소프트웨어 모든 복사본 또는 실질적인 부분에 포함해야 함
+- 출처 명시(Attribution) 외 추가 의무 없음
+- 소스 공개 의무 없음
+- 특허 허여 조항 없음 (MIT는 특허 보호 미포함 — Apache 2.0과의 차이점)</p>
+<p><strong>상용화 적합성</strong>: 소스 비공개 제품에 포함 가능, 재판매 허용, SaaS 배포 허용</p>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p><strong>코어 의존성 / Core Dependencies</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>chromadb</td>
+<td>&gt;=1.5.4,&lt;2</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pyyaml</td>
+<td>&gt;=6.0,&lt;7</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>tomli</td>
+<td>&gt;=2.0.0 (Py&lt;3.11)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>huggingface_hub</td>
+<td>&gt;=0.20</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>tokenizers</td>
+<td>&gt;=0.15</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>numpy</td>
+<td>&gt;=1.24</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>python-dateutil</td>
+<td>&gt;=2.8</td>
+<td>Apache 2.0 / BSD (dual)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>선택적 의존성 / Optional Dependencies</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>autocorrect</td>
+<td>&gt;=2.0 (<code>[spellcheck]</code>)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>psycopg[binary]</td>
+<td>&gt;=3.1 (<code>[pgvector]</code>)</td>
+<td>LGPL-3.0</td>
+<td>Weak Copyleft</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>onnxruntime-gpu</td>
+<td>&gt;=1.16 (<code>[gpu]</code>)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>onnxruntime-directml</td>
+<td>&gt;=1.16 (<code>[dml]</code>)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>onnxruntime</td>
+<td>&gt;=1.16 (<code>[coreml]</code>)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>striprtf</td>
+<td>latest (<code>[extract]</code>)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>markitdown[docx,pdf,pptx,xlsx]</td>
+<td>latest (<code>[extract]</code>, Py&gt;=3.10)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>개발 전용 의존성 / Dev-only Dependencies</strong> (미배포 / Not shipped)</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>pytest, pytest-cov</td>
+<td>MIT</td>
+<td>Permissive</td>
+</tr>
+<tr>
+<td>ruff==0.15.15</td>
+<td>MIT</td>
+<td>Permissive</td>
+</tr>
+<tr>
+<td>psutil</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+</tr>
+<tr>
+<td>hypothesis</td>
+<td>MPL-2.0</td>
+<td>Weak Copyleft (dev only — 영향 없음)</td>
+</tr>
+<tr>
+<td>pre-commit</td>
+<td>MIT</td>
+<td>Permissive</td>
+</tr>
+<tr>
+<td>mypy</td>
+<td>MIT</td>
+<td>Permissive</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주요 전이적 의존성 (chromadb 경유) / Notable Transitive Deps</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지</th>
+<th>라이선스</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>posthog</td>
+<td>MIT</td>
+<td>원격 분석(텔레메트리) 라이브러리 — MCP stdout 혼선 방지를 위해 코드에서 명시적으로 우회 처리됨 (mcp_server.py 주석 참조)</td>
+</tr>
+<tr>
+<td>onnxruntime</td>
+<td>MIT</td>
+<td>임베딩 추론</td>
+</tr>
+<tr>
+<td>sqlite3</td>
+<td>Public Domain</td>
+<td>Python 표준 라이브러리</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td><strong>MIT</strong> (프로젝트), Apache 2.0, BSD-3-Clause, ISC</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td><strong>LGPL-3.0</strong> (psycopg[binary], 선택적)</td>
+<td>동적 링크 시 제한적 / Limited restriction for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td><strong>해당 없음 / Not applicable</strong></td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td><strong>해당 없음 / Not applicable</strong></td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td><strong>해당 없음 / Not applicable</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>충돌 없음 / No conflicts detected</strong>:
+- 모든 코어 의존성이 MIT 또는 Apache 2.0 이상의 permissive 라이선스
+- AGPL, GPL 컴포넌트 없음 → 전파 위험 없음
+- BUSL / Commons Clause 없음 → 상용화 금지 조항 없음</p>
+<p><strong>LGPL 주의사항 (psycopg[binary])</strong>:
+- pgvector 백엔드는 선택적 의존성 (<code>pip install mempalace[pgvector]</code>)
+- psycopg[binary]는 Python 동적 임포트로 사용 — LGPL의 "동적 링크" 조건 충족
+- LGPL-3.0 하에서는 라이브러리 자체를 수정하지 않는 한 소스 공개 의무 없음
+- <strong>권고</strong>: pgvector 백엔드 사용 시 제품 고지문에 psycopg3 LGPL 고지 포함 권장</p>
+<p><strong>posthog 전이 의존성</strong>:
+- chromadb가 posthog를 사용하여 익명 텔레메트리를 수집할 수 있음
+- MemPalace는 <code>CHROMA_TELEMETRY=false</code> 또는 유사 환경 변수로 이를 비활성화해야 하는지 문서화 미비
+- 엔터프라이즈 배포 시 chromadb 텔레메트리 비활성화 확인 필요</p>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[ ] <strong>저작권 고지 포함 방법</strong> / Copyright notice inclusion method</li>
+<li>MIT 라이선스 전문(Copyright (c) 2026 MemPalace Contributors)을 제품 패키지, 설치 프로그램, 또는 동봉 문서에 포함</li>
+<li><code>pip show mempalace</code> 또는 Docker 이미지 내 라이선스 파일 확인 가능하도록 유지</li>
+<li>[ ] <strong>NOTICE/고지문 배포 위치</strong> / NOTICE distribution location</li>
+<li>현재 NOTICE 파일 부재 → 신규 생성 필요 (특히 pgvector 백엔드 사용 시 psycopg3 LGPL 고지 포함)</li>
+<li>Apache 2.0 의존성(chromadb, huggingface_hub) 원저작자 고지 포함</li>
+<li>[ ] <strong>소스 공개 의무 여부</strong> / Source disclosure obligation</li>
+<li>코어: 없음 (MIT)</li>
+<li>pgvector 옵션 사용 시: psycopg3 라이브러리 수정본 공개 의무 있음 (단, 수정하지 않으면 불필요)</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<p><strong>SECURITY.md</strong>: 존재 ✅
+- 지원 버전: 3.x (현재 버전) — 보안 픽스 지원; 2.x 이하 미지원
+- 취약점 보고: GitHub Private Vulnerability Reporting 전용 (공개 이슈 등록 금지)
+- 응답 목표: 48시간 이내 접수 확인</p>
+<p><strong>Dependabot</strong> (<code>.github/dependabot.yml</code>): 존재 ✅
+- 자동 의존성 업데이트 설정 확인</p>
+<p><strong>Renovate</strong>: 확인 불가 — 파일 부재 / Not found — file absent</p>
+<p><strong>Snyk</strong> (<code>.snyk</code>): 확인 불가 — 파일 부재 / Not found — file absent</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>긍정적 사항 / Positive findings</strong>:
+- HNSW 인덱스 부패 탐지·격리 로직 구현 (mcp_server.py, backends/chroma.py — <code>_HNSW_LINK_TO_DATA_MAX_RATIO = 10.0</code>)
+- 프롬프트 오염 방지 모듈 존재 (<code>query_sanitizer.py</code>) — MCP 도구 경유 프롬프트 인젝션 방어
+- MCP stdio 보호 구현 (mcp_server.py) — chromadb/posthog의 stdout 직접 쓰기 문제 해결
+- 파일 원자적 쓰기 (<code>.tmp</code> 사이드카) 구현 확인 — 크래시 안전성
+- 입력 검증 중앙화 (<code>config.py</code>: <code>sanitize_name()</code>, <code>sanitize_kg_value()</code>) — 경로 순회·특수문자 방지
+- UTF-16 고아 서로게이트 제거 (<code>strip_lone_surrogates()</code>) — 클립보드·MCP 데이터 오염 방어</p>
+<p><strong>주의 사항 / Risk findings</strong>:
+- <strong>posthog 전이 의존성</strong>: chromadb를 통해 원격 텔레메트리 라이브러리가 전이적으로 포함됨. 엔터프라이즈 환경에서 프라이버시 정책 위반 가능성 존재. chromadb 텔레메트리 비활성화 옵션 문서화 필요
+- <strong>EOL 파이썬 버전</strong>: Python 3.9 지원 — CPython 3.9는 2025-10-05 EOL. 현재 CI에서 3.9 테스트 실행 중이나, 보안 픽스 미지원 Python 버전에 의존하는 엔터프라이즈 배포 주의 필요
+- <strong>하드코딩된 비밀 없음</strong>: 코드베이스 내 API 키 하드코딩 패턴 미발견 ✅
+- <strong>SBOM 부재</strong>: CycloneDX/SPDX 형식의 소프트웨어 자재 명세서 없음 — 공급망 감사 대비 미흡</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>인증/인가 / Auth</td>
+<td>N/A</td>
+<td>로컬 전용 아키텍처 — 인증 레이어 불필요</td>
+</tr>
+<tr>
+<td>비밀 관리 / Secret Mgmt</td>
+<td>✅ 구조적으로 안전</td>
+<td>외부 API 기본값 없음; BYOK는 환경 변수</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>❌ 부재</td>
+<td>CycloneDX/SPDX 파일 없음</td>
+</tr>
+<tr>
+<td>CVE 모니터링</td>
+<td>🔵 부분적</td>
+<td>Dependabot 구성; Snyk/별도 CVE DB 통합 없음</td>
+</tr>
+<tr>
+<td>입력 검증</td>
+<td>✅ 중앙화</td>
+<td>config.py sanitize_name(), query_sanitizer.py</td>
+</tr>
+<tr>
+<td>프롬프트 인젝션 방어</td>
+<td>✅ 구현됨</td>
+<td>query_sanitizer.py 모듈</td>
+</tr>
+<tr>
+<td>텔레메트리 차단</td>
+<td>🟡 명시적 문서화 필요</td>
+<td>chromadb posthog 전이 의존성 처리 불명확</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06 (v3.4.0 현재) — 활발한 개발 중</td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>높음: v3.3.2~v3.3.6 약 5주간 5개 마이너 릴리스, 릴리스당 평균 10~48개 변경사항</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>확인된 기여자: Igor Lins e Silva 1인 (shallow clone 한계로 정확한 전체 카운트 미확인)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>v3.3.6 (2026-05-24); v3.4.0 (분석 기준일 전후 최신)</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>GitHub 원격 조회 미수행 (분석 대상은 로컬 클론)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주의</strong>: 코드베이스의 다국어 번역(13개 언어), RFC 문서화, 벤치마크 스위트 등의 규모는 개인 개발자 수준을 크게 상회한다. 그러나 확인된 커밋 기여자 수가 매우 적어(shallow clone 제약), <strong>버스 팩터(bus factor)가 1에 가까울 가능성</strong>이 있다. 이는 엔터프라이즈 도입의 주요 위험 요인이다.</p>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>존재 여부</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재</td>
+<td>상세한 기여 가이드, Conventional Commits, pre-commit 훅</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ 부재</td>
+<td>확인 불가 — 파일 부재</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재</td>
+<td>GitHub Private Vulnerability Reporting 연동</td>
+</tr>
+<tr>
+<td>CODEOWNERS</td>
+<td>✅ 존재</td>
+<td><code>.github/CODEOWNERS</code> 확인</td>
+</tr>
+<tr>
+<td>PR 리뷰 프로세스</td>
+<td>✅ 구성됨</td>
+<td><code>.github/PULL_REQUEST_TEMPLATE.md</code> 존재</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>🔵 RFC 형태</td>
+<td><code>docs/</code> 내 RFC 001(스토리지 백엔드), RFC 002(소스 어댑터) 존재</td>
+</tr>
+<tr>
+<td>브랜치 전략</td>
+<td>🔵 main + develop</td>
+<td>CI가 main/develop 브랜치 보호</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<p><strong>기업 스폰서십</strong>: CNCF/ASF 멤버십 확인 불가; 독립 오픈소스 프로젝트로 보임</p>
+<p><strong>긍정적 신호</strong>:
+- PyPI OIDC Trusted Publishing 적용 (프로덕션급 릴리스 파이프라인)
+- Docker 이미지 CPU/GPU 변종 제공
+- VitePress 문서 사이트 (<code>mempalaceofficial.com</code>)
+- <code>.agents/plugins/</code> — 에이전트 플러그인 마켓플레이스 설정 존재
+- Discord 커뮤니티 참조 확인
+- 13개 언어 번역 (Belarusian, Hindi, Indonesian, Italian 포함 — 광범위한 커뮤니티 기여 시사)</p>
+<p><strong>우려 신호</strong>:
+- MISSION.md의 작성자 "Milla Jovovich"와 커밋 기여자 "Igor Lins e Silva" — 동일인 또는 소규모 팀으로 보이나 명확한 법인 구조 없음
+- LTS(장기 지원) 버전 정책 문서화 없음
+- 기업 스폰서 또는 외부 투자 정보 부재</p>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p><strong>멀티 테넌시 / Multi-tenancy</strong>:
+- <code>PalaceRef(id, local_path, namespace)</code> — 백엔드 추상화 레벨에서 네임스페이스 기반 테넌트 격리 설계됨 (RFC 001)
+- pgvector/qdrant 백엔드는 서버 모드 백엔드로 네임스페이스 격리 지원
+- ChromaDB 기본 백엔드는 단일 사용자 파일 기반 — 멀티 테넌시 비적합</p>
+<p><strong>컨테이너화 / Containerization</strong>:
+- Dockerfile: 멀티스테이지 빌드, <code>uv</code> 기반 재현 가능 빌드, CPU/GPU 변종 지원 ✅
+- <code>.devcontainer/</code> 개발 컨테이너 구성 ✅
+- Kubernetes 매니페스트: 확인 불가 — 파일 부재
+- 헬스 체크 / Health check: 명시적 HTTP 헬스체크 엔드포인트 없음 (CLI/MCP 전용 서비스라 HTTP 서버 없음)</p>
+<p><strong>메트릭 및 관측성 / Observability</strong>:
+- Prometheus 메트릭 노출: 없음
+- 구조화된 로깅: <code>_init_logging()</code> 파일 핸들러 지원, stderr 기반 — 완전한 구조화 로깅(JSON 포맷)은 미확인
+- 분산 추적: 없음</p>
+<p><strong>12-Factor 앱 준수도 / 12-Factor App Compliance</strong>:
+- Config via env vars: ✅ (<code>MEMPALACE_LOG_FILE</code>, <code>CHROMA_*</code>, backend 환경변수)
+- Stateless processes: 🔵 부분적 — palace 데이터는 로컬 파일시스템에 저장 (Factor VI: Processes 완전 준수 어려움)
+- Dev/prod parity: ✅ Docker + uv lockfile
+- Logs as event streams: 🔵 부분적 — stderr 출력 있으나 구조화 안 됨</p>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>상세</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 / Unit tests</td>
+<td>✅</td>
+<td>125개 테스트 파일, 각 모듈 커버리지</td>
+</tr>
+<tr>
+<td>통합 테스트 / Integration tests</td>
+<td>✅</td>
+<td><code>test_corpus_origin_integration.py</code>, <code>_backend_conformance.py</code></td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td>🔵 부분적</td>
+<td>MCP 서버 테스트(<code>test_mcp_server.py</code>), CLI 테스트</td>
+</tr>
+<tr>
+<td>성능 벤치마크</td>
+<td>✅</td>
+<td><code>benchmarks/</code> — recall threshold, ChromaDB stress, search bench 등</td>
+</tr>
+<tr>
+<td>커버리지 임계값</td>
+<td>✅</td>
+<td>85% (Linux/macOS), 80% (Windows) — <code>--cov-fail-under</code> 적용</td>
+</tr>
+<tr>
+<td>CI 자동화</td>
+<td>✅</td>
+<td>GitHub Actions — 3개 OS × 3개 Python 버전 매트릭스</td>
+</tr>
+<tr>
+<td>정적 분석</td>
+<td>✅</td>
+<td>ruff (E/F/W/C901) — CI에서 강제</td>
+</tr>
+<tr>
+<td>타입 체킹</td>
+<td>🔵 부분적</td>
+<td>mypy (dev 의존성) — CI 강제 여부 미확인</td>
+</tr>
+</tbody>
+</table>
+<p><strong>벤치마크 주목 수치</strong>:
+- LongMemEval: 96.6% R@5 (raw), 98.4% (hybrid held-out 450q), ≥99% with LLM rerank</p>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p>Strong Copyleft (GPL/AGPL) 의존성 없음 — 분리 검토 불필요 ✅</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance-details">5.4 12-Factor App 준수도 상세 / 12-Factor App Compliance Details</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I. Codebase</td>
+<td>✅</td>
+<td>Git 단일 저장소, main/develop 브랜치 전략</td>
+</tr>
+<tr>
+<td>II. Dependencies</td>
+<td>✅</td>
+<td>pyproject.toml + uv.lock 재현 가능 빌드</td>
+</tr>
+<tr>
+<td>III. Config</td>
+<td>✅</td>
+<td>환경 변수 우선 설정 시스템</td>
+</tr>
+<tr>
+<td>IV. Backing services</td>
+<td>✅</td>
+<td>플러그인 백엔드 (chroma/pgvector/qdrant)</td>
+</tr>
+<tr>
+<td>V. Build, release, run</td>
+<td>✅</td>
+<td>OIDC Trusted Publishing, Docker multi-stage</td>
+</tr>
+<tr>
+<td>VI. Processes</td>
+<td>🟡</td>
+<td>로컬 파일 시스템 의존 — 수평 확장 시 공유 스토리지 필요</td>
+</tr>
+<tr>
+<td>VII. Port binding</td>
+<td>N/A</td>
+<td>MCP는 stdio; CLI는 포트 바인딩 없음</td>
+</tr>
+<tr>
+<td>VIII. Concurrency</td>
+<td>🔵</td>
+<td>멀티 프로세스 미지원; 스레드 안전성 일부 확인 (<code>test_kg_thread_safety.py</code>)</td>
+</tr>
+<tr>
+<td>IX. Disposability</td>
+<td>🔵</td>
+<td>Hook kill-switch 문서화 (<code>rm -rf ~/.mempalace</code>)</td>
+</tr>
+<tr>
+<td>X. Dev/prod parity</td>
+<td>✅</td>
+<td>Docker + CI 매트릭스</td>
+</tr>
+<tr>
+<td>XI. Logs</td>
+<td>🔵</td>
+<td>stderr 출력; JSON 구조화 로깅 미적용</td>
+</tr>
+<tr>
+<td>XII. Admin processes</td>
+<td>✅</td>
+<td><code>mempalace repair</code>, <code>mempalace sweep</code> 관리 CLI</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분적</td>
+<td>pyproject.toml에 의존성 라이선스 명시; NOTICE/SBOM 부재</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>🔴 미확인</td>
+<td>FOSS 라이선스 스캐너(FOSSology, REUSE 등) 연동 증거 없음</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🟡 부분적</td>
+<td>LGPL 의존성(psycopg) 선택적 분리로 위험 최소화</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🔴 미확인</td>
+<td>OSPO 또는 라이선스 검토 프로세스 문서화 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🟡 부분적</td>
+<td>MIT 라이선스 포함; NOTICE 파일·THIRD_PARTY_LICENSES 부재</td>
+</tr>
+</tbody>
+</table>
+<p><strong>OpenChain 전체 적합성</strong>: 현재 미충족. 엔터프라이즈 도입 시 NOTICE 파일 생성, SBOM 자동화, CI 라이선스 게이트 추가 필요</p>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권 / Trademark</strong>:
+- "MemPalace" 브랜드에 대한 상업적 제한 사항 명시 없음
+- MISSION.md에서 개인 프로젝트 배경 설명 — 기업 상표 등록 여부 불명확
+- 상업 제품에 "MemPalace" 명칭 사용 전 상표 현황 확인 권장</p>
+<p><strong>특허 / Patent</strong>:
+- <strong>MIT 라이선스: 특허 허여 조항 없음</strong> — Apache 2.0과 달리 기여자의 특허 실시권이 명시적으로 허여되지 않음
+- chromadb(Apache 2.0), huggingface_hub(Apache 2.0)은 명시적 특허 허여 포함
+- 의존성의 특허 허여는 해당 라이선스 범위에 한정됨</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p>AGPL 및 GPL 의존성이 <strong>전혀 없음</strong> — 전파 위험 없음 ✅</p>
+<p>유일한 Copyleft 의존성인 psycopg3(LGPL-3.0)는:
+- 선택적 의존성 (pgvector 백엔드 전용)
+- 동적 링크(Python import) 방식 사용
+- 라이브러리 수정 없이 사용 시 LGPL 전파 없음</p>
+<p><strong>결론</strong>: 라이선스 전파 위험 없음. 가장 낮은 라이선스 위험 프로파일.</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>MIT 코어 + 전체 의존성 Permissive. AGPL/GPL 없음. psycopg LGPL은 선택적·동적 링크</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🔵 Review</td>
+<td>SECURITY.md + Dependabot 존재. SBOM 없음. posthog 전이 텔레메트리 문서화 필요</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟡 Caution</td>
+<td>활발한 릴리스 주기. 단, 확인된 주요 기여자 수 극소 — 버스 팩터 위험. CODE_OF_CONDUCT 부재</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟡 Caution</td>
+<td>Dockerfile·CI·벤치마크 양호. K8s 매니페스트·헬스체크·Prometheus 메트릭 부재</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🔵 Review</td>
+<td>플러그인 백엔드·RFC 설계 우수. ChromaDB 기본은 멀티 테넌시 불리. 수평 확장 제한적</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>NOTICE·SBOM·라이선스 스캔 CI 게이트 미비. OpenChain 미충족</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>라이선스 클린</strong>: MIT 코어 + 전 의존성 Permissive. AGPL/GPL 전혀 없음. 상용화 법적 위험 최소</li>
+<li><strong>100% 로컬 아키텍처</strong>: 외부 API 없는 프라이버시-바이-설계. 엔터프라이즈 데이터 거버넌스 요구사항 충족 용이</li>
+<li><strong>플러그인 백엔드 아키텍처 (RFC 001)</strong>: ChromaDB/pgvector/qdrant/sqlite_exact 교체 가능. 엔터프라이즈 인프라 연동 용이</li>
+<li><strong>높은 테스트 품질</strong>: 125개 테스트 파일, 85% 커버리지 임계값, 3 OS × 3 Python 버전 CI 매트릭스, 전용 벤치마크 스위트</li>
+<li><strong>검증된 성능 지표</strong>: LongMemEval 96.6–99%+ recall — 경쟁 제품 대비 차별화된 정량적 근거</li>
+<li><strong>프로덕션급 릴리스 파이프라인</strong>: PyPI OIDC Trusted Publishing, 버전 무결성 검증, Docker 멀티스테이지 빌드</li>
+<li><strong>다국어 지원</strong>: 13개 언어 UI + embeddinggemma-300m(100+ 언어 임베딩 기본) — 글로벌 시장 진입 장벽 낮음</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>버스 팩터 위험</strong>: 확인된 기여자가 사실상 1인 또는 극소수. 상용화 파트너십 또는 멀티 컨트리뷰터 전략 없이는 장기 지속 가능성 우려</li>
+<li><strong>NOTICE·SBOM 부재</strong>: OpenChain 컴플라이언스 미충족. 엔터프라이즈 고객 공급망 감사(supply chain audit) 대응 불가. NOTICE 파일 생성 및 CycloneDX SBOM 자동화 CI 통합 필요</li>
+<li><strong>Python 3.9 EOL 지원</strong>: CPython 3.9 공식 지원 종료(2025-10-05 이후). 보안 업데이트 없는 런타임에서 사용 권장 지속 시 엔터프라이즈 보안 정책 위반 가능</li>
+<li><strong>chromadb posthog 전이 텔레메트리</strong>: 기본 설치 시 posthog 원격 분석 라이브러리가 포함됨. 엔터프라이즈 데이터 격리 요구사항 위반 가능. chromadb 텔레메트리 비활성화 공식 문서화 필요</li>
+<li><strong>운영 관측성 부재</strong>: Prometheus 메트릭·구조화 로깅·K8s readiness probe 없음. SRE 팀의 엔터프라이즈 프로덕션 모니터링 통합 시 추가 개발 부담</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 Review</p>
+<p><strong>상세 판정 근거</strong>:</p>
+<p>MemPalace는 상용화에 있어 <strong>법적 라이선스 위험이 매우 낮은</strong> 프로젝트이다. MIT 라이선스와 전적으로 Permissive한 의존성 구성은 소스 비공개 상용 제품 내 포함, SaaS 배포, 재판매 등 모든 상업 시나리오에서 법적 장애물이 없다. 기술적으로는 플러그인 백엔드 아키텍처(RFC 001), 하이브리드 검색, 지식 그래프, 다국어 지원 등 엔터프라이즈 수준의 설계를 갖추고 있다.</p>
+<p>그러나 <strong>조건부 채택(Review)</strong>으로 분류하는 이유는 다음과 같다:</p>
+<ul>
+<li><strong>커뮤니티 버스 팩터</strong>: 장기 유지 관리 지속 여부에 대한 확신을 얻기 전, 기여자 분포 및 조직 구조 실사(due diligence)가 선행되어야 한다</li>
+<li><strong>NOTICE·SBOM 미비</strong>: 엔터프라이즈 공급망 감사 대응을 위한 최소 컴플라이언스 문서가 없음. 도입 전 이 파일들을 프로젝트에 기여하거나 내부적으로 생성해야 한다</li>
+<li><strong>posthog 전이 텔레메트리</strong>: 데이터 격리 요구가 엄격한 환경에서는 chromadb 텔레메트리 비활성화 절차를 배포 표준에 명시해야 한다</li>
+<li><strong>운영 관측성 격차</strong>: 대규모 엔터프라이즈 배포(K8s)를 위해서는 헬스체크 엔드포인트와 메트릭 노출 레이어를 추가해야 한다</li>
+</ul>
+<p>이러한 조건들은 모두 기술적으로 해결 가능하며, 라이선스 구조 자체의 위험은 없다. 소규모 팀 또는 인터널 배포 시나리오에서는 <strong>즉시 도입 가능</strong>, 엔터프라이즈 외부 배포 시나리오에서는 <strong>30~90일 내 조건부 도입 가능</strong>으로 판단한다.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>✅ Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>✅ 완료 — MIT + Permissive only</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 소스 공개 의무 여부 확인</td>
+<td>✅ 없음 (psycopg LGPL 선택적·동적)</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 라이선스 호환성 충돌 없음</td>
+<td>✅ 충돌 없음</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>⬜ 저작권 문구 포함</td>
+<td>⬜ MIT 고지 배포 절차 정의 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 고지문 배포 위치 정의</td>
+<td>⬜ NOTICE 파일 부재 — 신규 생성 필요</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>✅ Strong Copyleft 사용 시 공개 범위 정의</td>
+<td>✅ N/A — Strong Copyleft 없음</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>✅ CVE 모니터링 체계 수립</td>
+<td>🔵 Dependabot 구성; 추가 Snyk 통합 권장</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 중고위험 취약점 패치 계획</td>
+<td>⬜ SBOM 기반 취약점 추적 체계 없음</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>🔵 유지보수 활성도·커밋 주기 확인</td>
+<td>🔵 활발하나 버스 팩터 실사 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 기업 스폰서/컨설팅 존재 확인</td>
+<td>⬜ 명시적 기업 스폰서 없음</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>⬜ 라이선스 검사 자동화</td>
+<td>⬜ FOSSology/REUSE CI 게이트 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 오픈소스 BOM 자동 생성</td>
+<td>⬜ CycloneDX/SPDX 자동화 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 위반 라이선스 빌드 차단</td>
+<td>⬜ License gate 없음</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>⬜ 고객 계약서에 라이선스 의무 명시</td>
+<td>⬜ MIT 저작권 고지 의무 계약 반영 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 외부 감사 대비 문서 구비</td>
+<td>⬜ NOTICE, BOM, OpenChain 보고서 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li><strong>chromadb 텔레메트리 비활성화 공식 문서화</strong>: <code>CHROMA_TELEMETRY=false</code> (또는 동등 설정)를 Docker 이미지 기본값 및 설치 가이드에 명시. 데이터 격리 요구가 있는 환경에서 즉각 적용 필요</li>
+<li><strong>Python 3.9 EOL 마이그레이션 계획 수립</strong>: CI에서 Python 3.9 최소 지원 버전을 3.10으로 상향 일정 공지. EOL 런타임 배포 방지를 위한 deprecation notice 발행</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li><strong>NOTICE 파일 생성</strong>: MIT 저작권 고지, Apache 2.0 의존성(chromadb, huggingface_hub, tokenizers) 원저작자 고지, psycopg3 LGPL 고지를 포함한 NOTICE 파일 작성 및 PyPI 배포 패키지·Docker 이미지에 포함</li>
+<li><strong>CODE_OF_CONDUCT.md 추가</strong>: Contributor Covenant 채택으로 커뮤니티 거버넌스 완성. 엔터프라이즈 고객이 의존성으로 포함 시 공급망 정책 검토에서 긍정 신호</li>
+<li><strong>기여자 다양성 확대</strong>: 핵심 유지 관리자 최소 2인 이상 확보 계획 수립. GitHub Sponsors 또는 기업 후원 모델 검토</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li><strong>CycloneDX SBOM 자동 생성 CI 통합</strong>: <code>cyclonedx-bom</code> 또는 <code>syft</code> 를 publish.yml에 추가하여 PyPI/Docker 릴리스와 함께 SBOM 아티팩트 자동 첨부. 엔터프라이즈 공급망 감사 대응 핵심</li>
+<li><strong>라이선스 검사 CI 게이트 추가</strong>: <code>pip-licenses</code> 또는 <code>REUSE</code> 를 CI에 통합하여 Copyleft 라이선스 신규 의존성 추가 시 빌드 차단</li>
+<li><strong>Prometheus 메트릭·구조화 로깅 레이어 추가</strong>: MCP 서버에 선택적 HTTP 엔드포인트(<code>/metrics</code>, <code>/health</code>) 추가. K8s readiness/liveness probe 지원으로 엔터프라이즈 배포 적합성 향상</li>
+<li><strong>LTS 버전 정책 문서화</strong>: 장기 지원 버전 주기(예: 연 1회 LTS) 공표. 엔터프라이즈 업그레이드 계획 수립을 위한 안정성 신호</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li><strong>OpenChain ISO 5230 자체 평가</strong>: 분기별 OpenChain 컴플라이언스 자체 점검 및 개선 추적</li>
+<li><strong>벤치마크 결과 투명성 유지</strong>: LongMemEval 결과를 지속 업데이트하고 독립 재현 방법을 문서화. 경쟁 제품 대비 차별화의 핵심 마케팅 자산</li>
+<li><strong>커뮤니티 기여 프로그램</strong>: RFC 제안·구현에 외부 기여자 적극 참여 유도. 버스 팩터 장기적 해소 및 생태계 확장</li>
+</ol></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><hr />
+<h2 id="generation-complete-report">생성 완료 보고 / Generation Complete Report</h2>
+<p><strong>[한국어]</strong></p>
+<h3 id="_1">생성된 파일 목록</h3>
+<table>
+<thead>
+<tr>
+<th>파일 경로</th>
+<th>크기</th>
+<th>모드</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>35KB</td>
+<td>단일 프로젝트</td>
+</tr>
+<tr>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>34KB</td>
+<td>단일 프로젝트</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">각 섹션 작성 방법</h3>
+<p><strong>GUIDE4Junior.md</strong> — 9개 섹션 모두 프로젝트 실제 소스에서 도출:
+- §1 (프로젝트 개요): <code>README.md</code>, <code>pyproject.toml</code>, <code>CLAUDE.md</code>에서 직접 추출
+- §2 (요구사항): <code>pyproject.toml</code> <code>requires-python</code>, CI 매트릭스(<code>.github/workflows/ci.yml</code>)
+- §3 (환경 구성): <code>CLAUDE.md</code> 명령어, <code>pyproject.toml</code> extras, <code>CONTRIBUTING.md</code>
+- §4 (소스 구조): 실제 디렉토리 탐색 + 핵심 모듈 분석
+- §5 (빌드): <code>pyproject.toml</code> 빌드 백엔드, Ruff 설정
+- §6 (실행): CLI 진입점, MCP 서버, <code>docker-compose.yml</code>
+- §7 (테스트): <code>conftest.py</code> 격리 전략, pytest 마커, CI 커버리지 기준
+- §8 (기여): <code>CONTRIBUTING.md</code>, Conventional Commits 관례
+- §9 (FAQ): <code>mcp_server.py</code> 이슈 #225 주석, <code>conftest.py</code> HOME 리다이렉션, 실제 OS별 주의사항</p>
+<p><strong>GUIDE4ImpMethod.md</strong> — 8개 섹션:
+- §2 (아키텍처): Mermaid 다이어그램은 실제 모듈 의존성에서 도출
+- §3 (시나리오): <code>README.md</code>, <code>examples/</code>, <code>hooks/README.md</code>에서 도출
+- §5 (배포): <code>Dockerfile</code>, <code>docker-compose.yml</code>, <code>.github/workflows/publish.yml</code>에서 도출
+- §6 (성능): <code>CLAUDE.md</code> 성능 예산, <code>README.md</code> 벤치마크 수치
+- §7 (보안): <code>SECURITY.md</code>, <code>config.py</code>, <code>mcp_server.py</code> 이슈 #225
+- §8 (참고 자료): 경쟁 프로젝트 비교 표는 일반 지식 기반 (공식 문서 참조 권장 표시)</p>
+<p><strong>웹 검색 의존 섹션:</strong> §8의 경쟁 프로젝트 비교 표는 훈련 데이터 기반 (mem0, Zep, Graphiti, LangChain Memory, MemGPT). 최신 상태 확인 권장.</p>
+<p><strong>해당 없음으로 표시된 섹션:</strong> 없음 — 모든 섹션이 프로젝트에 적용됨.</p>
+<hr />
+<p><strong>[English]</strong></p>
+<h3 id="generated-files">Generated files</h3>
+<table>
+<thead>
+<tr>
+<th>File path</th>
+<th>Size</th>
+<th>Mode</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>35KB</td>
+<td>Single project</td>
+</tr>
+<tr>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>34KB</td>
+<td>Single project</td>
+</tr>
+</tbody>
+</table>
+<h3 id="how-each-section-was-sourced">How each section was sourced</h3>
+<p><strong>GUIDE4Junior.md</strong> — all 9 sections derived from actual project sources:
+- §1 (Overview): directly extracted from <code>README.md</code>, <code>pyproject.toml</code>, <code>CLAUDE.md</code>
+- §2 (Prerequisites): <code>pyproject.toml</code> <code>requires-python</code>, CI matrix (<code>.github/workflows/ci.yml</code>)
+- §3 (Setup): <code>CLAUDE.md</code> commands, <code>pyproject.toml</code> extras, <code>CONTRIBUTING.md</code>
+- §4 (Source structure): actual directory exploration + core module analysis
+- §5 (Build): <code>pyproject.toml</code> build backend, Ruff configuration
+- §6 (Running): CLI entry points, MCP server, <code>docker-compose.yml</code>
+- §7 (Tests): <code>conftest.py</code> isolation strategy, pytest markers, CI coverage thresholds
+- §8 (Contributing): <code>CONTRIBUTING.md</code>, Conventional Commits conventions
+- §9 (FAQ): <code>mcp_server.py</code> issue #225 comment, <code>conftest.py</code> HOME redirection, real OS-specific notes</p>
+<p><strong>GUIDE4ImpMethod.md</strong> — all 8 sections:
+- §2 (Architecture): Mermaid diagram derived from actual module dependencies
+- §3 (Scenarios): sourced from <code>README.md</code>, <code>examples/</code>, <code>hooks/README.md</code>
+- §5 (Deployment): sourced from <code>Dockerfile</code>, <code>docker-compose.yml</code>, <code>.github/workflows/publish.yml</code>
+- §6 (Performance): <code>CLAUDE.md</code> performance budgets, <code>README.md</code> benchmark figures
+- §7 (Security): <code>SECURITY.md</code>, <code>config.py</code>, <code>mcp_server.py</code> issue #225
+- §8 (References): competitor comparison table based on general knowledge — verify against current official docs</p>
+<p><strong>Sections relying on web search / general knowledge:</strong> §8 competitor comparison (mem0, Zep, Graphiti, LangChain Memory, MemGPT). Current state should be verified against each project's official documentation.</p>
+<p><strong>Sections marked not applicable:</strong> None — all sections apply to this project.</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>MemPalace/mempalace</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/MemPalace/mempalace" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
