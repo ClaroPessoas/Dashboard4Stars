@@ -1,0 +1,2693 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>microsoft/markitdown - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/microsoft/markitdown" target="_blank" rel="noopener">microsoft/markitdown</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Python tool for converting files and office documents to Markdown.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">weekly trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 145122</span>
+      <span class="badge badge-stars">+17,165 stars this week</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>Now I have all the information needed. Let me compile the comprehensive report.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-06
+대상 / Target: <code>/tmp/github-dashboard-analysis/microsoft_markitdown</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<ul>
+<li><strong>해결하는 문제 / Problem solved</strong>: 다양한 파일 형식(PDF, DOCX, PPTX, XLSX, 이미지, 오디오, HTML 등)을 LLM 파이프라인에 적합한 Markdown으로 변환하는 경량 Python 유틸리티. LLM이 Markdown을 네이티브로 이해하므로 토큰 효율성과 구조 보존 측면에서 최적화된 변환 도구.</li>
+<li><strong>Problem solved</strong>: A lightweight Python utility that converts various file formats (PDF, DOCX, PPTX, XLSX, images, audio, HTML, etc.) into Markdown optimized for LLM text analysis pipelines. Markdown is token-efficient and natively understood by mainstream LLMs.</li>
+<li><strong>분류 / Classification</strong>: Library + Tool + Plugin Platform</li>
+<li><strong>개발 주체 / Developer</strong>: Microsoft AutoGen Team (Adam Fourney, adamfo@microsoft.com)</li>
+<li><strong>현재 버전 / Current Version</strong>: 0.1.6 (Beta — Development Status :: 4)</li>
+<li><strong>최신 커밋 / Latest Commit</strong>: 2026-05-27 (<code>e144e0a</code>, PR #1914)</li>
+</ul>
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Python ≥3.10 (CPython 3.10/3.11/3.12/3.13, PyPy 지원)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>없음 (독립 라이브러리). 빌드: hatchling</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>없음 (파일 I/O 전용 — stateless 변환 라이브러리)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>HTTP (requests), MCP (STDIO/HTTP/SSE via <code>markitdown-mcp</code>), Azure REST APIs</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Python 패키지 (PyPI), Docker 컨테이너, MCP 서버, CLI</td>
+</tr>
+<tr>
+<td>핵심 의존성 / Core Deps</td>
+<td>beautifulsoup4, requests, markdownify, magika, charset-normalizer, defusedxml</td>
+</tr>
+<tr>
+<td>LLM 통합 / LLM Integration</td>
+<td>OpenAI 호환 API (Vision), Azure Document Intelligence, Azure Content Understanding</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌────────────────────────────────────────────────────────────────────┐
+│                  MarkItDown 아키텍처 / Architecture                │
+├─────────────────────────┬──────────────────────────────────────────┤
+│   입력 계층 / Input      │  파일·URL·스트림·HTTP 응답 (다형적 입력)   │
+├─────────────────────────┼──────────────────────────────────────────┤
+│   디스패치 / Dispatch    │  MarkItDown (Core)                       │
+│                         │  ├─ 파일 유형 감지 (magika)               │
+│                         │  ├─ 우선순위 기반 Converter 선택           │
+│                         │  └─ 플러그인 디스커버리 (entry_points)    │
+├─────────────────────────┼──────────────────────────────────────────┤
+│   변환 계층 / Converters │  내장 24종 + 외부 플러그인 (무제한)       │
+│                         │  ├─ 문서: PDF, DOCX, PPTX, XLSX, EPUB   │
+│                         │  ├─ 웹: HTML, YouTube, Wikipedia, RSS    │
+│                         │  ├─ 미디어: Image, Audio                 │
+│                         │  ├─ 데이터: CSV, JSON, XML, Jupyter      │
+│                         │  └─ Azure: DocIntelligence, ContentUnder │
+├─────────────────────────┼──────────────────────────────────────────┤
+│   출력 / Output          │  DocumentConverterResult (Markdown 텍스트 + 제목) │
+├─────────────────────────┴──────────────────────────────────────────┤
+│   노출 계층 / Exposure   │  Python API · CLI · MCP Server (SSE/HTTP/STDIO) │
+└────────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>패키지 구조 / Package Structure:</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지</th>
+<th>역할</th>
+<th>라이선스</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>markitdown</code></td>
+<td>핵심 변환 라이브러리 + CLI</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><code>markitdown-ocr</code></td>
+<td>LLM Vision OCR 플러그인 (⚠️ PyMuPDF 포함)</td>
+<td>MIT (but AGPL dep)</td>
+</tr>
+<tr>
+<td><code>markitdown-mcp</code></td>
+<td>MCP 서버 래퍼</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td><code>markitdown-sample-plugin</code></td>
+<td>플러그인 개발 템플릿 (RTF 예제)</td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>microsoft_markitdown/
+├── LICENSE                          # MIT (Microsoft Corporation)
+├── SECURITY.md                      # Microsoft MSRC CVD 정책
+├── CODE_OF_CONDUCT.md               # Microsoft OSS 행동 강령
+├── SUPPORT.md                       # (미완성 — 플레이스홀더)
+├── README.md                        # 전체 문서
+├── Dockerfile                       # python:3.13-slim-bullseye + ffmpeg/exiftool
+├── .github/
+│   ├── workflows/
+│   │   ├── tests.yml                # PR 시 Python 3.10/3.11/3.12 테스트
+│   │   └── pre-commit.yml           # Black 포매터 검사
+│   └── dependabot.yml               # GitHub Actions 주간 업데이트 (Python 패키지 제외)
+├── packages/
+│   ├── markitdown/
+│   │   ├── pyproject.toml           # 빌드 설정 + 의존성
+│   │   ├── ThirdPartyNotices.md     # dwml (Apache 2.0) 고지문
+│   │   ├── src/markitdown/
+│   │   │   ├── _markitdown.py       # 핵심 MarkItDown 클래스
+│   │   │   ├── _base_converter.py   # 추상 DocumentConverter
+│   │   │   ├── _exceptions.py       # 예외 계층
+│   │   │   ├── _stream_info.py      # StreamInfo 데이터클래스
+│   │   │   └── converters/ (24개)
+│   │   └── tests/ (11개 테스트 모듈)
+│   ├── markitdown-ocr/              # ⚠️ PyMuPDF (AGPL-3.0) 포함
+│   ├── markitdown-mcp/              # MCP 서버
+│   └── markitdown-sample-plugin/    # RTF 플러그인 예제
+└── .devcontainer/                   # VS Code 개발 컨테이너
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>라이선스 / License</strong>: MIT License
+<strong>저작권자 / Copyright</strong>: Microsoft Corporation
+<strong>파일 위치 / File</strong>: <code>/LICENSE</code></p>
+<p><strong>핵심 조건 / Key Terms:</strong>
+- 소스 비공개 상태로 상용 제품에 포함 허용 ✅
+- 저작권 고지문 유지 의무 (배포 시) ✅
+- 복사, 수정, 배포, 서브라이선스, 판매 모두 허용 ✅
+- 특허 부여 조항 없음 ⚠️ (MIT는 명시적 특허 허가 미포함)
+- 상표권 사용 제한 없음 (단, Microsoft 상표 정책 별도 적용)</p>
+<p><strong>내장 제3자 코드 / Embedded Third-Party Code:</strong>
+- <code>dwml</code> (Apache 2.0): <code>packages/markitdown/src/markitdown/converter_utils/docx/math/</code> — <code>ThirdPartyNotices.md</code>에 전문 수록, Apache 2.0과 MIT 간 호환성 문제 없음</p>
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<h4 id="markitdown-core-package-dependencies">핵심 패키지 (markitdown) / Core Package Dependencies</h4>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>beautifulsoup4</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>requests</td>
+<td>미고정</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>markdownify</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>magika</td>
+<td>~=0.6.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>charset-normalizer</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>defusedxml</td>
+<td>미고정</td>
+<td>PSF-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>python-pptx</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>mammoth</td>
+<td>~=1.11.0</td>
+<td>BSD-2-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pandas</td>
+<td>미고정</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>openpyxl</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>xlrd</td>
+<td>미고정</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>lxml</td>
+<td>미고정</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pdfminer.six</td>
+<td>&gt;=20251230</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pdfplumber</td>
+<td>&gt;=0.11.9</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>olefile</td>
+<td>미고정</td>
+<td>BSD-2-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pydub</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>SpeechRecognition</td>
+<td>미고정</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>youtube-transcript-api</td>
+<td>~=1.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢⚠️ (ToS 우려)</td>
+</tr>
+<tr>
+<td>azure-ai-documentintelligence</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>azure-ai-contentunderstanding</td>
+<td>&gt;=1.2.0b1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🔵 (Beta API)</td>
+</tr>
+<tr>
+<td>azure-identity</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>dwml (embedded)</td>
+<td>—</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<h4 id="markitdown-ocr-ocr-plugin-dependencies">markitdown-ocr 플러그인 / OCR Plugin Dependencies</h4>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>PyMuPDF</strong></td>
+<td><strong>&gt;=1.24.0</strong></td>
+<td><strong>AGPL-3.0</strong></td>
+<td><strong>Network Copyleft</strong></td>
+<td><strong>🔴 위험</strong></td>
+</tr>
+<tr>
+<td>Pillow</td>
+<td>&gt;=9.0.0</td>
+<td>HPND (MIT 호환)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>python-docx</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<h4 id="markitdown-mcp">markitdown-mcp 패키지</h4>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>mcp</td>
+<td>~=1.8.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<h4 id="markitdown-sample-plugin">markitdown-sample-plugin</h4>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>striprtf</td>
+<td>미고정</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD-2/3, ISC, PSF, HPND</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td><strong>AGPL-3.0 (PyMuPDF)</strong></td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지 / Commercialization prohibited</td>
+</tr>
+</tbody>
+</table>
+<p><strong>본 프로젝트의 라이선스 분포:</strong>
+- 핵심 패키지: 🟢 Permissive (100%)
+- OCR 플러그인: 🔴 AGPL-3.0 (PyMuPDF) 포함 → 상용 배포 시 별도 대응 필요</p>
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>✅ 호환성 충돌 없음 (핵심 패키지)</strong></p>
+<p>모든 핵심 의존성은 MIT, Apache 2.0, BSD 계열의 퍼미시브 라이선스로 상호 호환성 문제 없음. MIT + Apache 2.0 조합은 GPL-2.0과 달리 완전 호환.</p>
+<p><strong>🔴 중대 위험: PyMuPDF (AGPL-3.0)</strong></p>
+<p><code>markitdown-ocr</code> 플러그인이 <code>PyMuPDF</code>(AGPL-3.0)에 의존. AGPL-3.0의 핵심 조건:
+- <strong>네트워크 서비스 조항</strong>: SaaS 형태로 배포 시 전체 소스 공개 의무 발생
+- <strong>전파 범위</strong>: PyMuPDF가 동적으로 로드(import)되므로 사실상 전체 어플리케이션에 AGPL 전파 위험
+- <strong>상업적 우회 방법</strong>: Artifex(PyMuPDF 개발사)의 상용 라이선스 구매 (별도 비용 발생) 또는 플러그인 사용 중단</p>
+<p><strong>⚠️ YouTube Terms of Service 위험</strong></p>
+<p><code>youtube-transcript-api</code>는 YouTube 내부 API를 비공식적으로 스크래핑. 이는 YouTube 서비스 약관(Terms of Service) 위반 가능성 존재. 상업용 서비스에서 YouTube 변환 기능 사용 시 법적 위험 존재.</p>
+<p><strong>✅ Apache 2.0 특허 부여 조항</strong></p>
+<p><code>requests</code>, <code>magika</code>, <code>azure-*</code> 패키지는 Apache 2.0으로 명시적 특허 허가 포함. MIT 라이선스(프로젝트 자체, 다수 의존성)는 특허 허가 미포함.</p>
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] <strong>저작권 고지 포함 방법</strong>: <code>packages/markitdown/ThirdPartyNotices.md</code>에 dwml Apache 2.0 전문 수록. 배포 패키지에 LICENSE 파일 포함됨</li>
+<li>[x] <strong>NOTICE/고지문 배포 위치</strong>: PyPI 배포 시 ThirdPartyNotices.md가 sdist에 포함되어야 함 (현재 <code>only-include = ["src/markitdown"]</code> 설정으로 미포함 가능 — 확인 필요)</li>
+<li>[ ] <strong>소스 공개 의무</strong>: markitdown-ocr 플러그인 사용 시 AGPL-3.0에 따른 소스 공개 의무 별도 검토 필요</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<p><strong>SECURITY.md 존재: ✅ 완비</strong></p>
+<p>Microsoft 표준 MSRC(Microsoft Security Response Center) CVD(Coordinated Vulnerability Disclosure) 정책:
+- 보고 창구: <code>https://msrc.microsoft.com/create-report</code> 또는 <code>secure@microsoft.com</code>
+- 응답 시간: 24시간 이내
+- PGP 암호화 지원
+- Microsoft Bug Bounty 프로그램 연계</p>
+<p><strong>Dependabot 설정: ⚠️ 부분적</strong></p>
+<pre><code class="language-yaml"># .github/dependabot.yml
+package-ecosystem: &quot;github-actions&quot;  # GitHub Actions만 커버
+# Python 패키지 의존성 자동 업데이트 설정 없음 ← 갭
+</code></pre>
+<p><strong>Renovate / Snyk: ❌ 미설정</strong></p>
+<p>Python 패키지 취약점 자동 모니터링 체계 부재. CVE 발생 시 수동 대응에 의존.</p>
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<table>
+<thead>
+<tr>
+<th>위험 요소</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>하드코딩된 시크릿</td>
+<td>✅ 없음</td>
+<td>API 키는 런타임 주입 방식</td>
+</tr>
+<tr>
+<td>.env 커밋</td>
+<td>✅ 없음</td>
+<td>.gitignore 적절히 설정</td>
+</tr>
+<tr>
+<td>EOL 의존성</td>
+<td>⚠️ 주의</td>
+<td>azure-ai-contentunderstanding &gt;=1.2.0b1 (베타)</td>
+</tr>
+<tr>
+<td>의존성 버전 고정</td>
+<td>⚠️ 미흡</td>
+<td>대다수 의존성에 최소 버전만 지정, 상한 없음</td>
+</tr>
+<tr>
+<td>Python 2.x 레거시 코드</td>
+<td>✅ 없음</td>
+<td>Python 3.10+ 전용</td>
+</tr>
+<tr>
+<td>defusedxml 사용</td>
+<td>✅ 양호</td>
+<td>XML 파싱에 defusedxml 사용 (XXE 방지)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>파일 I/O 보안 경고 (README에 명시됨):</strong></p>
+<pre><code>MarkItDown performs I/O with the privileges of the current process.
+Sanitize your inputs in untrusted environments.
+</code></pre>
+<p>프로젝트가 스스로 신뢰되지 않은 환경에서의 입력 검증 필요성을 명시한 것은 긍정적이나, 서버 환경에서 파일 변환 서비스로 사용 시 경로 순회(path traversal), SSRF 등에 대한 추가 방어 계층이 필요.</p>
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>인증/인가</td>
+<td>해당 없음</td>
+<td>라이브러리 — 호출 측 책임</td>
+</tr>
+<tr>
+<td>시크릿 관리</td>
+<td>런타임 주입</td>
+<td>LLM API 키, Azure credentials</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>❌ 미생성</td>
+<td>CycloneDX/SPDX 파일 부재</td>
+</tr>
+<tr>
+<td>패키지 서명</td>
+<td>❌ 미확인</td>
+<td>PyPI 업로드 서명 설정 확인 불가</td>
+</tr>
+<tr>
+<td>XML 안전 파싱</td>
+<td>✅ defusedxml</td>
+<td>XXE 공격 방지</td>
+</tr>
+<tr>
+<td>의존성 감사</td>
+<td>⚠️ 미흡</td>
+<td>Python pip audit 미자동화</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-05-27 (e144e0a — v0.1.6 릴리스)</td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>PR #1914 기준으로 매우 활발 (약 1,914건 이상의 PR 처리)</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>Microsoft AutoGen Team 주도, 다수 외부 기여자 (PR 수 기준 추정)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>v0.1.6 (2026-05-27)</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>직접 확인 불가 (GitHub 온라인 접근 필요)</td>
+</tr>
+<tr>
+<td>PyPI 다운로드 / PyPI downloads</td>
+<td>뱃지 기준 활발한 일별 다운로드</td>
+</tr>
+</tbody>
+</table>
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>❌ 확인 불가 — 파일 부재 (루트 레벨에 없음)</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>✅ 존재 — Microsoft Open Source Code of Conduct</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재 — Microsoft MSRC CVD 정책</td>
+</tr>
+<tr>
+<td>SUPPORT.md</td>
+<td>⚠️ 플레이스홀더 — 미완성</td>
+</tr>
+<tr>
+<td>CHANGELOG / RELEASES</td>
+<td>❌ 확인 불가 — 별도 CHANGELOG 파일 부재</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 부재</td>
+</tr>
+<tr>
+<td>브랜치 전략</td>
+<td>main 단일 브랜치 + PR 기반</td>
+</tr>
+</tbody>
+</table>
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<p><strong>🏢 Microsoft AutoGen Team 공식 후원</strong></p>
+<ul>
+<li>Microsoft Azure AI 에코시스템의 핵심 유틸리티 위치</li>
+<li>AutoGen 프레임워크와 연계 (문서 수집 → LLM 처리 파이프라인)</li>
+<li>Azure Document Intelligence, Azure Content Understanding 공식 통합 존재</li>
+<li>40,000+ GitHub Stars (대중적 인지도 매우 높음)</li>
+</ul>
+<p><strong>⚠️ 리스크 요소:</strong>
+- CONTRIBUTING.md 부재 — 외부 기여 프로세스 불투명
+- SUPPORT.md 미완성 — 기업 지원 채널 미정의
+- CNCF/ASF 등 중립 재단 참여 없음 (Microsoft 단독 통제)
+- Beta 상태 (v0.1.x) — SemVer 1.0.0 미달성, API 안정성 보장 없음
+- LTS 버전 정책 없음</p>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p><strong>확장성 / Scalability:</strong>
+- <strong>라이브러리 특성</strong>: 상태 없음(Stateless), 수평 확장 가능 — 각 변환 요청은 독립적
+- <strong>멀티테넌시</strong>: 라이브러리 레벨에서 기본 지원 (호출 측에서 격리 구현 필요)
+- <strong>12-Factor App 준수</strong>: Config 주입은 생성자 인수 방식 (<code>LLM API Key</code>, <code>Azure Endpoint</code>)으로 환경 변수 기반 가능</p>
+<p><strong>컨테이너/운영 지원:</strong>
+- Docker 이미지 제공 (python:3.13-slim-bullseye + ffmpeg + exiftool)
+- MCP 서버용 별도 Dockerfile 제공
+- 헬스체크(Health Check) 엔드포인트: ❌ 미구현 (라이브러리 특성상 해당 없음)
+- Kubernetes/Helm 설정: ❌ 미제공 (사용자 구현 필요)
+- Prometheus 메트릭 노출: ❌ 미구현
+- 구조화 로깅(Structured Logging): ❌ 표준 Python logging 사용, 구조화 없음
+- 분산 추적(Distributed Tracing): ❌ OpenTelemetry 미통합</p>
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>유닛/통합 테스트</td>
+<td>✅ 11개 테스트 모듈</td>
+<td>PDF, CLI, 벡터, DocIntel, ContentUnder 등</td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td>⚠️ 부분적</td>
+<td>실제 API 호출 테스트 일부 포함</td>
+</tr>
+<tr>
+<td>코드 커버리지 설정</td>
+<td>✅ hatch 커버리지 설정 존재</td>
+<td>실제 커버리지 % 확인 불가</td>
+</tr>
+<tr>
+<td>CI 자동화</td>
+<td>✅ GitHub Actions (PR 시 자동 실행)</td>
+<td>Python 3.10/3.11/3.12 매트릭스</td>
+</tr>
+<tr>
+<td>타입 검사</td>
+<td>✅ mypy 설정 (hatch types 환경)</td>
+<td>py.typed 마커 포함 (PEP 561)</td>
+</tr>
+<tr>
+<td>코드 포매터</td>
+<td>✅ Black (pre-commit 강제)</td>
+<td></td>
+</tr>
+<tr>
+<td>Python 3.13 테스트</td>
+<td>❌ CI 미포함 (pyproject에만 명시)</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><strong>핵심 패키지 (<code>markitdown</code>): 완전 분리 가능 ✅</strong></p>
+<p>AGPL/GPL 의존성 없음. 순수 MIT/BSD/Apache 스택.</p>
+<p><strong><code>markitdown-ocr</code> 플러그인: 분리 필수 ⚠️</strong></p>
+<p>PyMuPDF(AGPL-3.0)가 플러그인의 핵심 의존성. 아키텍처적으로 다음이 가능:
+1. <code>markitdown-ocr</code> 플러그인 제외 → 핵심 패키지만 사용 (OCR 기능 포기)
+2. PyMuPDF를 pypdf, pikepdf(LGPL) 등으로 교체 → 플러그인 포크 필요
+3. Artifex 상용 라이선스 구매</p>
+<p>플러그인 시스템 자체가 <code>entry_points</code> 기반으로 설계되어 있어 <strong>포함/제외가 런타임에 독립적</strong>으로 제어됨.</p>
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I. 코드베이스</td>
+<td>✅</td>
+<td>Git 단일 레포</td>
+</tr>
+<tr>
+<td>II. 의존성 선언</td>
+<td>✅</td>
+<td>pyproject.toml</td>
+</tr>
+<tr>
+<td>III. 설정 환경 분리</td>
+<td>✅</td>
+<td>생성자/환경변수로 주입 가능</td>
+</tr>
+<tr>
+<td>IV. 백엔드 서비스</td>
+<td>✅</td>
+<td>Azure 서비스 URL 설정 가능</td>
+</tr>
+<tr>
+<td>V. 빌드/릴리스/실행 분리</td>
+<td>✅</td>
+<td>hatch 빌드 시스템</td>
+</tr>
+<tr>
+<td>VI. 무상태 프로세스</td>
+<td>✅</td>
+<td>완전 무상태 변환 라이브러리</td>
+</tr>
+<tr>
+<td>VII. 포트 바인딩</td>
+<td>✅ (MCP 한정)</td>
+<td>markitdown-mcp</td>
+</tr>
+<tr>
+<td>VIII. 동시성</td>
+<td>✅</td>
+<td>수평 스케일 가능</td>
+</tr>
+<tr>
+<td>IX. 폐기 용이성</td>
+<td>✅</td>
+<td>빠른 시작/종료</td>
+</tr>
+<tr>
+<td>X. 개발/운영 동일성</td>
+<td>⚠️</td>
+<td>의존성 버전 잠금 없음</td>
+</tr>
+<tr>
+<td>XI. 로그 스트림</td>
+<td>❌</td>
+<td>구조화 로깅 미구현</td>
+</tr>
+<tr>
+<td>XII. 어드민 프로세스</td>
+<td>해당 없음</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>잠금 파일(Lockfile) 부재 ⚠️</strong>: <code>poetry.lock</code>, <code>requirements-lock.txt</code> 등 의존성 잠금 파일 없음. 재현 가능한 빌드 보장 불가.</p>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>✅ 부분 완료</td>
+<td>ThirdPartyNotices.md에 embedded code 식별. 의존성 전체 SBOM 미생성</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>⚠️ 수동 수준</td>
+<td>자동 라이선스 스캔 도구(FOSSA, REUSE 등) CI 통합 없음</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>⚠️ 미완</td>
+<td>PyMuPDF AGPL 문제 미해결; 상용 배포 전 대응 필요</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>⚠️ 불투명</td>
+<td>내부 OSPO 검토 프로세스 외부 미공개</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>⚠️ 부분 완료</td>
+<td>ThirdPartyNotices.md 존재하나 PyPI sdist 포함 여부 불확실 (pyproject.toml <code>only-include = ["src/markitdown"]</code> 설정으로 고지문 제외 가능)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권 / Trademark:</strong>
+- <code>MarkItDown</code>이라는 명칭 사용 시 Microsoft 상표 정책 적용
+- README에 "Microsoft Trademarks and Logos" 가이드라인 참조 명시
+- 상업 제품에 "MarkItDown" 명칭 직접 사용 시 Microsoft 상표 정책 준수 필요
+- 화이트라벨 상품화(자체 브랜딩)는 가능 (MIT 라이선스)</p>
+<p><strong>특허 위험 / Patent Risk:</strong>
+- MIT 라이선스: 명시적 특허 허가 없음 ⚠️ — 특허 청구 이론적 가능
+- Apache 2.0 패키지(requests, magika 등): 기여자 특허 허가 명시 ✅
+- Microsoft 자체 특허 보유 리스크: MIT 라이선스 하에서도 Microsoft의 특허가 코드에 적용될 경우 별도 특허 소송 가능성 존재 (실무적으로는 낮음)</p>
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>시나리오 1: SaaS 문서 변환 서비스 (OCR 플러그인 포함)</strong></p>
+<pre><code>[사용자 문서] → [MarkItDown + markitdown-ocr] → [Markdown 결과 반환]
+                           ↑
+                    PyMuPDF (AGPL-3.0) import
+</code></pre>
+<ul>
+<li><strong>결과</strong>: AGPL-3.0 적용. 네트워크를 통해 서비스를 제공하는 경우 전체 소스 코드 공개 의무 발생 (AGPL §13)</li>
+<li><strong>위험 수준</strong>: 🔴 매우 높음 (SaaS 시나리오 직접 해당)</li>
+</ul>
+<p><strong>시나리오 2: 핵심 패키지만 사용 (OCR 플러그인 미포함)</strong></p>
+<pre><code>[사용자 문서] → [MarkItDown only] → [Markdown 결과 반환]
+</code></pre>
+<ul>
+<li><strong>결과</strong>: MIT 라이선스만 적용. AGPL 전파 없음.</li>
+<li><strong>위험 수준</strong>: 🟢 없음</li>
+</ul>
+<p><strong>시나리오 3: Docker 이미지 배포 (OCR 플러그인 포함)</strong></p>
+<p>루트 Dockerfile은 <code>markitdown[all]</code>만 설치 (markitdown-ocr 미포함). markitdown-mcp Dockerfile도 마찬가지.
+- <strong>위험 수준</strong>: 🟢 기본 Docker 이미지는 안전</p>
+<p><strong>시나리오 4: YouTube 변환 기능 상업적 사용</strong></p>
+<p><code>youtube-transcript-api</code>가 YouTube 비공개 API 스크래핑 방식 사용 → YouTube ToS 위반 가능성
+- <strong>위험 수준</strong>: 🟡 법적 주의 필요 (API 약관 검토 권고)</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🔵 Review</td>
+<td>핵심 패키지 MIT(🟢), OCR 플러그인 AGPL 전파 위험(🔴) — 플러그인 제외 시 🟢</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟡 Caution</td>
+<td>Microsoft MSRC 정책 우수, Python 의존성 자동 취약점 스캔 미구현, SBOM 미생성</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟢 Safe</td>
+<td>Microsoft AutoGen Team 주도, PR #1914 기준 매우 활발한 기여, 40k+ Stars</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🔵 Review</td>
+<td>Beta(v0.1.6), 잠금 파일 없음, 구조화 로깅·메트릭 미구현</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🔵 Review</td>
+<td>무상태·플러그인 구조로 통합 용이, 의존성 버전 잠금 필요</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>ThirdPartyNotices.md 존재하나 SBOM 미생성, PyPI 고지문 배포 불확실, YouTube ToS 위험</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>Microsoft 공식 후원 + 활발한 개발</strong>: PR #1914 기준 매우 활발한 커뮤니티, Microsoft Azure AI 에코시스템 통합, 지속적인 기업 투자 확보</li>
+<li><strong>핵심 패키지 완전 퍼미시브</strong>: <code>markitdown</code> 핵심 패키지의 모든 의존성이 MIT/Apache 2.0/BSD 계열 — 소스 비공개 상용화 즉시 가능</li>
+<li><strong>우수한 플러그인 아키텍처</strong>: <code>entry_points</code> 기반 플러그인 시스템으로 AGPL 컴포넌트를 런타임에 독립적으로 제어 가능</li>
+<li><strong>광범위한 형식 지원</strong>: PDF, DOCX, PPTX, XLSX, 이미지, 오디오 등 24종 컨버터로 문서 처리 파이프라인 구축 즉시 가능</li>
+<li><strong>Microsoft MSRC 보안 정책</strong>: 24시간 응답, PGP 암호화, Bug Bounty 연계의 수준 높은 보안 취약점 관리 체계</li>
+</ol>
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>PyMuPDF AGPL-3.0 (즉시 조치)</strong>: <code>markitdown-ocr</code> 플러그인이 AGPL-3.0 라이선스의 PyMuPDF에 의존. SaaS 환경에서 사용 시 전체 소스 공개 의무 발생 — 플러그인 제외 또는 상용 라이선스 구매 필요</li>
+<li><strong>의존성 버전 잠금 미비</strong>: 잠금 파일(Lockfile) 부재로 재현 가능한 빌드 보장 불가, 의존성 공급망 공격(Dependency Confusion) 위험</li>
+<li><strong>Python 의존성 자동 취약점 스캔 미구현</strong>: Dependabot가 GitHub Actions만 커버 — <code>pip audit</code>, Snyk, Renovate 등 Python 패키지 CVE 자동 모니터링 부재</li>
+<li><strong>SBOM 미생성</strong>: 외부 감사 대비용 SBOM(Software Bill of Materials) CycloneDX/SPDX 파일 없음</li>
+<li><strong>Beta API 의존성</strong>: <code>azure-ai-contentunderstanding &gt;= 1.2.0b1</code> — 베타 SDK 의존으로 프로덕션 안정성 보장 불가, API 변경 위험</li>
+</ol>
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 Review (조건부 채택 / Conditional Adoption)</p>
+<p><strong>핵심 판단:</strong></p>
+<table>
+<thead>
+<tr>
+<th>사용 시나리오</th>
+<th>판정</th>
+<th>조건</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>markitdown</code> 핵심 패키지만 사용</td>
+<td>🟢 Safe</td>
+<td>즉시 상용화 가능</td>
+</tr>
+<tr>
+<td><code>markitdown-mcp</code> 서버 사용</td>
+<td>🟢 Safe</td>
+<td>즉시 상용화 가능</td>
+</tr>
+<tr>
+<td><code>markitdown-ocr</code> 플러그인 포함</td>
+<td>🟠 Risk</td>
+<td>PyMuPDF 상용 라이선스 또는 대체 필요</td>
+</tr>
+<tr>
+<td>YouTube 변환 기능 상업 서비스</td>
+<td>🟡 Caution</td>
+<td>YouTube ToS 법무 검토 필요</td>
+</tr>
+<tr>
+<td>Azure 클라우드 통합 (az-doc-intel)</td>
+<td>🔵 Review</td>
+<td>Azure 서비스 약관 및 데이터 주권 검토</td>
+</tr>
+</tbody>
+</table>
+<p><strong>권고사항:</strong></p>
+<p>핵심 <code>markitdown</code> 패키지는 완전 MIT 라이선스 스택으로 <strong>즉시 상용 내장이 가능</strong>하며 Microsoft의 강력한 기업 후원을 받는다. OCR 기능이 필요하지 않은 경우 라이선스 위험 없이 채택 가능. OCR 기능이 상업적으로 필수인 경우, PyMuPDF(AGPL-3.0)를 <code>pypdf</code> + <code>Pillow</code> 기반으로 교체하거나 Artifex 상용 라이선스를 구매하여야 한다.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>✅ Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>✅ 완료 (핵심: MIT, OCR 플러그인: AGPL 위험)</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 소스 공개 의무 여부 확인</td>
+<td>✅ 핵심 패키지 불필요, OCR 플러그인 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 라이선스 호환성 충돌 없음</td>
+<td>✅ 핵심 패키지 충돌 없음</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>저작권 문구 포함</td>
+<td>⚠️ ThirdPartyNotices.md 존재하나 PyPI sdist 포함 여부 검증 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>고지문 배포 위치 정의</td>
+<td>⚠️ 제품 내 NOTICE 메뉴/화면 미정의</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>OCR 플러그인 사용 시 공개 범위·방식 정의</td>
+<td>❌ 미정의 — 즉시 조치 필요</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>CVE 모니터링 체계 수립</td>
+<td>❌ Python 패키지 자동 스캔 미구현</td>
+</tr>
+<tr>
+<td></td>
+<td>중고위험 취약점 패치 계획</td>
+<td>⚠️ Microsoft MSRC 존재하나 자동화 미흡</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>유지보수 활성도·커밋 주기 확인</td>
+<td>✅ 매우 활발 (Microsoft AutoGen Team)</td>
+</tr>
+<tr>
+<td></td>
+<td>기업 스폰서/컨설팅 존재 확인</td>
+<td>✅ Microsoft 직접 후원</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>라이선스 검사 자동화</td>
+<td>❌ FOSSA/REUSE/LicenseCheck CI 미통합</td>
+</tr>
+<tr>
+<td></td>
+<td>오픈소스 BOM 자동 생성</td>
+<td>❌ SBOM 생성 파이프라인 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>위반 라이선스 빌드 차단</td>
+<td>❌ 빌드 게이트 없음</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>고객 계약서에 라이선스 의무 명시</td>
+<td>❌ 채택 조직 자체 구현 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>외부 감사 대비 문서 구비</td>
+<td>⚠️ ThirdPartyNotices.md만 존재, SBOM·BOM 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (Immediate)</h3>
+<ol>
+<li><strong>PyMuPDF AGPL-3.0 해결</strong>: 상업 서비스에서 <code>markitdown-ocr</code> 플러그인 사용 시:</li>
+<li>옵션 A: 플러그인 제외 (환경 변수 <code>MARKITDOWN_ENABLE_PLUGINS=False</code> 설정)</li>
+<li>옵션 B: PyMuPDF를 <code>pypdf</code>(MIT) + 직접 구현으로 포크 교체</li>
+<li>
+<p>옵션 C: Artifex(artifex.com)에서 PyMuPDF 상용 라이선스 구매</p>
+</li>
+<li>
+<p><strong>ThirdPartyNotices.md PyPI 배포 확인</strong>: <code>pyproject.toml</code>의 <code>only-include = ["src/markitdown"]</code> 설정이 ThirdPartyNotices.md를 sdist에서 제외할 수 있음 — Apache 2.0 고지 의무 충족을 위해 배포 패키지에 포함 확인</p>
+</li>
+</ol>
+<h3 id="high-30">단기 조치 / High (30일 이내)</h3>
+<ol>
+<li><strong>Python 의존성 취약점 자동 스캔 구현</strong>: <code>.github/workflows/</code>에 <code>pip audit</code> 또는 Dependabot Python 생태계 커버리지 추가</li>
+<li><strong>의존성 잠금 파일 생성</strong>: <code>pip-compile</code>(pip-tools) 또는 <code>uv lock</code> 활용하여 <code>requirements-lock.txt</code> 생성 — 재현 가능 빌드 및 공급망 보안 확보</li>
+<li><strong>SBOM 생성</strong>: <code>syft</code> 또는 <code>cyclonedx-python</code> 도구로 CycloneDX/SPDX SBOM 파일 생성 및 릴리스에 첨부</li>
+</ol>
+<h3 id="medium-90">중기 조치 / Medium (90일 이내)</h3>
+<ol>
+<li><strong>라이선스 스캔 CI 통합</strong>: FOSSA, REUSE, 또는 <code>licensee</code> 도구를 CI 파이프라인에 통합 — 새 의존성 추가 시 라이선스 자동 검출 및 위반 빌드 차단</li>
+<li><strong>구조화 로깅 구현</strong>: 상용 서비스 운영을 위해 JSON 구조화 로깅(structlog 등) 도입 — ELK/CloudWatch 연동 지원</li>
+<li><strong>YouTube ToS 법무 검토</strong>: <code>youtube-transcript-api</code> 상업 사용에 대해 법무팀 검토 요청 및 대안(YouTube Data API v3 공식 사용) 검토</li>
+</ol>
+<h3 id="low">장기 권고 / Low (분기별 검토)</h3>
+<ol>
+<li><strong>v1.0 안정화 모니터링</strong>: 현재 Beta(v0.1.6) 상태 — v1.0 릴리스 시 SemVer 안정성 보장, 마이그레이션 가이드 확인</li>
+<li><strong>의존성 정기 감사</strong>: 분기별 전체 의존성 라이선스 재검토 및 CVE 현황 점검 — 특히 <code>azure-ai-contentunderstanding</code> Beta 상태 모니터링</li>
+<li><strong>OpenChain ISO 5230 내부 감사 프로세스 수립</strong>: 소스 스캔 → 검토/승인 → 고지문 배포의 체계화된 OSPO 프로세스 구축</li>
+</ol>
+<hr />
+<p><em>본 보고서는 2026-06-06 기준으로 분석된 <code>/tmp/github-dashboard-analysis/microsoft_markitdown</code> (v0.1.6) 저장소의 관찰된 사실에 기반합니다. 온라인 GitHub 이슈 수, 정확한 기여자 통계, 실시간 취약점 데이터는 로컬 저장소 분석 한계로 확인 불가능하였습니다.</em></p>
+<p><em>This report is based on observed facts from the <code>/tmp/github-dashboard-analysis/microsoft_markitdown</code> (v0.1.6) repository as of 2026-06-06. Online GitHub issue counts, exact contributor statistics, and real-time vulnerability data were unavailable due to local repository analysis limitations.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>I now have sufficient information to produce the complete bilingual guide documents. This is a single-project run, so output path resolves to <code>.review/GUIDE4Junior.md</code> and <code>.review/GUIDE4ImpMethod.md</code>.</p>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>MarkItDown은 Microsoft에서 개발한 경량 Python 유틸리티로, PDF, Word, Excel, PowerPoint, 이미지, 오디오, HTML 등 다양한 파일 형식을 LLM(대형 언어 모델) 파이프라인에서 사용하기 적합한 Markdown 텍스트로 변환합니다. 변환 시 문서의 제목, 목록, 표, 링크 등 핵심 구조를 최대한 보존하는 것을 목표로 합니다. CLI 명령어와 Python API를 모두 제공하며, 3rd-party 플러그인 시스템과 Azure Document Intelligence, Azure Content Understanding 등 클라우드 AI 서비스와의 연동도 지원합니다.</p>
+<ul>
+<li><strong>주요 기술 스택</strong>: Python 3.10+, hatch(빌드 도구), beautifulsoup4, markdownify, magika, requests, defusedxml</li>
+<li><strong>선택적 의존성</strong>: python-pptx, mammoth(docx), pandas+openpyxl(xlsx), pdfminer.six+pdfplumber(pdf), pydub+SpeechRecognition(오디오), youtube-transcript-api, azure-ai-documentintelligence, azure-ai-contentunderstanding</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>MarkItDown is a lightweight Python utility developed by Microsoft that converts a wide range of file formats — PDF, Word, Excel, PowerPoint, images, audio, HTML, and more — into Markdown text suitable for LLM (large language model) pipelines. The goal is to preserve key document structure (headings, lists, tables, links) as Markdown rather than stripping everything to plain text. It ships both a CLI tool and a Python API, a third-party plugin architecture, and optional integrations with Azure Document Intelligence and Azure Content Understanding cloud AI services.</p>
+<ul>
+<li><strong>Key tech stack</strong>: Python 3.10+, hatch (build tool), beautifulsoup4, markdownify, magika, requests, defusedxml</li>
+<li><strong>Optional dependencies</strong>: python-pptx, mammoth (docx), pandas+openpyxl (xlsx), pdfminer.six+pdfplumber (pdf), pydub+SpeechRecognition (audio), youtube-transcript-api, azure-ai-documentintelligence, azure-ai-contentunderstanding</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>필수 도구:</strong>
+- <strong>Python 3.10 이상</strong> (3.12 권장) — <code>python --version</code>으로 확인
+- <strong>pip</strong> (Python과 함께 설치됨)
+- <strong>hatch</strong> — 빌드 및 테스트 실행 도구: <code>pip install hatch</code>
+- <strong>Git</strong> — 소스 클론 필요
+- <strong>(선택) ffmpeg</strong> — 오디오 변환 기능 사용 시 필요
+- <strong>(선택) exiftool</strong> — 이미지/오디오 메타데이터 추출 시 필요
+- <strong>(선택) Docker</strong> — 컨테이너 빌드 및 실행 시 필요</p>
+<p><strong>권장 IDE:</strong>
+- <strong>VS Code</strong> + Python 확장(ms-python.python) + Black Formatter 확장
+- <strong>PyCharm</strong> (Professional 또는 Community)</p>
+<p><strong>OS별 주의사항:</strong>
+- Windows: <code>source .venv/bin/activate</code> 대신 <code>.venv\Scripts\activate</code> 사용
+- macOS: <code>brew install ffmpeg exiftool</code>로 선택적 시스템 도구 설치 가능
+- Linux(Debian/Ubuntu): <code>apt-get install ffmpeg exiftool</code></p>
+<p><strong>[English]</strong></p>
+<p><strong>Required tools:</strong>
+- <strong>Python 3.10 or higher</strong> (3.12 recommended) — verify with <code>python --version</code>
+- <strong>pip</strong> (bundled with Python)
+- <strong>hatch</strong> — the build and test runner: <code>pip install hatch</code>
+- <strong>Git</strong> — needed to clone the repository
+- <strong>(Optional) ffmpeg</strong> — required for audio transcription features
+- <strong>(Optional) exiftool</strong> — required for image/audio EXIF metadata extraction
+- <strong>(Optional) Docker</strong> — for container builds and runs</p>
+<p><strong>Recommended IDE:</strong>
+- <strong>VS Code</strong> + Python extension (ms-python.python) + Black Formatter extension
+- <strong>PyCharm</strong> (Professional or Community)</p>
+<p><strong>OS-specific notes:</strong>
+- Windows: use <code>.venv\Scripts\activate</code> instead of <code>source .venv/bin/activate</code>
+- macOS: install optional system tools with <code>brew install ffmpeg exiftool</code>
+- Linux (Debian/Ubuntu): <code>apt-get install ffmpeg exiftool</code></p>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>1. 저장소 클론</strong></p>
+<pre><code class="language-bash">git clone https://github.com/microsoft/markitdown.git
+cd markitdown
+</code></pre>
+<p><strong>2. 가상 환경 생성 및 활성화</strong></p>
+<p>표준 venv 사용:</p>
+<pre><code class="language-bash">python -m venv .venv
+source .venv/bin/activate          # Linux/macOS
+# .venv\Scripts\activate           # Windows
+</code></pre>
+<p><code>uv</code> 사용 시 (더 빠른 설치):</p>
+<pre><code class="language-bash">uv venv --python=3.12 .venv
+source .venv/bin/activate
+</code></pre>
+<p>Anaconda 사용 시:</p>
+<pre><code class="language-bash">conda create -n markitdown python=3.12
+conda activate markitdown
+</code></pre>
+<p><strong>3. 의존성 설치</strong></p>
+<p>핵심 라이브러리 (모든 선택적 의존성 포함) 설치:</p>
+<pre><code class="language-bash">pip install -e 'packages/markitdown[all]'
+</code></pre>
+<p>특정 형식만 필요한 경우 선택적 설치:</p>
+<pre><code class="language-bash">pip install -e 'packages/markitdown[pdf,docx,pptx]'
+</code></pre>
+<p>MCP 서버도 필요한 경우:</p>
+<pre><code class="language-bash">pip install -e 'packages/markitdown-mcp'
+</code></pre>
+<p><strong>4. 환경 변수 설정</strong></p>
+<p>이 프로젝트에는 <code>.env</code> 파일이 별도로 없습니다. 필요한 경우 셸 환경이나 호출 코드에서 직접 설정합니다:</p>
+<pre><code class="language-bash"># 선택적 — exiftool 경로가 표준 위치가 아닐 경우
+export EXIFTOOL_PATH=/usr/local/bin/exiftool
+
+# 선택적 — MCP 서버에서 플러그인 활성화
+export MARKITDOWN_ENABLE_PLUGINS=true
+
+# Azure 서비스 사용 시
+export AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT=https://&lt;your-resource&gt;.cognitiveservices.azure.com/
+</code></pre>
+<p><strong>5. 설치 확인</strong></p>
+<pre><code class="language-bash">markitdown --version
+# 예상 출력: markitdown 0.1.6
+
+python -c &quot;from markitdown import MarkItDown; print('OK')&quot;
+# 예상 출력: OK
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>1. Clone the repository</strong></p>
+<pre><code class="language-bash">git clone https://github.com/microsoft/markitdown.git
+cd markitdown
+</code></pre>
+<p><strong>2. Create and activate a virtual environment</strong></p>
+<p>Using standard venv:</p>
+<pre><code class="language-bash">python -m venv .venv
+source .venv/bin/activate          # Linux/macOS
+# .venv\Scripts\activate           # Windows
+</code></pre>
+<p>Using <code>uv</code> (faster installs):</p>
+<pre><code class="language-bash">uv venv --python=3.12 .venv
+source .venv/bin/activate
+</code></pre>
+<p>Using Anaconda:</p>
+<pre><code class="language-bash">conda create -n markitdown python=3.12
+conda activate markitdown
+</code></pre>
+<p><strong>3. Install dependencies</strong></p>
+<p>Core library with all optional dependencies:</p>
+<pre><code class="language-bash">pip install -e 'packages/markitdown[all]'
+</code></pre>
+<p>Selective install for specific file formats only:</p>
+<pre><code class="language-bash">pip install -e 'packages/markitdown[pdf,docx,pptx]'
+</code></pre>
+<p>If you also need the MCP server:</p>
+<pre><code class="language-bash">pip install -e 'packages/markitdown-mcp'
+</code></pre>
+<p><strong>4. Configure environment variables</strong></p>
+<p>There is no <code>.env</code> file in this project. Variables are set in the shell or passed programmatically as needed:</p>
+<pre><code class="language-bash"># Optional — if exiftool is not in a standard location
+export EXIFTOOL_PATH=/usr/local/bin/exiftool
+
+# Optional — enable plugins in the MCP server
+export MARKITDOWN_ENABLE_PLUGINS=true
+
+# When using Azure services
+export AZURE_DOCUMENT_INTELLIGENCE_ENDPOINT=https://&lt;your-resource&gt;.cognitiveservices.azure.com/
+</code></pre>
+<p><strong>5. Verify installation</strong></p>
+<pre><code class="language-bash">markitdown --version
+# Expected: markitdown 0.1.6
+
+python -c &quot;from markitdown import MarkItDown; print('OK')&quot;
+# Expected: OK
+</code></pre>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">microsoft_markitdown/
+├── .devcontainer/
+│   └── devcontainer.json            # VS Code Dev Container 설정
+├── .github/
+│   └── dependabot.yml               # GitHub Actions 의존성 자동 업데이트
+├── .pre-commit-config.yaml          # Black 포매터 pre-commit 훅
+├── Dockerfile                       # 컨테이너 이미지 빌드 (python:3.13-slim)
+├── README.md                        # 주 문서
+├── packages/
+│   ├── markitdown/                  # ★ 핵심 라이브러리 패키지
+│   │   ├── pyproject.toml           # 빌드/의존성 정의 (hatchling 사용)
+│   │   ├── src/markitdown/
+│   │   │   ├── __about__.py         # 버전 정보 (__version__)
+│   │   │   ├── __init__.py          # 공개 API 익스포트
+│   │   │   ├── __main__.py          # CLI 진입점 (markitdown 커맨드)
+│   │   │   ├── _base_converter.py   # DocumentConverter / DocumentConverterResult 추상 기반
+│   │   │   ├── _exceptions.py       # 커스텀 예외 클래스들
+│   │   │   ├── _markitdown.py       # MarkItDown 핵심 클래스 (라우팅 엔진)
+│   │   │   ├── _stream_info.py      # StreamInfo 데이터클래스 (파일 메타데이터)
+│   │   │   ├── _uri_utils.py        # URI 파싱 유틸리티
+│   │   │   ├── converter_utils/     # 포맷별 공유 헬퍼 (예: docx 수식 변환)
+│   │   │   └── converters/          # 각 파일 형식별 컨버터 모듈
+│   │   │       ├── _pdf_converter.py
+│   │   │       ├── _docx_converter.py
+│   │   │       ├── _xlsx_converter.py
+│   │   │       ├── _pptx_converter.py
+│   │   │       ├── _html_converter.py
+│   │   │       ├── _image_converter.py
+│   │   │       ├── _audio_converter.py
+│   │   │       ├── _cu_converter.py     # Azure Content Understanding
+│   │   │       ├── _doc_intel_converter.py # Azure Document Intelligence
+│   │   │       └── ... (20개 이상 컨버터)
+│   │   └── tests/                   # pytest 테스트 스위트
+│   ├── markitdown-mcp/              # MCP(Model Context Protocol) 서버
+│   ├── markitdown-ocr/              # OCR 플러그인 (LLM Vision 기반)
+│   └── markitdown-sample-plugin/    # 플러그인 개발 템플릿
+└── LICENSE
+</code></pre>
+<p><strong>핵심 모듈 간 의존 관계:</strong>
+- <code>_markitdown.py</code> (MarkItDown 클래스)가 중앙 라우팅 엔진 역할을 합니다. 파일 입력을 받아 <code>magika</code>로 MIME 타입을 자동 감지하고, 등록된 컨버터 목록 중 우선순위가 높은 것부터 <code>accepts()</code> 메서드를 호출하여 변환을 위임합니다.
+- 모든 컨버터는 <code>_base_converter.py</code>의 <code>DocumentConverter</code> 추상 클래스를 상속하며 <code>accepts()</code>와 <code>convert()</code> 두 메서드를 구현합니다.
+- <code>StreamInfo</code>는 파일 경로, MIME 타입, 인코딩, URL 등 파일 메타데이터를 불변 dataclass로 전달합니다.
+- 플러그인은 <code>markitdown.plugin</code> entry point 그룹을 통해 동적으로 로드되며, <code>register_converters(markitdown)</code> 함수를 구현해야 합니다.</p>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">microsoft_markitdown/
+├── .devcontainer/
+│   └── devcontainer.json            # VS Code Dev Container config
+├── .github/
+│   └── dependabot.yml               # Automated dependency updates for GitHub Actions
+├── .pre-commit-config.yaml          # Black formatter pre-commit hook
+├── Dockerfile                       # Container image (python:3.13-slim)
+├── README.md                        # Primary documentation
+├── packages/
+│   ├── markitdown/                  # ★ Core library package
+│   │   ├── pyproject.toml           # Build &amp; dependency manifest (hatchling)
+│   │   ├── src/markitdown/
+│   │   │   ├── __about__.py         # Version string (__version__)
+│   │   │   ├── __init__.py          # Public API exports
+│   │   │   ├── __main__.py          # CLI entry point (the `markitdown` command)
+│   │   │   ├── _base_converter.py   # Abstract base: DocumentConverter / DocumentConverterResult
+│   │   │   ├── _exceptions.py       # Custom exception types
+│   │   │   ├── _markitdown.py       # Core MarkItDown class (routing engine)
+│   │   │   ├── _stream_info.py      # StreamInfo dataclass (file metadata)
+│   │   │   ├── _uri_utils.py        # URI parsing utilities
+│   │   │   ├── converter_utils/     # Shared per-format helpers (e.g., DOCX math)
+│   │   │   └── converters/          # One module per supported file type
+│   │   │       ├── _pdf_converter.py
+│   │   │       ├── _docx_converter.py
+│   │   │       ├── _xlsx_converter.py
+│   │   │       ├── _pptx_converter.py
+│   │   │       ├── _html_converter.py
+│   │   │       ├── _image_converter.py
+│   │   │       ├── _audio_converter.py
+│   │   │       ├── _cu_converter.py     # Azure Content Understanding
+│   │   │       ├── _doc_intel_converter.py # Azure Document Intelligence
+│   │   │       └── ... (20+ converters total)
+│   │   └── tests/                   # pytest test suite
+│   ├── markitdown-mcp/              # MCP (Model Context Protocol) server
+│   ├── markitdown-ocr/              # OCR plugin (LLM Vision-based)
+│   └── markitdown-sample-plugin/    # Plugin development template
+└── LICENSE
+</code></pre>
+<p><strong>Module dependency relationships:</strong>
+- <code>_markitdown.py</code> (the <code>MarkItDown</code> class) is the central routing engine. It accepts file input, uses <code>magika</code> to detect MIME type automatically, then iterates registered converters from highest to lowest priority calling <code>accepts()</code> to find the right one.
+- Every converter inherits from <code>DocumentConverter</code> in <code>_base_converter.py</code> and must implement <code>accepts()</code> and <code>convert()</code>.
+- <code>StreamInfo</code> is an immutable dataclass that carries file metadata (path, MIME type, encoding, URL) through the pipeline.
+- Plugins are loaded dynamically via the <code>markitdown.plugin</code> entry point group and must expose a <code>register_converters(markitdown)</code> function.</p>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p>MarkItDown은 <code>hatch</code>를 빌드 백엔드로 사용하는 순수 Python 패키지입니다. 별도의 컴파일 단계가 없으며, <code>pip install -e</code> 명령으로 개발 모드 설치가 가능합니다.</p>
+<p><strong>개발 모드 설치 (빌드 없이 소스 직접 사용):</strong></p>
+<pre><code class="language-bash">pip install -e 'packages/markitdown[all]'
+</code></pre>
+<p><strong>배포용 휠(wheel) 파일 빌드:</strong></p>
+<pre><code class="language-bash">cd packages/markitdown
+pip install hatch
+hatch build
+# 빌드 결과물: packages/markitdown/dist/markitdown-&lt;version&gt;-py3-none-any.whl
+</code></pre>
+<p><strong>hatch 환경 내에서 실행:</strong></p>
+<pre><code class="language-bash">cd packages/markitdown
+hatch shell       # 격리된 가상 환경 진입
+markitdown --version
+</code></pre>
+<p><strong>자주 발생하는 빌드/설치 오류:</strong></p>
+<table>
+<thead>
+<tr>
+<th>오류 메시지</th>
+<th>원인</th>
+<th>해결 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ModuleNotFoundError: No module named 'pdfminer'</code></td>
+<td><code>[pdf]</code> 선택적 의존성 미설치</td>
+<td><code>pip install 'markitdown[pdf]'</code></td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError: No module named 'python_pptx'</code></td>
+<td><code>[pptx]</code> 선택적 의존성 미설치</td>
+<td><code>pip install 'markitdown[pptx]'</code></td>
+</tr>
+<tr>
+<td><code>ERROR: Could not find a version that satisfies...</code></td>
+<td>Python 버전이 3.10 미만</td>
+<td>Python 3.10 이상으로 업그레이드</td>
+</tr>
+<tr>
+<td>magika 관련 오류</td>
+<td>magika 버전 불일치</td>
+<td><code>pip install 'magika~=0.6.1'</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p>MarkItDown is a pure Python package using <code>hatch</code> as its build backend. There is no compilation step; development mode installation with <code>pip install -e</code> is the standard workflow.</p>
+<p><strong>Development mode install (use source directly, no build):</strong></p>
+<pre><code class="language-bash">pip install -e 'packages/markitdown[all]'
+</code></pre>
+<p><strong>Build a distribution wheel for deployment:</strong></p>
+<pre><code class="language-bash">cd packages/markitdown
+pip install hatch
+hatch build
+# Output: packages/markitdown/dist/markitdown-&lt;version&gt;-py3-none-any.whl
+</code></pre>
+<p><strong>Run inside a hatch-managed environment:</strong></p>
+<pre><code class="language-bash">cd packages/markitdown
+hatch shell       # enters an isolated virtual environment
+markitdown --version
+</code></pre>
+<p><strong>Common build/install errors:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Error message</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ModuleNotFoundError: No module named 'pdfminer'</code></td>
+<td><code>[pdf]</code> optional dependency not installed</td>
+<td><code>pip install 'markitdown[pdf]'</code></td>
+</tr>
+<tr>
+<td><code>ModuleNotFoundError: No module named 'python_pptx'</code></td>
+<td><code>[pptx]</code> optional dependency not installed</td>
+<td><code>pip install 'markitdown[pptx]'</code></td>
+</tr>
+<tr>
+<td><code>ERROR: Could not find a version that satisfies...</code></td>
+<td>Python version below 3.10</td>
+<td>Upgrade to Python 3.10+</td>
+</tr>
+<tr>
+<td>magika-related errors</td>
+<td>magika version mismatch</td>
+<td><code>pip install 'magika~=0.6.1'</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>CLI 실행:</strong></p>
+<pre><code class="language-bash"># 파일 변환 → stdout 출력
+markitdown path/to/document.pdf
+
+# 파일로 저장
+markitdown path/to/document.pdf -o output.md
+
+# stdin에서 읽기 (파이프)
+cat path/to/document.pdf | markitdown
+
+# 확장자 힌트 제공 (stdin 사용 시 유용)
+cat file | markitdown -x .pdf
+
+# MIME 타입 힌트 제공
+markitdown file -m application/pdf
+
+# 플러그인 활성화
+markitdown --use-plugins path/to/file.rtf
+
+# Azure Document Intelligence 사용
+markitdown path/to/scan.pdf -d -e &quot;https://&lt;your-endpoint&gt;.cognitiveservices.azure.com/&quot;
+
+# Azure Content Understanding 사용
+markitdown path/to/video.mp4 --use-cu --cu-endpoint &quot;&lt;cu-endpoint&gt;&quot;
+
+# 설치된 플러그인 목록 확인
+markitdown --list-plugins
+</code></pre>
+<p><strong>Python API 실행:</strong></p>
+<pre><code class="language-python">from markitdown import MarkItDown
+
+# 기본 사용
+md = MarkItDown()
+result = md.convert(&quot;document.xlsx&quot;)
+print(result.markdown)          # 변환된 Markdown 텍스트
+print(result.title)             # 문서 제목 (있을 경우)
+
+# LLM을 이용한 이미지 설명 (OpenAI 예시)
+from openai import OpenAI
+client = OpenAI()
+md = MarkItDown(llm_client=client, llm_model=&quot;gpt-4o&quot;)
+result = md.convert(&quot;diagram.jpg&quot;)
+print(result.markdown)
+</code></pre>
+<p><strong>Docker 실행:</strong></p>
+<pre><code class="language-bash"># 이미지 빌드
+docker build -t markitdown:latest .
+
+# 실행 (stdin → stdout)
+docker run --rm -i markitdown:latest &lt; document.pdf &gt; output.md
+</code></pre>
+<p><strong>MCP 서버 실행 (STDIO 모드, Claude Desktop 등과 연동):</strong></p>
+<pre><code class="language-bash">pip install 'packages/markitdown-mcp'
+markitdown-mcp                        # STDIO 모드 (기본)
+markitdown-mcp --http --port 3001     # HTTP/SSE 모드
+</code></pre>
+<p>MarkItDown은 서버 애플리케이션이 아니므로 별도의 포트나 URL 접속 정보가 없습니다. MCP 서버만 HTTP 모드에서 포트 3001(기본값)을 사용합니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>CLI usage:</strong></p>
+<pre><code class="language-bash"># Convert a file → print to stdout
+markitdown path/to/document.pdf
+
+# Save to a file
+markitdown path/to/document.pdf -o output.md
+
+# Read from stdin (pipe)
+cat path/to/document.pdf | markitdown
+
+# Provide extension hint (useful when reading from stdin)
+cat file | markitdown -x .pdf
+
+# Provide MIME type hint
+markitdown file -m application/pdf
+
+# Enable plugins
+markitdown --use-plugins path/to/file.rtf
+
+# Use Azure Document Intelligence
+markitdown path/to/scan.pdf -d -e &quot;https://&lt;your-endpoint&gt;.cognitiveservices.azure.com/&quot;
+
+# Use Azure Content Understanding
+markitdown path/to/video.mp4 --use-cu --cu-endpoint &quot;&lt;cu-endpoint&gt;&quot;
+
+# List installed plugins
+markitdown --list-plugins
+</code></pre>
+<p><strong>Python API:</strong></p>
+<pre><code class="language-python">from markitdown import MarkItDown
+
+# Basic usage
+md = MarkItDown()
+result = md.convert(&quot;document.xlsx&quot;)
+print(result.markdown)          # converted Markdown text
+print(result.title)             # document title (if available)
+
+# LLM-powered image description (OpenAI example)
+from openai import OpenAI
+client = OpenAI()
+md = MarkItDown(llm_client=client, llm_model=&quot;gpt-4o&quot;)
+result = md.convert(&quot;diagram.jpg&quot;)
+print(result.markdown)
+</code></pre>
+<p><strong>Docker:</strong></p>
+<pre><code class="language-bash"># Build image
+docker build -t markitdown:latest .
+
+# Run (stdin → stdout)
+docker run --rm -i markitdown:latest &lt; document.pdf &gt; output.md
+</code></pre>
+<p><strong>MCP server (STDIO mode, for Claude Desktop integration etc.):</strong></p>
+<pre><code class="language-bash">pip install 'packages/markitdown-mcp'
+markitdown-mcp                        # STDIO mode (default)
+markitdown-mcp --http --port 3001     # HTTP/SSE mode
+</code></pre>
+<p>MarkItDown is a library/CLI tool, not a server application, so there is no URL or port to open in a browser. Only the MCP server exposes a port (3001 by default in HTTP mode).</p>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>테스트 실행 (hatch 사용 — 권장):</strong></p>
+<pre><code class="language-bash">cd packages/markitdown
+pip install hatch
+hatch test
+</code></pre>
+<p>hatch는 자동으로 격리된 테스트 환경을 생성하고 <code>hatch-test</code> 환경에 정의된 의존성(<code>openai</code> 포함)을 설치합니다.</p>
+<p><strong>pytest 직접 실행 (venv 활성화 후):</strong></p>
+<pre><code class="language-bash">cd packages/markitdown
+pytest tests/
+</code></pre>
+<p><strong>특정 테스트 파일만 실행:</strong></p>
+<pre><code class="language-bash">pytest tests/test_module_vectors.py    # 로컬 파일 변환 벡터 테스트
+pytest tests/test_cli_vectors.py       # CLI 인터페이스 테스트
+pytest tests/test_pdf_tables.py        # PDF 표 변환 테스트
+</code></pre>
+<p><strong>커버리지 확인:</strong></p>
+<pre><code class="language-bash">pytest --cov=markitdown --cov-report=term-missing tests/
+</code></pre>
+<p><strong>pre-commit 전체 파일 검사 (PR 제출 전 필수):</strong></p>
+<pre><code class="language-bash">pre-commit run --all-files
+</code></pre>
+<p><strong>주의사항:</strong>
+- <code>GITHUB_ACTIONS</code> 환경 변수가 설정되어 있으면 원격 URL을 대상으로 하는 테스트(<code>skip_remote=True</code>)는 자동으로 건너뜁니다.
+- <code>test_files/</code> 폴더에 실제 PDF, DOCX, XLSX 등 테스트 파일들이 포함되어 있습니다.
+- LLM 연동 테스트(<code>test_llm.jpg</code>)는 OpenAI API 키가 필요합니다.
+- OCR 플러그인 테스트는 <code>packages/markitdown-ocr/tests/</code>에 별도로 위치합니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Run tests with hatch (recommended):</strong></p>
+<pre><code class="language-bash">cd packages/markitdown
+pip install hatch
+hatch test
+</code></pre>
+<p>hatch automatically creates an isolated test environment and installs the extra dependencies defined under <code>[tool.hatch.envs.hatch-test]</code> (including <code>openai</code>).</p>
+<p><strong>Run pytest directly (after activating venv):</strong></p>
+<pre><code class="language-bash">cd packages/markitdown
+pytest tests/
+</code></pre>
+<p><strong>Run specific test files:</strong></p>
+<pre><code class="language-bash">pytest tests/test_module_vectors.py    # local file conversion vector tests
+pytest tests/test_cli_vectors.py       # CLI interface tests
+pytest tests/test_pdf_tables.py        # PDF table extraction tests
+</code></pre>
+<p><strong>Check coverage:</strong></p>
+<pre><code class="language-bash">pytest --cov=markitdown --cov-report=term-missing tests/
+</code></pre>
+<p><strong>Run pre-commit checks on all files (required before submitting a PR):</strong></p>
+<pre><code class="language-bash">pre-commit run --all-files
+</code></pre>
+<p><strong>Notes:</strong>
+- Tests that hit remote URLs are automatically skipped (<code>skip_remote=True</code>) when the <code>GITHUB_ACTIONS</code> environment variable is set.
+- Real test files (PDF, DOCX, XLSX, etc.) live under <code>tests/test_files/</code>.
+- LLM integration tests (<code>test_llm.jpg</code>) require a valid OpenAI API key.
+- OCR plugin tests have their own suite at <code>packages/markitdown-ocr/tests/</code>.</p>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>브랜치 전략:</strong>
+- 기능 개발: <code>feature/&lt;짧은-설명&gt;</code> (예: <code>feature/rtf-converter</code>)
+- 버그 수정: <code>fix/&lt;이슈-번호-또는-설명&gt;</code>
+- <code>main</code> 브랜치가 기본 브랜치입니다. 직접 push하지 않고 반드시 PR을 통해 병합합니다.</p>
+<p><strong>커밋 메시지 컨벤션:</strong>
+- 별도의 공식 컨벤션 파일은 없지만, 간결하고 의미 있는 영어 문장 사용을 권장합니다.
+- 예: <code>Add RTF converter support via striprtf</code>, <code>Fix PDF table alignment for multipage docs</code></p>
+<p><strong>PR/코드 리뷰 절차:</strong>
+1. GitHub에서 fork 또는 브랜치 생성
+2. 변경 사항 구현
+3. <code>pre-commit run --all-files</code> 실행하여 Black 포매터 통과 확인
+4. <code>hatch test</code>로 전체 테스트 통과 확인
+5. PR 제출 → CLA bot이 자동으로 Contributor License Agreement 서명 여부 확인
+6. 코드 리뷰어 배정 → 승인 후 병합
+- <code>open for contribution</code> 라벨이 붙은 이슈를 우선 확인하세요.
+- <code>open for reviewing</code> 라벨이 붙은 PR을 리뷰하는 것으로도 기여 가능합니다.</p>
+<p><strong>코딩 스타일 및 린트:</strong>
+- <strong>포매터</strong>: <a href="https://github.com/psf/black">Black</a> (버전 23.7.0, pre-commit 훅으로 자동 적용)
+- <strong>타입 힌트</strong>: 모든 공개 API에 Python 타입 어노테이션 사용
+- <strong>타입 검사</strong>: <code>hatch run types:check</code> (mypy 기반)
+- 파일명 컨벤션: 내부 모듈은 <code>_underscore_prefix.py</code> 형식 사용</p>
+<p><strong>[English]</strong></p>
+<p><strong>Branching strategy:</strong>
+- Feature development: <code>feature/&lt;short-description&gt;</code> (e.g., <code>feature/rtf-converter</code>)
+- Bug fixes: <code>fix/&lt;issue-number-or-description&gt;</code>
+- <code>main</code> is the default branch. Never push directly; always go through a PR.</p>
+<p><strong>Commit message conventions:</strong>
+- No formal convention file exists, but short, meaningful English sentences are the pattern in the repo.
+- Examples: <code>Add RTF converter support via striprtf</code>, <code>Fix PDF table alignment for multipage docs</code></p>
+<p><strong>PR / code review process:</strong>
+1. Fork the repo or create a branch
+2. Implement your change
+3. Run <code>pre-commit run --all-files</code> to pass the Black formatter check
+4. Run <code>hatch test</code> to confirm all tests pass
+5. Open a PR → CLA bot automatically checks whether you have signed the Contributor License Agreement
+6. Reviewer is assigned → approved → merged
+- Check issues labeled <code>open for contribution</code> first for good starting points.
+- Reviewing PRs labeled <code>open for reviewing</code> also counts as a contribution.</p>
+<p><strong>Coding style and lint:</strong>
+- <strong>Formatter</strong>: <a href="https://github.com/psf/black">Black</a> (v23.7.0, enforced via pre-commit hook)
+- <strong>Type hints</strong>: Python type annotations required on all public APIs
+- <strong>Type checking</strong>: <code>hatch run types:check</code> (mypy-based)
+- File naming convention: internal modules use <code>_underscore_prefix.py</code></p>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. <code>markitdown</code> 명령어를 실행했는데 <code>command not found</code>가 뜹니다.</strong></p>
+<p>가상 환경이 활성화되지 않았거나, 설치가 완료되지 않은 경우입니다.</p>
+<pre><code class="language-bash">source .venv/bin/activate
+pip install -e 'packages/markitdown[all]'
+which markitdown   # 경로가 표시되어야 정상
+</code></pre>
+<p><strong>Q2. PDF를 변환했는데 텍스트가 비어 있거나 깨집니다.</strong></p>
+<p>스캔된 PDF(이미지 기반)인 경우 기본 변환기로는 텍스트를 추출하지 못합니다. 두 가지 해결 방법이 있습니다:
+- Azure Document Intelligence 사용: <code>markitdown scan.pdf -d -e "&lt;endpoint&gt;"</code>
+- <code>markitdown-ocr</code> 플러그인 사용: <code>pip install markitdown-ocr openai</code> 후 <code>--use-plugins</code> 옵션 적용</p>
+<p><strong>Q3. PPTX나 DOCX 변환 시 이미지가 무시됩니다.</strong></p>
+<p>기본적으로 이미지는 대체 텍스트(alt text)가 있을 경우에만 포함됩니다. 이미지에 대한 설명을 생성하려면 LLM 클라이언트를 설정해야 합니다:</p>
+<pre><code class="language-python">from markitdown import MarkItDown
+from openai import OpenAI
+md = MarkItDown(llm_client=OpenAI(), llm_model=&quot;gpt-4o&quot;)
+result = md.convert(&quot;presentation.pptx&quot;)
+</code></pre>
+<p><strong>Q4. 새 파일 형식 지원을 추가하고 싶습니다. 어디서 시작해야 하나요?</strong></p>
+<p><code>packages/markitdown-sample-plugin/</code> 디렉터리가 플러그인 개발 템플릿입니다. <code>_plugin.py</code>에서 <code>DocumentConverter</code>를 상속한 클래스를 만들고 <code>accepts()</code>와 <code>convert()</code>를 구현한 뒤, <code>register_converters()</code> 함수를 정의하고 <code>pyproject.toml</code>에 entry point를 등록하면 됩니다.</p>
+<p><strong>Q5. Windows에서 한글 CSV 파일 변환 시 인코딩 오류가 발생합니다.</strong></p>
+<p><code>-c</code> 옵션으로 charset을 명시하거나, Python 호출 시 <code>stream_info</code>에 charset을 지정합니다:</p>
+<pre><code class="language-bash">markitdown korean_file.csv -c cp949
+</code></pre>
+<p><strong>Q6. MCP 서버를 Claude Desktop에 연결하는 방법은 무엇인가요?</strong></p>
+<p>Claude Desktop 설정 파일(<code>claude_desktop_config.json</code>)에 다음을 추가합니다:</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;markitdown&quot;: {
+      &quot;command&quot;: &quot;markitdown-mcp&quot;
+    }
+  }
+}
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. I run <code>markitdown</code> and get <code>command not found</code>.</strong></p>
+<p>Your virtual environment is not activated or installation didn't complete.</p>
+<pre><code class="language-bash">source .venv/bin/activate
+pip install -e 'packages/markitdown[all]'
+which markitdown   # should print the executable path
+</code></pre>
+<p><strong>Q2. I converted a PDF and the output is empty or garbled.</strong></p>
+<p>The file is likely a scanned PDF (image-based). The built-in PDF converter cannot OCR images. Two solutions:
+- Use Azure Document Intelligence: <code>markitdown scan.pdf -d -e "&lt;endpoint&gt;"</code>
+- Use the <code>markitdown-ocr</code> plugin: <code>pip install markitdown-ocr openai</code>, then pass <code>--use-plugins</code></p>
+<p><strong>Q3. Images in PPTX/DOCX are being skipped.</strong></p>
+<p>Images are only included if they have alt text by default. To generate AI descriptions for images, configure an LLM client:</p>
+<pre><code class="language-python">from markitdown import MarkItDown
+from openai import OpenAI
+md = MarkItDown(llm_client=OpenAI(), llm_model=&quot;gpt-4o&quot;)
+result = md.convert(&quot;presentation.pptx&quot;)
+</code></pre>
+<p><strong>Q4. I want to add support for a new file format. Where do I start?</strong></p>
+<p>The <code>packages/markitdown-sample-plugin/</code> directory is the plugin development template. Create a class that extends <code>DocumentConverter</code> in <code>_plugin.py</code>, implement <code>accepts()</code> and <code>convert()</code>, define <code>register_converters()</code>, and register an entry point in <code>pyproject.toml</code> under <code>[project.entry-points."markitdown.plugin"]</code>.</p>
+<p><strong>Q5. I get encoding errors converting a CSV file with non-ASCII characters on Windows.</strong></p>
+<p>Provide the charset hint via the <code>-c</code> flag, or pass <code>stream_info</code> in Python:</p>
+<pre><code class="language-bash">markitdown korean_file.csv -c cp949
+</code></pre>
+<p><strong>Q6. How do I connect the MCP server to Claude Desktop?</strong></p>
+<p>Add the following to your Claude Desktop config file (<code>claude_desktop_config.json</code>):</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;markitdown&quot;: {
+      &quot;command&quot;: &quot;markitdown-mcp&quot;
+    }
+  }
+}
+</code></pre>
+<h2 id="-">---</h2>
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>분류: 라이브러리 (Library) + CLI 도구</strong></p>
+<p>MarkItDown은 직접 실행 가능한 애플리케이션이 아니라 다른 시스템에 통합하기 위한 변환 라이브러리입니다. 다음 실제 문제를 해결합니다:</p>
+<ol>
+<li><strong>LLM 입력 전처리 파이프라인</strong>: GPT-4, Claude 등의 LLM에 파일 내용을 입력할 때, 원본 바이너리 형식(PDF, DOCX 등)을 LLM이 이해하는 Markdown/텍스트로 변환합니다. 불필요한 메타데이터를 제거하고 구조는 보존하여 토큰 효율을 높입니다.</li>
+<li><strong>문서 인덱싱 및 검색</strong>: 다양한 형식의 기업 문서를 텍스트로 변환하여 벡터 DB에 임베딩하거나 전문 검색(full-text search)에 활용합니다.</li>
+<li><strong>RAG(Retrieval-Augmented Generation) 시스템 구축</strong>: 파일→Markdown 변환 → 청킹 → 임베딩 → 검색 파이프라인의 첫 번째 단계로 사용합니다.</li>
+<li><strong>자동화 보고서 처리</strong>: 스캔 문서, Excel 보고서, PowerPoint 발표 자료를 일괄 변환하여 분석 파이프라인에 통합합니다.</li>
+<li><strong>MCP 서버를 통한 AI 에이전트 파일 접근</strong>: Claude Desktop, AutoGen 등 AI 에이전트가 MCP 프로토콜을 통해 로컬/원격 파일을 직접 읽을 수 있도록 합니다.</li>
+</ol>
+<p><strong>[English]</strong></p>
+<p><strong>Classification: Library + CLI tool</strong></p>
+<p>MarkItDown is a conversion library meant to be integrated into larger systems, not a standalone application. It solves the following real-world problems:</p>
+<ol>
+<li><strong>LLM input pre-processing pipeline</strong>: When feeding file contents to LLMs like GPT-4 or Claude, convert binary formats (PDF, DOCX, etc.) into Markdown that the model understands well. Preserving structure while eliminating binary noise improves token efficiency.</li>
+<li><strong>Document indexing and search</strong>: Convert heterogeneous enterprise documents to text for embedding in vector databases or full-text search engines.</li>
+<li><strong>RAG (Retrieval-Augmented Generation) systems</strong>: MarkItDown is the first stage in a file → Markdown → chunking → embedding → retrieval pipeline.</li>
+<li><strong>Automated report processing</strong>: Batch-convert scanned documents, Excel reports, and PowerPoint decks for downstream analytics pipelines.</li>
+<li><strong>AI agent file access via MCP server</strong>: Allow AI agents (Claude Desktop, AutoGen, etc.) to read local and remote files through the Model Context Protocol.</li>
+</ol>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>핵심 컴포넌트와 역할:</strong></p>
+<table>
+<thead>
+<tr>
+<th>컴포넌트</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MarkItDown</code> 클래스</td>
+<td>중앙 라우팅 엔진. 입력 소스를 스트림으로 열고, MIME 타입을 감지하여 적절한 컨버터에 위임</td>
+</tr>
+<tr>
+<td><code>DocumentConverter</code> (추상)</td>
+<td>모든 컨버터의 기반 클래스. <code>accepts()</code> + <code>convert()</code> 인터페이스 정의</td>
+</tr>
+<tr>
+<td><code>StreamInfo</code></td>
+<td>파일 메타데이터(MIME, 확장자, 인코딩, URL 등)를 전달하는 불변 dataclass</td>
+</tr>
+<tr>
+<td>개별 컨버터들</td>
+<td>특정 형식 처리 담당 (PdfConverter, DocxConverter 등 20+ 종류)</td>
+</tr>
+<tr>
+<td><code>magika</code> 라이브러리</td>
+<td>Google의 ML 기반 파일 타입 감지기 — 확장자가 없어도 내용으로 MIME 타입 추론</td>
+</tr>
+<tr>
+<td>플러그인 시스템</td>
+<td>Python entry points로 서드파티 컨버터를 동적 주입</td>
+</tr>
+<tr>
+<td><code>markitdown-mcp</code></td>
+<td>FastMCP로 구현된 MCP 서버 — STDIO 또는 HTTP/SSE 모드</td>
+</tr>
+</tbody>
+</table>
+<p><strong>데이터 흐름:</strong>
+1. 사용자가 <code>md.convert(source)</code> 호출 (파일 경로, URL, Path, BinaryIO, requests.Response 모두 허용)
+2. <code>MarkItDown</code>이 소스 타입에 따라 <code>convert_local()</code>, <code>convert_uri()</code>, <code>convert_stream()</code>, <code>convert_response()</code> 중 하나로 라우팅
+3. <code>magika</code>로 MIME 타입 자동 감지 → <code>StreamInfo</code> 생성
+4. 등록된 컨버터 목록을 우선순위(priority) 내림차순으로 순회 → 첫 번째 <code>accepts()=True</code> 컨버터가 <code>convert()</code> 실행
+5. <code>DocumentConverterResult(markdown=..., title=...)</code> 반환</p>
+<p><strong>[English]</strong></p>
+<p><strong>Core components and their roles:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>MarkItDown</code> class</td>
+<td>Central routing engine. Opens input as a stream, detects MIME type, delegates to appropriate converter</td>
+</tr>
+<tr>
+<td><code>DocumentConverter</code> (abstract)</td>
+<td>Base class for all converters. Defines <code>accepts()</code> + <code>convert()</code> interface</td>
+</tr>
+<tr>
+<td><code>StreamInfo</code></td>
+<td>Immutable dataclass carrying file metadata (MIME, extension, charset, URL, etc.) through the pipeline</td>
+</tr>
+<tr>
+<td>Individual converters</td>
+<td>Handle specific formats (PdfConverter, DocxConverter, etc. — 20+ total)</td>
+</tr>
+<tr>
+<td><code>magika</code> library</td>
+<td>Google's ML-based file type detector — infers MIME type from content even without extension</td>
+</tr>
+<tr>
+<td>Plugin system</td>
+<td>Dynamically injects third-party converters via Python entry points</td>
+</tr>
+<tr>
+<td><code>markitdown-mcp</code></td>
+<td>MCP server implemented with FastMCP — supports STDIO or HTTP/SSE transport</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data flow:</strong>
+1. User calls <code>md.convert(source)</code> (accepts file path, URL, Path, BinaryIO, or requests.Response)
+2. <code>MarkItDown</code> routes to <code>convert_local()</code>, <code>convert_uri()</code>, <code>convert_stream()</code>, or <code>convert_response()</code> depending on source type
+3. <code>magika</code> auto-detects MIME type → <code>StreamInfo</code> is constructed
+4. Registered converters are iterated in descending priority order → first converter where <code>accepts()</code> returns <code>True</code> runs <code>convert()</code>
+5. Returns <code>DocumentConverterResult(markdown=..., title=...)</code></p>
+<pre><code class="language-mermaid">flowchart TD
+    A[&quot;User call: md.convert(source)&quot;] --&gt; B{Source type?}
+    B --&gt;|&quot;str (path)&quot;| C[convert_local]
+    B --&gt;|&quot;str (URL)&quot;| D[convert_uri]
+    B --&gt;|&quot;BinaryIO&quot;| E[convert_stream]
+    B --&gt;|&quot;requests.Response&quot;| F[convert_response]
+
+    C &amp; D &amp; E &amp; F --&gt; G[&quot;magika → StreamInfo\n(MIME, ext, charset, url)&quot;]
+
+    G --&gt; H{Priority-sorted converter list}
+    H --&gt;|&quot;accepts()? → True&quot;| I[&quot;converter.convert(stream, stream_info)&quot;]
+    H --&gt;|&quot;accepts()? → False&quot;| H
+
+    I --&gt; J[&quot;DocumentConverterResult\n(markdown, title)&quot;]
+
+    subgraph Converters
+        K[PdfConverter]
+        L[DocxConverter]
+        M[PptxConverter]
+        N[XlsxConverter]
+        O[HtmlConverter]
+        P[ImageConverter]
+        Q[AudioConverter]
+        R[DocumentIntelligenceConverter]
+        S[ContentUnderstandingConverter]
+        T[PluginConverters ...]
+    end
+
+    H --&gt; Converters
+</code></pre>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: RAG 파이프라인 — 기업 문서 검색 시스템 구축</strong></p>
+<p>기업 내 다양한 형식의 문서(PDF 계약서, Excel 재무 보고서, PowerPoint 발표 자료)를 LLM 기반 Q&amp;A 시스템에 통합:</p>
+<pre><code class="language-python">from markitdown import MarkItDown
+from pathlib import Path
+
+md = MarkItDown()
+
+def ingest_documents(folder: str) -&gt; list[dict]:
+    results = []
+    for path in Path(folder).rglob(&quot;*&quot;):
+        if path.suffix.lower() in {&quot;.pdf&quot;, &quot;.docx&quot;, &quot;.xlsx&quot;, &quot;.pptx&quot;, &quot;.html&quot;}:
+            try:
+                result = md.convert(str(path))
+                results.append({
+                    &quot;source&quot;: str(path),
+                    &quot;title&quot;: result.title or path.name,
+                    &quot;content&quot;: result.markdown,
+                })
+            except Exception as e:
+                print(f&quot;Skipped {path}: {e}&quot;)
+    return results
+
+# 이후 chunking → embedding → vector DB 저장
+documents = ingest_documents(&quot;/data/company_docs&quot;)
+</code></pre>
+<p><strong>시나리오 2: LLM 파일 분석 에이전트 (MCP 연동)</strong></p>
+<p>Claude Desktop이나 AutoGen 에이전트가 사용자 로컬 파일을 실시간으로 읽고 분석:</p>
+<pre><code class="language-bash"># Claude Desktop 설정에 MCP 서버 등록
+# claude_desktop_config.json:
+# {
+#   &quot;mcpServers&quot;: {
+#     &quot;markitdown&quot;: { &quot;command&quot;: &quot;markitdown-mcp&quot; }
+#   }
+# }
+pip install markitdown-mcp
+markitdown-mcp   # 백그라운드 실행, Claude Desktop과 STDIO로 통신
+</code></pre>
+<p>에이전트는 <code>convert_to_markdown(uri)</code> 도구를 호출하여 <code>file://</code>, <code>http://</code>, <code>data:</code> URI를 직접 처리합니다.</p>
+<p><strong>시나리오 3: CI/CD 파이프라인 내 문서 자동 변환</strong></p>
+<p>GitHub Actions에서 PR에 첨부된 기술 명세서를 자동으로 Markdown으로 변환하여 문서화 시스템에 반영:</p>
+<pre><code class="language-yaml"># .github/workflows/convert-docs.yml
+- name: Convert specs to Markdown
+  run: |
+    pip install 'markitdown[pdf,docx]'
+    for file in docs/*.pdf docs/*.docx; do
+      markitdown &quot;$file&quot; -o &quot;markdown/$(basename &quot;$file&quot; | sed 's/\.[^.]*$/.md/')&quot;
+    done
+</code></pre>
+<p><strong>시나리오 4: 스캔 문서 OCR 처리 (Azure Document Intelligence 활용)</strong></p>
+<p>병원 기록, 계약서 스캔본 등 이미지 기반 PDF 처리:</p>
+<pre><code class="language-python">from markitdown import MarkItDown
+
+md = MarkItDown(docintel_endpoint=&quot;https://&lt;resource&gt;.cognitiveservices.azure.com/&quot;)
+result = md.convert(&quot;scanned_invoice.pdf&quot;)
+print(result.markdown)
+# YAML front matter + 구조화된 텍스트 출력
+</code></pre>
+<p><strong>시나리오 5: 커스텀 플러그인으로 독점 형식 지원 추가</strong></p>
+<p>사내 독점 파일 형식을 변환하기 위한 플러그인 개발:</p>
+<pre><code class="language-python"># my_plugin/_plugin.py
+from markitdown import MarkItDown, DocumentConverter, DocumentConverterResult, StreamInfo
+from typing import BinaryIO, Any
+
+__plugin_interface_version__ = 1
+
+def register_converters(markitdown: MarkItDown, **kwargs):
+    markitdown.register_converter(MyFormatConverter())
+
+class MyFormatConverter(DocumentConverter):
+    def accepts(self, file_stream: BinaryIO, stream_info: StreamInfo, **kwargs) -&gt; bool:
+        return (stream_info.extension or &quot;&quot;).lower() == &quot;.myext&quot;
+
+    def convert(self, file_stream: BinaryIO, stream_info: StreamInfo, **kwargs) -&gt; DocumentConverterResult:
+        content = file_stream.read().decode(&quot;utf-8&quot;)
+        # 변환 로직 구현
+        return DocumentConverterResult(markdown=f&quot;# Converted\n\n{content}&quot;)
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: RAG pipeline — enterprise document search system</strong></p>
+<p>Integrating heterogeneous corporate documents (PDF contracts, Excel financial reports, PowerPoint decks) into an LLM-based Q&amp;A system:</p>
+<pre><code class="language-python">from markitdown import MarkItDown
+from pathlib import Path
+
+md = MarkItDown()
+
+def ingest_documents(folder: str) -&gt; list[dict]:
+    results = []
+    for path in Path(folder).rglob(&quot;*&quot;):
+        if path.suffix.lower() in {&quot;.pdf&quot;, &quot;.docx&quot;, &quot;.xlsx&quot;, &quot;.pptx&quot;, &quot;.html&quot;}:
+            try:
+                result = md.convert(str(path))
+                results.append({
+                    &quot;source&quot;: str(path),
+                    &quot;title&quot;: result.title or path.name,
+                    &quot;content&quot;: result.markdown,
+                })
+            except Exception as e:
+                print(f&quot;Skipped {path}: {e}&quot;)
+    return results
+
+# Follow with: chunking → embedding → store in vector DB
+documents = ingest_documents(&quot;/data/company_docs&quot;)
+</code></pre>
+<p><strong>Scenario 2: LLM file analysis agent (MCP integration)</strong></p>
+<p>Claude Desktop or AutoGen agents reading and analyzing local files in real time:</p>
+<pre><code class="language-bash"># Register in Claude Desktop config
+# claude_desktop_config.json:
+# {
+#   &quot;mcpServers&quot;: {
+#     &quot;markitdown&quot;: { &quot;command&quot;: &quot;markitdown-mcp&quot; }
+#   }
+# }
+pip install markitdown-mcp
+markitdown-mcp   # runs in background, communicates via STDIO
+</code></pre>
+<p>The agent calls the <code>convert_to_markdown(uri)</code> tool which handles <code>file://</code>, <code>http://</code>, and <code>data:</code> URIs directly.</p>
+<p><strong>Scenario 3: Automated document conversion in CI/CD pipelines</strong></p>
+<p>GitHub Actions auto-converting technical spec attachments to Markdown for a documentation system:</p>
+<pre><code class="language-yaml"># .github/workflows/convert-docs.yml
+- name: Convert specs to Markdown
+  run: |
+    pip install 'markitdown[pdf,docx]'
+    for file in docs/*.pdf docs/*.docx; do
+      markitdown &quot;$file&quot; -o &quot;markdown/$(basename &quot;$file&quot; | sed 's/\.[^.]*$/.md/')&quot;
+    done
+</code></pre>
+<p><strong>Scenario 4: Scanned document OCR (Azure Document Intelligence)</strong></p>
+<p>Processing image-based PDFs such as hospital records or scanned contracts:</p>
+<pre><code class="language-python">from markitdown import MarkItDown
+
+md = MarkItDown(docintel_endpoint=&quot;https://&lt;resource&gt;.cognitiveservices.azure.com/&quot;)
+result = md.convert(&quot;scanned_invoice.pdf&quot;)
+print(result.markdown)
+# Outputs YAML front matter + structured text
+</code></pre>
+<p><strong>Scenario 5: Adding proprietary format support via a custom plugin</strong></p>
+<p>Building a plugin for an in-house proprietary file format:</p>
+<pre><code class="language-python"># my_plugin/_plugin.py
+from markitdown import MarkItDown, DocumentConverter, DocumentConverterResult, StreamInfo
+from typing import BinaryIO, Any
+
+__plugin_interface_version__ = 1
+
+def register_converters(markitdown: MarkItDown, **kwargs):
+    markitdown.register_converter(MyFormatConverter())
+
+class MyFormatConverter(DocumentConverter):
+    def accepts(self, file_stream: BinaryIO, stream_info: StreamInfo, **kwargs) -&gt; bool:
+        return (stream_info.extension or &quot;&quot;).lower() == &quot;.myext&quot;
+
+    def convert(self, file_stream: BinaryIO, stream_info: StreamInfo, **kwargs) -&gt; DocumentConverterResult:
+        content = file_stream.read().decode(&quot;utf-8&quot;)
+        # implement conversion logic
+        return DocumentConverterResult(markdown=f&quot;# Converted\n\n{content}&quot;)
+</code></pre>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>설정 변경 포인트 (환경 변수):</strong></p>
+<table>
+<thead>
+<tr>
+<th>환경 변수</th>
+<th>용도</th>
+<th>기본값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EXIFTOOL_PATH</code></td>
+<td>exiftool 실행 파일 경로 수동 지정</td>
+<td>자동 탐지 (<code>/usr/bin</code>, <code>/usr/local/bin</code> 등)</td>
+</tr>
+<tr>
+<td><code>MARKITDOWN_ENABLE_PLUGINS</code></td>
+<td>MCP 서버에서 플러그인 활성화</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>FFMPEG_PATH</code></td>
+<td>Docker 이미지에서 ffmpeg 경로 지정</td>
+<td><code>/usr/bin/ffmpeg</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>설정 변경 포인트 (Python API):</strong></p>
+<pre><code class="language-python">MarkItDown(
+    llm_client=...,           # LLM 클라이언트 (OpenAI 호환)
+    llm_model=&quot;gpt-4o&quot;,       # 사용할 LLM 모델명
+    llm_prompt=&quot;...&quot;,         # 커스텀 이미지 설명 프롬프트
+    exiftool_path=&quot;...&quot;,      # exiftool 경로 직접 지정
+    style_map=&quot;...&quot;,          # mammoth(docx) 스타일 맵 커스터마이징
+    docintel_endpoint=&quot;...&quot;,  # Azure Document Intelligence endpoint
+    cu_endpoint=&quot;...&quot;,        # Azure Content Understanding endpoint
+    cu_analyzer_id=&quot;...&quot;,     # 특정 CU 분석기 ID
+    cu_file_types=[...],      # CU로 라우팅할 파일 타입 제한
+    enable_plugins=True,      # 플러그인 활성화
+    enable_builtins=False,    # 기본 컨버터 비활성화 (완전 커스텀 스택 구성 시)
+    requests_session=...,     # 커스텀 requests.Session (프록시, 인증 등)
+)
+</code></pre>
+<p><strong>기능 추가 시 수정해야 할 주요 파일:</strong></p>
+<ul>
+<li><strong>새 파일 형식 지원 추가</strong>: <code>packages/markitdown/src/markitdown/converters/</code> 에 새 <code>_&lt;format&gt;_converter.py</code> 파일 추가 → <code>converters/__init__.py</code> 에 import 추가 → <code>_markitdown.py</code>의 <code>enable_builtins()</code> 에 <code>self.register_converter(NewConverter())</code> 추가</li>
+<li><strong>플러그인 개발</strong>: <code>packages/markitdown-sample-plugin/</code> 을 템플릿으로 사용</li>
+<li><strong>버전 업데이트</strong>: <code>packages/markitdown/src/markitdown/__about__.py</code></li>
+</ul>
+<p><strong>플러그인 아키텍처:</strong></p>
+<p>플러그인은 Python <a href="https://packaging.python.org/en/latest/specifications/entry-points/">entry points</a> 메커니즘을 사용합니다. 플러그인 패키지의 <code>pyproject.toml</code>에 다음을 추가:</p>
+<pre><code class="language-toml">[project.entry-points.&quot;markitdown.plugin&quot;]
+my-plugin-name = &quot;my_package._plugin&quot;
+</code></pre>
+<p>그리고 <code>_plugin.py</code>에 반드시 구현해야 하는 것:
+- <code>__plugin_interface_version__ = 1</code> (현재 인터페이스 버전)
+- <code>register_converters(markitdown: MarkItDown, **kwargs)</code> 함수</p>
+<p><strong>컨버터 우선순위:</strong>
+- <code>PRIORITY_SPECIFIC_FILE_FORMAT = 0.0</code> — 특정 형식 전용 컨버터 (낮은 숫자 = 높은 우선순위)
+- <code>PRIORITY_GENERIC_FILE_FORMAT = 10.0</code> — 범용 텍스트 컨버터</p>
+<p><strong>[English]</strong></p>
+<p><strong>Configuration touch points (environment variables):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Variable</th>
+<th>Purpose</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>EXIFTOOL_PATH</code></td>
+<td>Manually specify exiftool executable path</td>
+<td>Auto-detected (<code>/usr/bin</code>, <code>/usr/local/bin</code>, etc.)</td>
+</tr>
+<tr>
+<td><code>MARKITDOWN_ENABLE_PLUGINS</code></td>
+<td>Enable plugins in the MCP server</td>
+<td><code>false</code></td>
+</tr>
+<tr>
+<td><code>FFMPEG_PATH</code></td>
+<td>Specify ffmpeg path in the Docker image</td>
+<td><code>/usr/bin/ffmpeg</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Configuration touch points (Python API):</strong></p>
+<pre><code class="language-python">MarkItDown(
+    llm_client=...,           # LLM client (OpenAI-compatible)
+    llm_model=&quot;gpt-4o&quot;,       # model name to use for image descriptions
+    llm_prompt=&quot;...&quot;,         # custom image description prompt
+    exiftool_path=&quot;...&quot;,      # manually specify exiftool path
+    style_map=&quot;...&quot;,          # mammoth (docx) style map customization
+    docintel_endpoint=&quot;...&quot;,  # Azure Document Intelligence endpoint
+    cu_endpoint=&quot;...&quot;,        # Azure Content Understanding endpoint
+    cu_analyzer_id=&quot;...&quot;,     # specific CU analyzer ID
+    cu_file_types=[...],      # restrict which file types route to CU
+    enable_plugins=True,      # activate plugins
+    enable_builtins=False,    # disable built-in converters (for a fully custom stack)
+    requests_session=...,     # custom requests.Session (proxy, auth, etc.)
+)
+</code></pre>
+<p><strong>Key files to modify when adding features:</strong></p>
+<ul>
+<li><strong>New file format support</strong>: add <code>_&lt;format&gt;_converter.py</code> to <code>packages/markitdown/src/markitdown/converters/</code> → add import to <code>converters/__init__.py</code> → call <code>self.register_converter(NewConverter())</code> in <code>_markitdown.py</code>'s <code>enable_builtins()</code></li>
+<li><strong>Plugin development</strong>: use <code>packages/markitdown-sample-plugin/</code> as the template</li>
+<li><strong>Version update</strong>: <code>packages/markitdown/src/markitdown/__about__.py</code></li>
+</ul>
+<p><strong>Plugin architecture:</strong></p>
+<p>Plugins use Python <a href="https://packaging.python.org/en/latest/specifications/entry-points/">entry points</a>. In the plugin package's <code>pyproject.toml</code>, add:</p>
+<pre><code class="language-toml">[project.entry-points.&quot;markitdown.plugin&quot;]
+my-plugin-name = &quot;my_package._plugin&quot;
+</code></pre>
+<p>Your <code>_plugin.py</code> must expose:
+- <code>__plugin_interface_version__ = 1</code> (current interface version)
+- <code>register_converters(markitdown: MarkItDown, **kwargs)</code> function</p>
+<p><strong>Converter priority:</strong>
+- <code>PRIORITY_SPECIFIC_FILE_FORMAT = 0.0</code> — format-specific converters (lower number = higher priority)
+- <code>PRIORITY_GENERIC_FILE_FORMAT = 10.0</code> — catch-all text converters</p>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>방법 1: PyPI 패키지 설치 (가장 일반적)</strong></p>
+<pre><code class="language-bash">pip install 'markitdown[all]'
+# 또는 필요한 형식만 선택:
+pip install 'markitdown[pdf,docx,xlsx]'
+</code></pre>
+<p><strong>방법 2: Docker 컨테이너 배포 (CLI 서버리스 처리 등)</strong></p>
+<pre><code class="language-bash"># 빌드
+docker build -t markitdown:latest .
+
+# 실행 (stdin→stdout, 스테이트리스)
+docker run --rm -i markitdown:latest &lt; input.pdf &gt; output.md
+
+# 대용량 파일을 위한 볼륨 마운트
+docker run --rm \
+  -v /host/data:/data \
+  markitdown:latest \
+  /data/report.pdf -o /data/report.md
+</code></pre>
+<p><strong>Dockerfile 커스터마이징 포인트:</strong>
+- <code>USERID</code>/<code>GROUPID</code> build arg: 보안을 위해 non-root 사용자 지정 (기본값: <code>nobody:nogroup</code>)
+- <code>INSTALL_GIT=true</code> build arg: 소스에서 직접 설치하는 개발 빌드용
+- <code>EXIFTOOL_PATH</code>, <code>FFMPEG_PATH</code> 환경 변수: 이미지에 이미 <code>/usr/bin/exiftool</code>, <code>/usr/bin/ffmpeg</code>로 설정됨</p>
+<p><strong>방법 3: MCP 서버 배포 (AI 에이전트 연동)</strong></p>
+<pre><code class="language-bash">pip install markitdown-mcp
+
+# HTTP/SSE 모드로 서비스 실행 (0.0.0.0은 보안 경고 발생 — 신뢰된 네트워크에서만 사용)
+markitdown-mcp --http --host 127.0.0.1 --port 3001
+</code></pre>
+<blockquote>
+<p><strong>보안 주의</strong>: <code>127.0.0.1</code> 이외의 인터페이스에 바인딩하면 서버가 네트워크에 노출되며, 인증이 없으므로 신뢰된 환경에서만 사용하세요.</p>
+</blockquote>
+<p><strong>환경별 설정 분리:</strong>
+- 개발: <code>pip install -e 'packages/markitdown[all]'</code> (editable install)
+- 스테이징/프로덕션: <code>pip install 'markitdown[all]'</code> (고정 버전 권장: <code>markitdown==0.1.6</code>)
+- 컨테이너: <code>requirements.txt</code>에 <code>markitdown[all]==0.1.6</code> 고정</p>
+<p><strong>CI/CD 파이프라인 연동 (GitHub Actions 예시):</strong></p>
+<pre><code class="language-yaml">name: Convert Documents
+on: [push]
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'markitdown[pdf,docx]'
+      - run: markitdown docs/spec.pdf -o docs/spec.md
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Option 1: PyPI package installation (most common)</strong></p>
+<pre><code class="language-bash">pip install 'markitdown[all]'
+# Or pick only the formats you need:
+pip install 'markitdown[pdf,docx,xlsx]'
+</code></pre>
+<p><strong>Option 2: Docker container deployment (CLI, serverless processing, etc.)</strong></p>
+<pre><code class="language-bash"># Build
+docker build -t markitdown:latest .
+
+# Run (stdin→stdout, stateless)
+docker run --rm -i markitdown:latest &lt; input.pdf &gt; output.md
+
+# Volume mount for large files
+docker run --rm \
+  -v /host/data:/data \
+  markitdown:latest \
+  /data/report.pdf -o /data/report.md
+</code></pre>
+<p><strong>Dockerfile customization points:</strong>
+- <code>USERID</code>/<code>GROUPID</code> build args: specify a non-root user for security (default: <code>nobody:nogroup</code>)
+- <code>INSTALL_GIT=true</code> build arg: for dev builds that install from source
+- <code>EXIFTOOL_PATH</code>, <code>FFMPEG_PATH</code> env vars: pre-set to <code>/usr/bin/exiftool</code> and <code>/usr/bin/ffmpeg</code> in the image</p>
+<p><strong>Option 3: MCP server deployment (AI agent integration)</strong></p>
+<pre><code class="language-bash">pip install markitdown-mcp
+
+# Serve in HTTP/SSE mode (binding to 0.0.0.0 triggers a security warning — trusted networks only)
+markitdown-mcp --http --host 127.0.0.1 --port 3001
+</code></pre>
+<blockquote>
+<p><strong>Security warning</strong>: Binding to any interface other than <code>127.0.0.1</code> exposes the server to the network with no authentication. Only use in trusted environments.</p>
+</blockquote>
+<p><strong>Environment-specific configuration separation:</strong>
+- Development: <code>pip install -e 'packages/markitdown[all]'</code> (editable install)
+- Staging/production: <code>pip install 'markitdown[all]'</code> (pin the version: <code>markitdown==0.1.6</code>)
+- Container: pin <code>markitdown[all]==0.1.6</code> in <code>requirements.txt</code></p>
+<p><strong>CI/CD pipeline integration (GitHub Actions example):</strong></p>
+<pre><code class="language-yaml">name: Convert Documents
+on: [push]
+jobs:
+  convert:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install 'markitdown[pdf,docx]'
+      - run: markitdown docs/spec.pdf -o docs/spec.md
+</code></pre>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>알려진 성능 병목 지점:</strong></p>
+<ol>
+<li><strong>대용량 PDF 처리</strong>: <code>pdfminer.six</code> + <code>pdfplumber</code> 기반 PDF 파싱은 페이지가 많거나 복잡한 레이아웃의 경우 메모리/시간 소모가 클 수 있습니다. 100페이지 이상의 PDF는 Azure Document Intelligence 사용을 권장합니다.</li>
+<li><strong>이미지 기반(스캔) PDF</strong>: OCR 없이 처리 불가 — <code>markitdown-ocr</code> 플러그인 또는 Azure 서비스가 반드시 필요합니다.</li>
+<li><strong>LLM API 호출 지연</strong>: <code>llm_client</code>를 설정하면 PPTX의 각 이미지마다 API 호출이 발생하므로 슬라이드 수에 비례해 처리 시간이 늘어납니다.</li>
+<li><strong>magika 초기화</strong>: <code>MarkItDown()</code> 인스턴스 생성 시 magika ML 모델이 로드됩니다. 고처리량 환경에서는 <strong>인스턴스를 재사용</strong>하세요 (요청마다 새 인스턴스를 만들지 마세요).</li>
+</ol>
+<p><strong>수평/수직 확장 전략:</strong></p>
+<pre><code class="language-python"># 올바른 패턴: 인스턴스 재사용 (module-level singleton)
+_md_instance = MarkItDown()
+
+def convert_file(path: str) -&gt; str:
+    return _md_instance.convert(path).markdown
+
+# 잘못된 패턴: 요청마다 새 인스턴스 생성 (magika 재로드 발생)
+def convert_file_bad(path: str) -&gt; str:
+    return MarkItDown().convert(path).markdown  # 비효율적!
+</code></pre>
+<ul>
+<li><strong>수평 확장</strong>: MarkItDown은 스테이트리스(상태 없음)이므로 워커 프로세스(Celery, multiprocessing.Pool 등)를 여러 개 띄워 병렬 처리 가능합니다.</li>
+<li><strong>배치 처리</strong>: 대량 파일 처리 시 <code>concurrent.futures.ThreadPoolExecutor</code> 또는 <code>ProcessPoolExecutor</code> 활용을 권장합니다.</li>
+<li><strong>메모리 관리</strong>: <code>convert_stream()</code>을 사용하면 전체 파일을 메모리에 로드하지 않고 스트림으로 처리 가능합니다.</li>
+</ul>
+<p><strong>캐싱 전략:</strong>
+- MarkItDown 자체에는 캐싱 기능이 없습니다. 동일 파일을 반복 변환하는 경우, 상위 레이어에서 파일 해시(MD5/SHA256) 기반 결과 캐싱을 구현하세요.</p>
+<p><strong>모니터링:</strong>
+- <code>result.markdown</code>의 길이(토큰 수)를 추적하여 변환 품질 모니터링 가능
+- Azure 서비스 사용 시 Azure Monitor로 API 호출량 및 비용 추적
+- <code>FileConversionException</code>, <code>UnsupportedFormatException</code>을 로깅하여 실패율 모니터링</p>
+<p><strong>[English]</strong></p>
+<p><strong>Known performance bottlenecks:</strong></p>
+<ol>
+<li><strong>Large PDF processing</strong>: The <code>pdfminer.six</code> + <code>pdfplumber</code> PDF parser can be slow and memory-intensive for documents with many pages or complex layouts. Azure Document Intelligence is recommended for 100+ page PDFs.</li>
+<li><strong>Image-based (scanned) PDFs</strong>: Cannot be processed without OCR — the <code>markitdown-ocr</code> plugin or an Azure service is required.</li>
+<li><strong>LLM API call latency</strong>: When <code>llm_client</code> is configured, each image in a PPTX triggers an API call, so processing time scales linearly with slide count.</li>
+<li><strong>magika initialization</strong>: Creating a <code>MarkItDown()</code> instance loads the magika ML model. In high-throughput environments, <strong>reuse the instance</strong> — do not create a new one per request.</li>
+</ol>
+<p><strong>Horizontal / vertical scaling strategies:</strong></p>
+<pre><code class="language-python"># Correct pattern: reuse instance (module-level singleton)
+_md_instance = MarkItDown()
+
+def convert_file(path: str) -&gt; str:
+    return _md_instance.convert(path).markdown
+
+# Wrong pattern: new instance per request (reloads magika every time)
+def convert_file_bad(path: str) -&gt; str:
+    return MarkItDown().convert(path).markdown  # inefficient!
+</code></pre>
+<ul>
+<li><strong>Horizontal scaling</strong>: MarkItDown is stateless, so multiple worker processes (Celery, <code>multiprocessing.Pool</code>, etc.) can run in parallel without conflict.</li>
+<li><strong>Batch processing</strong>: Use <code>concurrent.futures.ThreadPoolExecutor</code> or <code>ProcessPoolExecutor</code> for bulk file conversion.</li>
+<li><strong>Memory management</strong>: <code>convert_stream()</code> allows processing without loading the entire file into memory at once.</li>
+</ul>
+<p><strong>Caching strategy:</strong>
+- MarkItDown has no built-in caching. For repeated conversion of the same files, implement hash-based (MD5/SHA256) result caching at the application layer.</p>
+<p><strong>Monitoring:</strong>
+- Track <code>len(result.markdown)</code> (or token count) as a proxy for conversion quality
+- When using Azure services, use Azure Monitor to track API call volume and cost
+- Log <code>FileConversionException</code> and <code>UnsupportedFormatException</code> to monitor conversion failure rates</p>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p>MarkItDown 공식 문서는 보안을 특히 강조합니다. README의 Security Considerations 섹션을 반드시 숙지하세요.</p>
+<p><strong>환경 변수 및 시크릿 관리:</strong>
+- [ ] Azure 엔드포인트 URL과 API 키는 환경 변수 또는 Azure Key Vault를 통해 관리 (코드에 하드코딩 금지)
+- [ ] <code>MARKITDOWN_ENABLE_PLUGINS=true</code> 설정 시 로드되는 플러그인의 신뢰성 검증
+- [ ] Docker 배포 시 <code>USERID</code>/<code>GROUPID</code> build arg로 non-root 사용자 지정</p>
+<p><strong>입력 검증 (가장 중요):</strong>
+- [ ] <strong>신뢰할 수 없는 사용자 입력을 그대로 <code>convert()</code>에 전달 금지</strong> — MarkItDown은 현재 프로세스 권한으로 파일 시스템 및 네트워크에 접근합니다.
+- [ ] 서버사이드 또는 멀티테넌트 환경에서는 파일 경로를 whitelist로 검증 (path traversal 방지)
+- [ ] URI 입력 시 허용 스킴(<code>http://</code>, <code>https://</code>, <code>file://</code>) 및 대상 도메인을 제한
+- [ ] 내부 네트워크 주소(loopback, link-local, metadata service IP)로의 요청 차단 (SSRF 방지)
+- [ ] 필요한 최소 권한의 변환 메서드만 호출:
+  - 로컬 파일만 처리: <code>convert_local()</code> 사용
+  - 외부 URL 처리 시: <code>requests.get()</code>을 직접 호출 후 <code>convert_response()</code> 사용
+  - 최대 제어: <code>convert_stream()</code> 사용</p>
+<p><strong>의존성 취약점 점검:</strong>
+- [ ] <code>pip audit</code> 또는 <code>safety check</code>로 정기적 취약점 스캔
+- [ ] GitHub Dependabot이 <code>.github/dependabot.yml</code>로 GitHub Actions 의존성 자동 업데이트 설정됨 (Python 패키지는 별도 설정 필요)
+- [ ] <code>defusedxml</code> 의존성 포함 — XML 기반 형식(DOCX, PPTX 등)의 XXE 취약점 방지를 위해 이미 적용됨</p>
+<p><strong>MCP 서버 특수 고려사항:</strong>
+- [ ] <code>--http</code> 모드 사용 시 <code>127.0.0.1</code>에만 바인딩 (기본값)
+- [ ] 외부 노출이 필요한 경우 반드시 리버스 프록시(nginx, Traefik) + TLS + 인증 레이어 추가
+- [ ] <code>MARKITDOWN_ENABLE_PLUGINS</code> 환경 변수로 플러그인 활성화는 신중하게 결정</p>
+<p><strong>[English]</strong></p>
+<p>The official MarkItDown README has a dedicated Security Considerations section — make sure to read it.</p>
+<p><strong>Environment variables and secret management:</strong>
+- [ ] Azure endpoint URLs and API keys must be managed via environment variables or Azure Key Vault (never hardcoded)
+- [ ] Verify the trustworthiness of any plugin loaded when <code>MARKITDOWN_ENABLE_PLUGINS=true</code>
+- [ ] In Docker deployments, set <code>USERID</code>/<code>GROUPID</code> build args to run as a non-root user</p>
+<p><strong>Input validation (most critical):</strong>
+- [ ] <strong>Never pass untrusted user input directly to <code>convert()</code></strong> — MarkItDown accesses the filesystem and network with the current process's privileges.
+- [ ] In server-side or multi-tenant environments, validate file paths against a whitelist (prevent path traversal)
+- [ ] Restrict allowed URI schemes (<code>http://</code>, <code>https://</code>, <code>file://</code>) and destination domains for URI inputs
+- [ ] Block requests to internal network addresses (loopback, link-local, metadata service IPs) to prevent SSRF
+- [ ] Call the narrowest conversion method needed for your use case:
+  - Local files only: use <code>convert_local()</code>
+  - External URLs: call <code>requests.get()</code> yourself, then use <code>convert_response()</code>
+  - Maximum control: use <code>convert_stream()</code></p>
+<p><strong>Dependency vulnerability scanning:</strong>
+- [ ] Run <code>pip audit</code> or <code>safety check</code> regularly for vulnerability scans
+- [ ] GitHub Dependabot is configured (<code>.github/dependabot.yml</code>) for GitHub Actions; add Python package scanning separately if needed
+- [ ] <code>defusedxml</code> dependency is already included — it mitigates XXE vulnerabilities in XML-based formats (DOCX, PPTX, etc.)</p>
+<p><strong>MCP server-specific considerations:</strong>
+- [ ] In <code>--http</code> mode, always bind to <code>127.0.0.1</code> only (the default)
+- [ ] If external exposure is needed, add a reverse proxy (nginx, Traefik) with TLS and an authentication layer
+- [ ] Enabling plugins via <code>MARKITDOWN_ENABLE_PLUGINS</code> should be a deliberate, reviewed decision</p>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서:</strong>
+- <a href="https://github.com/microsoft/markitdown">MarkItDown GitHub 저장소</a> — README, 이슈 트래커, PR 목록
+- <a href="https://pypi.org/project/markitdown/">PyPI 패키지 페이지</a> — 릴리스 노트, 다운로드 통계
+- <a href="https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/">Azure Document Intelligence 공식 문서</a>
+- <a href="https://learn.microsoft.com/azure/ai-services/content-understanding/">Azure Content Understanding 공식 문서</a>
+- <a href="https://modelcontextprotocol.io/">Model Context Protocol(MCP) 명세</a>
+- <a href="https://hatch.pypa.io/">hatch 빌드 도구 문서</a>
+- <a href="https://github.com/google/magika">magika(파일 타입 감지) GitHub</a></p>
+<p><strong>관련 블로그 포스트 / 튜토리얼:</strong>
+- MarkItDown은 Microsoft AutoGen 팀이 개발했으며, 일반적으로 AutoGen 생태계 관련 블로그에서 사용 사례를 찾을 수 있습니다.
+- <code>#markitdown-plugin</code> GitHub 태그로 커뮤니티 플러그인 검색 가능</p>
+<p><strong>유사 프로젝트 비교 (장단점):</strong></p>
+<table>
+<thead>
+<tr>
+<th>프로젝트</th>
+<th>강점</th>
+<th>약점</th>
+<th>MarkItDown 대비</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>textract</strong></td>
+<td>광범위한 형식 지원, 성숙한 프로젝트</td>
+<td>Markdown 구조 보존 부족, Python 3 지원 불안정</td>
+<td>MarkItDown은 LLM 친화적 Markdown에 특화</td>
+</tr>
+<tr>
+<td><strong>unstructured</strong></td>
+<td>강력한 레이아웃 분석, 청킹 내장</td>
+<td>무겁고 복잡한 설치, 높은 리소스 요구</td>
+<td>MarkItDown은 훨씬 경량하고 설치 간단</td>
+</tr>
+<tr>
+<td><strong>PyMuPDF (fitz)</strong></td>
+<td>PDF에 특화, 매우 빠름</td>
+<td>PDF 전용, Markdown 변환 기능 없음</td>
+<td>MarkItDown은 다형식 지원</td>
+</tr>
+<tr>
+<td><strong>Apache Tika</strong></td>
+<td>Java 생태계, 매우 많은 형식 지원</td>
+<td>JVM 의존, 서버 실행 필요</td>
+<td>MarkItDown은 순수 Python, 서버 불필요</td>
+</tr>
+<tr>
+<td><strong>docling (IBM)</strong></td>
+<td>고품질 레이아웃 보존</td>
+<td>무겁고 ML 모델 의존</td>
+<td>MarkItDown은 경량하고 플러그인 확장 가능</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MarkItDown의 주요 장점:</strong>
+- 경량하고 의존성 최소화 (코어는 6개 의존성만)
+- LLM/Markdown 최적화 출력
+- 선택적 의존성으로 설치 크기 제어 가능
+- 플러그인 시스템으로 확장 용이
+- MCP 서버 내장 (AI 에이전트 연동)
+- Microsoft/AutoGen 에코시스템과 공식 통합</p>
+<p><strong>MarkItDown의 주요 단점:</strong>
+- 스캔 PDF OCR에 외부 서비스 필요
+- 고품질 레이아웃 재현이 필요한 경우 부적합
+- 비디오 변환은 Azure Content Understanding에만 의존</p>
+<p><strong>[English]</strong></p>
+<p><strong>Official documentation:</strong>
+- <a href="https://github.com/microsoft/markitdown">MarkItDown GitHub repository</a> — README, issue tracker, PR list
+- <a href="https://pypi.org/project/markitdown/">PyPI package page</a> — release notes, download stats
+- <a href="https://learn.microsoft.com/en-us/azure/ai-services/document-intelligence/">Azure Document Intelligence documentation</a>
+- <a href="https://learn.microsoft.com/azure/ai-services/content-understanding/">Azure Content Understanding documentation</a>
+- <a href="https://modelcontextprotocol.io/">Model Context Protocol (MCP) specification</a>
+- <a href="https://hatch.pypa.io/">hatch build tool documentation</a>
+- <a href="https://github.com/google/magika">magika (file type detection) GitHub</a></p>
+<p><strong>Related blog posts / tutorials:</strong>
+- MarkItDown was developed by the Microsoft AutoGen team; search the AutoGen ecosystem blog for practical use-case articles.
+- Search GitHub for the <code>#markitdown-plugin</code> hashtag to discover community plugins.</p>
+<p><strong>Comparison with similar projects (pros and cons):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Strengths</th>
+<th>Weaknesses</th>
+<th>vs. MarkItDown</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>textract</strong></td>
+<td>Wide format support, mature project</td>
+<td>Poor Markdown structure preservation, unstable Python 3 support</td>
+<td>MarkItDown specializes in LLM-friendly Markdown output</td>
+</tr>
+<tr>
+<td><strong>unstructured</strong></td>
+<td>Powerful layout analysis, built-in chunking</td>
+<td>Heavy, complex install, high resource requirements</td>
+<td>MarkItDown is much lighter and simpler to install</td>
+</tr>
+<tr>
+<td><strong>PyMuPDF (fitz)</strong></td>
+<td>PDF-specialized, very fast</td>
+<td>PDF only, no Markdown conversion</td>
+<td>MarkItDown covers many formats</td>
+</tr>
+<tr>
+<td><strong>Apache Tika</strong></td>
+<td>JVM ecosystem, vast format support</td>
+<td>JVM dependency, requires a running server</td>
+<td>MarkItDown is pure Python, no server needed</td>
+</tr>
+<tr>
+<td><strong>docling (IBM)</strong></td>
+<td>High-quality layout preservation</td>
+<td>Heavy, ML model dependent</td>
+<td>MarkItDown is lightweight and plugin-extensible</td>
+</tr>
+</tbody>
+</table>
+<p><strong>MarkItDown's main advantages:</strong>
+- Lightweight with minimal dependencies (core requires only 6 packages)
+- LLM/Markdown-optimized output
+- Optional dependencies let you control install size
+- Plugin system for easy extension
+- Built-in MCP server for AI agent integration
+- Official integration with the Microsoft/AutoGen ecosystem</p>
+<p><strong>MarkItDown's main limitations:</strong>
+- Scanned PDF OCR requires an external service
+- Not suitable when high-fidelity layout reproduction is needed
+- Video conversion depends entirely on Azure Content Understanding</p>
+<hr />
+<hr />
+<h2 id="final-report">최종 보고 / Final Report</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>단일 프로젝트 모드</strong>로 분석이 완료되었습니다.</p>
+<p><strong>생성된 파일 경로:</strong>
+- <code>/tmp/github-dashboard-analysis/microsoft_markitdown/.review/GUIDE4Junior.md</code>
+- <code>/tmp/github-dashboard-analysis/microsoft_markitdown/.review/GUIDE4ImpMethod.md</code></p>
+<blockquote>
+<p>본 가이드는 파일로 저장되지 않고 위 내용으로 직접 출력되었습니다.</p>
+</blockquote>
+<p><strong>웹 검색 의존 섹션:</strong> 없음 (모든 내용은 저장소 소스 코드, <code>pyproject.toml</code>, <code>Dockerfile</code>, <code>README.md</code>, <code>.pre-commit-config.yaml</code>, <code>__main__.py</code>, <code>_markitdown.py</code> 등 직접 파일 분석에서 도출됨)</p>
+<p><strong>건너뛴 섹션:</strong> 없음. 모든 섹션 작성 완료. 단, 아래 사항 참고:
+- 섹션 6 (로컬 실행): MarkItDown이 서버 애플리케이션이 아니므로 "접속 URL/포트" 대신 CLI 및 Python API 실행 방법으로 대체
+- 섹션 7 (테스트): LLM 통합 테스트는 OpenAI API 키가 있어야 실행 가능함을 명시</p>
+<hr />
+<p><strong>[English]</strong></p>
+<p>Analysis completed in <strong>single-project mode</strong>.</p>
+<p><strong>Generated file paths:</strong>
+- <code>/tmp/github-dashboard-analysis/microsoft_markitdown/.review/GUIDE4Junior.md</code>
+- <code>/tmp/github-dashboard-analysis/microsoft_markitdown/.review/GUIDE4ImpMethod.md</code></p>
+<blockquote>
+<p>Per the output instruction, these guides were rendered as direct output rather than written to disk.</p>
+</blockquote>
+<p><strong>Sections relying on web search:</strong> None. All content was derived directly from repository analysis: <code>pyproject.toml</code>, <code>Dockerfile</code>, <code>README.md</code>, <code>.pre-commit-config.yaml</code>, <code>__main__.py</code>, <code>_markitdown.py</code>, <code>_base_converter.py</code>, <code>_stream_info.py</code>, <code>converters/__init__.py</code>, and the sample plugin source.</p>
+<p><strong>Skipped sections:</strong> None — all sections are fully populated. Notable adaptations:
+- Section 6 (Running Locally): Because MarkItDown is not a server application, "access URL/port" was replaced with CLI and Python API invocation patterns; the MCP server's port 3001 is the only network endpoint.
+- Section 7 (Tests): LLM integration tests noted as requiring an OpenAI API key to run.</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>microsoft/markitdown</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/microsoft/markitdown" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

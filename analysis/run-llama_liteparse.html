@@ -1,0 +1,3173 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>run-llama/liteparse - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/run-llama/liteparse" target="_blank" rel="noopener">run-llama/liteparse</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A fast, helpful, and open-source document parser</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">weekly trending</span>
+      <span class="badge badge-lang">Rust</span>
+      <span class="badge badge-stars">★ 9186</span>
+      <span class="badge badge-stars">+2,877 stars this week</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>Now I have all the information needed to compile the comprehensive report. Let me write it.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-06
+대상 / Target: <code>/tmp/github-dashboard-analysis/run-llama_liteparse</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved</strong>
+LiteParse는 PDF 및 다양한 문서 형식(DOCX, XLSX, PPTX, 이미지)으로부터 고품질의 공간 인식 텍스트(bounding box 포함)를 로컬에서 추출하는 도구입니다. 클라우드 의존 없이 빠르고 가벼운 문서 파싱을 제공하며, OCR(Tesseract 내장 또는 외부 HTTP 서버), 레이아웃 재구성(Grid Projection), 스크린샷 생성을 지원합니다.</p>
+<p>LiteParse solves the problem of fast, lightweight local PDF/document parsing with spatial text extraction, bounding boxes, and optional OCR — without cloud dependencies or LLM integrations.</p>
+<p><strong>분류 / Classification</strong>: Library + CLI Tool (multi-language bindings)</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Rust (edition 2024), Node.js ≥18, Python ≥3.10, WASM (wasm32-wasi)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>tokio (async), napi-rs (Node binding), PyO3/maturin (Python binding), wasm-bindgen (WASM binding)</td>
+</tr>
+<tr>
+<td>핵심 의존성 / Core Deps</td>
+<td>PDFium (C library, BSD-3), Tesseract (Apache 2.0), reqwest 0.13, serde/serde_json, clap 4</td>
+</tr>
+<tr>
+<td>TLS 스택 / TLS</td>
+<td>rustls (aws-lc-rs 백엔드), openssl 0.10 (빌드 의존)</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>없음 (stateless library) — 파일 시스템만 사용</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>HTTP (외부 OCR 서버 연동용, reqwest 기반)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Docker (multi-stage), crates.io, npm (@llamaindex/liteparse), PyPI (liteparse), WASM</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│                   Input Layer                           │
+│  PDF ─── PDFium  │  DOCX/XLSX/PPTX ─ LibreOffice conv  │
+│  Images ──────── ImageMagick conversion                 │
+└───────────────────────┬─────────────────────────────────┘
+                        │
+┌───────────────────────▼─────────────────────────────────┐
+│                  Rust Core (liteparse crate)             │
+│  extract.rs ─ raw text items from PDFium                │
+│  render.rs ─ page PNG rendering                         │
+│  ocr/ ─ OcrEngine trait: Tesseract | HTTP               │
+│  ocr_merge.rs ─ merge native + OCR results              │
+│  projection.rs ─ spatial grid, anchor-based layout      │
+│  output/ ─ JSON / Text formatters                       │
+└────────────┬─────────────┬───────────────────────────────┘
+             │             │
+   ┌─────────▼──┐  ┌───────▼──────────┐
+   │ Language   │  │  CLI binary       │
+   │ Bindings   │  │  (lit / liteparse)│
+   │ napi-rs    │  └───────────────────┘
+   │ PyO3       │
+   │ wasm-bindgen│
+   └────────────┘
+</code></pre>
+<p><strong>아키텍처 패턴</strong>: Pipeline (Extract → OCR → Merge → Project → Output), 트레이트 기반 플러그인(OcrEngine), stateless 라이브러리 설계</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>liteparse/                          (v2.0.6, Apache-2.0)
+├── crates/
+│   ├── liteparse/                  # Core Rust library + CLI (lit binary)
+│   │   └── src/
+│   │       ├── main.rs, lib.rs, parser.rs, config.rs, types.rs
+│   │       ├── projection.rs, extract.rs, render.rs, ocr_merge.rs
+│   │       ├── conversion.rs, error.rs, search.rs
+│   │       ├── ocr/ (mod.rs, tesseract.rs, http_simple.rs)
+│   │       └── output/ (mod.rs, json.rs, text.rs)
+│   ├── liteparse-napi/             # Node.js native bindings (napi-rs)
+│   ├── liteparse-python/           # Python bindings (PyO3)
+│   ├── liteparse-wasm/             # WASM bindings (wasm-bindgen)
+│   ├── pdfium/                     # Safe Rust wrapper for PDFium
+│   └── pdfium-sys/                 # Raw FFI bindings + auto-download
+├── packages/
+│   ├── node/                       # npm: @llamaindex/liteparse
+│   ├── python/                     # PyPI: liteparse
+│   └── wasm/                       # npm: @llamaindex/liteparse-wasm
+├── ocr/
+│   ├── easyocr/                    # EasyOCR HTTP wrapper (FastAPI)
+│   └── paddleocr/                  # PaddleOCR HTTP wrapper (FastAPI)
+├── dataset_eval_utils/             # Eval tooling (Anthropic API, PyMuPDF)
+├── .github/workflows/              # CI/CD (17개 워크플로우)
+├── Dockerfile, full.Dockerfile
+├── Cargo.lock                      # 재현 가능한 빌드 보장
+├── LICENSE (Apache 2.0)
+├── SECURITY.md, CONTRIBUTING.md, CHANGELOG.md
+└── README.md, OCR_API_SPEC.md
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td><strong>Apache License 2.0</strong></td>
+</tr>
+<tr>
+<td>파일 위치 / File</td>
+<td><code>LICENSE</code> (루트, 정식 Apache 2.0 전문 포함)</td>
+</tr>
+<tr>
+<td>선언 위치 / Declared</td>
+<td><code>Cargo.toml</code> (<code>license = "Apache-2.0"</code>), <code>packages/node/package.json</code> (<code>"license": "Apache-2.0"</code>), <code>packages/wasm/package.json</code> (<code>"license": "Apache-2.0"</code>)</td>
+</tr>
+<tr>
+<td>⚠️ 불일치 / Inconsistency</td>
+<td><code>packages/python/pyproject.toml</code>의 <code>license = "MIT"</code> — <strong>오류</strong>: 프로젝트는 Apache 2.0이나 Python 패키지 메타데이터에 MIT로 잘못 표기됨</td>
+</tr>
+<tr>
+<td>주요 의무 / Key Obligations</td>
+<td>저작권 고지 유지, 수정 파일 표시, NOTICE 파일 포함 배포 시 전달 의무</td>
+</tr>
+<tr>
+<td>특허 부여 / Patent Grant</td>
+<td><strong>포함됨</strong> (Apache 2.0 Section 3 — 명시적 특허 라이선스)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>⚠️ <strong>즉각 조치 필요</strong>: <code>packages/python/pyproject.toml</code>의 <code>license = "MIT"</code> 를 <code>license = "Apache-2.0"</code> 으로 수정해야 합니다. 이는 PyPI에 업로드된 패키지 메타데이터에도 반영되어 법적 불일치를 초래합니다.</p>
+</blockquote>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<h4 id="rust-core-rust-dependencies">핵심 Rust 의존성 / Core Rust Dependencies</h4>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PDFium (Google)</td>
+<td>chromium/7870</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>tesseract-rs</td>
+<td>0.2.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>tokio</td>
+<td>1.52.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>serde / serde_json</td>
+<td>1.0.228 / 1.0.149</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>reqwest</td>
+<td>0.13.3</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>clap</td>
+<td>4.6.0</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>thiserror</td>
+<td>2.0.18</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>image</td>
+<td>0.25</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>napi / napi-rs</td>
+<td>2.16.x</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>pyo3</td>
+<td>0.28.3</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>wasm-bindgen</td>
+<td>0.2.121</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>aws-lc-rs</td>
+<td>1.16.3</td>
+<td>ISC + OpenSSL (Apache 2.0-like)</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>openssl</td>
+<td>0.10.80</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>rustls</td>
+<td>0.23.40</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>libloading</td>
+<td>0.8</td>
+<td>ISC</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>flate2</td>
+<td>1.1.9</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>tempfile</td>
+<td>3.27.0</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>ureq</td>
+<td>3.3.0</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+</tbody>
+</table>
+<h4 id="nodejs-nodejs-dependencies">Node.js 의존성 / Node.js Dependencies</h4>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>commander</td>
+<td>12.1.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>typescript</td>
+<td>5.9.3</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>@napi-rs/cli</td>
+<td>2.18.4</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+</tbody>
+</table>
+<h4 id="pythonocr-pythonocr-server-dependencies">Python/OCR 서버 의존성 / Python/OCR Server Dependencies</h4>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>maturin</td>
+<td>MIT OR Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>EasyOCR</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>PaddleOCR</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+<tr>
+<td>FastAPI</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Low</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>참고</strong>: <code>dataset_eval_utils</code>는 평가 도구로 핵심 제품 코드가 아님. 해당 모듈은 <code>anthropic</code>, <code>pymupdf</code> 등을 포함하나 배포 제품에는 포함되지 않음.</p>
+</blockquote>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD-3, ISC</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지 / Commercialization prohibited</td>
+</tr>
+</tbody>
+</table>
+<p><strong>LiteParse 적용 등급</strong>: 프로젝트 전체가 <strong>🟢 Permissive</strong> 계열로만 구성됨. GPL/AGPL/LGPL/BUSL 의존성 <strong>없음</strong> (확인됨).</p>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>충돌 여부</strong>: 없음. 모든 의존성이 Apache 2.0, MIT, BSD-3, ISC 계열로 상호 호환됩니다.</p>
+<p><strong>특이사항</strong>:
+1. <strong>PDFium</strong>: Google이 제공하는 BSD-3-Clause 라이브러리. <code>run-llama/pdfium-binaries</code>에서 빌드된 바이너리를 빌드 타임에 자동 다운로드. BSD-3 저작권 고지 의무를 이행해야 함.
+2. <strong>Python 패키지 라이선스 불일치</strong>: <code>packages/python/pyproject.toml</code>에서 <code>license = "MIT"</code>로 잘못 선언. 실제 라이선스는 Apache 2.0으로 PyPI 메타데이터 오류.
+3. <strong>Apache 2.0 특허 부여 포함</strong>: 기여자로부터의 특허 라이선스가 자동 부여되어 특허 방어력이 높음.
+4. <strong>Tesseract 훈련 데이터</strong>: 런타임 다운로드하는 tessdata는 Apache 2.0 또는 개별 언어별 라이선스(일부 <code>tesseract-ocr</code> 공식 데이터는 Apache 2.0). 오프라인 환경에서 별도 확인 필요.</p>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[ ] <strong>저작권 고지 포함</strong>: 제품 패키징/배포 시 <code>LICENSE</code>(Apache 2.0), PDFium BSD-3 저작권 고지, Tesseract Apache 2.0 고지 포함 필요</li>
+<li>[ ] <strong>NOTICE 파일 부재</strong>: 현재 <code>NOTICE</code> 파일이 없음. Apache 2.0 제4조(d)에 따라 배포 시 NOTICE 파일을 포함하거나, 별도 NOTICE가 없는 경우라도 서드파티 저작권 표기 체계 수립 필요</li>
+<li>[ ] <strong>수정 파일 표시</strong>: 소스 코드 수정 시 수정 사실 명기 의무</li>
+<li>[ ] <strong>Python 패키지 라이선스 수정</strong>: <code>packages/python/pyproject.toml</code>의 <code>license = "MIT"</code> → <code>"Apache-2.0"</code> 정정</li>
+<li>[ ] <strong>소스 공개 의무</strong>: 없음 (Copyleft 부재)</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재 — <code>security@llamaindex.ai</code>로 비공개 보고 안내</td>
+</tr>
+<tr>
+<td>Dependabot</td>
+<td>❌ 부재 (<code>.github/dependabot.yml</code> 없음)</td>
+</tr>
+<tr>
+<td>Renovate</td>
+<td>❌ 부재 (<code>renovate.json</code> 없음)</td>
+</tr>
+<tr>
+<td>Snyk</td>
+<td>❌ 부재 (<code>.snyk</code> 없음)</td>
+</tr>
+<tr>
+<td>SBOM (cyclonedx/SPDX)</td>
+<td>❌ 부재</td>
+</tr>
+</tbody>
+</table>
+<p><strong>평가</strong>: SECURITY.md 정책은 명확하게 작성되어 있으나, 자동화된 의존성 취약점 스캐닝 체계가 전혀 없습니다. 상용 운영 환경에서는 Dependabot 또는 cargo-audit을 CI에 통합해야 합니다.</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>하드코딩된 시크릿</strong>: 없음. <code>password</code> 파라미터는 사용자가 런타임에 전달하는 값이며 코드 내 하드코딩 없음.</p>
+<p><strong>PDFium 자동 다운로드</strong>: 빌드 시 <code>run-llama/pdfium-binaries</code>에서 바이너리를 다운로드. 이 릴리스 URL(<code>chromium/7870</code>)이 검증 없이 신뢰됩니다. Supply chain 관점에서 바이너리 체크섬 검증 여부 확인 필요. (<code>build.rs</code> 내 다운로드 로직에서 서명/체크섬 검증 코드 미확인)</p>
+<p><strong>Tesseract 훈련 데이터 다운로드</strong>: 런타임 첫 사용 시 tessdata를 자동 다운로드. 네트워크 격리 환경에서 문제 발생 가능 (TESSDATA_PREFIX 환경변수로 우회 가능).</p>
+<p><strong>aws-lc-rs/openssl</strong>: TLS 의존성은 최신 버전이나 장기적으로 CVE 모니터링 필요.</p>
+<p><strong>EOL 위험</strong>: 현재 사용 중인 버전들은 대체로 최신 stable 버전입니다.</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>인증/인가</strong>: LiteParse는 로컬 라이브러리 도구로 네트워크 서비스를 직접 노출하지 않음. PDF 비밀번호는 PDFium API에 위임.</p>
+<p><strong>시크릿 관리</strong>: 해당 없음 — 라이브러리이므로 내부 시크릿 없음. OCR 서버 URL은 설정 파라미터로 전달.</p>
+<p><strong>신뢰 경계 (SECURITY.md에 명시)</strong>:
+- 악의적 입력 파일(zip bomb, 경로 탐색 등)은 <strong>사용자 책임</strong>으로 명시됨
+- 웹 서비스로 노출 시 샌드박싱, 타임아웃, 파일 검증은 <strong>배포자 책임</strong>으로 명시됨
+- 이 점을 상용 서비스 빌드 시 반드시 인지하고 보안 계층을 추가해야 함</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06-05 (v2.0.6) — 분석 전날</td>
+</tr>
+<tr>
+<td>릴리스 이력 / Release history</td>
+<td>CHANGELOG에 v1.0.0 ~ v2.0.6까지 18개 릴리스 (1.x WASM/Node, 2.x Rust-native)</td>
+</tr>
+<tr>
+<td>활성 기여자 / Contributors</td>
+<td>CHANGELOG에 10명 이상의 외부 기여자 확인 (logan-markewich, abhinab-choudhury, AdemBoukhris457, Winds-AI, apprakash, saravananravi08, mkh09353, hexapode, llrightll)</td>
+</tr>
+<tr>
+<td>마지막 안정 릴리스 / Last stable</td>
+<td>v2.0.6 (2026-06-05)</td>
+</tr>
+<tr>
+<td>버전 관리 / Versioning</td>
+<td>Semantic Versioning — Changesets 기반</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서 / Document</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재 — 빌드 방법, PR 가이드라인, 기여 범위 명확히 기재</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ <strong>부재</strong></td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 공식 ADR 없음 (AGENTS.md에 설계 결정 기술됨)</td>
+</tr>
+<tr>
+<td>브랜치 전략</td>
+<td><code>main</code> 브랜치 기반, PR 승인 프로세스 있음</td>
+</tr>
+<tr>
+<td>회귀 테스트 제어</td>
+<td>E2E 출력 변경 시 <code>output-approved</code> 레이블 필수 — 품질 게이트 양호</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>주관 조직</strong>: <a href="https://github.com/run-llama">run-llama</a> — LlamaIndex(회사명: LlamaIndex Inc.)의 공식 GitHub 조직</li>
+<li><strong>상업적 연계</strong>: README에서 유료 서비스인 <a href="https://cloud.llamaindex.ai">LlamaParse</a>를 홍보하고 있으며, LiteParse는 LlamaParse의 오픈소스 경량 대안으로 포지셔닝됨. 강력한 기업 후원 기반.</li>
+<li><strong>장기 지원(LTS)</strong>: 명시적 LTS 정책 없음. v1.x → v2.x 아키텍처 전환이 이뤄졌으며 이전 코드는 별도 브랜치로 유지됨.</li>
+<li><strong>CNCF/ASF 멤버십</strong>: 해당 없음 (기업 소유 오픈소스)</li>
+<li><strong>컨설팅 지원</strong>: LlamaIndex 상업 생태계를 통한 지원 기대 가능</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>평가 / Assessment</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수평 확장</td>
+<td>✅ Stateless 라이브러리 — 여러 인스턴스 병렬 실행 가능</td>
+</tr>
+<tr>
+<td>멀티테넌시</td>
+<td>🔵 라이브러리 자체는 무상태이나 멀티테넌시 내장 기능 없음. 래퍼 서비스 레이어에서 처리 필요</td>
+</tr>
+<tr>
+<td>12-Factor App</td>
+<td>✅ <code>TESSDATA_PREFIX</code> 환경변수 지원, 모든 설정은 파라미터/env로 주입 가능</td>
+</tr>
+<tr>
+<td>도커/쿠버네티스</td>
+<td>✅ 멀티스테이지 Dockerfile 제공, 기본/전체(LibreOffice+ImageMagick) 두 가지 이미지</td>
+</tr>
+<tr>
+<td>Health check / Probe</td>
+<td>❌ 서버 컴포넌트 없음 — 쿠버네티스 readiness/liveness probe는 래퍼 서비스에서 구현 필요</td>
+</tr>
+<tr>
+<td>구조화된 로깅</td>
+<td>🔵 <code>--quiet</code> 플래그 지원, 내부 로깅은 stderr. Prometheus 메트릭 미제공</td>
+</tr>
+<tr>
+<td>분산 추적</td>
+<td>❌ OpenTelemetry 지원 없음</td>
+</tr>
+<tr>
+<td>병렬 처리</td>
+<td>✅ <code>--num-workers</code> 옵션으로 OCR 병렬화 가능</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rust 통합 테스트</td>
+<td>✅ <code>crates/liteparse/tests/integration_test.rs</code> (176줄, 10개+ 테스트)</td>
+</tr>
+<tr>
+<td>Python E2E 테스트</td>
+<td>✅ <code>packages/python/tests/</code> (parse, screenshot, batch e2e)</td>
+</tr>
+<tr>
+<td>CI 자동화</td>
+<td>✅ 17개 GitHub Actions 워크플로우 — 5개 OS 행렬 빌드/테스트</td>
+</tr>
+<tr>
+<td>E2E 회귀 테스트</td>
+<td>✅ HuggingFace 데이터셋 기반 출력 비교, 출력 변경 시 명시적 승인 필요</td>
+</tr>
+<tr>
+<td>커버리지 측정</td>
+<td>❌ 코드 커버리지 리포트 자동화 없음</td>
+</tr>
+<tr>
+<td>퍼즈 테스트</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>단위 테스트</td>
+<td>🔵 Rust 소스 내 일부 <code>#[cfg(test)]</code> 블록 있으나 체계적 단위 테스트 커버리지 미측정</td>
+</tr>
+<tr>
+<td>포맷/린트</td>
+<td>✅ <code>cargo fmt</code>, <code>cargo clippy</code> CI 적용</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><strong>적용 없음</strong>: 현재 Copyleft 라이선스 의존성이 없어 분리 이슈 없음. 향후 의존성 추가 시에도 핵심 처리 파이프라인(<code>extract.rs</code>, <code>projection.rs</code>, <code>ocr/</code>)은 모두 자체 Rust 코드로 구성되어 격리 용이.</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>원칙 / Factor</th>
+<th>준수 / Compliance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I. 코드베이스</td>
+<td>✅ 단일 Git 리포지토리</td>
+</tr>
+<tr>
+<td>II. 의존성</td>
+<td>✅ Cargo.lock으로 완전히 잠금</td>
+</tr>
+<tr>
+<td>III. 설정</td>
+<td>✅ 환경변수(<code>TESSDATA_PREFIX</code>) + CLI 파라미터, <code>.env</code> 파일 없음</td>
+</tr>
+<tr>
+<td>IV. 백엔드 서비스</td>
+<td>✅ OCR 서버 URL 설정 주입</td>
+</tr>
+<tr>
+<td>V. 빌드/릴리스/실행 분리</td>
+<td>✅ CI 빌드, GitHub 릴리스, 독립 실행 바이너리</td>
+</tr>
+<tr>
+<td>VI. 프로세스</td>
+<td>✅ Stateless, 공유 파일시스템 없음</td>
+</tr>
+<tr>
+<td>X. 개발/운영 환경 동일</td>
+<td>✅ Docker로 일관된 환경 제공</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분 충족</td>
+<td>Cargo.lock으로 의존성 목록 가능, 자동 BOM 생성 도구 미통합</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>🔴 미충족</td>
+<td>license-scan CI 단계 없음. FOSSA/cargo-deny/licensee 미사용</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🔵 조건부 충족</td>
+<td>현재 라이선스 구성에 문제 없으나, Python 패키지 MIT 표기 오류 미수정</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🟡 비공식</td>
+<td>PR 리뷰 프로세스 있으나 라이선스 전문 검토 단계 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🔴 미충족</td>
+<td>NOTICE 파일 부재, 배포 패키지 내 서드파티 고지 체계 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권 / Trademark</strong>:
+- <code>LiteParse</code> 및 <code>@llamaindex/liteparse</code> 브랜드는 LlamaIndex Inc. 소유로 추정됨
+- Apache 2.0 Section 6: 상표권은 라이선스에 포함되지 않음. "LiteParse" 이름을 제품명으로 활용 시 별도 상표 사용 허가 검토 필요
+- <code>llamaindex</code> npm scope 사용 시 브랜딩 주의 필요</p>
+<p><strong>특허권 / Patent</strong>:
+- Apache 2.0에는 기여자로부터의 <strong>명시적 특허 라이선스 부여</strong> 포함 (Section 3)
+- MIT/BSD 의존성에는 특허 라이선스 없음 — 단, 특허 분쟁 시 더 높은 위험
+- PDFium(BSD-3): Google 소유 코드, 특허 문제 없이 사용 중인 광범위한 생태계</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>현재 위험 없음</strong>: 전체 의존성 트리에 GPL/AGPL/LGPL 라이선스가 없음.</p>
+<p><strong>잠재적 주의사항</strong>:
+- EasyOCR 및 PaddleOCR 서버는 선택적 구성요소로 HTTP를 통해 분리됨 — 라이선스 전파 없음
+- 향후 OCR 라이브러리 추가 시 라이선스 검토 필수 (일부 OCR 엔진은 GPL 기반)
+- LibreOffice(변환 사용 시): LGPL 2.1/MPL 2.0 — 동적으로 호출되며 라이브러리에 링크되지 않으므로 전파 없음</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>전체 Permissive (Apache 2.0/MIT/BSD-3). 단, Python 패키지 MIT 오표기는 단기 수정 필요</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟡 Caution</td>
+<td>SECURITY.md 존재, 비공개 보고 체계 있음. 그러나 자동화 취약점 스캔(Dependabot, cargo-audit) 부재</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🔵 Review</td>
+<td>LlamaIndex 상업 후원, 활발한 릴리스 이력, 다수 외부 기여자. 그러나 단일 주도 개발자 의존도 높고 CODE_OF_CONDUCT 부재</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🔵 Review</td>
+<td>멀티 플랫폼 CI, Docker 지원, E2E 회귀 테스트. 그러나 메트릭/추적/health probe 부재 — 서버 래퍼 없이는 직접 운영 어려움</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟢 Safe</td>
+<td>Stateless 라이브러리, 멀티 언어 바인딩, 12-Factor 준수, Cargo.lock 완전 고정</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>NOTICE 파일 없음, SBOM 없음, license scan CI 없음. OpenChain 절차 구성 전 상용 배포 위험</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>완전 Permissive 라이선스 스택</strong>: Apache 2.0 기반으로 GPL/AGPL 의존성이 없어 소스 비공개 상용화, SaaS 배포 모두 자유롭습니다.</li>
+<li><strong>뛰어난 다언어 지원</strong>: Rust Core + Node.js/TypeScript, Python, WASM 바인딩을 하나의 코드베이스에서 제공하여 다양한 기술 스택의 상용 제품에 통합 가능합니다.</li>
+<li><strong>강력한 기업 후원</strong>: LlamaIndex Inc. 주도 개발로 장기 지원 및 커뮤니티 지속성 기대. LlamaParse와의 생태계 연결로 업셀 경로도 명확합니다.</li>
+<li><strong>재현 가능한 빌드</strong>: <code>Cargo.lock</code> 완전 고정, 멀티 플랫폼 CI 행렬, 멀티스테이지 Docker 이미지로 일관된 배포 보장.</li>
+<li><strong>플러그인형 OCR 아키텍처</strong>: <code>OcrEngine</code> 트레이트 기반 설계로 Tesseract, EasyOCR, PaddleOCR, 커스텀 HTTP 서버를 비침습적으로 교체 가능.</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>Python 패키지 라이선스 오표기</strong>: <code>packages/python/pyproject.toml</code>의 <code>license = "MIT"</code>는 실제 라이선스(Apache 2.0)와 다름. PyPI 메타데이터 오류 — 법적 불확실성 및 감사 실패 원인이 될 수 있습니다.</li>
+<li><strong>NOTICE 파일 및 SBOM 부재</strong>: Apache 2.0 배포 의무 이행을 위한 서드파티 저작권 고지 체계 없음. 고객사 납품 또는 패키지 감사 시 준비 부족.</li>
+<li><strong>자동화 보안 취약점 스캔 없음</strong>: Dependabot, cargo-audit, FOSSA 등 CVE 모니터링 자동화 부재. 중요 취약점 패치 지연 위험.</li>
+<li><strong>PDFium 바이너리 다운로드 신뢰 체인</strong>: 빌드 타임에 GitHub 릴리스에서 PDFium 바이너리를 다운로드하나 체크섬/서명 검증 코드가 확인되지 않음. Supply chain 보안 측면에서 검토 필요.</li>
+<li><strong>단일 주도 개발자 의존도</strong>: 대다수 주요 커밋이 <code>logan-markewich</code>에 집중. 핵심 기여자 이탈 시 유지보수 연속성 위험.</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 <strong>Review</strong></p>
+<blockquote>
+<p>LiteParse는 라이선스 리스크 측면에서 상용화에 매우 적합한 프로젝트입니다. Apache 2.0 단일 스택으로 GPL 전파 위험이 없고, 기업 후원(LlamaIndex Inc.)이 있으며, Rust 기반의 성능과 멀티 언어 바인딩은 고품질 상용 솔루션 구축의 기반이 됩니다. 그러나 상용 배포 전 다음 조건을 이행해야 합니다:</p>
+<ol>
+<li>Python 패키지 라이선스 오표기 즉시 수정 (MIT → Apache-2.0)</li>
+<li>NOTICE 파일 생성 및 서드파티 저작권 고지 체계 수립</li>
+<li>cargo-audit 또는 Dependabot CI 통합</li>
+<li>SBOM 자동 생성 파이프라인 구성</li>
+</ol>
+<p>이 4가지 항목을 완료하면 <strong>🟢 Safe</strong> 등급으로 상향 가능합니다.</p>
+</blockquote>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>라이선스 / License</strong></td>
+<td>Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>✅ 전체 Permissive</td>
+</tr>
+<tr>
+<td></td>
+<td>소스 공개 의무 여부 확인</td>
+<td>✅ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>라이선스 호환성 충돌 없음</td>
+<td>✅ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>Python 패키지 라이선스 오표기 수정</td>
+<td>❌ MIT → Apache-2.0 수정 필요</td>
+</tr>
+<tr>
+<td><strong>저작권·고지 / Copyright &amp; Notice</strong></td>
+<td>저작권 문구 포함 (LICENSE)</td>
+<td>✅ LICENSE 파일 존재</td>
+</tr>
+<tr>
+<td></td>
+<td>서드파티 저작권 고지 (PDFium BSD-3 등)</td>
+<td>❌ NOTICE 파일 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>고지문 배포 위치 정의</td>
+<td>❌ 미정의</td>
+</tr>
+<tr>
+<td><strong>소스 공개 / Source Disclosure</strong></td>
+<td>Strong Copyleft 사용 시 공개 범위·방식 정의</td>
+<td>✅ 해당 없음 (Copyleft 없음)</td>
+</tr>
+<tr>
+<td><strong>보안 / Security</strong></td>
+<td>CVE 모니터링 체계 수립</td>
+<td>❌ 자동화 없음 (cargo-audit 수동 수행 권장)</td>
+</tr>
+<tr>
+<td></td>
+<td>중고위험 취약점 패치 계획</td>
+<td>❌ 공식 SLA 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>PDFium 바이너리 무결성 검증</td>
+<td>❌ 체크섬 검증 미확인</td>
+</tr>
+<tr>
+<td><strong>커뮤니티 / Community</strong></td>
+<td>유지보수 활성도·커밋 주기 확인</td>
+<td>✅ 활발 (v2.0.6, 2026-06-05)</td>
+</tr>
+<tr>
+<td></td>
+<td>기업 스폰서/컨설팅 존재 확인</td>
+<td>✅ LlamaIndex Inc. 후원</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>라이선스 검사 자동화</td>
+<td>❌ FOSSA/cargo-deny 미통합</td>
+</tr>
+<tr>
+<td></td>
+<td>오픈소스 BOM 자동 생성</td>
+<td>❌ 미구성</td>
+</tr>
+<tr>
+<td></td>
+<td>위반 라이선스 빌드 차단</td>
+<td>❌ 미구성</td>
+</tr>
+<tr>
+<td></td>
+<td>취약점 스캔 자동화</td>
+<td>❌ Dependabot/cargo-audit 없음</td>
+</tr>
+<tr>
+<td><strong>법적·계약 / Legal</strong></td>
+<td>고객 계약서에 라이선스 의무 명시</td>
+<td>🔵 계약 서식 별도 확인 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>외부 감사 대비 문서 구비 (NOTICE, BOM, report)</td>
+<td>❌ NOTICE, SBOM 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li><strong>Python 패키지 라이선스 오표기 수정</strong></li>
+<li><code>packages/python/pyproject.toml</code>: <code>license = "MIT"</code> → <code>license = "Apache-2.0"</code></li>
+<li>PyPI 재발행하여 메타데이터 정정</li>
+<li>
+<p>이미 PyPI에 배포된 버전의 메타데이터 업데이트 또는 새 버전 배포</p>
+</li>
+<li>
+<p><strong>NOTICE 파일 생성</strong></p>
+</li>
+<li>프로젝트 루트에 <code>NOTICE</code> 파일 생성</li>
+<li>포함 항목: PDFium(BSD-3 Google), Tesseract(Apache 2.0), 주요 Rust 의존성 저작권 고지</li>
+<li>npm, PyPI, crates.io 패키지 배포 시 번들에 포함</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li><strong>취약점 스캔 CI 통합</strong></li>
+<li><code>.github/workflows/ci.yml</code>에 <code>cargo audit</code> 또는 <code>cargo deny check</code> 단계 추가</li>
+<li>
+<p>또는 Dependabot 설정(<code>dependabot.yml</code>) 추가 — Rust/npm 의존성 자동 업데이트</p>
+</li>
+<li>
+<p><strong>PDFium 다운로드 무결성 검증</strong></p>
+</li>
+<li><code>crates/pdfium-sys/build.rs</code>에서 다운로드한 바이너리의 SHA256 체크섬 검증 코드 추가</li>
+<li>
+<p><code>run-llama/pdfium-binaries</code> 릴리스에 체크섬 파일 제공 또는 Sigstore 서명 검토</p>
+</li>
+<li>
+<p><strong>CODE_OF_CONDUCT 추가</strong></p>
+</li>
+<li>Contributor Covenant 등 표준 COC 추가 — 기업 오픈소스 거버넌스 완성도 향상</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li><strong>SBOM 자동 생성 파이프라인 구성</strong></li>
+<li><code>cargo cyclonedx</code> 또는 <code>cargo spdx</code>를 CI에 통합하여 빌드 시 BOM 자동 생성</li>
+<li>
+<p>GitHub Releases에 SBOM 파일 첨부</p>
+</li>
+<li>
+<p><strong>라이선스 스캔 자동화</strong></p>
+</li>
+<li><code>cargo deny</code> 설정 파일(<code>deny.toml</code>) 추가 — 허용/거부 라이선스 목록 정의 및 CI 게이트화</li>
+<li>
+<p>FOSSA 또는 OSS Review Toolkit 도입 검토</p>
+</li>
+<li>
+<p><strong>서비스 노출 시 래퍼 보안 가이드 문서화</strong></p>
+</li>
+<li>LiteParse를 웹 API로 노출 시 권장 보안 패턴(샌드박싱, 파일 검증, 타임아웃)을 공식 문서로 제공</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li><strong>LTS 정책 수립</strong></li>
+<li>
+<p>v2.x 장기 지원 정책 명문화 — 기업 고객의 업그레이드 주기 예측 가능성 확보</p>
+</li>
+<li>
+<p><strong>ISO 5230 / OpenChain 자가 인증 준비</strong></p>
+<ul>
+<li>상기 단기·중기 조치 완료 후 OpenChain 자가 인증 단계(Identify → Source scan → Remediate → Review → Register) 진행</li>
+</ul>
+</li>
+<li>
+<p><strong>커뮤니티 다변화</strong></p>
+<ul>
+<li>현재 단일 주도 기여자 구조에서 벗어나 Co-maintainer 확보 또는 기여 온보딩 강화</li>
+</ul>
+</li>
+</ol>
+<hr />
+<p><em>이 보고서는 2026년 6월 6일 기준 소스 코드 및 프로젝트 문서에 대한 정적 분석 결과입니다. 실제 법적 조언은 자격 있는 법률 전문가에게 문의하시기 바랍니다.</em></p>
+<p><em>This report is based on static analysis of source code and project documents as of June 6, 2026. For actual legal advice, please consult a qualified legal professional.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>I now have sufficient context. Let me produce both guide documents.</p>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>LiteParse는 <strong>Rust</strong>로 작성된 오픈소스 PDF 파싱 라이브러리로, 빠르고 가벼운 문서 처리와 공간적(spatial) 텍스트 추출에 특화되어 있습니다. 클라우드 의존성이 없으며 모든 처리가 로컬에서 실행됩니다. PDF 외에도 DOCX, XLSX, PPTX, 이미지 등 다양한 형식의 문서를 지원하며, OCR(광학 문자 인식) 기능을 통해 스캔된 문서도 처리 가능합니다. 결과물은 바운딩 박스 정보가 포함된 JSON 또는 레이아웃 보존 텍스트 형식으로 출력됩니다. LLM 에이전트를 위한 페이지 스크린샷 생성도 지원합니다.</p>
+<ul>
+<li><strong>주요 기능</strong>: 공간적 텍스트 추출(PDFium), OCR(내장 Tesseract 또는 HTTP 서버), 스크린샷 생성, 바운딩 박스 출력</li>
+<li><strong>주요 기술 스택</strong>: Rust, PDFium(C 라이브러리), Tesseract OCR, tokio(비동기), serde/serde_json, clap(CLI)</li>
+<li><strong>언어 바인딩</strong>: Node.js/TypeScript(napi-rs), Python(PyO3/maturin), WebAssembly(wasm-bindgen)</li>
+<li><strong>버전</strong>: 2.0.6 | <strong>라이선스</strong>: Apache-2.0</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>LiteParse is an open-source <strong>PDF parsing library written in Rust</strong>, focused exclusively on fast, lightweight document processing with spatial text extraction. It runs entirely locally with zero cloud dependencies. Beyond PDFs it supports DOCX, XLSX, PPTX, and image formats through automatic conversion. OCR handles scanned documents via a built-in Tesseract engine or any HTTP-based OCR server. Output is structured JSON (with bounding boxes) or layout-preserved plain text. Page-screenshot generation for LLM agents is also included.</p>
+<ul>
+<li><strong>Core capabilities</strong>: Spatial text extraction (PDFium), OCR (Tesseract built-in or HTTP server), screenshots, bounding-box output</li>
+<li><strong>Tech stack</strong>: Rust, PDFium (C library), Tesseract OCR, tokio (async), serde/serde_json, clap (CLI)</li>
+<li><strong>Language bindings</strong>: Node.js/TypeScript (napi-rs), Python (PyO3/maturin), WebAssembly (wasm-bindgen)</li>
+<li><strong>Version</strong>: 2.0.6 | <strong>License</strong>: Apache-2.0</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>필수 도구</strong></p>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>버전</th>
+<th>용도</th>
+<th>설치 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rust toolchain</td>
+<td>stable (rustup)</td>
+<td>코어 라이브러리 빌드</td>
+<td><a href="https://rustup.rs">rustup.rs</a></td>
+</tr>
+<tr>
+<td>@napi-rs/cli</td>
+<td>^2.18.4</td>
+<td>Node.js 바인딩 빌드</td>
+<td><code>npm i -g @napi-rs/cli</code></td>
+</tr>
+<tr>
+<td>maturin</td>
+<td>&gt;=1.0, &lt;2.0</td>
+<td>Python 바인딩 빌드</td>
+<td><code>pip install maturin</code></td>
+</tr>
+<tr>
+<td>wasm-pack</td>
+<td>최신 stable</td>
+<td>WASM 바인딩 빌드</td>
+<td><code>cargo install wasm-pack</code></td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>&gt;=18.0.0</td>
+<td>Node.js 패키지 실행</td>
+<td><a href="https://nodejs.org">nodejs.org</a></td>
+</tr>
+<tr>
+<td>Python</td>
+<td>&gt;=3.10</td>
+<td>Python 패키지 실행</td>
+<td><a href="https://python.org">python.org</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>시스템 의존성 (빌드 시)</strong></p>
+<ul>
+<li><strong>Linux (Ubuntu/Debian)</strong>: <code>sudo apt-get install -y libtesseract-dev libleptonica-dev libclang-dev cmake g++</code></li>
+<li><strong>macOS</strong>: <code>brew install tesseract leptonica</code></li>
+<li><strong>Windows</strong>: Ninja 빌드 시스템 필요 (<code>CMAKE_GENERATOR=Ninja</code>)</li>
+</ul>
+<p><strong>선택적 도구 (다중 형식 변환용)</strong></p>
+<ul>
+<li><strong>LibreOffice</strong>: DOCX/XLSX/PPTX → PDF 변환</li>
+<li><strong>ImageMagick</strong>: 이미지 → PDF 변환</li>
+</ul>
+<blockquote>
+<p><strong>참고</strong>: PDFium 라이브러리는 <code>pdfium-sys</code> 빌드 스크립트가 <strong>자동으로 다운로드</strong>하므로 별도 설치 불필요.</p>
+</blockquote>
+<p><strong>권장 IDE</strong>: VS Code + <code>rust-analyzer</code> 익스텐션, <code>Even Better TOML</code>, <code>Error Lens</code></p>
+<p><strong>[English]</strong></p>
+<p><strong>Required tools</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Version</th>
+<th>Purpose</th>
+<th>Install</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Rust toolchain</td>
+<td>stable (rustup)</td>
+<td>Core library build</td>
+<td><a href="https://rustup.rs">rustup.rs</a></td>
+</tr>
+<tr>
+<td>@napi-rs/cli</td>
+<td>^2.18.4</td>
+<td>Node.js binding builds</td>
+<td><code>npm i -g @napi-rs/cli</code></td>
+</tr>
+<tr>
+<td>maturin</td>
+<td>&gt;=1.0, &lt;2.0</td>
+<td>Python binding builds</td>
+<td><code>pip install maturin</code></td>
+</tr>
+<tr>
+<td>wasm-pack</td>
+<td>latest stable</td>
+<td>WASM binding builds</td>
+<td><code>cargo install wasm-pack</code></td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>&gt;=18.0.0</td>
+<td>Node.js package runtime</td>
+<td><a href="https://nodejs.org">nodejs.org</a></td>
+</tr>
+<tr>
+<td>Python</td>
+<td>&gt;=3.10</td>
+<td>Python package runtime</td>
+<td><a href="https://python.org">python.org</a></td>
+</tr>
+</tbody>
+</table>
+<p><strong>System dependencies (build-time)</strong></p>
+<ul>
+<li><strong>Linux (Ubuntu/Debian)</strong>: <code>sudo apt-get install -y libtesseract-dev libleptonica-dev libclang-dev cmake g++</code></li>
+<li><strong>macOS</strong>: <code>brew install tesseract leptonica</code></li>
+<li><strong>Windows</strong>: Ninja build system required (<code>CMAKE_GENERATOR=Ninja</code>)</li>
+</ul>
+<p><strong>Optional tools (multi-format conversion)</strong></p>
+<ul>
+<li><strong>LibreOffice</strong>: converts DOCX/XLSX/PPTX → PDF</li>
+<li><strong>ImageMagick</strong>: converts images → PDF</li>
+</ul>
+<blockquote>
+<p><strong>Note</strong>: The PDFium C library is <strong>auto-downloaded</strong> by the <code>pdfium-sys</code> build script — no manual installation needed.</p>
+</blockquote>
+<p><strong>Recommended IDE</strong>: VS Code + <code>rust-analyzer</code> extension, <code>Even Better TOML</code>, <code>Error Lens</code></p>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>1. 저장소 클론</strong></p>
+<pre><code class="language-bash">git clone https://github.com/run-llama/liteparse.git
+cd liteparse
+</code></pre>
+<p><strong>2. Rust 툴체인 설치</strong></p>
+<pre><code class="language-bash"># rustup이 없다면 먼저 설치
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source ~/.cargo/env
+rustup toolchain install stable
+</code></pre>
+<p><strong>3. 시스템 의존성 설치 (Linux 예시)</strong></p>
+<pre><code class="language-bash">sudo apt-get update
+sudo apt-get install -y libtesseract-dev libleptonica-dev libclang-dev cmake g++
+</code></pre>
+<p><strong>4. 코어 Rust 라이브러리 빌드 확인</strong></p>
+<pre><code class="language-bash"># 워크스페이스 전체 cargo build는 실패함 — 바인딩 크레이트가 각각 별도 툴체인 필요
+# 반드시 코어 라이브러리만 지정해서 빌드할 것
+cargo build -p liteparse
+</code></pre>
+<p><strong>5. Node.js 바인딩 빌드 (선택)</strong></p>
+<pre><code class="language-bash">cd packages/node
+npm install
+npm run build   # napi build + pdfium 복사 + TypeScript 컴파일
+</code></pre>
+<p><strong>6. Python 바인딩 빌드 (선택)</strong></p>
+<pre><code class="language-bash">cd packages/python
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install maturin
+maturin develop             # Rust 컴파일 후 현재 venv에 설치
+</code></pre>
+<p><strong>7. WASM 바인딩 빌드 (선택)</strong></p>
+<pre><code class="language-bash">cargo install wasm-pack
+cd packages/wasm
+npm run build          # --target web
+npm run build:bundler  # webpack/vite용
+npm run build:nodejs   # Node.js용
+</code></pre>
+<p><strong>8. 환경 변수 설정</strong></p>
+<pre><code class="language-bash"># TESSDATA_PREFIX — 오프라인/에어갭 환경에서만 필요
+# 기본적으로 tessdata는 첫 실행 시 자동 다운로드됨
+export TESSDATA_PREFIX=/path/to/tessdata   # 선택적
+
+# Windows 환경에서 LibreOffice 사용 시
+# PATH에 LibreOffice 프로그램 디렉토리 추가:
+# C:\Program Files\LibreOffice\program
+</code></pre>
+<p><strong>9. 설치 확인</strong></p>
+<pre><code class="language-bash"># CLI 동작 확인
+./target/debug/lit --version
+
+# PDF 파싱 테스트 (샘플 파일 포함)
+./target/debug/lit parse demo/docs/apple-10k-2024.pdf --no-ocr --max-pages 1
+
+# OCR 포함 테스트
+./target/debug/lit parse demo/docs/long_tiny_text.pdf --max-pages 1
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>1. Clone the repository</strong></p>
+<pre><code class="language-bash">git clone https://github.com/run-llama/liteparse.git
+cd liteparse
+</code></pre>
+<p><strong>2. Install the Rust toolchain</strong></p>
+<pre><code class="language-bash"># If rustup is not installed yet
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source ~/.cargo/env
+rustup toolchain install stable
+</code></pre>
+<p><strong>3. Install system dependencies (Linux example)</strong></p>
+<pre><code class="language-bash">sudo apt-get update
+sudo apt-get install -y libtesseract-dev libleptonica-dev libclang-dev cmake g++
+</code></pre>
+<p><strong>4. Verify core Rust library builds</strong></p>
+<pre><code class="language-bash"># WARNING: plain `cargo build` at workspace root WILL FAIL
+# The binding crates each need their own specialized toolchain.
+# Always build the core crate explicitly:
+cargo build -p liteparse
+</code></pre>
+<p><strong>5. Build Node.js bindings (optional)</strong></p>
+<pre><code class="language-bash">cd packages/node
+npm install
+npm run build   # napi build + copy pdfium + compile TypeScript
+</code></pre>
+<p><strong>6. Build Python bindings (optional)</strong></p>
+<pre><code class="language-bash">cd packages/python
+python -m venv .venv
+source .venv/bin/activate   # Windows: .venv\Scripts\activate
+pip install maturin
+maturin develop             # Compiles Rust and installs into active venv
+</code></pre>
+<p><strong>7. Build WASM bindings (optional)</strong></p>
+<pre><code class="language-bash">cargo install wasm-pack
+cd packages/wasm
+npm run build          # --target web
+npm run build:bundler  # webpack/vite
+npm run build:nodejs   # Node.js
+</code></pre>
+<p><strong>8. Configure environment variables</strong></p>
+<pre><code class="language-bash"># TESSDATA_PREFIX — only needed for offline/air-gapped environments
+# By default tessdata is auto-downloaded on first parse
+export TESSDATA_PREFIX=/path/to/tessdata   # optional
+
+# Windows — add LibreOffice's program dir to PATH if you need Office conversion:
+# C:\Program Files\LibreOffice\program
+</code></pre>
+<p><strong>9. Verify the setup</strong></p>
+<pre><code class="language-bash"># Check the CLI binary
+./target/debug/lit --version
+
+# Test parsing (sample files are included in the repo)
+./target/debug/lit parse demo/docs/apple-10k-2024.pdf --no-ocr --max-pages 1
+
+# Test OCR path
+./target/debug/lit parse demo/docs/long_tiny_text.pdf --max-pages 1
+</code></pre>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">liteparse/
+├── crates/
+│   ├── liteparse/              # 핵심 Rust 라이브러리 + CLI 바이너리 (lit)
+│   │   └── src/
+│   │       ├── main.rs         # CLI 진입점 (clap 기반)
+│   │       ├── lib.rs          # 라이브러리 루트 — 공개 API re-export
+│   │       ├── parser.rs       # LiteParse 구조체 및 parse/screenshot 오케스트레이터
+│   │       ├── config.rs       # LiteParseConfig 타입 및 기본값
+│   │       ├── types.rs        # 핵심 데이터 타입 (ParseResult, TextItem 등)
+│   │       ├── projection.rs   # 공간 그리드 투영 — 레이아웃 재구성 (가장 복잡)
+│   │       ├── extract.rs      # PDFium에서 텍스트 아이템 원시 추출
+│   │       ├── render.rs       # 페이지 렌더링 / 스크린샷 (non-WASM)
+│   │       ├── conversion.rs   # 비PDF 포맷 변환 (LibreOffice, ImageMagick)
+│   │       ├── ocr_merge.rs    # OCR 결과와 네이티브 텍스트 병합
+│   │       ├── search.rs       # 텍스트 아이템 검색 유틸리티
+│   │       ├── error.rs        # LiteParseError 타입
+│   │       └── ocr/            # OCR 엔진 구현체
+│   │           ├── mod.rs          # OcrEngine 트레이트
+│   │           ├── tesseract.rs    # 내장 Tesseract OCR
+│   │           └── http_simple.rs  # HTTP OCR 서버 클라이언트
+│   │       └── output/         # 출력 포매터
+│   │           ├── mod.rs
+│   │           ├── json.rs
+│   │           └── text.rs
+│   ├── liteparse-napi/         # Node.js 바인딩 (napi-rs)
+│   ├── liteparse-python/       # Python 바인딩 (PyO3)
+│   ├── liteparse-wasm/         # WASM 바인딩 (wasm-bindgen)
+│   ├── pdfium/                 # PDFium C API Rust 래퍼
+│   └── pdfium-sys/             # PDFium FFI (C → Rust) 바인딩 + 자동 다운로드
+├── packages/
+│   ├── node/                   # npm 패키지: TypeScript 래퍼 + 네이티브 바이너리
+│   │   └── src/
+│   │       ├── lib.ts          # 공개 LiteParse 클래스 (TypeScript)
+│   │       ├── cli.ts          # CLI 진입점 (commander)
+│   │       └── native.ts       # 네이티브 바이너리 로더
+│   ├── python/                 # PyPI 패키지: Python 래퍼 + 네이티브 바이너리
+│   │   └── liteparse/
+│   │       ├── __init__.py
+│   │       ├── parser.py       # 공개 LiteParse 클래스 (Python)
+│   │       ├── types.py        # Python dataclass 타입
+│   │       └── cli.py          # CLI 진입점
+│   └── wasm/                   # WASM npm 패키지 (@llamaindex/liteparse-wasm)
+├── ocr/                        # OCR 서버 예시 구현체
+│   ├── easyocr/                # EasyOCR 래퍼 서버
+│   └── paddleocr/              # PaddleOCR 래퍼 서버
+├── demo/docs/                  # 테스트용 샘플 PDF
+├── integration_tests_data/     # 통합 테스트 데이터
+├── scripts/                    # 빌드 및 유틸리티 스크립트
+├── .github/workflows/          # CI/CD 파이프라인
+├── Cargo.toml                  # Rust 워크스페이스 루트
+├── Makefile                    # 편의용 빌드/테스트/린트 타겟
+├── Dockerfile                  # 베이스 Docker 이미지 (Tesseract만)
+├── full.Dockerfile             # 풀 이미지 (LibreOffice + ImageMagick 포함)
+└── CONTRIBUTING.md             # 기여 가이드
+</code></pre>
+<p><strong>핵심 모듈 의존 관계</strong>:</p>
+<pre><code>main.rs (CLI)
+    └─→ parser.rs (LiteParse struct)
+            ├─→ conversion.rs   (비PDF → PDF)
+            ├─→ extract.rs      (PDFium 텍스트 추출)
+            ├─→ ocr/            (Tesseract or HTTP)
+            ├─→ ocr_merge.rs    (네이티브 + OCR 결과 병합)
+            ├─→ projection.rs   (공간 그리드 레이아웃 재구성)
+            └─→ output/         (JSON 또는 text 직렬화)
+
+바인딩 크레이트 (napi / PyO3 / wasm)
+    └─→ crates/liteparse (동일 코어 API)
+
+packages/node, python, wasm
+    └─→ 각 바인딩 크레이트의 얇은 TypeScript/Python 래퍼
+</code></pre>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">liteparse/
+├── crates/
+│   ├── liteparse/              # Core Rust library + CLI binary (lit)
+│   │   └── src/
+│   │       ├── main.rs         # CLI entry point (clap-based)
+│   │       ├── lib.rs          # Library root — public API re-exports
+│   │       ├── parser.rs       # LiteParse struct + parse/screenshot orchestrator
+│   │       ├── config.rs       # LiteParseConfig type and defaults
+│   │       ├── types.rs        # Core data types (ParseResult, TextItem, etc.)
+│   │       ├── projection.rs   # Spatial grid projection — layout reconstruction (most complex)
+│   │       ├── extract.rs      # Raw text-item extraction from PDFium
+│   │       ├── render.rs       # Page rendering / screenshots (non-WASM)
+│   │       ├── conversion.rs   # Non-PDF format conversion (LibreOffice, ImageMagick)
+│   │       ├── ocr_merge.rs    # Merge OCR results with native PDF text
+│   │       ├── search.rs       # Text-item search utility
+│   │       ├── error.rs        # LiteParseError type
+│   │       └── ocr/            # OCR engine implementations
+│   │           ├── mod.rs          # OcrEngine trait
+│   │           ├── tesseract.rs    # Built-in Tesseract OCR
+│   │           └── http_simple.rs  # HTTP OCR server client
+│   │       └── output/         # Output formatters
+│   │           ├── mod.rs
+│   │           ├── json.rs
+│   │           └── text.rs
+│   ├── liteparse-napi/         # Node.js bindings (napi-rs)
+│   ├── liteparse-python/       # Python bindings (PyO3)
+│   ├── liteparse-wasm/         # WASM bindings (wasm-bindgen)
+│   ├── pdfium/                 # Rust wrapper around the PDFium C API
+│   └── pdfium-sys/             # PDFium FFI (C → Rust) + auto-download
+├── packages/
+│   ├── node/                   # npm package: TypeScript wrapper + native binary
+│   │   └── src/
+│   │       ├── lib.ts          # Public LiteParse class (TypeScript)
+│   │       ├── cli.ts          # CLI entry point (commander)
+│   │       └── native.ts       # Native binary loader
+│   ├── python/                 # PyPI package: Python wrapper + native binary
+│   │   └── liteparse/
+│   │       ├── __init__.py
+│   │       ├── parser.py       # Public LiteParse class (Python)
+│   │       ├── types.py        # Python dataclass types
+│   │       └── cli.py          # CLI entry point
+│   └── wasm/                   # WASM npm package (@llamaindex/liteparse-wasm)
+├── ocr/                        # Example OCR server implementations
+│   ├── easyocr/                # EasyOCR wrapper server
+│   └── paddleocr/              # PaddleOCR wrapper server
+├── demo/docs/                  # Sample PDFs for testing
+├── integration_tests_data/     # Integration test data
+├── scripts/                    # Build and utility scripts
+├── .github/workflows/          # CI/CD pipelines
+├── Cargo.toml                  # Rust workspace root
+├── Makefile                    # Convenience build/test/lint targets
+├── Dockerfile                  # Base Docker image (Tesseract only)
+├── full.Dockerfile             # Full image (LibreOffice + ImageMagick)
+└── CONTRIBUTING.md             # Contribution guide
+</code></pre>
+<p><strong>Core module dependency chain</strong>:</p>
+<pre><code>main.rs (CLI)
+    └─→ parser.rs (LiteParse struct)
+            ├─→ conversion.rs   (non-PDF → PDF)
+            ├─→ extract.rs      (PDFium text extraction)
+            ├─→ ocr/            (Tesseract or HTTP)
+            ├─→ ocr_merge.rs    (native + OCR result merge)
+            ├─→ projection.rs   (spatial grid layout reconstruction)
+            └─→ output/         (JSON or text serialization)
+
+Binding crates (napi / PyO3 / wasm)
+    └─→ crates/liteparse (same core API)
+
+packages/node, python, wasm
+    └─→ thin TypeScript/Python wrappers around each binding crate
+</code></pre>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>⚠️ 중요</strong>: <code>cargo build</code> (워크스페이스 전체)는 바인딩 크레이트 때문에 실패합니다. 반드시 <code>-p liteparse</code> 플래그로 코어만 지정하거나, 각 바인딩별 전용 빌드 명령을 사용하세요.</p>
+<p><strong>Rust 코어 / CLI 빌드</strong></p>
+<pre><code class="language-bash"># 개발 빌드 (빠름, 최적화 없음)
+cargo build -p liteparse
+
+# 릴리즈 빌드 (최적화, 배포용)
+cargo build --release -p liteparse
+
+# 빌드 결과물
+# 개발: target/debug/lit
+# 릴리즈: target/release/lit
+</code></pre>
+<p><strong>Node.js 패키지 빌드</strong></p>
+<pre><code class="language-bash">cd packages/node
+npm install
+npm run build        # 전체 빌드 (Rust → TS → 복사)
+npm run build:rs     # Rust 바인딩만 (napi build)
+npm run build:ts     # TypeScript만
+# 결과물: packages/node/dist/
+</code></pre>
+<p><strong>Python 패키지 빌드</strong></p>
+<pre><code class="language-bash">cd packages/python
+maturin develop --release  # 릴리즈 빌드로 활성 venv에 설치
+# 또는 wheel 파일 생성:
+maturin build --release
+# 결과물: target/wheels/*.whl
+</code></pre>
+<p><strong>WASM 패키지 빌드</strong></p>
+<pre><code class="language-bash">cd packages/wasm
+npm run build          # 브라우저 타겟
+# 결과물: packages/wasm/pkg/
+</code></pre>
+<p><strong>Makefile 타겟 사용</strong></p>
+<pre><code class="language-bash">make build   # cargo build (코어)
+make lint    # cargo clippy
+make format  # cargo fmt
+make test    # cargo test --all
+</code></pre>
+<p><strong>자주 발생하는 빌드 오류</strong></p>
+<table>
+<thead>
+<tr>
+<th>오류</th>
+<th>원인</th>
+<th>해결 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cannot find -ltesseract</code></td>
+<td>libtesseract-dev 미설치</td>
+<td><code>sudo apt-get install -y libtesseract-dev libleptonica-dev</code></td>
+</tr>
+<tr>
+<td><code>_Py*</code> 링크 에러</td>
+<td>liteparse-python을 cargo로 직접 빌드 시도</td>
+<td><code>maturin develop</code> 사용</td>
+</tr>
+<tr>
+<td><code>pdfium not found</code></td>
+<td>첫 빌드 시 다운로드 시간 지연</td>
+<td>인터넷 연결 확인 후 재시도 (자동 다운로드됨)</td>
+</tr>
+<tr>
+<td><code>CMAKE_GENERATOR</code> 에러 (Windows)</td>
+<td>Ninja 빌드 시스템 없음</td>
+<td><code>set CMAKE_GENERATOR=Ninja</code> 후 Ninja 설치</td>
+</tr>
+<tr>
+<td><code>error[E0463]: can't find crate for test</code></td>
+<td><code>cargo build</code> 전체 실행</td>
+<td><code>-p liteparse</code> 플래그 추가</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>⚠️ Critical</strong>: <code>cargo build</code> at the workspace root <strong>will fail</strong> because the binding crates each need a specialized linker setup. Always target the core crate with <code>-p liteparse</code>, or use each binding's dedicated build command.</p>
+<p><strong>Rust core / CLI build</strong></p>
+<pre><code class="language-bash"># Development build (fast, unoptimized)
+cargo build -p liteparse
+
+# Release build (optimized, for deployment)
+cargo build --release -p liteparse
+
+# Build artifacts
+# Dev:     target/debug/lit
+# Release: target/release/lit
+</code></pre>
+<p><strong>Node.js package build</strong></p>
+<pre><code class="language-bash">cd packages/node
+npm install
+npm run build        # full build (Rust → TS → copy)
+npm run build:rs     # Rust binding only (napi build)
+npm run build:ts     # TypeScript only
+# Output: packages/node/dist/
+</code></pre>
+<p><strong>Python package build</strong></p>
+<pre><code class="language-bash">cd packages/python
+maturin develop --release  # release build, installed into active venv
+# Or produce a wheel:
+maturin build --release
+# Output: target/wheels/*.whl
+</code></pre>
+<p><strong>WASM package build</strong></p>
+<pre><code class="language-bash">cd packages/wasm
+npm run build          # browser target
+# Output: packages/wasm/pkg/
+</code></pre>
+<p><strong>Using the Makefile</strong></p>
+<pre><code class="language-bash">make build   # cargo build (core)
+make lint    # cargo clippy
+make format  # cargo fmt
+make test    # cargo test --all
+</code></pre>
+<p><strong>Common build errors</strong></p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>cannot find -ltesseract</code></td>
+<td>libtesseract-dev not installed</td>
+<td><code>sudo apt-get install -y libtesseract-dev libleptonica-dev</code></td>
+</tr>
+<tr>
+<td><code>_Py*</code> linker error</td>
+<td>Attempting to <code>cargo build</code> liteparse-python directly</td>
+<td>Use <code>maturin develop</code> instead</td>
+</tr>
+<tr>
+<td>pdfium download hangs</td>
+<td>Slow network / first build</td>
+<td>Wait or check internet connection (auto-downloaded)</td>
+</tr>
+<tr>
+<td><code>CMAKE_GENERATOR</code> error (Windows)</td>
+<td>Ninja not installed</td>
+<td>Install Ninja and <code>set CMAKE_GENERATOR=Ninja</code></td>
+</tr>
+<tr>
+<td><code>can't find crate for test</code></td>
+<td>Running <code>cargo build</code> on full workspace</td>
+<td>Add <code>-p liteparse</code> flag</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p>LiteParse는 웹 서버가 없는 <strong>CLI 도구 / 라이브러리</strong>입니다. 실행은 CLI 명령어 또는 각 언어 API를 통해 이루어집니다.</p>
+<p><strong>CLI 실행 (Rust 빌드 후)</strong></p>
+<pre><code class="language-bash"># 기본 파싱 (텍스트 출력)
+./target/debug/lit parse document.pdf
+
+# JSON 포맷으로 파싱하여 파일 저장
+./target/debug/lit parse document.pdf --format json -o output.json
+
+# 특정 페이지만 파싱
+./target/debug/lit parse document.pdf --target-pages &quot;1-5,10&quot;
+
+# OCR 비활성화
+./target/debug/lit parse document.pdf --no-ocr
+
+# 스크린샷 생성
+./target/debug/lit screenshot document.pdf -o ./screenshots
+
+# 배치 파싱
+./target/debug/lit batch-parse ./input-dir ./output-dir
+
+# stdin에서 파이프 입력
+curl -sL https://example.com/report.pdf | ./target/debug/lit parse -
+</code></pre>
+<p><strong>npm 패키지를 통한 실행</strong></p>
+<pre><code class="language-bash">npx @llamaindex/liteparse parse document.pdf
+# 또는 설치 후
+npm i @llamaindex/liteparse
+./node_modules/.bin/lit parse document.pdf
+</code></pre>
+<p><strong>Python을 통한 실행</strong></p>
+<pre><code class="language-bash">pip install liteparse
+lit parse document.pdf
+# 또는 Python API:
+python -c &quot;
+from liteparse import LiteParse
+parser = LiteParse()
+result = parser.parse('document.pdf')
+print(result.text)
+&quot;
+</code></pre>
+<p><strong>Docker를 통한 실행</strong></p>
+<pre><code class="language-bash"># 베이스 이미지 빌드 및 실행 (Tesseract 포함)
+docker build -t liteparse .
+docker run --rm -v $(pwd):/data liteparse lit parse /data/document.pdf
+
+# 풀 이미지 (LibreOffice + ImageMagick 포함)
+docker build -t liteparse-full -f full.Dockerfile .
+docker run --rm -v $(pwd):/data liteparse-full lit parse /data/document.docx
+</code></pre>
+<p><strong>그리드 프로젝션 디버깅 (개발 중)</strong></p>
+<pre><code class="language-bash">./target/debug/lit parse document.pdf --debug
+./target/debug/lit parse document.pdf --debug-visualize --debug-output ./debug-out
+</code></pre>
+<p><strong>[English]</strong></p>
+<p>LiteParse is a <strong>CLI tool / library</strong>, not a web server. There is no port to open — you invoke it via the CLI or the language API directly.</p>
+<p><strong>CLI (after Rust build)</strong></p>
+<pre><code class="language-bash"># Basic parsing (text output)
+./target/debug/lit parse document.pdf
+
+# Parse to JSON and save to file
+./target/debug/lit parse document.pdf --format json -o output.json
+
+# Parse specific pages only
+./target/debug/lit parse document.pdf --target-pages &quot;1-5,10&quot;
+
+# Disable OCR
+./target/debug/lit parse document.pdf --no-ocr
+
+# Generate screenshots
+./target/debug/lit screenshot document.pdf -o ./screenshots
+
+# Batch parse a directory
+./target/debug/lit batch-parse ./input-dir ./output-dir
+
+# Pipe from stdin
+curl -sL https://example.com/report.pdf | ./target/debug/lit parse -
+</code></pre>
+<p><strong>Via npm package</strong></p>
+<pre><code class="language-bash">npx @llamaindex/liteparse parse document.pdf
+# Or after install:
+npm i @llamaindex/liteparse
+./node_modules/.bin/lit parse document.pdf
+</code></pre>
+<p><strong>Via Python</strong></p>
+<pre><code class="language-bash">pip install liteparse
+lit parse document.pdf
+# Or via Python API:
+python -c &quot;
+from liteparse import LiteParse
+parser = LiteParse()
+result = parser.parse('document.pdf')
+print(result.text)
+&quot;
+</code></pre>
+<p><strong>Via Docker</strong></p>
+<pre><code class="language-bash"># Base image (Tesseract only)
+docker build -t liteparse .
+docker run --rm -v $(pwd):/data liteparse lit parse /data/document.pdf
+
+# Full image (LibreOffice + ImageMagick for Office/image conversion)
+docker build -t liteparse-full -f full.Dockerfile .
+docker run --rm -v $(pwd):/data liteparse-full lit parse /data/document.docx
+</code></pre>
+<p><strong>Grid projection debugging (development)</strong></p>
+<pre><code class="language-bash">./target/debug/lit parse document.pdf --debug
+./target/debug/lit parse document.pdf --debug-visualize --debug-output ./debug-out
+</code></pre>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>단위/통합 테스트 실행</strong></p>
+<pre><code class="language-bash"># 전체 테스트 실행 (liteparse-python, liteparse-napi 제외)
+cargo test --workspace --exclude liteparse-python --exclude liteparse-napi
+
+# 코어 라이브러리만 테스트
+cargo test -p liteparse
+
+# 특정 테스트 함수 실행
+cargo test -p liteparse test_parse_target_pages
+
+# 통합 테스트 포함 실행
+# (기본적으로 SKIP_INTEGRATION_TESTS=yes로 CI가 실행됨)
+unset SKIP_INTEGRATION_TESTS
+cargo test -p liteparse
+</code></pre>
+<p><strong>Makefile 사용</strong></p>
+<pre><code class="language-bash">make test  # cargo test --all과 동일
+</code></pre>
+<p><strong>Node.js 통합 테스트</strong></p>
+<pre><code class="language-bash">cd packages/node
+npm run build
+node dist/cli.js parse demo/docs/apple-10k-2024.pdf --no-ocr --max-pages 1
+</code></pre>
+<p><strong>Python 테스트 (선택적 dev 의존성 사용)</strong></p>
+<pre><code class="language-bash">cd packages/python
+pip install -e &quot;.[dev]&quot;  # pytest, pytest-asyncio, mypy 설치
+pytest
+</code></pre>
+<p><strong>CI에서 실행되는 주요 체크</strong>
+- <code>cargo fmt --all -- --check</code> (포매팅)
+- <code>cargo clippy --all-targets</code> (린트)
+- <code>cargo build --workspace</code> + <code>cargo test --workspace</code> (멀티 플랫폼: ubuntu, macOS, Windows)
+- CLI 스모크 테스트 + OCR 스모크 테스트 (tessdata 자동 다운로드 경로 검증)
+- Docker 이미지 빌드 검증</p>
+<p><strong>테스트 데이터</strong>
+- <code>demo/docs/apple-10k-2024.pdf</code> — 대용량 실제 문서
+- <code>demo/docs/long_tiny_text.pdf</code> — 작은 글씨 OCR 테스트용
+- <code>integration_tests_data/sample.pdf</code> — 기본 파싱 테스트
+- <code>integration_tests_data/receipt.png</code> — 이미지 OCR 테스트
+- <code>integration_tests_data/sample3.doc</code> — 형식 변환 테스트</p>
+<p><strong>커버리지</strong>: 공식 커버리지 도구 설정은 없으나, <code>cargo tarpaulin</code> 설치 후 <code>cargo tarpaulin -p liteparse</code> 명령으로 확인 가능합니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Run unit / integration tests</strong></p>
+<pre><code class="language-bash"># All tests (excluding binding crates that need special toolchains)
+cargo test --workspace --exclude liteparse-python --exclude liteparse-napi
+
+# Core library only
+cargo test -p liteparse
+
+# A specific test function
+cargo test -p liteparse test_parse_target_pages
+
+# Include integration tests (CI sets SKIP_INTEGRATION_TESTS=yes by default)
+unset SKIP_INTEGRATION_TESTS
+cargo test -p liteparse
+</code></pre>
+<p><strong>Using the Makefile</strong></p>
+<pre><code class="language-bash">make test  # equivalent to cargo test --all
+</code></pre>
+<p><strong>Node.js integration smoke test</strong></p>
+<pre><code class="language-bash">cd packages/node
+npm run build
+node dist/cli.js parse demo/docs/apple-10k-2024.pdf --no-ocr --max-pages 1
+</code></pre>
+<p><strong>Python tests (with optional dev dependencies)</strong></p>
+<pre><code class="language-bash">cd packages/python
+pip install -e &quot;.[dev]&quot;  # installs pytest, pytest-asyncio, mypy
+pytest
+</code></pre>
+<p><strong>Key checks run in CI</strong>
+- <code>cargo fmt --all -- --check</code> (formatting)
+- <code>cargo clippy --all-targets</code> (linting)
+- <code>cargo build</code> + <code>cargo test</code> across multiple platforms (ubuntu, macOS Intel/ARM, Windows x64/ARM)
+- CLI smoke test + OCR smoke test (validates the runtime tessdata auto-download path)
+- Docker image build validation</p>
+<p><strong>Test data files</strong>
+- <code>demo/docs/apple-10k-2024.pdf</code> — large real-world document
+- <code>demo/docs/long_tiny_text.pdf</code> — tiny-text OCR test
+- <code>integration_tests_data/sample.pdf</code> — basic parse test
+- <code>integration_tests_data/receipt.png</code> — image OCR test
+- <code>integration_tests_data/sample3.doc</code> — format-conversion test</p>
+<p><strong>Coverage</strong>: No official coverage tooling is configured. You can use <code>cargo tarpaulin -p liteparse</code> after installing <code>cargo install cargo-tarpaulin</code>.</p>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>브랜치 전략</strong>
+- 기본 브랜치: <code>main</code>
+- 기능 개발: <code>main</code>에서 feature 브랜치 생성
+- 브랜치 네이밍 컨벤션은 명시되지 않았으나, <code>fix/issue-description</code>, <code>feat/feature-name</code> 형식 권장</p>
+<p><strong>환영하는 기여 범주</strong>
+- 핵심 PDF 파싱 알고리즘 및 텍스트 추출 개선
+- OCR 통합 및 기능 향상
+- 출력 포맷 추가 및 수정</p>
+<p><strong>환영하지 않는 기여 범주</strong>
+- Markdown 출력 포맷
+- LLM 통합 또는 에이전트 코드
+- 파싱 및 추출 개선과 직접적으로 관련없는 기능</p>
+<p><strong>PR 절차</strong>
+1. 저장소 Fork
+2. <code>main</code>에서 feature 브랜치 생성
+3. 변경 사항 작성
+4. 린트 패스 확인: <code>cargo fmt --check &amp;&amp; cargo clippy</code>
+5. PR 제출 — CI에서 회귀 테스트 스위트 자동 실행</p>
+<p><strong>PR 가이드라인</strong>
+- PR은 하나의 변경에 집중
+- 필요 시 문서 업데이트
+- 새 기능에는 테스트 추가
+- 파싱 이슈 보고 시 테스트 문서 첨부 필수</p>
+<p><strong>코딩 스타일 / 린트</strong></p>
+<pre><code class="language-bash">cargo fmt --all          # 포매팅 적용
+cargo fmt --all --check  # 포매팅 검사 (CI에서 실행)
+cargo clippy --all-targets          # 린트 (경고 허용)
+cargo clippy --all-targets -- -D warnings  # 엄격 모드 (경고를 에러로)
+</code></pre>
+<p><strong>TypeScript (packages/node)</strong></p>
+<pre><code class="language-bash"># Prettier 설정: .prettierrc 참고
+# ESLint: eslint.config.js 참고
+</code></pre>
+<p><strong>커밋 메시지 컨벤션</strong>: 저장소에 명시적 컨벤션은 없으나 간결하고 의미 있는 메시지 권장 (예: <code>fix: improve grid projection for rotated text</code>)</p>
+<p><strong>[English]</strong></p>
+<p><strong>Branching strategy</strong>
+- Default branch: <code>main</code>
+- New work: branch off <code>main</code>, open a PR back to <code>main</code>
+- No explicit naming convention documented; <code>fix/description</code> or <code>feat/description</code> is common practice</p>
+<p><strong>Welcome contributions</strong>
+- Core PDF parsing algorithms and text extraction improvements
+- OCR integrations and enhancements
+- Output format additions and modifications</p>
+<p><strong>Out-of-scope contributions</strong>
+- Markdown output format
+- LLM integration or agent code
+- Anything not directly related to improving core parsing/extraction</p>
+<p><strong>PR process</strong>
+1. Fork the repository
+2. Create a feature branch off <code>main</code>
+3. Make your changes
+4. Ensure linting passes: <code>cargo fmt --check &amp;&amp; cargo clippy</code>
+5. Submit a PR — CI automatically runs a regression test suite</p>
+<p><strong>PR guidelines</strong>
+- Keep PRs focused on a single change
+- Update documentation when needed
+- Add tests for new functionality
+- For parsing issues: attach a test document to the PR</p>
+<p><strong>Coding style / linting</strong></p>
+<pre><code class="language-bash">cargo fmt --all          # apply formatting
+cargo fmt --all --check  # check formatting (runs in CI)
+cargo clippy --all-targets          # lint (warnings allowed)
+cargo clippy --all-targets -- -D warnings  # strict (warnings as errors)
+</code></pre>
+<p><strong>TypeScript (packages/node)</strong></p>
+<pre><code class="language-bash"># Prettier config: see .prettierrc
+# ESLint: see eslint.config.js
+</code></pre>
+<p><strong>Commit message convention</strong>: No enforced convention in the repo. Keep messages concise and meaningful (e.g. <code>fix: improve grid projection for rotated text</code>).</p>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. <code>cargo build</code>를 실행했는데 <code>_Py*</code> 또는 <code>_Napi*</code> 링크 에러가 납니다.</strong></p>
+<p>A. 워크스페이스 전체 빌드는 의도적으로 지원하지 않습니다. Python/Node.js 바인딩 크레이트는 각각 <code>maturin</code>과 <code>napi</code> CLI를 통해서만 올바르게 링크됩니다. 코어만 빌드하려면:</p>
+<pre><code class="language-bash">cargo build -p liteparse
+</code></pre>
+<p><strong>Q2. OCR이 실행되지 않거나 "tessdata" 관련 에러가 납니다.</strong></p>
+<p>A. 첫 실행 시 tesseract-rs가 tessdata를 자동 다운로드합니다. 인터넷 연결이 없거나 에어갭 환경이라면 tessdata 파일을 미리 준비하고 경로를 지정하세요:</p>
+<pre><code class="language-bash">export TESSDATA_PREFIX=/path/to/tessdata
+lit parse document.pdf --ocr-language eng
+# 또는
+lit parse document.pdf --tessdata-path /path/to/tessdata
+</code></pre>
+<p><strong>Q3. DOCX/XLSX 파일을 파싱하려고 하면 변환 오류가 납니다.</strong></p>
+<p>A. 비PDF 포맷 변환에는 LibreOffice가 필요합니다. 설치 후 PATH에 추가하세요:</p>
+<pre><code class="language-bash"># Ubuntu/Debian
+sudo apt-get install libreoffice
+# macOS
+brew install --cask libreoffice
+# Windows: LibreOffice 설치 후 C:\Program Files\LibreOffice\program을 PATH에 추가
+</code></pre>
+<p><strong>Q4. 이미지 파싱에 실패합니다.</strong></p>
+<p>A. 이미지 변환에는 ImageMagick이 필요합니다:</p>
+<pre><code class="language-bash"># Ubuntu/Debian
+sudo apt-get install imagemagick
+# macOS
+brew install imagemagick
+</code></pre>
+<p><strong>Q5. <code>cargo build</code> 중 pdfium 다운로드가 실패하거나 느립니다.</strong></p>
+<p>A. <code>pdfium-sys</code> build.rs가 GitHub에서 PDFium 공유 라이브러리를 자동 다운로드합니다. 네트워크 상태를 확인하고 재시도하세요. 캐시 위치: <code>~/.cache/pdfium-rs</code> (Linux/macOS), <code>%LOCALAPPDATA%\pdfium-rs</code> (Windows).</p>
+<p><strong>Q6. 그리드 프로젝션 출력이 예상과 다릅니다. 어떻게 디버깅하나요?</strong></p>
+<p>A. <code>--debug</code> 및 <code>--debug-visualize</code> 플래그를 사용하세요:</p>
+<pre><code class="language-bash">lit parse document.pdf --debug --debug-page 1
+lit parse document.pdf --debug-visualize --debug-output ./debug-out
+# debug-out/에 색상 코딩된 PNG가 생성됨 (파란색=왼쪽정렬, 빨간색=오른쪽, 녹색=가운데, 회색=떠있음)
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. <code>cargo build</code> gives <code>_Py*</code> or <code>_Napi*</code> linker errors.</strong></p>
+<p>A. Workspace-wide build is intentionally unsupported. Python/Node.js binding crates require their respective CLI tools (<code>maturin</code> / <code>napi</code>) to resolve linker symbols. To build the core only:</p>
+<pre><code class="language-bash">cargo build -p liteparse
+</code></pre>
+<p><strong>Q2. OCR doesn't run or I get tessdata-related errors.</strong></p>
+<p>A. On first run, <code>tesseract-rs</code> auto-downloads tessdata. In offline or air-gapped environments, provide tessdata manually:</p>
+<pre><code class="language-bash">export TESSDATA_PREFIX=/path/to/tessdata
+lit parse document.pdf --ocr-language eng
+# Or pass the path directly:
+lit parse document.pdf --tessdata-path /path/to/tessdata
+</code></pre>
+<p><strong>Q3. Parsing DOCX/XLSX files fails with a conversion error.</strong></p>
+<p>A. Non-PDF format conversion requires LibreOffice. Install it and ensure it's on your PATH:</p>
+<pre><code class="language-bash"># Ubuntu/Debian
+sudo apt-get install libreoffice
+# macOS
+brew install --cask libreoffice
+# Windows: install LibreOffice and add C:\Program Files\LibreOffice\program to PATH
+</code></pre>
+<p><strong>Q4. Image parsing fails.</strong></p>
+<p>A. Image-to-PDF conversion requires ImageMagick:</p>
+<pre><code class="language-bash"># Ubuntu/Debian
+sudo apt-get install imagemagick
+# macOS
+brew install imagemagick
+</code></pre>
+<p><strong>Q5. PDFium download hangs or fails during <code>cargo build</code>.</strong></p>
+<p>A. The <code>pdfium-sys</code> build script auto-downloads the PDFium shared library from GitHub. Check your network and retry. The cache lives at <code>~/.cache/pdfium-rs</code> (Linux/macOS) or <code>%LOCALAPPDATA%\pdfium-rs</code> (Windows).</p>
+<p><strong>Q6. Grid projection output looks wrong. How do I debug it?</strong></p>
+<p>A. Use the <code>--debug</code> and <code>--debug-visualize</code> flags:</p>
+<pre><code class="language-bash">lit parse document.pdf --debug --debug-page 1
+lit parse document.pdf --debug-visualize --debug-output ./debug-out
+# Produces color-coded PNGs: blue=left-snap, red=right, green=center, gray=floating
+</code></pre>
+<h2 id="-">---</h2>
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>분류</strong>: 독립 실행형 파싱 라이브러리 + CLI 도구</p>
+<p>LiteParse는 PDF 및 문서 파일에서 구조적 텍스트를 로컬에서 추출하기 위한 <strong>다언어 지원 Rust 라이브러리</strong>입니다. 주로 다음 문제를 해결합니다:</p>
+<ul>
+<li><strong>RAG/LLM 파이프라인 전처리</strong>: LLM에 문서 내용을 제공하기 위한 구조화된 텍스트 + 바운딩 박스 추출</li>
+<li><strong>문서 처리 자동화</strong>: 대량의 PDF, Office 문서, 이미지를 CLI 또는 API로 일괄 처리</li>
+<li><strong>스캔 문서 OCR</strong>: 이미지 기반 PDF에서 텍스트 추출 (Tesseract 내장)</li>
+<li><strong>시각적 문서 이해</strong>: LLM 에이전트가 사용할 페이지 스크린샷 생성</li>
+<li><strong>멀티플랫폼 임베딩</strong>: Rust, Node.js, Python, 브라우저(WASM) 어느 환경에서도 동일 API 사용</li>
+</ul>
+<p>클라우드 비용 없이, 민감한 문서를 외부로 전송하지 않고 처리해야 할 때 특히 유용합니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Classification</strong>: Standalone parsing library + CLI tool</p>
+<p>LiteParse is a <strong>multi-language Rust library</strong> for extracting structured text from PDF and document files locally. It primarily solves:</p>
+<ul>
+<li><strong>RAG/LLM pipeline preprocessing</strong>: structured text + bounding box extraction to feed documents into LLMs</li>
+<li><strong>Automated document processing</strong>: batch-process PDFs, Office documents, and images via CLI or API</li>
+<li><strong>Scanned-document OCR</strong>: text extraction from image-based PDFs (Tesseract bundled)</li>
+<li><strong>Visual document understanding</strong>: page screenshot generation for LLM agents</li>
+<li><strong>Multi-platform embedding</strong>: same API surface in Rust, Node.js, Python, or the browser (WASM)</li>
+</ul>
+<p>It is especially valuable when you need to process sensitive documents without sending them to a cloud service, or when you want to avoid per-page API costs.</p>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>전체 아키텍처 다이어그램</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+    subgraph Input[&quot;입력 / Input&quot;]
+        PDF[&quot;PDF 파일&quot;]
+        OFFICE[&quot;Office 문서\n(DOCX/XLSX/PPTX)&quot;]
+        IMG[&quot;이미지\n(JPG/PNG/TIFF 등)&quot;]
+        BYTES[&quot;원시 바이트\n(stdin / API)&quot;]
+    end
+
+    subgraph Core[&quot;Rust 코어 / crates/liteparse&quot;]
+        CONV[&quot;conversion.rs\nLibreOffice / ImageMagick\n비PDF → PDF 변환&quot;]
+        EXTRACT[&quot;extract.rs\nPDFium 텍스트 아이템 추출\n(텍스트 + 위치 + 폰트)&quot;]
+        OCR_E[&quot;ocr/\nOcrEngine 트레이트\nTesseract | HTTP 서버&quot;]
+        MERGE[&quot;ocr_merge.rs\n네이티브 텍스트 + OCR 결과 병합\n신뢰도 점수 보존&quot;]
+        PROJ[&quot;projection.rs\n공간 그리드 투영\n앵커 기반 레이아웃 재구성&quot;]
+        RENDER[&quot;render.rs\n페이지 PNG 렌더링&quot;]
+        OUTPUT[&quot;output/\njson.rs | text.rs&quot;]
+    end
+
+    subgraph Bindings[&quot;언어 바인딩 / Language Bindings&quot;]
+        NAPI[&quot;crates/liteparse-napi\n→ packages/node\n@llamaindex/liteparse&quot;]
+        PYO3[&quot;crates/liteparse-python\n→ packages/python\nliteparse (PyPI)&quot;]
+        WASM[&quot;crates/liteparse-wasm\n→ packages/wasm\n@llamaindex/liteparse-wasm&quot;]
+        CLI[&quot;lit CLI 바이너리\ncargo / npm / pip 설치&quot;]
+    end
+
+    subgraph Out[&quot;출력 / Output&quot;]
+        JSON[&quot;구조화 JSON\ntext + textItems(바운딩 박스)&quot;]
+        TEXT[&quot;레이아웃 보존 텍스트&quot;]
+        SCREEN[&quot;PNG 스크린샷&quot;]
+    end
+
+    PDF --&gt; EXTRACT
+    OFFICE --&gt; CONV --&gt; EXTRACT
+    IMG --&gt; CONV
+    BYTES --&gt; EXTRACT
+
+    EXTRACT --&gt;|&quot;텍스트 희박 영역&quot;| OCR_E
+    EXTRACT --&gt; MERGE
+    OCR_E --&gt; MERGE
+    MERGE --&gt; PROJ
+    PROJ --&gt; OUTPUT
+    PROJ --&gt; RENDER
+
+    OUTPUT --&gt; JSON
+    OUTPUT --&gt; TEXT
+    RENDER --&gt; SCREEN
+
+    Core --&gt; NAPI &amp; PYO3 &amp; WASM &amp; CLI
+    NAPI &amp; PYO3 &amp; WASM &amp; CLI --&gt; Out
+</code></pre>
+<p><strong>핵심 컴포넌트 역할</strong></p>
+<table>
+<thead>
+<tr>
+<th>컴포넌트</th>
+<th>파일</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>parser.rs</code></td>
+<td><code>crates/liteparse/src/parser.rs</code></td>
+<td>전체 파싱 파이프라인 오케스트레이션</td>
+</tr>
+<tr>
+<td><code>extract.rs</code></td>
+<td><code>crates/liteparse/src/extract.rs</code></td>
+<td>PDFium API 호출, 텍스트 아이템 + 위치 추출</td>
+</tr>
+<tr>
+<td><code>projection.rs</code></td>
+<td><code>crates/liteparse/src/projection.rs</code></td>
+<td>앵커 기반 공간 레이아웃 재구성 (가장 복잡)</td>
+</tr>
+<tr>
+<td><code>ocr_merge.rs</code></td>
+<td><code>crates/liteparse/src/ocr_merge.rs</code></td>
+<td>네이티브 PDF 텍스트와 OCR 결과 병합</td>
+</tr>
+<tr>
+<td><code>pdfium-sys</code></td>
+<td><code>crates/pdfium-sys/</code></td>
+<td>PDFium C 라이브러리 FFI + 자동 다운로드</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Architecture diagram</strong></p>
+<pre><code class="language-mermaid">flowchart TD
+    subgraph Input[&quot;Input&quot;]
+        PDF[&quot;PDF file&quot;]
+        OFFICE[&quot;Office docs\n(DOCX/XLSX/PPTX)&quot;]
+        IMG[&quot;Images\n(JPG/PNG/TIFF etc.)&quot;]
+        BYTES[&quot;Raw bytes\n(stdin / API)&quot;]
+    end
+
+    subgraph Core[&quot;Rust Core / crates/liteparse&quot;]
+        CONV[&quot;conversion.rs\nLibreOffice / ImageMagick\nnon-PDF → PDF&quot;]
+        EXTRACT[&quot;extract.rs\nPDFium text-item extraction\n(text + position + font)&quot;]
+        OCR_E[&quot;ocr/\nOcrEngine trait\nTesseract | HTTP server&quot;]
+        MERGE[&quot;ocr_merge.rs\nNative text + OCR merge\npreserves confidence scores&quot;]
+        PROJ[&quot;projection.rs\nSpatial grid projection\nanchor-based layout reconstruction&quot;]
+        RENDER[&quot;render.rs\nPage PNG rendering&quot;]
+        OUTPUT[&quot;output/\njson.rs | text.rs&quot;]
+    end
+
+    subgraph Bindings[&quot;Language Bindings&quot;]
+        NAPI[&quot;crates/liteparse-napi\n→ packages/node\n@llamaindex/liteparse&quot;]
+        PYO3[&quot;crates/liteparse-python\n→ packages/python\nliteparse (PyPI)&quot;]
+        WASM[&quot;crates/liteparse-wasm\n→ packages/wasm\n@llamaindex/liteparse-wasm&quot;]
+        CLI[&quot;lit CLI binary\nvia cargo / npm / pip&quot;]
+    end
+
+    subgraph Out[&quot;Output&quot;]
+        JSON[&quot;Structured JSON\ntext + textItems (bounding boxes)&quot;]
+        TEXT[&quot;Layout-preserved plain text&quot;]
+        SCREEN[&quot;PNG screenshots&quot;]
+    end
+
+    PDF --&gt; EXTRACT
+    OFFICE --&gt; CONV --&gt; EXTRACT
+    IMG --&gt; CONV
+    BYTES --&gt; EXTRACT
+
+    EXTRACT --&gt;|&quot;text-sparse pages&quot;| OCR_E
+    EXTRACT --&gt; MERGE
+    OCR_E --&gt; MERGE
+    MERGE --&gt; PROJ
+    PROJ --&gt; OUTPUT
+    PROJ --&gt; RENDER
+
+    OUTPUT --&gt; JSON
+    OUTPUT --&gt; TEXT
+    RENDER --&gt; SCREEN
+
+    Core --&gt; NAPI &amp; PYO3 &amp; WASM &amp; CLI
+    NAPI &amp; PYO3 &amp; WASM &amp; CLI --&gt; Out
+</code></pre>
+<p><strong>Core component roles</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>File</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>parser.rs</code></td>
+<td><code>crates/liteparse/src/parser.rs</code></td>
+<td>Orchestrates the full parsing pipeline</td>
+</tr>
+<tr>
+<td><code>extract.rs</code></td>
+<td><code>crates/liteparse/src/extract.rs</code></td>
+<td>Calls PDFium API; yields text items + positions</td>
+</tr>
+<tr>
+<td><code>projection.rs</code></td>
+<td><code>crates/liteparse/src/projection.rs</code></td>
+<td>Anchor-based spatial layout reconstruction (most complex)</td>
+</tr>
+<tr>
+<td><code>ocr_merge.rs</code></td>
+<td><code>crates/liteparse/src/ocr_merge.rs</code></td>
+<td>Merges native PDF text with OCR results</td>
+</tr>
+<tr>
+<td><code>pdfium-sys</code></td>
+<td><code>crates/pdfium-sys/</code></td>
+<td>PDFium C library FFI + auto-download logic</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<hr />
+<p><strong>시나리오 1: Python RAG 파이프라인에 LiteParse 통합</strong></p>
+<p>로컬 LLM 기반 문서 Q&amp;A 시스템에서 PDF를 인덱싱할 때.</p>
+<pre><code class="language-python"># 1. 설치
+# pip install liteparse llama-index-core
+
+from liteparse import LiteParse
+from pathlib import Path
+
+# 2. 파서 초기화 (OCR 활성화, JSON 출력)
+parser = LiteParse(ocr_enabled=True, output_format=&quot;json&quot;)
+
+# 3. PDF 파싱
+result = parser.parse(&quot;annual_report.pdf&quot;)
+
+# 4. 페이지별 텍스트 청크 추출
+for page in result.pages:
+    print(f&quot;Page {page.page_num}: {len(page.text_items)} text items&quot;)
+    # page.text_items에는 text, x, y, width, height, confidence가 있음
+
+# 5. 바운딩 박스를 활용한 위치 기반 청킹
+chunks = []
+for page in result.pages:
+    # 상단 절반만 추출 (예: 헤더 섹션)
+    top_items = [item for item in page.text_items if item.y &lt; page.height / 2]
+    chunks.append(&quot; &quot;.join(i.text for i in top_items))
+</code></pre>
+<hr />
+<p><strong>시나리오 2: Node.js 서버에서 문서 파싱 API 구축</strong></p>
+<p>Express 서버에서 업로드된 PDF를 파싱하여 구조화된 JSON을 반환.</p>
+<pre><code class="language-typescript">// npm install @llamaindex/liteparse express multer
+import { LiteParse } from '@llamaindex/liteparse';
+import express from 'express';
+import multer from 'multer';
+
+const upload = multer({ storage: multer.memoryStorage() });
+const app = express();
+
+const parser = new LiteParse({
+  ocrEnabled: true,
+  outputFormat: 'json',
+  maxPages: 50,
+});
+
+app.post('/parse', upload.single('file'), async (req, res) =&gt; {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+
+  try {
+    // 파일 버퍼를 직접 전달 (파일 저장 불필요)
+    const result = await parser.parse(req.file.buffer);
+    res.json({
+      pageCount: result.pages.length,
+      text: result.text,
+      pages: result.pages.map(p =&gt; ({
+        pageNum: p.pageNum,
+        itemCount: p.textItems.length,
+      })),
+    });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+app.listen(3000);
+</code></pre>
+<blockquote>
+<p><strong>주의</strong>: 신뢰할 수 없는 업로드를 처리하는 경우, 파일 크기 제한, 타임아웃, 샌드박스 실행 환경을 반드시 구현하세요 (SECURITY.md 참고).</p>
+</blockquote>
+<hr />
+<p><strong>시나리오 3: LLM 멀티모달 에이전트를 위한 스크린샷 생성</strong></p>
+<p>텍스트 추출이 불충분한 복잡한 문서(차트, 표 등)를 LLM 비전 모델에 제공.</p>
+<pre><code class="language-python">from liteparse import LiteParse
+import base64
+
+parser = LiteParse()
+
+# 스크린샷 생성 (고해상도 DPI)
+screenshots = parser.screenshot(&quot;complex_report.pdf&quot;, page_numbers=[1, 2, 3])
+
+for shot in screenshots:
+    # LLM API에 전달할 수 있는 base64 인코딩
+    img_b64 = base64.b64encode(shot.image_bytes).decode()
+    print(f&quot;Page {shot.page_num}: {shot.width}x{shot.height}px&quot;)
+    # Claude/GPT-4V API에 image_url로 전달 가능
+</code></pre>
+<hr />
+<p><strong>시나리오 4: CLI를 이용한 대량 문서 배치 처리</strong></p>
+<p>서버에서 cron job으로 디렉토리의 모든 문서 처리.</p>
+<pre><code class="language-bash"># 디렉토리 내 모든 PDF를 JSON으로 변환
+lit batch-parse ./input-pdfs ./output-json --format json --recursive
+
+# OCR 서버(EasyOCR)를 사용한 고품질 배치 처리
+docker run -d -p 8000:8000 easyocr-server  # ocr/easyocr/Dockerfile 참고
+lit batch-parse ./scanned-docs ./output --ocr-server-url http://localhost:8000
+
+# 특정 확장자만 처리, 조용히 실행
+lit batch-parse ./docs ./out --extension .pdf --quiet
+</code></pre>
+<hr />
+<p><strong>시나리오 5: 브라우저에서 WASM으로 클라이언트 사이드 파싱</strong></p>
+<p>서버 전송 없이 브라우저에서 직접 PDF 파싱.</p>
+<pre><code class="language-html">&lt;!-- npm install @llamaindex/liteparse-wasm --&gt;
+&lt;script type=&quot;module&quot;&gt;
+import init, { LiteParse } from '@llamaindex/liteparse-wasm';
+
+async function parsePDF(file) {
+  await init();  // WASM 모듈 초기화
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const parser = new LiteParse({ ocrEnabled: false });
+  const result = await parser.parse(bytes);
+  console.log(result.text);
+}
+&lt;/script&gt;
+</code></pre>
+<blockquote>
+<p><strong>참고</strong>: WASM 빌드에서 OCR은 커스텀 JS 콜백 인터페이스를 통해 제공됩니다. Tesseract는 WASM에 번들되지 않습니다.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<hr />
+<p><strong>Scenario 1: Integrating LiteParse into a Python RAG pipeline</strong></p>
+<p>Indexing PDFs for a local-LLM document Q&amp;A system.</p>
+<pre><code class="language-python"># pip install liteparse
+
+from liteparse import LiteParse
+
+# Initialize with OCR and JSON output
+parser = LiteParse(ocr_enabled=True, output_format=&quot;json&quot;)
+
+# Parse the PDF
+result = parser.parse(&quot;annual_report.pdf&quot;)
+
+# Iterate pages and build chunks
+for page in result.pages:
+    print(f&quot;Page {page.page_num}: {len(page.text_items)} text items&quot;)
+    # text_items carry text, x, y, width, height, confidence
+
+# Position-aware chunking using bounding boxes
+chunks = []
+for page in result.pages:
+    top_items = [item for item in page.text_items if item.y &lt; page.height / 2]
+    chunks.append(&quot; &quot;.join(i.text for i in top_items))
+</code></pre>
+<hr />
+<p><strong>Scenario 2: Building a document parsing API in Node.js</strong></p>
+<p>An Express server that parses uploaded PDFs and returns structured JSON.</p>
+<pre><code class="language-typescript">// npm install @llamaindex/liteparse express multer
+import { LiteParse } from '@llamaindex/liteparse';
+import express from 'express';
+import multer from 'multer';
+
+const upload = multer({ storage: multer.memoryStorage() });
+const app = express();
+
+const parser = new LiteParse({
+  ocrEnabled: true,
+  outputFormat: 'json',
+  maxPages: 50,
+});
+
+app.post('/parse', upload.single('file'), async (req, res) =&gt; {
+  if (!req.file) return res.status(400).json({ error: 'No file uploaded' });
+  try {
+    // Pass the raw Buffer — no disk I/O needed
+    const result = await parser.parse(req.file.buffer);
+    res.json({
+      pageCount: result.pages.length,
+      text: result.text,
+    });
+  } catch (err) {
+    res.status(500).json({ error: String(err) });
+  }
+});
+
+app.listen(3000);
+</code></pre>
+<blockquote>
+<p><strong>Warning</strong>: When accepting untrusted uploads, you must enforce file-size limits, timeouts, and sandboxed execution. See SECURITY.md.</p>
+</blockquote>
+<hr />
+<p><strong>Scenario 3: Screenshot generation for multimodal LLM agents</strong></p>
+<p>Feeding complex documents (charts, tables) to LLM vision models when text extraction alone is insufficient.</p>
+<pre><code class="language-python">from liteparse import LiteParse
+import base64
+
+parser = LiteParse()
+screenshots = parser.screenshot(&quot;complex_report.pdf&quot;, page_numbers=[1, 2, 3])
+
+for shot in screenshots:
+    img_b64 = base64.b64encode(shot.image_bytes).decode()
+    print(f&quot;Page {shot.page_num}: {shot.width}x{shot.height}px&quot;)
+    # Pass as image_url to Claude / GPT-4V vision APIs
+</code></pre>
+<hr />
+<p><strong>Scenario 4: Batch processing documents with the CLI</strong></p>
+<p>A cron job that converts a directory of PDFs to structured JSON overnight.</p>
+<pre><code class="language-bash"># Convert all PDFs to JSON
+lit batch-parse ./input-pdfs ./output-json --format json --recursive
+
+# High-quality batch with an EasyOCR HTTP server
+docker run -d -p 8000:8000 easyocr-server   # see ocr/easyocr/Dockerfile
+lit batch-parse ./scanned-docs ./output --ocr-server-url http://localhost:8000
+
+# Filter to a specific extension, suppress progress output
+lit batch-parse ./docs ./out --extension .pdf --quiet
+</code></pre>
+<hr />
+<p><strong>Scenario 5: Client-side PDF parsing in the browser via WASM</strong></p>
+<p>Parse PDFs directly in the browser without uploading to a server.</p>
+<pre><code class="language-html">&lt;!-- npm install @llamaindex/liteparse-wasm --&gt;
+&lt;script type=&quot;module&quot;&gt;
+import init, { LiteParse } from '@llamaindex/liteparse-wasm';
+
+async function parsePDF(file) {
+  await init();  // initialize WASM module
+  const bytes = new Uint8Array(await file.arrayBuffer());
+  const parser = new LiteParse({ ocrEnabled: false });
+  const result = await parser.parse(bytes);
+  console.log(result.text);
+}
+&lt;/script&gt;
+</code></pre>
+<blockquote>
+<p><strong>Note</strong>: In the WASM build OCR is provided via a custom JS callback interface; Tesseract is not bundled into the <code>.wasm</code> binary.</p>
+</blockquote>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>설정 변경 포인트</strong></p>
+<p><code>LiteParseConfig</code> (<code>crates/liteparse/src/config.rs</code>)의 모든 필드가 설정 가능합니다:</p>
+<table>
+<thead>
+<tr>
+<th>설정</th>
+<th>기본값</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ocr_enabled</code></td>
+<td><code>true</code></td>
+<td>OCR 활성화 여부</td>
+</tr>
+<tr>
+<td><code>ocr_language</code></td>
+<td><code>"eng"</code></td>
+<td>Tesseract 언어 코드</td>
+</tr>
+<tr>
+<td><code>ocr_server_url</code></td>
+<td><code>None</code></td>
+<td>HTTP OCR 서버 URL</td>
+</tr>
+<tr>
+<td><code>tessdata_path</code></td>
+<td><code>None</code></td>
+<td>tessdata 경로 (없으면 <code>TESSDATA_PREFIX</code> 환경변수 사용)</td>
+</tr>
+<tr>
+<td><code>max_pages</code></td>
+<td><code>1000</code></td>
+<td>최대 파싱 페이지 수</td>
+</tr>
+<tr>
+<td><code>dpi</code></td>
+<td><code>150.0</code></td>
+<td>OCR/스크린샷 렌더링 DPI</td>
+</tr>
+<tr>
+<td><code>preserve_very_small_text</code></td>
+<td><code>false</code></td>
+<td>매우 작은 텍스트 보존 여부</td>
+</tr>
+<tr>
+<td><code>num_workers</code></td>
+<td>CPU 코어 - 1</td>
+<td>동시 OCR 워커 수</td>
+</tr>
+</tbody>
+</table>
+<p><strong>새 출력 포맷 추가</strong>
+1. <code>crates/liteparse/src/output/</code>에 새 파일 생성 (예: <code>markdown.rs</code>)
+2. <code>config.rs</code>의 <code>OutputFormat</code> enum에 변형 추가
+3. <code>main.rs</code>와 각 바인딩 크레이트에 연결</p>
+<p><strong>새 OCR 엔진 추가</strong>
+1. <code>crates/liteparse/src/ocr/</code>에 <code>OcrEngine</code> 트레이트 구현
+2. <code>parser.rs</code>에 초기화 로직 추가
+3. <code>config.rs</code>에 설정 옵션 추가
+4. HTTP OCR 서버 방식은 이미 지원됨 — <code>ocr/easyocr/</code>, <code>ocr/paddleocr/</code> 참고</p>
+<p><strong>HTTP OCR 서버 구현 (커스텀 OCR 엔진)</strong></p>
+<p>LiteParse OCR API 스펙 (<code>OCR_API_SPEC.md</code>)을 따르면 어떤 OCR 엔진도 연동 가능:</p>
+<pre><code>POST /ocr
+Content-Type: multipart/form-data
+  file: &lt;PNG 이미지&gt;
+  language: &lt;언어코드&gt;
+
+응답: { &quot;results&quot;: [{ &quot;text&quot;: &quot;...&quot;, &quot;bbox&quot;: [x1,y1,x2,y2], &quot;confidence&quot;: 0.95 }] }
+</code></pre>
+<p><strong>CLI 옵션 추가</strong>
+1. <code>config.rs</code>의 <code>LiteParseConfig</code>에 필드 추가
+2. <code>main.rs</code>에 clap arg 추가
+3. <code>parser.rs</code>에 연결
+4. 각 바인딩 크레이트(<code>liteparse-napi</code>, <code>liteparse-python</code>, <code>liteparse-wasm</code>)에 노출</p>
+<p><strong>[English]</strong></p>
+<p><strong>Configuration touch points</strong></p>
+<p>Every field of <code>LiteParseConfig</code> (<code>crates/liteparse/src/config.rs</code>) is tunable:</p>
+<table>
+<thead>
+<tr>
+<th>Setting</th>
+<th>Default</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ocr_enabled</code></td>
+<td><code>true</code></td>
+<td>Toggle OCR</td>
+</tr>
+<tr>
+<td><code>ocr_language</code></td>
+<td><code>"eng"</code></td>
+<td>Tesseract language code</td>
+</tr>
+<tr>
+<td><code>ocr_server_url</code></td>
+<td><code>None</code></td>
+<td>HTTP OCR server URL</td>
+</tr>
+<tr>
+<td><code>tessdata_path</code></td>
+<td><code>None</code></td>
+<td>Path to tessdata dir (falls back to <code>TESSDATA_PREFIX</code> env var)</td>
+</tr>
+<tr>
+<td><code>max_pages</code></td>
+<td><code>1000</code></td>
+<td>Maximum pages to parse</td>
+</tr>
+<tr>
+<td><code>dpi</code></td>
+<td><code>150.0</code></td>
+<td>Rendering DPI for OCR / screenshots</td>
+</tr>
+<tr>
+<td><code>preserve_very_small_text</code></td>
+<td><code>false</code></td>
+<td>Keep very small text</td>
+</tr>
+<tr>
+<td><code>num_workers</code></td>
+<td>CPU cores - 1</td>
+<td>Concurrent OCR workers</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Adding a new output format</strong>
+1. Create a new file in <code>crates/liteparse/src/output/</code> (e.g., <code>markdown.rs</code>)
+2. Add a variant to the <code>OutputFormat</code> enum in <code>config.rs</code>
+3. Wire it up in <code>main.rs</code> and each binding crate</p>
+<p><strong>Adding a new OCR engine</strong>
+1. Implement the <code>OcrEngine</code> trait in <code>crates/liteparse/src/ocr/</code>
+2. Add initialization logic in <code>parser.rs</code>
+3. Add config options in <code>config.rs</code>
+4. HTTP OCR server mode is already supported — see <code>ocr/easyocr/</code> and <code>ocr/paddleocr/</code> as examples</p>
+<p><strong>Implementing a custom HTTP OCR server</strong></p>
+<p>Any OCR engine can be plugged in by implementing the LiteParse OCR API spec (<code>OCR_API_SPEC.md</code>):</p>
+<pre><code>POST /ocr
+Content-Type: multipart/form-data
+  file: &lt;PNG image&gt;
+  language: &lt;language code&gt;
+
+Response: { &quot;results&quot;: [{ &quot;text&quot;: &quot;...&quot;, &quot;bbox&quot;: [x1,y1,x2,y2], &quot;confidence&quot;: 0.95 }] }
+</code></pre>
+<p><strong>Adding a CLI option</strong>
+1. Add a field to <code>LiteParseConfig</code> in <code>config.rs</code>
+2. Add a clap argument in <code>main.rs</code>
+3. Wire through <code>parser.rs</code>
+4. Expose in each binding crate (<code>liteparse-napi</code>, <code>liteparse-python</code>, <code>liteparse-wasm</code>)</p>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>프로덕션 빌드</strong></p>
+<pre><code class="language-bash"># Rust CLI 릴리즈 빌드
+cargo build --release -p liteparse
+# 바이너리: target/release/lit
+
+# Node.js 패키지 배포 빌드
+cd packages/node &amp;&amp; npm run build  # prepublishOnly 자동 실행
+npm publish
+
+# Python 패키지 배포 빌드
+cd packages/python &amp;&amp; maturin build --release
+# Wheel: target/wheels/liteparse-*.whl
+</code></pre>
+<p><strong>Docker 배포 (권장)</strong></p>
+<pre><code class="language-bash"># 기본 이미지 (PDF + OCR)
+docker build -t liteparse:latest .
+
+# 풀 이미지 (Office 문서 + 이미지 변환 포함)
+docker build -t liteparse-full:latest -f full.Dockerfile .
+
+# 컨테이너 실행 예시 (볼륨 마운트)
+docker run --rm \
+  -v /host/input:/data/in \
+  -v /host/output:/data/out \
+  liteparse-full:latest \
+  lit batch-parse /data/in /data/out --format json
+
+# 환경 변수로 tessdata 경로 지정
+docker run --rm \
+  -e TESSDATA_PREFIX=/tessdata \
+  -v /host/tessdata:/tessdata:ro \
+  -v /host/docs:/data \
+  liteparse:latest \
+  lit parse /data/document.pdf
+</code></pre>
+<p><strong>환경별 설정 분리</strong></p>
+<p>환경 변수는 하나(<code>TESSDATA_PREFIX</code>)뿐입니다. 운영 환경에서는 Docker 이미지에 tessdata를 포함하거나, 볼륨 마운트로 제공하세요.</p>
+<pre><code class="language-dockerfile"># 오프라인 tessdata 포함 커스텀 이미지
+FROM liteparse:latest
+COPY tessdata/ /tessdata/
+ENV TESSDATA_PREFIX=/tessdata
+</code></pre>
+<p><strong>CI/CD 파이프라인 (GitHub Actions 참고)</strong></p>
+<p><code>.github/workflows/</code> 디렉토리에 다음 워크플로우가 포함되어 있습니다:</p>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>파일</th>
+<th>트리거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>핵심 CI</td>
+<td><code>ci.yml</code></td>
+<td>push/PR to main</td>
+</tr>
+<tr>
+<td>Node.js CI</td>
+<td><code>ci-node.yml</code></td>
+<td>push/PR</td>
+</tr>
+<tr>
+<td>Python CI</td>
+<td><code>ci-python.yml</code></td>
+<td>push/PR</td>
+</tr>
+<tr>
+<td>WASM CI</td>
+<td><code>ci-wasm.yml</code></td>
+<td>push/PR</td>
+</tr>
+<tr>
+<td>Docker 릴리즈</td>
+<td><code>release-docker.yml</code></td>
+<td>태그</td>
+</tr>
+<tr>
+<td>Crates.io 릴리즈</td>
+<td><code>release-crates.yml</code></td>
+<td>태그</td>
+</tr>
+<tr>
+<td>npm 릴리즈</td>
+<td><code>release-node.yml</code></td>
+<td>태그</td>
+</tr>
+<tr>
+<td>PyPI 릴리즈</td>
+<td><code>release-python.yml</code></td>
+<td>태그</td>
+</tr>
+</tbody>
+</table>
+<p><strong>musl 정적 빌드 (Linux 이식성 최대화)</strong></p>
+<p><code>scripts/build-musl-node.sh</code>, <code>scripts/build-musl-py.sh</code> 참고. musl 빌드는 glibc 없이 실행 가능한 완전 정적 바이너리를 생성합니다.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Production builds</strong></p>
+<pre><code class="language-bash"># Rust CLI release build
+cargo build --release -p liteparse
+# Binary: target/release/lit
+
+# Node.js package release
+cd packages/node &amp;&amp; npm run build  # prepublishOnly runs automatically
+npm publish
+
+# Python package release
+cd packages/python &amp;&amp; maturin build --release
+# Wheel: target/wheels/liteparse-*.whl
+</code></pre>
+<p><strong>Docker deployment (recommended)</strong></p>
+<pre><code class="language-bash"># Base image (PDF + OCR)
+docker build -t liteparse:latest .
+
+# Full image (Office + image conversion)
+docker build -t liteparse-full:latest -f full.Dockerfile .
+
+# Run with volume mounts
+docker run --rm \
+  -v /host/input:/data/in \
+  -v /host/output:/data/out \
+  liteparse-full:latest \
+  lit batch-parse /data/in /data/out --format json
+
+# Specify custom tessdata
+docker run --rm \
+  -e TESSDATA_PREFIX=/tessdata \
+  -v /host/tessdata:/tessdata:ro \
+  -v /host/docs:/data \
+  liteparse:latest \
+  lit parse /data/document.pdf
+</code></pre>
+<p><strong>Per-environment configuration</strong></p>
+<p>Only one environment variable (<code>TESSDATA_PREFIX</code>) is used. For production, either include tessdata in your Docker image or mount it as a read-only volume.</p>
+<pre><code class="language-dockerfile"># Custom image with bundled tessdata for offline use
+FROM liteparse:latest
+COPY tessdata/ /tessdata/
+ENV TESSDATA_PREFIX=/tessdata
+</code></pre>
+<p><strong>CI/CD pipelines (GitHub Actions)</strong></p>
+<p><code>.github/workflows/</code> contains ready-to-use pipelines:</p>
+<table>
+<thead>
+<tr>
+<th>Workflow</th>
+<th>File</th>
+<th>Trigger</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Core CI</td>
+<td><code>ci.yml</code></td>
+<td>push/PR to main</td>
+</tr>
+<tr>
+<td>Node.js CI</td>
+<td><code>ci-node.yml</code></td>
+<td>push/PR</td>
+</tr>
+<tr>
+<td>Python CI</td>
+<td><code>ci-python.yml</code></td>
+<td>push/PR</td>
+</tr>
+<tr>
+<td>WASM CI</td>
+<td><code>ci-wasm.yml</code></td>
+<td>push/PR</td>
+</tr>
+<tr>
+<td>Docker release</td>
+<td><code>release-docker.yml</code></td>
+<td>tag</td>
+</tr>
+<tr>
+<td>Crates.io release</td>
+<td><code>release-crates.yml</code></td>
+<td>tag</td>
+</tr>
+<tr>
+<td>npm release</td>
+<td><code>release-node.yml</code></td>
+<td>tag</td>
+</tr>
+<tr>
+<td>PyPI release</td>
+<td><code>release-python.yml</code></td>
+<td>tag</td>
+</tr>
+</tbody>
+</table>
+<p><strong>musl static builds (maximum Linux portability)</strong></p>
+<p>See <code>scripts/build-musl-node.sh</code> and <code>scripts/build-musl-py.sh</code>. musl builds produce fully static binaries that run without glibc.</p>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>알려진 성능 특성</strong></p>
+<ul>
+<li><strong>PDFium 텍스트 추출</strong>은 매우 빠름 — 수백 페이지 문서도 수초 내 처리</li>
+<li><strong>OCR이 주요 병목</strong>: 페이지당 Tesseract 실행 시간이 텍스트 추출보다 수십 배 느림</li>
+<li><code>--num-workers N</code> 옵션으로 OCR을 병렬화 가능 (기본: CPU 코어 - 1)</li>
+<li><code>--no-ocr</code> 플래그로 OCR을 비활성화하면 처리 속도 대폭 향상</li>
+<li>HTTP OCR 서버(EasyOCR, PaddleOCR)는 GPU 활용 시 Tesseract보다 빠를 수 있음</li>
+</ul>
+<p><strong>수평 확장 전략</strong></p>
+<p>LiteParse는 상태가 없는(stateless) 단일 바이너리이므로 수평 확장이 용이합니다:</p>
+<pre><code class="language-bash"># 문서를 청크로 나누어 병렬 처리
+lit parse doc.pdf --target-pages &quot;1-50&quot; -o chunk1.json &amp;
+lit parse doc.pdf --target-pages &quot;51-100&quot; -o chunk2.json &amp;
+wait
+
+# Kubernetes: 여러 Pod에서 독립적으로 실행
+# 각 Pod가 별도 문서 또는 페이지 범위 처리
+</code></pre>
+<p><strong>메모리 고려사항</strong></p>
+<ul>
+<li>대용량 PDF(1000+ 페이지)는 상당한 메모리 사용 가능</li>
+<li><code>--max-pages N</code>으로 페이지 수 제한</li>
+<li>Docker 컨테이너에서 메모리 제한 설정 권장 (<code>--memory 2g</code>)</li>
+</ul>
+<p><strong>캐싱 전략</strong></p>
+<p>LiteParse 자체에는 캐싱이 없습니다. 애플리케이션 레이어에서:
+- 파일 해시를 키로 파싱 결과 캐싱 (같은 파일 반복 파싱 방지)
+- LLM 파이프라인에서는 파싱 결과를 벡터 DB에 저장하여 재파싱 회피</p>
+<p><strong>모니터링 및 로깅</strong></p>
+<ul>
+<li><code>--quiet</code> 플래그로 진행 상황 출력 억제 (프로덕션 배포 권장)</li>
+<li>stderr에 오류 출력, stdout에 파싱 결과 출력 (파이프라인 친화적)</li>
+<li>에러는 <code>LiteParseError</code> 타입으로 구조화되어 있어 프로그래밍 방식 처리 가능</li>
+</ul>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation and project source analysis</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Known performance characteristics</strong></p>
+<ul>
+<li><strong>PDFium text extraction</strong> is very fast — hundreds of pages parsed in seconds</li>
+<li><strong>OCR is the primary bottleneck</strong>: Tesseract is orders of magnitude slower than native extraction</li>
+<li><code>--num-workers N</code> parallelizes OCR (default: CPU cores - 1)</li>
+<li><code>--no-ocr</code> disables OCR entirely and yields the fastest parse times</li>
+<li>HTTP OCR servers (EasyOCR, PaddleOCR) with GPU can outperform Tesseract significantly</li>
+</ul>
+<p><strong>Horizontal scaling</strong></p>
+<p>LiteParse is a stateless single binary, making horizontal scaling straightforward:</p>
+<pre><code class="language-bash"># Split large documents across parallel processes
+lit parse doc.pdf --target-pages &quot;1-50&quot; -o chunk1.json &amp;
+lit parse doc.pdf --target-pages &quot;51-100&quot; -o chunk2.json &amp;
+wait
+
+# Kubernetes: run independent pods, each processing a different document or page range
+</code></pre>
+<p><strong>Memory considerations</strong></p>
+<ul>
+<li>Very large PDFs (1000+ pages) can consume significant memory</li>
+<li>Use <code>--max-pages N</code> to cap pages</li>
+<li>Set memory limits when running in Docker (<code>--memory 2g</code>)</li>
+</ul>
+<p><strong>Caching strategy</strong></p>
+<p>LiteParse itself has no caching layer. At the application level:
+- Cache parse results by file hash to avoid re-parsing the same document
+- In LLM pipelines, persist parsed results to a vector store to skip re-parsing</p>
+<p><strong>Monitoring and logging</strong></p>
+<ul>
+<li>Use <code>--quiet</code> to suppress progress output in production deployments</li>
+<li>Errors go to stderr; parse results to stdout — pipeline-friendly</li>
+<li>Errors are typed as <code>LiteParseError</code> for programmatic handling</li>
+</ul>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation and project source analysis</p>
+</blockquote>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>환경 변수 및 시크릿 관리</strong></p>
+<ul>
+<li><code>TESSDATA_PREFIX</code> 외 민감한 환경 변수 없음 — 비밀 정보 노출 위험 최소</li>
+<li>암호화된 PDF 처리 시 <code>--password</code> 플래그 사용; 쉘 히스토리에 남지 않도록 주의:
+  <code>bash
+  # 안전한 방법 (환경 변수 경유)
+  read -s PDF_PASSWORD
+  lit parse encrypted.pdf --password "$PDF_PASSWORD"</code></li>
+</ul>
+<p><strong>신뢰할 수 없는 입력 처리 시 필수 보안 조치</strong></p>
+<p>SECURITY.md에 명시된 대로, LiteParse 자체는 신뢰할 수 없는 업로드의 보안을 보장하지 않습니다:</p>
+<ul>
+<li>[ ] <strong>파일 크기 제한</strong>: 업로드 허용 전 파일 크기 검증 (예: 최대 100MB)</li>
+<li>[ ] <strong>파일 타입 검증</strong>: Content-Type 헤더가 아닌 실제 파일 시그니처로 검증</li>
+<li>[ ] <strong>샌드박스 실행</strong>: 신뢰할 수 없는 문서는 격리된 컨테이너(리소스 제한 포함)에서 파싱</li>
+<li>[ ] <strong>타임아웃 설정</strong>: 무제한 처리 시간 방지</li>
+<li>[ ] <strong>동시성 제한</strong>: 동시 요청 수 제한으로 리소스 고갈 방지</li>
+<li>[ ] <strong>파일명 살균</strong>: 사용자 입력에서 파생된 경로 절대 신뢰 금지</li>
+<li>[ ] <code>--max-pages</code> 플래그로 페이지 수 제한</li>
+</ul>
+<p><strong>의존성 취약점 점검</strong></p>
+<pre><code class="language-bash"># Rust 의존성 점검
+cargo install cargo-audit
+cargo audit
+
+# Node.js 의존성 점검
+cd packages/node &amp;&amp; npm audit
+
+# Python 의존성 점검
+cd packages/python &amp;&amp; pip install safety &amp;&amp; safety check
+</code></pre>
+<p><strong>알려진 보안 고려사항</strong></p>
+<p>SECURITY.md에 따르면 다음은 LiteParse가 다루는 범위 밖입니다:
+- 악의적인 입력 파일(ZIP 폭탄, 손상된 PDF) 처리
+- 대용량/복잡한 파일로 인한 서비스 거부(DoS)
+- PoC 없는 이론적 공격</p>
+<p>보안 취약점은 <code>security@llamaindex.ai</code>로 비공개 보고하세요. 공개 이슈 오픈 금지.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Environment variable and secret management</strong></p>
+<ul>
+<li>Only one environment variable (<code>TESSDATA_PREFIX</code>) — minimal secret exposure risk</li>
+<li>When processing password-protected PDFs, avoid putting the password in shell history:
+  <code>bash
+  # Safe approach via env var
+  read -s PDF_PASSWORD
+  lit parse encrypted.pdf --password "$PDF_PASSWORD"</code></li>
+</ul>
+<p><strong>Security measures required when accepting untrusted input</strong></p>
+<p>Per SECURITY.md, LiteParse does not provide security guarantees for untrusted uploads:</p>
+<ul>
+<li>[ ] <strong>File size limits</strong>: validate size before processing (e.g., max 100 MB)</li>
+<li>[ ] <strong>File type validation</strong>: check actual file magic bytes, not just Content-Type headers</li>
+<li>[ ] <strong>Sandboxed execution</strong>: parse untrusted documents inside isolated containers with resource limits</li>
+<li>[ ] <strong>Timeouts</strong>: prevent unbounded processing time</li>
+<li>[ ] <strong>Concurrency limits</strong>: cap simultaneous requests to prevent resource exhaustion</li>
+<li>[ ] <strong>Path sanitization</strong>: never trust filenames derived from user input</li>
+<li>[ ] Use <code>--max-pages</code> to limit pages per document</li>
+</ul>
+<p><strong>Dependency vulnerability scanning</strong></p>
+<pre><code class="language-bash"># Rust
+cargo install cargo-audit
+cargo audit
+
+# Node.js
+cd packages/node &amp;&amp; npm audit
+
+# Python
+cd packages/python &amp;&amp; pip install safety &amp;&amp; safety check
+</code></pre>
+<p><strong>Known security scope</strong></p>
+<p>Per SECURITY.md, the following are <strong>out of scope</strong>:
+- Malicious input files (zip bombs, malformed PDFs)
+- DoS via large or complex documents
+- Theoretical attacks without a proof of concept</p>
+<p>Report security vulnerabilities <strong>privately</strong> to <code>security@llamaindex.ai</code>. Do not open public issues.</p>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서</strong>
+- <a href="https://developers.llamaindex.ai/liteparse/">LiteParse 공식 문서</a>
+- <a href="https://github.com/run-llama/liteparse">GitHub 저장소</a>
+- <a href="https://github.com/run-llama/liteparse/blob/main/OCR_API_SPEC.md">OCR API 명세</a>
+- <a href="https://github.com/run-llama/liteparse/blob/main/packages/node/README.md">Node.js 패키지 README</a>
+- <a href="https://github.com/run-llama/liteparse/blob/main/packages/python/README.md">Python 패키지 README</a>
+- <a href="https://github.com/run-llama/liteparse/blob/main/packages/wasm/README.md">WASM 패키지 README</a></p>
+<p><strong>핵심 의존성 공식 문서</strong>
+- <a href="https://pdfium.googlesource.com/pdfium/">PDFium (Google)</a>
+- <a href="https://napi.rs/">napi-rs</a> — Node.js 네이티브 애드온
+- <a href="https://pyo3.rs/">PyO3</a> — Python/Rust 바인딩
+- <a href="https://rustwasm.github.io/wasm-bindgen/">wasm-bindgen</a> — WASM 바인딩
+- <a href="https://tesseract-ocr.github.io/">Tesseract OCR</a> — 내장 OCR 엔진
+- <a href="https://www.maturin.rs/">maturin</a> — Python 패키지 빌드 도구</p>
+<p><strong>유사 프로젝트 비교</strong></p>
+<table>
+<thead>
+<tr>
+<th>프로젝트</th>
+<th>방식</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LiteParse</strong></td>
+<td>Rust 로컬</td>
+<td>빠름, 클라우드 없음, 무료, 바운딩 박스</td>
+<td>복잡한 레이아웃 한계, LLM 없음</td>
+</tr>
+<tr>
+<td><strong>LlamaParse</strong></td>
+<td>클라우드 API</td>
+<td>복잡한 표/차트 처리, LLM 보강</td>
+<td>유료, 클라우드 의존</td>
+</tr>
+<tr>
+<td><strong>PyMuPDF (fitz)</strong></td>
+<td>Python/C</td>
+<td>성숙한 라이브러리, 광범위한 PDF 기능</td>
+<td>Python 전용, 라이선스 복잡(AGPL)</td>
+</tr>
+<tr>
+<td><strong>pdfminer.six</strong></td>
+<td>순수 Python</td>
+<td>설치 간편</td>
+<td>느림, 바운딩 박스 부정확</td>
+</tr>
+<tr>
+<td><strong>Apache Tika</strong></td>
+<td>Java/JVM</td>
+<td>다양한 포맷, 메타데이터 풍부</td>
+<td>JVM 필요, 무거움</td>
+</tr>
+<tr>
+<td><strong>pdf.js</strong></td>
+<td>JavaScript</td>
+<td>브라우저 네이티브</td>
+<td>텍스트 레이아웃 재구성 미흡</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Based on official documentation and community knowledge as of 2026-06.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Official documentation</strong>
+- <a href="https://developers.llamaindex.ai/liteparse/">LiteParse official docs</a>
+- <a href="https://github.com/run-llama/liteparse">GitHub repository</a>
+- <a href="https://github.com/run-llama/liteparse/blob/main/OCR_API_SPEC.md">OCR API spec</a>
+- <a href="https://github.com/run-llama/liteparse/blob/main/packages/node/README.md">Node.js package README</a>
+- <a href="https://github.com/run-llama/liteparse/blob/main/packages/python/README.md">Python package README</a>
+- <a href="https://github.com/run-llama/liteparse/blob/main/packages/wasm/README.md">WASM package README</a></p>
+<p><strong>Core dependency documentation</strong>
+- <a href="https://pdfium.googlesource.com/pdfium/">PDFium (Google)</a>
+- <a href="https://napi.rs/">napi-rs</a> — Node.js native addon framework
+- <a href="https://pyo3.rs/">PyO3</a> — Python/Rust bindings
+- <a href="https://rustwasm.github.io/wasm-bindgen/">wasm-bindgen</a> — WASM bindings
+- <a href="https://tesseract-ocr.github.io/">Tesseract OCR</a> — bundled OCR engine
+- <a href="https://www.maturin.rs/">maturin</a> — Python packaging for Rust</p>
+<p><strong>Comparison with similar projects</strong></p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Approach</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>LiteParse</strong></td>
+<td>Rust, local</td>
+<td>Fast, no cloud, free, bounding boxes</td>
+<td>Complex layouts have limits, no LLM</td>
+</tr>
+<tr>
+<td><strong>LlamaParse</strong></td>
+<td>Cloud API</td>
+<td>Complex tables/charts, LLM-augmented</td>
+<td>Paid, cloud-dependent</td>
+</tr>
+<tr>
+<td><strong>PyMuPDF (fitz)</strong></td>
+<td>Python/C</td>
+<td>Mature, broad PDF features</td>
+<td>Python-only, complex license (AGPL)</td>
+</tr>
+<tr>
+<td><strong>pdfminer.six</strong></td>
+<td>Pure Python</td>
+<td>Easy to install</td>
+<td>Slow, imprecise bounding boxes</td>
+</tr>
+<tr>
+<td><strong>Apache Tika</strong></td>
+<td>Java/JVM</td>
+<td>Wide format support, rich metadata</td>
+<td>Requires JVM, heavyweight</td>
+</tr>
+<tr>
+<td><strong>pdf.js</strong></td>
+<td>JavaScript</td>
+<td>Browser-native</td>
+<td>Poor text-layout reconstruction</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Based on official documentation and community knowledge as of 2026-06.</p>
+</blockquote>
+<hr />
+<h2 id="final-report">최종 보고 / Final Report</h2>
+<p><strong>[한국어]</strong></p>
+<p>단일 프로젝트 모드로 아래 두 파일의 내용이 출력되었습니다:</p>
+<ul>
+<li><code>.review/GUIDE4Junior.md</code> — 주니어 개발자 가이드 (9개 섹션)</li>
+<li><code>.review/GUIDE4ImpMethod.md</code> — 실전 구현 가이드 (8개 섹션)</li>
+</ul>
+<p><strong>웹 검색 의존 없음</strong>: 모든 내용은 저장소 소스(<code>README.md</code>, <code>CONTRIBUTING.md</code>, <code>Cargo.toml</code>, <code>SECURITY.md</code>, <code>Dockerfile</code>, <code>full.Dockerfile</code>, <code>Makefile</code>, <code>.github/workflows/ci.yml</code>, <code>config.rs</code>, <code>lib.rs</code>, <code>parser.py</code>, <code>lib.ts</code>, <code>package.json</code>, <code>pyproject.toml</code>)를 직접 분석하여 작성했습니다.</p>
+<p><strong>해당 없는 섹션</strong>: 없음 — 모든 섹션에 실제 프로젝트 정보를 채웠습니다.</p>
+<p><strong>[English]</strong></p>
+<p>Single-project mode: contents for the following two files were produced above:</p>
+<ul>
+<li><code>.review/GUIDE4Junior.md</code> — Junior Developer Guide (9 sections)</li>
+<li><code>.review/GUIDE4ImpMethod.md</code> — Implementation Method Guide (8 sections)</li>
+</ul>
+<p><strong>No web search used</strong>: All content was derived directly from repository sources (<code>README.md</code>, <code>CONTRIBUTING.md</code>, <code>Cargo.toml</code>, <code>SECURITY.md</code>, <code>Dockerfile</code>, <code>full.Dockerfile</code>, <code>Makefile</code>, <code>.github/workflows/ci.yml</code>, <code>config.rs</code>, <code>lib.rs</code>, <code>parser.py</code>, <code>lib.ts</code>, <code>package.json</code>, <code>pyproject.toml</code>).</p>
+<p><strong>Skipped sections</strong>: None — every section was filled with concrete project-specific information.</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>run-llama/liteparse</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/run-llama/liteparse" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

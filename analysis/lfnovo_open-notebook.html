@@ -1,0 +1,1547 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>lfnovo/open-notebook - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/lfnovo/open-notebook" target="_blank" rel="noopener">lfnovo/open-notebook</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">An Open Source implementation of Notebook LM with more flexibility and features</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 25766</span>
+      <span class="badge badge-stars">+1,142 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>이제 충분한 데이터를 확보했습니다. 보고서를 작성합니다.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-06
+대상 / Target: <code>/tmp/github-dashboard-analysis/lfnovo_open-notebook</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved:</strong>
+Google Notebook LM에 대한 프라이버시 중심의 오픈소스 대안으로, 사용자가 PDF·오디오·비디오·웹 페이지 등 멀티모달 콘텐츠를 업로드하고 AI 기반 노트 생성, 시맨틱 검색, 채팅, 팟캐스트 제작을 완전한 데이터 통제권 하에 수행할 수 있도록 한다.</p>
+<p>An open-source, privacy-first alternative to Google Notebook LM, enabling users to manage multi-modal content (PDFs, audio, video, web pages), generate AI-powered notes, search semantically, chat with AI, and produce podcasts—all with full data sovereignty and multi-provider AI flexibility.</p>
+<p><strong>분류 / Classification:</strong> Application / Platform (Self-hosted AI Research Assistant)</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Python 3.11–3.12, TypeScript, Node.js 20 LTS</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>FastAPI 0.128, Next.js 16 (React 19), LangGraph 1.x</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>SurrealDB v2 (그래프 DB + 벡터 검색), SQLite (LangGraph 체크포인트)</td>
+</tr>
+<tr>
+<td>AI 통합 / AI Integration</td>
+<td>Esperanto 2.22 (8+ 프로바이더 통합 추상화), LangChain 1.2.x</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>REST HTTP (FastAPI ↔ Frontend), WebSocket (SurrealDB), Async Job Queue (surreal-commands)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Docker Compose (권장), 단일 컨테이너 옵션, linux/amd64 + linux/arm64</td>
+</tr>
+<tr>
+<td>버전 관리 / Versioning</td>
+<td>uv (Python 패키지 관리), npm (프론트엔드)</td>
+</tr>
+<tr>
+<td>상태 관리 / State Management</td>
+<td>Zustand (프론트엔드), TanStack Query (서버 상태)</td>
+</tr>
+<tr>
+<td>국제화 / i18n</td>
+<td>i18next, 13개 언어 지원</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────┐
+│       Frontend (Next.js 16 / React 19)                  │
+│       Zustand · TanStack Query · Shadcn/ui · Tailwind    │
+│       Port 3000 (컨테이너 내부), 8502 (외부 노출)       │
+└────────────────────────┬────────────────────────────────┘
+                         │ HTTP REST
+┌────────────────────────▼────────────────────────────────┐
+│       API Backend (FastAPI 0.128)                       │
+│       LangGraph Workflows · Esperanto AI Layer          │
+│       Job Queue (surreal-commands) · Fernet 암호화      │
+│       Port 5055                                         │
+└────────────────────────┬────────────────────────────────┘
+                         │ SurrealDB WebSocket
+┌────────────────────────▼────────────────────────────────┐
+│       SurrealDB v2 (Graph DB)                           │
+│       자동 마이그레이션 · 벡터 임베딩 · ACID 트랜잭션   │
+│       Port 8000                                         │
+└─────────────────────────────────────────────────────────┘
+             │ SQLite (파일 기반)
+         LangGraph Checkpoint Storage
+         /data/sqlite-db/
+</code></pre>
+<p><strong>패턴:</strong> 비동기 우선 설계(Async-First), 서비스 계층 패턴(Service Layer), LangGraph 상태 머신, Factory Pattern(AI ModelManager), Repository Pattern(SurrealDB)</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>lfnovo_open-notebook/
+├── .github/
+│   ├── ISSUE_TEMPLATE/         # 버그·기능·설치 이슈 템플릿
+│   ├── pull_request_template.md
+│   └── workflows/
+│       ├── build-and-release.yml  # Docker 멀티플랫폼 빌드+릴리즈
+│       ├── build-dev.yml
+│       └── test.yml              # Backend/Frontend CI 테스트
+├── api/                        # FastAPI 애플리케이션
+│   ├── main.py                 # 앱 진입점, 미들웨어, 라우터 등록
+│   ├── auth.py                 # PasswordAuthMiddleware
+│   ├── routers/                # API 엔드포인트 (23개 라우터)
+│   └── *_service.py            # 서비스 계층
+├── commands/                   # Async Job Commands (팟캐스트, 임베딩 등)
+├── docs/                       # 포괄적 사용자·운영 문서 (7개 섹션)
+├── examples/                   # Docker Compose 예시 파일
+├── frontend/                   # Next.js 16 앱
+│   ├── src/app/                # Next.js App Router 페이지
+│   ├── src/components/         # React 컴포넌트
+│   └── package.json
+├── open_notebook/              # Python 코어 라이브러리
+│   ├── ai/                     # ModelManager, Esperanto 통합
+│   ├── database/               # SurrealDB 비동기 드라이버·마이그레이션
+│   ├── domain/                 # 도메인 모델 (Notebook, Source, Note 등)
+│   ├── graphs/                 # LangGraph 워크플로우
+│   └── utils/                  # 암호화, 텍스트 처리, 청킹
+├── tests/                      # Pytest 테스트 (12개 파일, ~2,865 LOC)
+├── Dockerfile                  # 멀티스테이지 빌드 (Python + Node)
+├── Dockerfile.single           # 단일 컨테이너 빌드
+├── docker-compose.yml          # 권장 배포 구성
+├── pyproject.toml              # Python 의존성 (uv)
+├── uv.lock                     # 재현 가능한 빌드 잠금 파일
+├── LICENSE                     # MIT
+└── CHANGELOG.md                # SemVer 준수 변경 이력
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 파일 위치</td>
+<td><code>/LICENSE</code> (직접 확인)</td>
+</tr>
+<tr>
+<td>라이선스 명칭</td>
+<td><strong>MIT License</strong></td>
+</tr>
+<tr>
+<td>저작권자</td>
+<td>Copyright (c) 2024 Luis Novo</td>
+</tr>
+<tr>
+<td>핵심 의무</td>
+<td>저작권 고지 및 라이선스 문구를 모든 복사본에 포함</td>
+</tr>
+<tr>
+<td>소스 공개 의무</td>
+<td><strong>없음</strong> (소스 비공개 허용)</td>
+</tr>
+<tr>
+<td>특허 조항</td>
+<td><strong>없음</strong> (MIT는 명시적 특허 허여 조항 미포함)</td>
+</tr>
+<tr>
+<td>상용화 제약</td>
+<td><strong>없음</strong> (판매, 수정, 배포, 재허가 모두 허용)</td>
+</tr>
+</tbody>
+</table>
+<p>MIT License는 가장 자유로운 오픈소스 라이선스 중 하나로, 상용화 시 저작권 고지 포함 외 별도 의무 없음.</p>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p><strong>Python 핵심 의존성 (pyproject.toml 기준):</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fastapi</td>
+<td>0.128.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>uvicorn</td>
+<td>0.24+</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pydantic</td>
+<td>2.9+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langchain</td>
+<td>1.2.6</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langgraph</td>
+<td>1.0+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langchain-anthropic</td>
+<td>1.3+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langchain-openai</td>
+<td>1.1+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langchain-google-genai</td>
+<td>4.1+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langchain-groq</td>
+<td>1.1+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langchain-community</td>
+<td>0.4+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langchain-ollama</td>
+<td>1.0+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langchain-mistralai</td>
+<td>1.1+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langchain-deepseek</td>
+<td>1.0+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>esperanto</td>
+<td>2.22.0</td>
+<td>MIT (작성자 라이브러리)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>surrealdb</td>
+<td>1.0.4+</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>cryptography</td>
+<td>46.0.7</td>
+<td>Apache-2.0 / BSD</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>loguru</td>
+<td>0.7+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>httpx</td>
+<td>0.28+</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>content-core</td>
+<td>1.14.1</td>
+<td>MIT (작성자 라이브러리)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>ai-prompter</td>
+<td>0.4.0</td>
+<td>MIT (작성자 라이브러리)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>podcast-creator</td>
+<td>0.12.0</td>
+<td>MIT (작성자 라이브러리)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>surreal-commands</td>
+<td>1.3.1</td>
+<td>MIT (작성자 라이브러리)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>tiktoken</td>
+<td>0.12+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>langgraph-checkpoint-sqlite</td>
+<td>3.0+</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>jinja2</td>
+<td>3.1.6</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>numpy</td>
+<td>2.4+</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pycountry</td>
+<td>26.2+</td>
+<td>LGPL-2.1</td>
+<td>Weak Copyleft</td>
+<td>🟡</td>
+</tr>
+<tr>
+<td>babel</td>
+<td>2.18+</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>python-dotenv</td>
+<td>1.2+</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>aiohttp</td>
+<td>3.13.4</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>anthropic</td>
+<td>0.76.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>google-genai</td>
+<td>1.60.0</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>groq</td>
+<td>0.37.1</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>moviepy</td>
+<td>(indirect)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>프론트엔드 핵심 의존성 (package.json 기준):</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>next</td>
+<td>16.2.6</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>react / react-dom</td>
+<td>19.2.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@radix-ui/*</td>
+<td>다수</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>tailwindcss</td>
+<td>4.x</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>zustand</td>
+<td>5.0.6</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@tanstack/react-query</td>
+<td>5.83.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>axios</td>
+<td>1.16.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>zod</td>
+<td>4.0.5</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>i18next</td>
+<td>25.7.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>lucide-react</td>
+<td>0.525.0</td>
+<td>ISC</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>date-fns</td>
+<td>4.1.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>react-markdown</td>
+<td>10.1.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>sharp (메인)</td>
+<td>0.34.5</td>
+<td><strong>Apache-2.0</strong></td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>@img/sharp-libvips-*</td>
+<td>다수</td>
+<td><strong>LGPL-3.0-or-later</strong></td>
+<td>Weak Copyleft</td>
+<td>🟡</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>참고:</strong> <code>sharp</code>는 Next.js 이미지 최적화를 위한 선택적 의존성으로 사용됨. <code>@img/sharp-libvips-*</code>는 네이티브 바이너리 형태로 동적 링크되는 libvips 플랫폼별 바이너리이며, LGPL-3.0 동적 링크 활용으로 애플리케이션 코드에 카피레프트가 전파되지 않음.</p>
+<p><strong>참고:</strong> <code>pycountry</code>는 LGPL-2.1로, 내부적으로 ISO 국가 코드 데이터 조회 목적으로만 사용되며 Python 동적 임포트 방식으로 링크되어 실질적 위험도는 낮음.</p>
+</blockquote>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD-3, ISC, Unlicense</td>
+<td>소스 비공개 허용 / Source closure allowed — 프로젝트 전체에 해당</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL-2.1 (pycountry), LGPL-3.0 (sharp-libvips)</td>
+<td>동적 링크 시 제한적 — 해당 라이브러리 수정 시 공개 의무. 애플리케이션 코드 전파 없음</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td><strong>해당 없음 / Not present</strong></td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td><strong>해당 없음 / Not present</strong></td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td><strong>해당 없음 / Not present</strong></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<ul>
+<li><strong>호환성 충돌:</strong> 없음. 모든 직접 의존성이 Permissive 계열이며, LGPL 패키지는 동적 링크로만 사용</li>
+<li><strong>AGPL SaaS 위험:</strong> 해당 없음. AGPL 의존성 없음</li>
+<li><strong>GPL 전파 위험:</strong> 해당 없음. GPL 의존성 없음</li>
+<li><strong>Apache 2.0 + MIT 조합:</strong> 완전 호환. Apache 2.0은 특허 허여 조항 포함(MIT는 미포함)</li>
+<li><strong>pycountry (LGPL-2.1):</strong> Python 인터프리터 방식으로 동적 링크. LGPL-2.1 § 5에 의거 전파 없음. 단, pycountry 자체 수정 시 소스 공개 필요</li>
+<li><strong>sharp-libvips (LGPL-3.0):</strong> Node.js 네이티브 바이너리 동적 링크. LGPL-3.0 § 4에 의거 애플리케이션 코드로 전파되지 않음. 단, 바이너리 재링크 허용 및 저작권 고지 포함 필요</li>
+</ul>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] 저작권 고지 포함 방법: MIT 라이선스 전문 및 저작권 고지를 제품 About/라이선스 화면 또는 배포 패키지에 포함 (<code>Copyright (c) 2024 Luis Novo</code>)</li>
+<li>[ ] NOTICE/고지문 배포 위치: <strong>별도 NOTICE 파일 부재</strong> — Apache 2.0 의존성(surrealdb, cryptography 등) 고지문 포함 문서 작성 필요</li>
+<li>[ ] 소스 공개 의무: MIT 프로젝트 자체는 의무 없음. LGPL 의존성(pycountry, sharp-libvips) 수정 시 해당 부분 공개 의무 존재</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>확인 불가 — 파일 부재 / Not found — file absent</td>
+<td>대신 <code>docs/7-DEVELOPMENT/security.md</code>에 개발자용 보안 지침 존재</td>
+</tr>
+<tr>
+<td>GitHub Security Advisories</td>
+<td>✅ 운용 중</td>
+<td>CERT-EU와 협력한 취약점 공개 이력</td>
+</tr>
+<tr>
+<td>Dependabot (<code>.github/dependabot.yml</code>)</td>
+<td>❌ 없음</td>
+<td>자동 의존성 업데이트 미설정</td>
+</tr>
+<tr>
+<td>Renovate (<code>renovate.json</code>)</td>
+<td>❌ 없음</td>
+<td></td>
+</tr>
+<tr>
+<td>Snyk (<code>.snyk</code>)</td>
+<td>❌ 없음</td>
+<td></td>
+</tr>
+<tr>
+<td>SBOM (CycloneDX/SPDX)</td>
+<td>❌ 없음</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>취약점 공개 채널:</strong> GitHub Private Security Advisory (<code>security/advisories/new</code>) 또는 메인테이너 직접 이메일 — <code>docs/7-DEVELOPMENT/security.md</code>에 명시됨.</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>과거 CVE (모두 최신 버전에서 수정 완료):</strong></p>
+<table>
+<thead>
+<tr>
+<th>버전</th>
+<th>취약점</th>
+<th>CVSS</th>
+<th>수정 버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>≤ 1.8.2</td>
+<td>SurrealDB Injection via <code>order_by</code> parameter</td>
+<td><strong>8.7 High</strong></td>
+<td>1.8.3</td>
+</tr>
+<tr>
+<td>≤ 1.8.3</td>
+<td>RCE via Jinja2 SSTI in transformations</td>
+<td><strong>9.2 Critical</strong></td>
+<td>1.8.4</td>
+</tr>
+<tr>
+<td>≤ 1.8.3</td>
+<td>Arbitrary file write via path traversal</td>
+<td><strong>7.0 High</strong></td>
+<td>1.8.4</td>
+</tr>
+<tr>
+<td>≤ 1.8.3</td>
+<td>Arbitrary file read via LFI</td>
+<td><strong>8.2 High</strong></td>
+<td>1.8.4</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>현재 버전 1.9.0에서는 모두 수정됨. 단, 짧은 개발 기간 내(2025년 말~2026년 초) 이처럼 다수의 고위험 취약점이 발견·수정된 이력은 보안 성숙도 관점에서 주의 요인.</p>
+</blockquote>
+<p><strong>현재 잔존 위험:</strong>
+- <code>CORS_ORIGINS</code> 기본값이 와일드카드(<code>*</code>)로 설정되어 프로덕션 배포 시 명시적 설정 필요 (#585, #597, #730)
+- Docker 컨테이너가 기본적으로 root 사용자로 실행 (문서에서 권장 사항으로 비루트 전환 언급)
+- <strong>자동화된 의존성 취약점 스캐닝 미설정</strong> (Dependabot/Renovate 부재)
+- <code>OPEN_NOTEBOOK_PASSWORD</code> 미설정 시 인증 완전 우회 — 의도된 개발 편의성이나 운영 위험</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>인증/인가 (Auth/AuthZ):</strong>
+- <code>PasswordAuthMiddleware</code>: 단순 Bearer Token(비밀번호) 방식
+- 단일 사용자 개념으로 설계된 인증 — 다중 사용자/역할 기반 접근 제어(RBAC) 없음
+- 문서에서 프로덕션 배포 시 OAuth/JWT + 역방향 프록시 사용 권장</p>
+<p><strong>시크릿 관리:</strong>
+- <code>OPEN_NOTEBOOK_ENCRYPTION_KEY</code>: Fernet(AES-128-CBC + HMAC-SHA256)으로 DB 내 API 키 암호화
+- Docker Secrets 패턴 지원(<code>_FILE</code> 접미사)
+- 기본 암호화 키 없음 — 미설정 시 <code>ValueError</code> 발생 (안전)
+- SSRF 방지: 사용자 제공 URL 검증, 프라이빗 IP 차단(Ollama 예외)
+- 경로 순회 방지: <code>os.path.basename()</code> + <code>Path.resolve()</code> 검증</p>
+<p><strong>암호화:</strong>
+- DB 저장 자격증명: Fernet 대칭 암호화 ✅
+- 전송 암호화: 역방향 프록시(Nginx/Caddy/Traefik) 활용 권장, 자체 TLS 미내장
+- API 키는 프론트엔드로 절대 반환되지 않음 ✅</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06-02 (v1.9.0 릴리즈)</td>
+</tr>
+<tr>
+<td>버전 범위 / Version range</td>
+<td>v1.0 → v1.9.0 (약 6개월간 9개 마이너 버전 출시)</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>주 메인테이너 1명 (Luis Novo), 커뮤니티 PR 기여 다수 (이슈 번호 기준)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>v1.9.0 (2026-06-02)</td>
+</tr>
+<tr>
+<td>릴리즈 빈도 / Release frequency</td>
+<td>월 1~2회 마이너 릴리즈 (매우 활성)</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>Discord (<code>discord.gg/37XJPXfz2w</code>), GitHub Issues</td>
+</tr>
+<tr>
+<td>Trendshift</td>
+<td>트렌딩 저장소 등재 확인</td>
+</tr>
+<tr>
+<td>지원 언어 / Locales</td>
+<td>13개 언어 (영어, 포르투갈어, 중국어 간체·번체, 일본어, 러시아어, 이탈리아어, 벵골어, 독일어, 스페인어, 프랑스어, 한국어 등)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재 (docs/7-DEVELOPMENT/contributing.md로 리다이렉트)</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ 확인 불가 — 파일 부재 / Not found</td>
+</tr>
+<tr>
+<td>PR 템플릿</td>
+<td>✅ 상세한 체크리스트 포함</td>
+</tr>
+<tr>
+<td>이슈 템플릿</td>
+<td>✅ 버그, 기능 요청, 설치 이슈 3종</td>
+</tr>
+<tr>
+<td>브랜치 전략</td>
+<td>이슈 우선(Issue-First) 워크플로우, <code>main</code> 브랜치</td>
+</tr>
+<tr>
+<td>ADR (아키텍처 결정 기록)</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>설계 원칙</td>
+<td>✅ <code>docs/7-DEVELOPMENT/design-principles.md</code></td>
+</tr>
+<tr>
+<td>MAINTAINER_GUIDE.md</td>
+<td>✅ 존재</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>기업 스폰서:</strong> 없음. 개인 개발자(Luis Novo) 주도 프로젝트</li>
+<li><strong>재단 소속:</strong> 없음 (CNCF, ASF 등 미가입)</li>
+<li><strong>수익 모델:</strong> 명시되지 않음 (MIT 오픈소스, 자체 호스팅 추구)</li>
+<li><strong>버스 팩터(Bus Factor):</strong> <strong>1</strong> — 단일 메인테이너 의존. 핵심 리스크</li>
+<li><strong>LTS 버전:</strong> 없음 (현재 <code>v1-latest</code> 단일 릴리즈 채널)</li>
+<li><strong>SemVer 준수:</strong> ✅ CHANGELOG에 명시적으로 SemVer 준수 선언</li>
+</ul>
+<p><strong>장기 지원 전망 평가:</strong> 활발한 개발 속도와 커뮤니티 성장은 긍정적이나, 단일 메인테이너 구조와 기업 스폰서십 부재는 장기 지속성 리스크로 작용. CHANGELOG 기준 비교적 짧은 기간(~6개월) 동안 빠르게 발전 중이나, 유지보수 중단 시 대응 계획 필요.</p>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Docker 배포</td>
+<td>✅</td>
+<td>Docker Compose (권장), 단일 컨테이너 옵션</td>
+</tr>
+<tr>
+<td>멀티플랫폼 빌드</td>
+<td>✅</td>
+<td>linux/amd64 + linux/arm64</td>
+</tr>
+<tr>
+<td>헬스 체크</td>
+<td>✅</td>
+<td><code>GET /health</code> 엔드포인트 구현</td>
+</tr>
+<tr>
+<td>수평 확장(Horizontal Scaling)</td>
+<td>❌</td>
+<td>단일 인스턴스 설계. SQLite 체크포인트 및 로컬 파일 스토리지로 인해 다중 인스턴스 운영 불가</td>
+</tr>
+<tr>
+<td>수직 확장(Vertical Scaling)</td>
+<td>🔵</td>
+<td>단일 노드에서 리소스 증가는 가능하나 제한적</td>
+</tr>
+<tr>
+<td>멀티테넌시</td>
+<td>❌</td>
+<td><strong>단일 사용자 설계</strong>. 테넌트 분리·사용자 관리 없음</td>
+</tr>
+<tr>
+<td>Prometheus/메트릭 노출</td>
+<td>❌</td>
+<td>메트릭 엔드포인트 없음</td>
+</tr>
+<tr>
+<td>구조화 로깅 (JSON)</td>
+<td>❌</td>
+<td>Loguru 사용 (텍스트 기반). JSON 구조화 로깅 설정 없음</td>
+</tr>
+<tr>
+<td>분산 추적 (OpenTelemetry)</td>
+<td>❌</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>Kubernetes 배포 준비</td>
+<td>🔵</td>
+<td>Helm/k8s 매니페스트 없음. Docker 이미지는 활용 가능하나 상태 유지 및 SQLite 체크포인트로 K8s 운영 비적합</td>
+</tr>
+<tr>
+<td>12-Factor 앱 준수</td>
+<td>🔵</td>
+<td>환경 변수 설정 ✅, Stateless API 부분 ✅, 로그 스트림 ❌, 빌드/릴리즈/실행 분리 ✅</td>
+</tr>
+<tr>
+<td>Readiness/Liveness Probe</td>
+<td>🔵</td>
+<td><code>/health</code> 엔드포인트 존재하나 Readiness는 미구분</td>
+</tr>
+<tr>
+<td>CORS 프로덕션 설정</td>
+<td>🔵</td>
+<td><code>CORS_ORIGINS</code> 환경 변수 제공, 기본값 <code>*</code> → 프로덕션 시 명시 필요</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트</td>
+<td>✅</td>
+<td><code>tests/test_domain.py</code>, <code>test_utils.py</code>, <code>test_chunking.py</code> 등</td>
+</tr>
+<tr>
+<td>API 통합 테스트</td>
+<td>✅</td>
+<td><code>test_credentials_api.py</code>, <code>test_models_api.py</code>, <code>test_notes_api.py</code> 등</td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td>❌</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>프론트엔드 단위 테스트</td>
+<td>✅</td>
+<td>Vitest (v1.5.0에 인프라 도입)</td>
+</tr>
+<tr>
+<td>그래프 워크플로우 테스트</td>
+<td>✅</td>
+<td><code>tests/test_graphs.py</code></td>
+</tr>
+<tr>
+<td>CI 자동화</td>
+<td>✅</td>
+<td>GitHub Actions (<code>test.yml</code>): PR/Push 트리거</td>
+</tr>
+<tr>
+<td>코드 커버리지</td>
+<td>미측정</td>
+<td><code>--cov</code> 플래그 미사용, 커버리지 리포팅 없음</td>
+</tr>
+<tr>
+<td>정적 분석</td>
+<td>🔵</td>
+<td>Ruff (린터), mypy (타입 체크) — 단, mypy 다수 파일 <code>ignore_errors = True</code></td>
+</tr>
+<tr>
+<td>테스트 코드 규모</td>
+<td>🔵</td>
+<td>~2,865 LOC (12개 파일) — 기능 규모 대비 적정 수준</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><strong>해당 없음:</strong> 프로젝트의 직접 의존성 중 GPL/AGPL 라이선스 패키지가 존재하지 않음. LGPL 패키지(pycountry, sharp-libvips)는 동적 링크 방식으로 사용되어 격리 작업 불필요.</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 코드베이스 / Codebase</td>
+<td>✅</td>
+<td>단일 git 저장소</td>
+</tr>
+<tr>
+<td>2. 의존성 / Dependencies</td>
+<td>✅</td>
+<td>uv.lock + package-lock.json 의존성 잠금</td>
+</tr>
+<tr>
+<td>3. 설정 / Config</td>
+<td>✅</td>
+<td>환경 변수 기반 설정 (.env, Docker 환경 변수)</td>
+</tr>
+<tr>
+<td>4. 지원 서비스 / Backing services</td>
+<td>✅</td>
+<td>SurrealDB URL 환경 변수로 교체 가능</td>
+</tr>
+<tr>
+<td>5. 빌드·릴리즈·실행 분리</td>
+<td>✅</td>
+<td>Dockerfile 멀티스테이지 빌드</td>
+</tr>
+<tr>
+<td>6. 프로세스 / Processes</td>
+<td>🔵</td>
+<td>API 자체는 stateless하나, LangGraph SQLite 체크포인트와 로컬 파일 업로드가 상태를 로컬에 저장</td>
+</tr>
+<tr>
+<td>7. 포트 바인딩 / Port binding</td>
+<td>✅</td>
+<td>uvicorn + next.js 명시적 포트 바인딩</td>
+</tr>
+<tr>
+<td>8. 동시성 / Concurrency</td>
+<td>🔵</td>
+<td>비동기(asyncio) 설계이나 프로세스 수평 확장 미지원</td>
+</tr>
+<tr>
+<td>9. 폐기 가능성 / Disposability</td>
+<td>✅</td>
+<td>Docker 컨테이너 재시작 <code>always</code> 정책</td>
+</tr>
+<tr>
+<td>10. 개발/프로덕션 환경 일치</td>
+<td>✅</td>
+<td>Docker Compose로 동일 환경 구성 가능</td>
+</tr>
+<tr>
+<td>11. 로그 / Logs</td>
+<td>❌</td>
+<td>구조화 JSON 로그 스트림 미구현 (Loguru 텍스트)</td>
+</tr>
+<tr>
+<td>12. 어드민 프로세스 / Admin processes</td>
+<td>🔵</td>
+<td>마이그레이션 자동 실행, CLI 어드민 도구 미비</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🔵 부분 완료</td>
+<td>pyproject.toml + package.json에 의존성 명시. 자동 스캔 도구 미사용</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>❌ 미완료</td>
+<td>자동 라이선스 스캔(FOSSA, FOSSology 등) 미설정</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🔵 부분 완료</td>
+<td>LGPL 의존성 식별 및 동적 링크 사용으로 리스크 관리. 공식 프로세스 없음</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>❌ 미완료</td>
+<td>공식 OSPO 검토 프로세스 없음. PR 체크리스트에 라이선스 항목 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>❌ 미완료</td>
+<td>NOTICE 파일 부재, THIRD_PARTY_LICENSES 없음, SBOM 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>총평:</strong> ISO 5230 OpenChain 인증 수준에는 미달. 상용화 배포 시 라이선스 의무 이행 프로세스 구축 필요.</p>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권:</strong>
+- "Open Notebook" 명칭: 일반적 서술어 조합으로 상표 분쟁 위험 낮음
+- 로고(<code>docs/assets/hero.svg</code>, <code>logo.png</code>): 사용 제한 조항 미명시
+- 프로젝트 공식 도메인(<code>open-notebook.ai</code>) 존재 — 상업적 사용 시 도메인 사용 정책 확인 권장</p>
+<p><strong>특허:</strong>
+- MIT License: <strong>특허 허여 조항 없음</strong> — 특허 소송 위험 존재. 기여자의 특허 보호 없음
+- Apache 2.0 의존성(surrealdb, cryptography, google-genai 등): <strong>명시적 특허 허여 조항 포함</strong> ✅
+- LangChain/LangGraph (MIT): 특허 허여 조항 없음. LangChain Inc. 기반 기술이므로 특허 주의 필요</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>AGPL 위험: 해당 없음.</strong> 프로젝트 자체 라이선스 및 모든 의존성에 AGPL 미포함.</p>
+<p><strong>GPL 위험: 해당 없음.</strong> 모든 직접 의존성이 Permissive 계열.</p>
+<p><strong>LGPL 관리 시나리오:</strong>
+- <code>pycountry</code> (LGPL-2.1): 라이브러리 내부 수정 없이 사용 → 소스 공개 의무 없음. 단, 배포 시 LGPL-2.1 고지 필요
+- <code>@img/sharp-libvips-*</code> (LGPL-3.0): 네이티브 바이너리 동적 링크 → 응용 프로그램 코드 전파 없음. 단, 이 바이너리를 사용자가 재링크할 수 있도록 허용해야 하며 저작권 고지 필요</p>
+<p><strong>실질적 위험 수준:</strong> 낮음 (🟢~🟡)</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>MIT 자체 라이선스, 전 의존성 Permissive 계열. LGPL 의존성은 동적 링크로 위험 최소화</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟡 Caution</td>
+<td>과거 Critical CVE 이력(모두 수정), 자동 의존성 스캔 부재, 단순 패스워드 인증, SBOM 없음</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟡 Caution</td>
+<td>활발한 개발 활동 및 성장하는 커뮤니티, 그러나 버스 팩터 1(단일 메인테이너), 기업 스폰서 없음</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟡 Caution</td>
+<td>Docker/헬스 체크 지원, 그러나 메트릭 노출·구조화 로깅·수평 확장·멀티테넌시 미지원</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟠 Risk</td>
+<td>단일 사용자 설계, SQLite 로컬 체크포인트로 분산 배포 불가, 엔터프라이즈급 인증 없음</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>MIT 라이선스로 기본 의무 낮으나 NOTICE 파일·SBOM·OpenChain 프로세스 미비</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>매우 관대한 라이선스 구조:</strong> 프로젝트 전체 MIT, 핵심 의존성 전체 Permissive 계열. AGPL/GPL 의존성 완전 부재로 SaaS 배포 시 소스 공개 의무 없음. 상용화 라이선스 위험이 거의 없는 수준</li>
+<li><strong>빠른 개발 속도 및 기능 성숙도:</strong> 6개월 내 v1.0→v1.9.0, 월 1~2회 릴리즈. 13개 언어 i18n, 14개 AI 프로바이더 지원, 포괄적 API 문서, PR 체크리스트 등 소규모 프로젝트 대비 높은 공학 성숙도</li>
+<li><strong>Docker 배포 및 멀티플랫폼 지원:</strong> amd64/arm64 공식 이미지, GitHub Container Registry + Docker Hub 이중 배포, 다양한 docker-compose 예시 제공으로 배포 장벽 낮음</li>
+<li><strong>강력한 AI 멀티프로바이더 설계:</strong> Esperanto 추상화 계층으로 18개 이상 AI 프로바이더 전환 가능. 벤더 잠금(Vendor Lock-in) 없는 유연한 AI 인프라</li>
+<li><strong>보안 사고 이후 개선 프로세스:</strong> CERT-EU 협력으로 Critical RCE를 비롯한 복수 취약점을 신속 패치. 보안 가이드라인 문서화 및 보안 체크리스트 PR 템플릿 포함</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>단일 메인테이너 버스 팩터:</strong> Luis Novo 1인이 핵심 개발을 주도. 장기 유지보수 연속성 보장 불가. 기업 스폰서십 또는 공동 메인테이너 체제 구축 필요</li>
+<li><strong>엔터프라이즈 기능 미비:</strong> 멀티테넌시·역할 기반 접근 제어(RBAC) 없음, 단순 패스워드 인증만 지원, Prometheus 메트릭/OpenTelemetry 분산 추적 없음. 엔터프라이즈 환경 직접 도입에 상당한 커스터마이징 필요</li>
+<li><strong>자동화된 보안 취약점 스캐닝 부재:</strong> Dependabot/Renovate/Snyk 미설정으로 의존성 취약점 발견 지연 위험. 과거 여러 고위험 CVE 이력 있음 — 정기적 <code>pip audit</code> 또는 Dependabot 설정 필수</li>
+<li><strong>라이선스 컴플라이언스 문서 부재:</strong> NOTICE 파일, THIRD_PARTY_LICENSES, SBOM 없음. 기업 배포 시 라이선스 고지 의무(Apache 2.0, LGPL 등) 이행을 위한 문서화 작업 필요</li>
+<li><strong>분산 배포 아키텍처 한계:</strong> LangGraph SQLite 체크포인트 저장소 및 로컬 파일 업로드 디렉토리로 인해 수평 확장·Kubernetes 운영 불가. 대규모 SaaS 플랫폼 구축을 위해서는 체크포인트 백엔드를 PostgreSQL/Redis로, 파일 저장소를 S3/GCS로 교체하는 아키텍처 개선 필요</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict:</strong> 🔵 Review (조건부 도입 — 추가 검토 필요)</p>
+<p><strong>상세 근거 / Detailed Rationale:</strong></p>
+<p>Open Notebook은 <strong>내부 도구·소규모 팀·프리미엄 셀프호스팅 솔루션</strong> 용도로는 즉시 도입 가능한 수준의 완성도를 갖추고 있다. MIT 라이선스 기반의 명확하고 안전한 라이선스 구조, 빠른 릴리즈 주기, 포괄적인 문서화는 강점이다.</p>
+<p>그러나 <strong>다중 사용자 SaaS 플랫폼이나 엔터프라이즈 배포</strong>를 목표로 한다면, 다음 선결 조건 충족이 필요하다:</p>
+<ul>
+<li><strong>보안:</strong> OAuth/OIDC 기반 인증 체계로 교체, RBAC 구현, Dependabot 활성화</li>
+<li><strong>운영:</strong> 메트릭 노출(Prometheus), 구조화 JSON 로깅, 분산 추적 통합</li>
+<li><strong>확장성:</strong> LangGraph 체크포인트를 분산 지원 백엔드로 교체, 파일 스토리지 오브젝트 스토리지 전환, 멀티테넌시 레이어 구현</li>
+<li><strong>컴플라이언스:</strong> SBOM 생성 자동화, NOTICE 파일 작성, CI/CD 라이선스 스캔 연동</li>
+<li><strong>지속성:</strong> 기업 지원 계약, 공동 메인테이너 확보, 또는 포크 후 내재화 계획 수립</li>
+</ul>
+<p><strong>도입 형태별 권고:</strong>
+| 시나리오 | 권고 |
+|---|---|
+| 내부 연구팀 지원 도구 (소규모) | 🟢 즉시 도입 가능 |
+| B2B SaaS AI 워크스페이스 기반 | 🟡 아키텍처 개선 후 도입 |
+| 엔터프라이즈 멀티테넌트 플랫폼 | 🟠 상당한 커스터마이징 필요 |
+| 공개 SaaS 서비스 (불특정 다수) | 🔴 보안·확장성 전면 재설계 필요 |</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>라이선스 / License</strong></td>
+<td>✅ Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>✅ 완료 — 전 의존성 Permissive 확인</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 소스 공개 의무 여부 확인</td>
+<td>✅ 의무 없음 확인</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 라이선스 호환성 충돌 없음</td>
+<td>✅ 충돌 없음 확인</td>
+</tr>
+<tr>
+<td><strong>저작권·고지 / Copyright &amp; Notice</strong></td>
+<td>✅ 저작권 문구 포함</td>
+<td>❌ NOTICE 파일 부재 — 작성 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 고지문 배포 위치 정의</td>
+<td>❌ 미정의 — 제품 내 라이선스 화면 또는 배포 패키지 포함 필요</td>
+</tr>
+<tr>
+<td><strong>소스 공개 / Source Disclosure</strong></td>
+<td>LGPL 사용 시 공개 범위·방식 정의</td>
+<td>🔵 pycountry·sharp-libvips 저작권 고지 및 재링크 허용 안내 필요</td>
+</tr>
+<tr>
+<td><strong>보안 / Security</strong></td>
+<td>CVE 모니터링 체계 수립</td>
+<td>❌ Dependabot/Snyk 미설정 — 즉시 활성화 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>중고위험 취약점 패치 계획</td>
+<td>✅ 현재 알려진 CVE 전부 수정 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>프로덕션 인증 체계</td>
+<td>❌ 단순 패스워드 — OAuth/OIDC로 교체 필요</td>
+</tr>
+<tr>
+<td><strong>커뮤니티 / Community</strong></td>
+<td>유지보수 활성도·커밋 주기 확인</td>
+<td>✅ 매우 활성 (월 1~2회 릴리즈)</td>
+</tr>
+<tr>
+<td></td>
+<td>기업 스폰서/컨설팅 존재 확인</td>
+<td>❌ 없음 — 자체 내재화 또는 계약 지원 검토 필요</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>라이선스 검사 자동화</td>
+<td>❌ 미구축 — FOSSA/TLDR Legal 연동 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>오픈소스 BOM 자동 생성</td>
+<td>❌ 미구축 — CycloneDX/SPDX 생성 파이프라인 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>위반 라이선스 빌드 차단</td>
+<td>❌ 미구축</td>
+</tr>
+<tr>
+<td><strong>법적·계약 / Legal</strong></td>
+<td>고객 계약서에 라이선스 의무 명시</td>
+<td>❌ 검토 필요 — MIT 고지 의무 포함</td>
+</tr>
+<tr>
+<td></td>
+<td>외부 감사 대비 문서 구비</td>
+<td>❌ NOTICE·BOM·SBOM 부재 — 구축 필요</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong>Dependabot 활성화:</strong> <code>.github/dependabot.yml</code> 생성, Python(uv/pip) 및 npm 의존성 자동 취약점 스캔 활성화. 자동 스캐닝 없이 의존성 취약점에 무방비 상태임</p>
+</li>
+<li>
+<p><strong>프로덕션 CORS 설정 강제:</strong> <code>CORS_ORIGINS</code> 환경 변수가 <code>*</code>인 경우 애플리케이션 시작을 차단하거나 강력한 경고 발생. 현재 로그 경고만 존재하여 운영자가 간과할 위험이 높음</p>
+</li>
+<li>
+<p><strong>OPEN_NOTEBOOK_PASSWORD 기본값 제거:</strong> 패스워드 미설정 시 인증을 완전히 우회하는 현 설계는 의도적이나, 배포 시 보안 체크리스트에 필수 항목으로 명시 필요</p>
+</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>NOTICE 파일 및 THIRD_PARTY_LICENSES 작성:</strong> Apache 2.0 의존성(surrealdb, cryptography, google-genai 등)의 저작권 고지문, LGPL 의존성(pycountry, sharp-libvips) 고지문 포함. 제품 배포 시 반드시 첨부</p>
+</li>
+<li>
+<p><strong>프로덕션 인증 강화:</strong> 엔터프라이즈 배포 시 역방향 프록시(Nginx/Caddy/Traefik)를 통한 OAuth2/OIDC 인증 레이어 추가. Authentik, Keycloak 등 오픈소스 IdP 연동 가이드 작성</p>
+</li>
+<li>
+<p><strong>Docker 비루트 사용자 설정:</strong> <code>Dockerfile</code>에 비루트 사용자(<code>USER appuser</code>) 추가. 현재 root 실행은 컨테이너 탈출 시 호스트 권한 상승 위험</p>
+</li>
+<li>
+<p><strong>단일 메인테이너 위험 완화 계획:</strong> 소스 코드 포크(내재화), 기업 지원 계약 또는 커뮤니티 공동 메인테이너 온보딩 계획 수립</p>
+</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>CI/CD 라이선스 스캔 통합:</strong> GitHub Actions에 FOSSA, Trivy, pip-audit, npm-audit 연동. PR 시 라이선스 변경 자동 감지 및 빌드 차단 규칙 설정</p>
+</li>
+<li>
+<p><strong>SBOM 자동 생성:</strong> CycloneDX 또는 SPDX 형식의 SBOM을 릴리즈 파이프라인에서 자동 생성하여 GitHub Release에 첨부</p>
+</li>
+<li>
+<p><strong>Prometheus 메트릭 노출:</strong> <code>prometheus-fastapi-instrumentator</code> 추가, <code>/metrics</code> 엔드포인트 제공. Grafana 대시보드 연동으로 운영 모니터링 기반 마련</p>
+</li>
+<li>
+<p><strong>구조화 JSON 로깅:</strong> Loguru 로그 포매터를 JSON 구조화 로깅으로 전환. ELK Stack, Grafana Loki 등 로그 집계 시스템 연동 지원</p>
+</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>멀티테넌시 아키텍처 로드맵:</strong> 네임스페이스 기반 데이터 격리, 사용자 계정 시스템, RBAC을 위한 아키텍처 설계. SurrealDB의 네임스페이스/데이터베이스 분리 기능 활용 가능</p>
+</li>
+<li>
+<p><strong>LangGraph 체크포인트 백엔드 교체:</strong> 수평 확장을 위해 SQLite → PostgreSQL 또는 Redis 기반 체크포인트로 마이그레이션. LangGraph의 <code>PostgresSaver</code> 또는 <code>RedisSaver</code> 활용</p>
+</li>
+<li>
+<p><strong>정기 오픈소스 컴플라이언스 감사:</strong> 반기별 라이선스 감사, 의존성 업데이트 시 라이선스 변경 추적, 법무팀 검토 프로세스 수립</p>
+</li>
+<li>
+<p><strong>CODE_OF_CONDUCT.md 추가 및 커뮤니티 거버넌스 강화:</strong> Contributor Covenant 등 표준 행동 강령 채택, 커뮤니티 기여자 성장 지원으로 버스 팩터 개선</p>
+</li>
+</ol>
+<hr />
+<p><em>보고서 작성: Claude (Anthropic) | 분석 기준일: 2026-06-06 | 분석 대상 버전: Open Notebook v1.9.0 (MIT License)</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>Both files have been created. Here is the final report:</p>
+<hr />
+<h2 id="completion-report">작업 완료 보고서 / Completion Report</h2>
+<p><strong>[한국어]</strong></p>
+<h3 id="_1">생성된 파일</h3>
+<table>
+<thead>
+<tr>
+<th>파일 경로</th>
+<th>크기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>35KB</td>
+</tr>
+<tr>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>35KB</td>
+</tr>
+</tbody>
+</table>
+<p><code>.review/</code> 디렉토리는 이미 존재하였으므로 별도 생성하지 않았습니다.</p>
+<h3 id="_2">분석에 활용된 소스</h3>
+<p>직접 읽은 파일:
+- <code>README.md</code> — 프로젝트 개요, 기능, Provider 지원 매트릭스
+- <code>pyproject.toml</code> — Python 의존성, 버전 요구사항, 린트 설정
+- <code>.env.example</code> — 환경 변수 전체 목록
+- <code>Makefile</code> — 모든 개발/배포 명령어
+- <code>docker-compose.yml</code> — 서비스 구성 및 포트 정보
+- <code>docs/1-INSTALLATION/from-source.md</code> — 소스 설치 절차
+- <code>CONTRIBUTING.md</code> + <code>docs/7-DEVELOPMENT/contributing.md</code> — 기여 워크플로우
+- <code>frontend/package.json</code> — 프론트엔드 의존성 및 스크립트
+- <code>.github/workflows/test.yml</code> — CI/CD 테스트 파이프라인
+- <code>CONFIGURATION.md</code> — 설정 가이드 위치 파악</p>
+<h3 id="_3">웹 검색 활용 여부</h3>
+<p>이 가이드는 <strong>웹 검색 없이</strong> 프로젝트 소스 파일만을 기반으로 작성되었습니다. 단, 아래 섹션의 일부 내용은 공식 문서 기반 일반 권장 사항을 적용하였으며 문서 내에 명시적으로 표기하였습니다:
+- <code>GUIDE4ImpMethod.md</code> §5 (리버스 프록시 예시)
+- <code>GUIDE4ImpMethod.md</code> §6 (모니터링 로깅 외부 도구 권장)</p>
+<h3 id="_4">미해당 섹션</h3>
+<p>모든 섹션이 프로젝트에 적용 가능하였으며 생략된 섹션은 없습니다.</p>
+<hr />
+<p><strong>[English]</strong></p>
+<h3 id="files-generated">Files Generated</h3>
+<table>
+<thead>
+<tr>
+<th>File Path</th>
+<th>Size</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.review/GUIDE4Junior.md</code></td>
+<td>35KB</td>
+</tr>
+<tr>
+<td><code>.review/GUIDE4ImpMethod.md</code></td>
+<td>35KB</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>.review/</code> directory already existed and was not newly created.</p>
+<h3 id="sources-used-for-analysis">Sources Used for Analysis</h3>
+<p>Files directly read:
+- <code>README.md</code> — project overview, features, provider support matrix
+- <code>pyproject.toml</code> — Python dependencies, version requirements, lint config
+- <code>.env.example</code> — full environment variable list
+- <code>Makefile</code> — all development and deployment commands
+- <code>docker-compose.yml</code> — service configuration and port information
+- <code>docs/1-INSTALLATION/from-source.md</code> — source installation steps
+- <code>CONTRIBUTING.md</code> + <code>docs/7-DEVELOPMENT/contributing.md</code> — contribution workflow
+- <code>frontend/package.json</code> — frontend dependencies and scripts
+- <code>.github/workflows/test.yml</code> — CI/CD test pipeline
+- <code>CONFIGURATION.md</code> — configuration guide location</p>
+<h3 id="web-search-usage">Web Search Usage</h3>
+<p>These guides were written <strong>without web search</strong>, based solely on project source files. However, a few subsections in <code>GUIDE4ImpMethod.md</code> applied general best-practice recommendations derived from official documentation, and are explicitly annotated within the document:
+- §5 (reverse proxy example)
+- §6 (external monitoring/logging tool recommendations)</p>
+<h3 id="skipped-sections">Skipped Sections</h3>
+<p>No sections were skipped — all template sections were applicable to this project.</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>lfnovo/open-notebook</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/lfnovo/open-notebook" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

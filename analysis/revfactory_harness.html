@@ -1,0 +1,2947 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>revfactory/harness - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/revfactory/harness" target="_blank" rel="noopener">revfactory/harness</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A meta-skill that designs domain-specific agent teams, defines specialized agents, and generates the skills they use.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">weekly trending</span>
+      <span class="badge badge-lang">HTML</span>
+      <span class="badge badge-stars">★ 6099</span>
+      <span class="badge badge-stars">+2,159 stars this week</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>Now I have all the information needed. Let me generate the comprehensive report.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-06
+대상 / Target: <code>/tmp/github-dashboard-analysis/revfactory_harness</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved</strong></p>
+<p>Harness는 Claude Code용 "팀 아키텍처 팩토리(Team-Architecture Factory)" 메타 스킬이다. 도메인 한 문장(예: "핀테크 리스크 평가 팀")을 입력하면, 6가지 사전 정의 팀 아키텍처 패턴(Pipeline, Fan-out/Fan-in, Expert Pool, Producer-Reviewer, Supervisor, Hierarchical Delegation) 중 적합한 패턴을 선택하여 <code>.claude/agents/</code>와 <code>.claude/skills/</code> 경로에 에이전트 정의 및 스킬 파일 집합을 자동 생성한다.</p>
+<p>멀티에이전트 LLM 시스템을 도입하려는 개발자·팀이 "에이전트 팀 아키텍처 설계 → 파일 스캐폴딩" 과정에서 반복 지출하는 설계·구성 비용을 제거하는 것이 핵심 가치다.</p>
+<p><strong>분류 / Classification</strong>: Plugin / Meta-Skill / Tool</p>
+<p>저자 측정 A/B 실험(n=15)에서 품질 점수 49.5 → 79.3(+60%), 승률 15/15(100%), 분산 −32%를 보고하였으며, 현재 제3자 재현 실험이 진행 예정이다.</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Markdown(DSL), 빌드·런타임 없음 — 순수 텍스트 플러그인</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>Claude Code Plugin System (<code>.claude-plugin/plugin.json</code> 기반)</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>해당 없음 (파일 시스템 산출물만 생성)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>Claude Code Agent Teams API (<code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 필요)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Claude Code Marketplace (<code>/plugin marketplace add revfactory/harness</code>) 또는 직접 복사</td>
+</tr>
+<tr>
+<td>외부 런타임 의존성 / Runtime Deps</td>
+<td><strong>없음</strong> — 단순 파일 복사로 설치 완료</td>
+</tr>
+<tr>
+<td>로컬 툴링 / Local Tooling</td>
+<td>Node.js ≥ 18 (markdown-lint, yaml-lint; 개발·CI 전용, 런타임 불필요)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>[사용자 입력 / User Input]
+  &quot;build a harness for &lt;domain&gt;&quot;
+        │
+        ▼
+[SKILL.md — 7-Phase 워크플로우]
+  Phase 0: 현황 감사 (기존 harness 상태 확인)
+  Phase 1: 도메인 분석
+  Phase 2: 팀 아키텍처 패턴 선택
+        ├─ Agent Teams / Subagent / Hybrid 모드 결정
+        └─ 6 패턴 중 선택
+  Phase 3: 에이전트 정의 파일 생성 → .claude/agents/
+        └─ Phase 3-0: 중복 검토 (Unreleased)
+  Phase 4: 스킬 파일 생성 → .claude/skills/
+        └─ Phase 4-0: 중복 검토 (Unreleased)
+  Phase 5: 통합·오케스트레이션 (CLAUDE.md 포인터 등록)
+  Phase 6: 검증·테스트
+  Phase 7: 진화 메커니즘 (피드백 루프)
+        │
+        ▼
+[산출물 / Output]
+  .claude/agents/*.md  (에이전트 정의)
+  .claude/skills/*/SKILL.md  (스킬 정의)
+  CLAUDE.md 포인터 항목 추가
+</code></pre>
+<p><strong>참조 지식 베이스 / Reference Knowledge Base</strong> (<code>skills/harness/references/</code>):
+- <code>agent-design-patterns.md</code> — 6 아키텍처 패턴 설계 가이드
+- <code>orchestrator-template.md</code> — 오케스트레이터 템플릿
+- <code>team-examples.md</code> — 실전 팀 구성 예시 5종
+- <code>skill-writing-guide.md</code> — 스킬 작성 가이드 (Progressive Disclosure)
+- <code>skill-testing-guide.md</code> — 스킬 평가 방법론
+- <code>qa-agent-guide.md</code> — QA 에이전트 통합 가이드</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>revfactory_harness/
+├── .claude-plugin/
+│   ├── plugin.json             (v1.2.0, 31줄)
+│   └── marketplace.json        (v1.2.0, 16줄)
+├── .github/
+│   ├── ISSUE_TEMPLATE/
+│   │   ├── bug_report.yml
+│   │   ├── feature_request.yml
+│   │   ├── question.yml
+│   │   └── config.yml
+│   └── PULL_REQUEST_TEMPLATE.md
+├── docs/
+│   ├── quickstart.md
+│   └── experimental-dependency.md   (실험 플래그 의존성 로드맵)
+├── skills/
+│   └── harness/
+│       ├── SKILL.md             (핵심 메타 스킬)
+│       └── references/          (6종 참조 가이드)
+├── _workspace/                  (내부 감사·전략 문서)
+│   ├── 01_auditor_repo_audit.md
+│   ├── 02_content_launch_contents.md
+│   ├── 03_scout_outreach_map.md
+│   ├── 04_strategist_launch_plan.md
+│   └── release/
+│       ├── audit-2026-04-18.md
+│       └── post-m0-audit-2026-04-18.md
+├── CHANGELOG.md                 (SemVer 기록, 104줄)
+├── CONTRIBUTING.md              (SLA 기재, 212줄)
+├── README.md                    (English, 302줄)
+├── README_KO.md                 (한국어, 298줄)
+├── README_JA.md                 (日本語, 305줄)
+├── LICENSE                      (Apache 2.0)
+├── harness_banner.png
+├── harness_icon.png
+├── harness_social.png
+├── harness_team.png
+├── index.html
+└── privacy.html
+
+총 파일 수: ~35개 (이미지·HTML 포함)
+런타임 이진 파일: 없음
+빌드 아티팩트: 없음
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>라이선스</strong>: Apache License 2.0
+<strong>저작권</strong>: Copyright 2025 robin
+<strong>파일 위치</strong>: <code>/LICENSE</code> (191줄, 표준 Apache 2.0 전문)</p>
+<p>주요 의무 사항:
+- 재배포 시 LICENSE 파일 포함 필수
+- 수정 파일에 변경 사실 명시 필수
+- 파생 저작물 배포 시 원본 저작권·특허·상표 고지 유지 필수
+- <strong>특허 실시권 부여 포함</strong> (Section 3) — Apache 2.0의 핵심 상용화 친화적 조항
+- 상표권은 별도 조항으로 제한 (Section 6)
+- "AS IS" 무보증 조건 명시</p>
+<p><strong>NOTICE 파일</strong>: 확인 불가 — 파일 부재 / Not found — file absent
+(단일 저작권자·단일 라이선스 프로젝트로 NOTICE 파일 부재는 일반적)</p>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p><strong>이 프로젝트는 런타임 의존성이 없다.</strong> / This project has zero runtime dependencies.</p>
+<ul>
+<li><code>package.json</code> — 확인 불가 — 파일 부재</li>
+<li><code>go.mod</code> — 확인 불가 — 파일 부재</li>
+<li><code>requirements.txt</code> / <code>pyproject.toml</code> — 확인 불가 — 파일 부재</li>
+<li><code>Cargo.toml</code> / <code>pom.xml</code> — 확인 불가 — 파일 부재</li>
+<li><code>package-lock.json</code> / 기타 잠금 파일 — 확인 불가 — 파일 부재</li>
+</ul>
+<p><strong>개발·CI 전용 툴</strong> (런타임 포함 아님, 배포 시 미포함):</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>markdownlint (npx 호출)</td>
+<td>최신</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 없음</td>
+</tr>
+<tr>
+<td>yaml-lint (npx 호출)</td>
+<td>최신</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 없음</td>
+</tr>
+<tr>
+<td>validate_skills.py</td>
+<td>N/A (스크립트, 현재 미확인)</td>
+<td>N/A</td>
+<td>N/A</td>
+<td>🟢 없음</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>CI 도구는 배포 산출물에 포함되지 않으므로 상용화 라이선스 위험도는 해당 없음.</p>
+</blockquote>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td><strong>Apache 2.0</strong> (본 프로젝트), MIT, BSD, ISC</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지</td>
+</tr>
+</tbody>
+</table>
+<p><strong>본 프로젝트 해당 등급: 🟢 Permissive (Apache 2.0)</strong></p>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<ul>
+<li><strong>GPL 충돌</strong>: 해당 없음 — 프로젝트 자체 및 의존성 모두 GPL/AGPL 비포함</li>
+<li><strong>AGPL SaaS 위험</strong>: 해당 없음 — AGPL 라이선스 구성요소 없음</li>
+<li><strong>Apache 2.0 + MIT/BSD 혼합</strong>: 완전 호환 (GPL-2.0과의 비호환 문제도 해당 없음)</li>
+<li><strong>특허 실시권</strong>: Apache 2.0은 명시적 특허 실시권을 부여하며 특허 소송 시 자동 실시권 종료 조항 포함 → 상용화 시 유리한 조건</li>
+</ul>
+<p>결론: <strong>라이선스 충돌 위험 없음. 상용화에 가장 적합한 라이선스 체계.</strong></p>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] <strong>저작권 고지 포함</strong>: 배포 산출물에 LICENSE 파일 또는 "Copyright 2025 robin / Apache 2.0" 고지 포함 필요</li>
+<li>[ ] <strong>NOTICE 파일</strong>: 현재 부재. 단순 프로젝트이므로 법적 의무는 없으나, 엔터프라이즈 배포 시 생성 권장</li>
+<li>[x] <strong>소스 공개 의무 없음</strong>: Apache 2.0은 소스 공개 의무 없음</li>
+<li>[x] <strong>상표권 주의</strong>: "Harness" 명칭의 상표 등록 여부 별도 확인 필요 (LICENSE Section 6에 상표권 제한 존재)</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<p><strong>SECURITY.md</strong>: 확인 불가 — 파일 부재 / Not found — file absent
+- 단, <code>CONTRIBUTING.md</code>의 Security 섹션에 보안 정책 임베드:
+  - 보고 채널: <code>robin.hwang@kakaocorp.com</code> (제목 <code>[harness-security]</code>)
+  - 초기 응답 SLA: 7일 이내
+  - 패치 목표: 30일 이내
+  - <strong>공개 이슈 사용 금지</strong> 명시</p>
+<p><strong>자동화 의존성 취약점 관리</strong>:
+- <code>.github/dependabot.yml</code> — 확인 불가 — 파일 부재
+- <code>renovate.json</code> — 확인 불가 — 파일 부재
+- <code>.snyk</code> — 확인 불가 — 파일 부재
+- <strong>GitHub Actions 워크플로우 전무</strong>: <code>.github/workflows/</code> 디렉토리 내 파일 없음</p>
+<p><strong>종합 평가</strong>: 런타임 의존성이 없는 순수 마크다운 플러그인이므로 전통적인 CVE/SBOM 위험은 구조적으로 없다. 다만, 보안 보고 체계가 CONTRIBUTING.md에 임베드되어 있어 독립적인 SECURITY.md 파일로 분리할 필요가 있다.</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<table>
+<thead>
+<tr>
+<th>위험 요소 / Risk Factor</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>EOL 의존성</td>
+<td>해당 없음</td>
+<td>런타임 의존성 없음</td>
+</tr>
+<tr>
+<td>하드코딩된 시크릿</td>
+<td>해당 없음</td>
+<td>코드/바이너리 없음; 이메일 주소만 존재</td>
+</tr>
+<tr>
+<td>API 키 패턴</td>
+<td>해당 없음</td>
+<td>설정 파일에 키 없음</td>
+</tr>
+<tr>
+<td>취약한 직접 의존성</td>
+<td>해당 없음</td>
+<td>의존성 없음</td>
+</tr>
+<tr>
+<td>실험 플래그 의존</td>
+<td><strong>존재</strong></td>
+<td><code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 필요; GA 전환 미정</td>
+</tr>
+<tr>
+<td>단일 유지보수자 집중</td>
+<td><strong>존재</strong></td>
+<td>git log 기준 실질적 기여자 1인 집중</td>
+</tr>
+</tbody>
+</table>
+<p><strong>실험 플래그 리스크 완화</strong>: <code>docs/experimental-dependency.md</code>에 시나리오 A/B/C 대응 계획 및 72시간 내 업데이트 SLA 명문화 — 위험 인식 및 완화 의지 확인됨.</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<ul>
+<li><strong>인증/인가</strong>: 해당 없음 (독립 실행 플러그인, 서버 없음)</li>
+<li><strong>시크릿 관리</strong>: 해당 없음 (런타임 없음)</li>
+<li><strong>SBOM</strong>: 확인 불가 — 파일 부재 (런타임 의존성 없으므로 실질적 필요성 낮음)</li>
+<li><strong>네트워크 노출</strong>: 없음 (오프라인 파일 생성 도구)</li>
+</ul>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>b8fb858 — 2026-05-30 (PR #14 merge: marketplace-owner-email fix)</td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>비정기적 (shallow clone으로 전체 히스토리 확인 불가); 릴리스 간격 약 7–10일</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>git log 기준 실질 1인; CONTRIBUTING.md에 4인 나열(lead + 3 contributors)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>v1.2.0 (2026-04-08); git 태그는 소급 적용 계획 중</td>
+</tr>
+<tr>
+<td>버전 이력 / Version history</td>
+<td>v1.0.0 (2026-03-27) → v1.0.1 (2026-03-28) → v1.1.0 (2026-04-05) → v1.2.0 (2026-04-08)</td>
+</tr>
+<tr>
+<td>CHANGELOG 기준 릴리스 수</td>
+<td>4 정식 릴리스 + 1 Unreleased 항목</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>확인 불가 (로컬 클론에서 GitHub API 접근 불가)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>활성도 평가</strong>: 2개월 내 4회 릴리스로 초기 개발 단계에서의 빠른 이터레이션이 확인된다. 2026-05-30 기준 최근 커밋이 존재하여 현재도 활성 상태.</p>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서 / Document</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재 (212줄)</td>
+<td>SLA, 브랜치 전략, 커밋 컨벤션, 리뷰 프로세스 명시</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>⚠️ 파일 부재</td>
+<td>CONTRIBUTING.md에 Contributor Covenant v1.4 임베드</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>⚠️ 파일 부재</td>
+<td>CONTRIBUTING.md Security 섹션에 임베드</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>✅ 존재 (104줄)</td>
+<td>SemVer 준수, Keep a Changelog 형식</td>
+</tr>
+<tr>
+<td>Issue Templates</td>
+<td>✅ 4종 (bug, feature, question, config)</td>
+<td>버전·환경 정보 수집 구조화</td>
+</tr>
+<tr>
+<td>PR Template</td>
+<td>✅ 존재</td>
+<td>범위 체크리스트, SemVer 영향 선언 포함</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td>⚠️ 부재</td>
+<td>아키텍처 결정 기록 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>기업 스폰서</strong>: 미확인. 저작권자 "robin"은 GitHub 프로필 <code>revfactory</code>로, CONTRIBUTING.md의 보안 연락처가 <code>@kakaocorp.com</code> 도메인 → Kakao Corp. 소속 가능성 시사하나 공식 확인 불가</li>
+<li><strong>CNCF/ASF 멤버십</strong>: 해당 없음</li>
+<li><strong>재단 후원</strong>: 확인 불가</li>
+<li><strong>LTS 버전</strong>: 명시 없음</li>
+<li><strong>생태계 연계</strong>: <code>revfactory/harness-100</code> (100개 도메인 하네스), <code>revfactory/claude-code-harness</code> (A/B 실험 리포지토리)로 구성된 자체 생태계 보유</li>
+<li><strong>장기 지원 전망</strong>: 단일 저자 의존도가 높으나, 비정기 릴리스 + 명문화된 SLA + 생태계 확장 전략으로 중기(6–12개월) 활성 유지 가능성 있음</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p>이 프로젝트는 <strong>서버리스 오프라인 스캐폴딩 도구</strong>로, 전통적인 서버 기반 확장성 개념이 적용되지 않는다.</p>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수평 확장 / Horizontal scaling</td>
+<td>해당 없음 (실행 단위: 로컬 CLI 세션)</td>
+</tr>
+<tr>
+<td>멀티테넌시 / Multi-tenancy</td>
+<td>해당 없음 (단일 사용자 로컬 도구)</td>
+</tr>
+<tr>
+<td>12-Factor 앱 준수</td>
+<td>N/A (서버 앱 아님)</td>
+</tr>
+<tr>
+<td>Docker/Kubernetes</td>
+<td>해당 없음</td>
+</tr>
+<tr>
+<td>헬스 체크 / Health check</td>
+<td>해당 없음</td>
+</tr>
+<tr>
+<td>구조화 로깅 / Structured logging</td>
+<td>해당 없음</td>
+</tr>
+<tr>
+<td>Prometheus 메트릭</td>
+<td>해당 없음</td>
+</tr>
+<tr>
+<td>설정 주입 / Config injection</td>
+<td>환경 변수 하나 (<code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code>)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>상용화 적합성 맥락</strong>: 이 프로젝트의 상용 가치는 SaaS/PaaS 형태가 아닌, <strong>엔터프라이즈 개발 환경 내 표준 툴링</strong>으로서의 배포(IDE 플러그인, 사내 Claude Code 표준 구성)에 있다. 이 관점에서 확장성 지표보다 배포 편의성, 문서 품질, 일관성이 더 중요하다.</p>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>테스트 유형 / Test Type</th>
+<th>상태 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 / Unit tests</td>
+<td>해당 없음 (실행 코드 없음)</td>
+</tr>
+<tr>
+<td>통합 테스트 / Integration tests</td>
+<td><code>skills/harness/references/skill-testing-guide.md</code>에 방법론 문서화; 자동화 미확인</td>
+</tr>
+<tr>
+<td>E2E 테스트 / E2E tests</td>
+<td>With-skill vs Without-skill 비교 방법론 정의됨</td>
+</tr>
+<tr>
+<td>CI 자동화</td>
+<td>⚠️ GitHub Actions 워크플로우 없음; 로컬 <code>markdownlint</code>, <code>yaml-lint</code> 권고</td>
+</tr>
+<tr>
+<td>마크다운 린팅 / Markdown lint</td>
+<td>CONTRIBUTING.md에 <code>npx markdownlint '**/*.md'</code> 명시</td>
+</tr>
+<tr>
+<td>YAML 린팅 / YAML lint</td>
+<td><code>npx yaml-lint .github/</code> 명시</td>
+</tr>
+<tr>
+<td>커버리지 / Coverage</td>
+<td>해당 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CI 공백</strong>: GitHub Actions 워크플로우가 전무하여, 자동화 품질 게이트가 없는 상태다. PR 병합 전 린팅 자동화가 미비하여 대규모 협업 시 품질 일관성 저하 위험 존재.</p>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><strong>해당 없음</strong> — 프로젝트 및 전체 의존성이 Apache 2.0 또는 MIT/MIT-호환 라이선스로만 구성됨. GPL/AGPL 모듈 분리 필요성 없음.</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<p>서버 애플리케이션이 아니므로 12-Factor 원칙의 직접 적용은 해당 없다. 다만 관련 원칙 검토:</p>
+<table>
+<thead>
+<tr>
+<th>원칙 / Factor</th>
+<th>적용 / Applicable</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>III. 설정 (Config)</td>
+<td>부분 적용</td>
+<td><code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 환경변수 사용</td>
+</tr>
+<tr>
+<td>V. 빌드·릴리스·실행 분리</td>
+<td>부분 적용</td>
+<td>릴리스 태깅 계획 있음</td>
+</tr>
+<tr>
+<td>XI. 로그</td>
+<td>해당 없음</td>
+<td>-</td>
+</tr>
+<tr>
+<td>XII. 관리 프로세스</td>
+<td>해당 없음</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분 완료</td>
+<td>자체 라이선스(Apache 2.0)는 명확히 식별됨; CI 자동 스캔 없음</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>⚠️ 미확인</td>
+<td>FOSS 스캔 도구(FOSSID, ScanCode 등) 적용 기록 없음</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🟢 해당 없음</td>
+<td>런타임 의존성 없으므로 copyleft 전파 리스크 없음</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>⚠️ 미구축</td>
+<td>공식 OSPO 또는 법무 검토 프로세스 확인 불가</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🟡 부분 완료</td>
+<td>LICENSE 파일 배포; NOTICE 파일 부재; BOM 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>전반적 OpenChain 준수 수준</strong>: 초기(Stage 1 진입) — 단순 구조 덕분에 실질 위험은 낮으나, 엔터프라이즈 공급망 진입 시 OpenChain 인증 요구 가능성 있음.</p>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권 / Trademark</strong>:
+- "Harness" 명칭은 기업용 CI/CD 플랫폼인 Harness.io(Harness Inc.)가 등록 상표로 보유하고 있을 가능성이 높다 (확인 필요). 동일 기술 도메인(개발 도구)에서 동일 명칭 사용은 혼동 초래 위험 존재.
+- <code>plugin.json</code>의 <code>"name": "harness"</code>는 Claude Code 마켓플레이스 내 식별자이며, 현재는 좁은 컨텍스트에서만 사용. 그러나 상업적 확장(SaaS, 유료 지원) 시 상표 분쟁 위험 급증.
+- <strong>권고</strong>: 법무 자문을 통해 "Harness" 상표 충돌 여부 즉시 조사 필요.</p>
+<p><strong>특허 위험 / Patent Risk</strong>:
+- Apache 2.0은 <strong>명시적 특허 실시권 부여</strong> 조항 포함 (Section 3). 기여자의 특허를 사용자에게 실시허락하며, 소송 제기 시 실시권 자동 종료.
+- MIT/BSD는 특허 실시권 없음 → 본 프로젝트 내 MIT 구성요소(없음) 해당 없음.
+- 프로젝트 자체 코드에 특허 위험 요인 없음 (텍스트 파일만 존재).</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>해당 없음</strong> — 프로젝트 및 의존성에 AGPL/GPL 구성요소 없음. 전파 위험 시나리오 해당 없음.</p>
+<p>단, <strong>사용자가 생성된 스킬·에이전트 파일을 GPL 코드베이스에 통합</strong>하는 경우, 생성물의 라이선스는 해당 코드베이스 라이선스를 따른다. 이는 Harness 자체의 라이선스 위험이 아닌 사용자 측 리스크.</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>Apache 2.0, 런타임 의존성 없음, copyleft 없음</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🔵 Review</td>
+<td>SECURITY.md 부재, CI 보안 스캔 없음, 단 런타임 위협 없음</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🔵 Review</td>
+<td>실질 기여자 1인 집중; SLA·거버넌스 문서는 양호; 초기 프로젝트 감안</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟡 Caution</td>
+<td>CI/CD 없음, git 태그 미적용, GitHub Actions 전무</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟢 Safe</td>
+<td>의존성 없음, 순수 문서 배포, 설치 마찰 최소, 다국어 지원</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>"Harness" 상표 충돌 위험 조사 필요; OpenChain 미구축</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>제로 런타임 의존성 (Zero runtime dependencies)</strong>: 순수 Markdown 플러그인으로 CVE 취약점·공급망 위험이 구조적으로 없다. 라이선스 감사가 단순하며 배포 마찰이 최소화된다.</li>
+<li><strong>Apache 2.0 라이선스</strong>: 가장 상업화 친화적인 라이선스 중 하나. 특허 실시권 부여, 소스 비공개 배포 허용, 대기업 채택 전례 풍부.</li>
+<li><strong>명문화된 SLA 및 거버넌스</strong>: PR 72시간·이슈 48시간·보안 7일 응답 SLA가 CONTRIBUTING.md에 공개적으로 명시. 엔터프라이즈 벤더 평가 시 신뢰도 기여.</li>
+<li><strong>다국어 지원 (EN/KO/JA)</strong>: 3개 언어 완전 대칭 README 제공. 한국·일본 시장 접근성 확보, 글로벌 확장 기반 구축.</li>
+<li><strong>실험 의존성 리스크 사전 관리</strong>: <code>docs/experimental-dependency.md</code>에 시나리오 A/B/C 대응 계획과 모니터링 SLA 명문화 — 플랫폼 의존 리스크에 대한 성숙한 인식 및 준비.</li>
+<li><strong>연구 기반 근거 및 생태계</strong>: A/B 실험 결과(n=15), 연구 논문 인용, 자매 리포지토리(harness-100, claude-code-harness)로 구성된 검증 생태계 보유.</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>"Harness" 상표 충돌 위험</strong>: Harness Inc.(harness.io)가 동일 명칭을 개발 도구 분야에서 상표 보유 가능성. 상업적 확장 전 법무 검토 필수.</li>
+<li><strong>CI/CD 파이프라인 전무</strong>: GitHub Actions 워크플로우 없음. 마크다운 린팅, YAML 검증, 플러그인 메타데이터 유효성 검사가 로컬 실행에만 의존. PR 병합 품질 게이트 부재.</li>
+<li><strong>실질 기여자 1인 집중</strong>: git 히스토리 기준 사실상 단독 개발. 핵심 인력 이탈 시 유지보수 공백 위험. 기업 채택 검토 시 주요 리스크 항목.</li>
+<li><strong>OpenChain/SBOM 미구축</strong>: 엔터프라이즈 공급망 진입 요건(ISO 5230)으로 SBOM 및 라이선스 스캔 자동화가 요구될 수 있음. 현재 공식 BOM 파일 없음.</li>
+<li><strong>연구 주장의 소표본 한계</strong>: "+60%" 지표는 n=15 저자 측정으로 제3자 재현 미완료. 엔터프라이즈 구매 결정자에게 "저자 측정" 수준의 증거는 독립 벤치마크 부재로 설득력이 제한적.</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 Review (조건부 채택 — 추가 검토 필요)</p>
+<p><strong>상세 근거 / Detailed Rationale</strong>:</p>
+<p>Harness는 라이선스 관점에서 상용화에 <strong>가장 이상적인 조건</strong>(Apache 2.0, 런타임 의존성 전무, copyleft 없음)을 갖추고 있다. 다국어 지원, 명문화된 SLA, 실험 의존성 대응 로드맵 등 엔터프라이즈 의식이 반영된 문서 체계도 긍정적이다.</p>
+<p>그러나 상용 채택을 위해 다음 <strong>전제 조건</strong>이 이행되어야 한다:</p>
+<ol>
+<li><strong>즉시</strong>: "Harness" 상표 충돌 법무 조사 — Harness Inc. 상표권 범위 확인 후 위험 시 명칭 변경 또는 사용권 확보</li>
+<li><strong>단기</strong>: CI/CD 파이프라인 구축 (GitHub Actions 기반 최소 lint + 메타데이터 검증)</li>
+<li><strong>단기</strong>: SECURITY.md 독립 파일 생성 및 GitHub Advisory Database 연동</li>
+<li><strong>중기</strong>: 제3자 독립 기관 또는 동료 검토를 통한 "+60%" 주장 재현 실험 수행</li>
+<li><strong>중기</strong>: 핵심 기여자 2인 이상 추가를 통한 단일 지점 장애(SPOF) 해소</li>
+</ol>
+<p>위 조건이 충족될 경우 <strong>🟢 Safe</strong> 수준으로 격상 가능하다.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>✅ Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>✅ Apache 2.0 (Permissive)</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 소스 공개 의무 여부 확인</td>
+<td>✅ 의무 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 라이선스 호환성 충돌 없음</td>
+<td>✅ 충돌 없음</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>✅ 저작권 문구 포함</td>
+<td>✅ LICENSE 파일 존재</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ 고지문 배포 위치 정의</td>
+<td>⚠️ NOTICE 파일 부재</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>✅ Strong Copyleft 사용 시 공개 범위·방식 정의</td>
+<td>✅ 해당 없음</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>⚠️ CVE 모니터링 체계 수립</td>
+<td>⚠️ 런타임 의존성 없으나 공식 체계 미구축</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ 중고위험 취약점 패치 계획</td>
+<td>⚠️ SECURITY.md 독립 파일 부재</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>✅ 유지보수 활성도·커밋 주기 확인</td>
+<td>✅ 활성 상태 (2026-05-30 최신)</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ 기업 스폰서/컨설팅 존재 확인</td>
+<td>⚠️ 미공식 (kakaocorp 연관 시사, 미확인)</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>❌ 라이선스 검사 자동화</td>
+<td>❌ GitHub Actions 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 오픈소스 BOM 자동 생성</td>
+<td>❌ 미구축</td>
+</tr>
+<tr>
+<td></td>
+<td>❌ 위반 라이선스 빌드 차단</td>
+<td>❌ 미구축 (단 현재 위반 라이선스 없음)</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>⚠️ 고객 계약서에 라이선스 의무 명시</td>
+<td>⚠️ 상용 계약 프레임워크 미확인</td>
+</tr>
+<tr>
+<td></td>
+<td>⚠️ 외부 감사 대비 문서 구비</td>
+<td>⚠️ NOTICE·BOM 미구비</td>
+</tr>
+<tr>
+<td>상표 / Trademark</td>
+<td>❌ "Harness" 상표 충돌 조사</td>
+<td>❌ 미조사 (즉시 필요)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li><strong>"Harness" 상표 충돌 법무 조사 (Critical)</strong></li>
+<li>Harness Inc.(harness.io)의 상표 등록 범위 조사</li>
+<li>소프트웨어 개발 도구 카테고리에서의 충돌 여부 판단</li>
+<li>위험 시: 명칭 변경("harness-factory", "team-arch" 등) 또는 사용 제한 구역 명확화</li>
+<li>
+<p>엔터프라이즈 배포 계약서에 명칭 사용 범위 명시</p>
+</li>
+<li>
+<p><strong>SECURITY.md 독립 파일 생성</strong></p>
+</li>
+<li>CONTRIBUTING.md에서 Security 섹션 분리</li>
+<li>GitHub Security Advisory 등록 및 Private Vulnerability Reporting 활성화</li>
+<li><code>CVE/GHSA</code> 대응 프로세스 명문화</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li><strong>GitHub Actions CI 파이프라인 구축</strong></li>
+<li>Markdown lint (<code>markdownlint</code>) 자동 실행 on pull_request</li>
+<li>YAML lint (<code>yaml-lint</code>) 자동 실행</li>
+<li><code>plugin.json</code> / <code>marketplace.json</code> 버전 동기화 검증 스크립트</li>
+<li>
+<p>PR 병합 전 CI 통과 필수화</p>
+</li>
+<li>
+<p><strong>NOTICE 파일 생성</strong></p>
+</li>
+<li>Apache 2.0 요건에 따른 attribution notice 생성</li>
+<li>
+<p>엔터프라이즈 배포 패키지에 포함 방법 정의</p>
+</li>
+<li>
+<p><strong>git 태그 소급 적용</strong></p>
+</li>
+<li>v1.0.0, v1.0.1, v1.1.0, v1.2.0 태그 생성 (audit-2026-04-18.md 계획 이행)</li>
+<li>
+<p>GitHub Releases 페이지 구성 (release notes 포함)</p>
+</li>
+<li>
+<p><strong>CODE_OF_CONDUCT.md 독립 파일 생성</strong></p>
+</li>
+<li>Contributor Covenant v1.4 전문을 독립 파일로 분리</li>
+<li>GitHub 표준 위치(<code>.github/CODE_OF_CONDUCT.md</code>)에 배치</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li><strong>제3자 독립 재현 실험 추진</strong></li>
+<li>"+60%" 주장 검증을 위한 동료 기관 또는 커뮤니티 재현 실험 유도</li>
+<li>결과 공개 후 "author-measured" 문구를 "third-party validated"로 업그레이드</li>
+<li>
+<p>엔터프라이즈 영업 자료에서 사용 가능한 증거 수준으로 격상</p>
+</li>
+<li>
+<p><strong>기여자 다양화 전략 실행</strong></p>
+</li>
+<li>CONTRIBUTING.md의 maintainer path 안내를 통해 활성 기여자 2인 이상 육성</li>
+<li>"First Good Issue" 라벨 활성화로 신규 기여자 유입 촉진</li>
+<li>
+<p>핵심 지식 이전 (SKILL.md 설계 원칙 문서화)</p>
+</li>
+<li>
+<p><strong>SBOM 생성 자동화 (빌드 파이프라인 포함 시)</strong></p>
+</li>
+<li>현재는 런타임 의존성 없으므로 간단한 메타데이터 BOM으로 충분</li>
+<li>CycloneDX 또는 SPDX 형식으로 생성·배포 포함</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>OpenChain ISO 5230 준비 로드맵 수립</strong></p>
+<ul>
+<li>엔터프라이즈 공급망 진입 요건으로 OpenChain 인증 준비</li>
+<li>내부 오픈소스 정책 문서화 (OSPO 설립 또는 담당자 지정)</li>
+</ul>
+</li>
+<li>
+<p><strong>플랫폼 다각화 로드맵 검토</strong></p>
+<ul>
+<li><code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 의존성 GA 전환 모니터링 (시나리오 A 대응)</li>
+<li>Gemini/Codex 런타임 호환 계층 검토 (FAQ Q3의 "multi-runtime, shallow" vs "Claude-Code-native, deep" 트레이드오프 재평가)</li>
+<li>harness-100 생태계와의 연동 강화로 플랫폼 Lock-in 완화</li>
+</ul>
+</li>
+<li>
+<p><strong>연구 성과 계속 발행</strong></p>
+<ul>
+<li><em>Hwang 2026</em> 논문 후속 연구(n &gt; 50, 다기관 재현) 통한 학술 신뢰도 강화</li>
+<li>사례 연구(case study) 기반 ROI 보고서 발행 (B2B 구매 주기 지원)</li>
+</ul>
+</li>
+</ol>
+<hr />
+<p><em>분석 종료 / End of Analysis</em></p>
+<p><em>본 보고서는 2026-06-06 기준 로컬 클론(/tmp/github-dashboard-analysis/revfactory_harness) 및 공개 문서를 기반으로 작성되었습니다. GitHub 이슈·PR 수 등 API 의존 지표는 로컬 분석 환경 제약으로 확인 불가하였으며, 해당 항목은 "확인 불가 — 파일 부재"로 표기하였습니다.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>I have all the information needed to produce both guides. Now writing the final report as markdown.</p>
+<hr />
+<h1 id="generation-report">📋 생성 보고서 / Generation Report</h1>
+<blockquote>
+<p><strong>모드:</strong> 단일 프로젝트 (Single Project)
+<strong>대상 경로 / Target Path:</strong> <code>/tmp/github-dashboard-analysis/revfactory_harness</code>
+<strong>예정 출력 파일 / Intended Output Files:</strong>
+- <code>.review/GUIDE4Junior.md</code>
+- <code>.review/GUIDE4ImpMethod.md</code></p>
+</blockquote>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>Harness는 Claude Code 전용 <strong>팀 아키텍처 팩토리</strong>입니다. "하네스 구성해줘"처럼 한 문장의 도메인 설명만 입력하면, 플러그인이 6가지 사전 정의된 팀 아키텍처 패턴(파이프라인, 팬아웃/팬인, 전문가 풀, 생성-검증, 감독자, 계층적 위임) 중 적합한 것을 선택하여 전문화된 에이전트 팀과 해당 에이전트들이 사용할 스킬을 자동으로 생성합니다. 생성된 결과물은 <code>.claude/agents/</code> 및 <code>.claude/skills/</code> 디렉토리에 Markdown 파일로 저장됩니다. Harness는 Claude Code 에코시스템의 <strong>L3 Meta-Factory / Team-Architecture Factory</strong> 계층에 위치하며, 다른 하네스를 직접 실행하는 것이 아니라 하네스를 생성하는 메타 도구입니다.</p>
+<ul>
+<li><strong>주요 기술 스택:</strong> Claude Code Plugin System (Markdown 기반), JSON (플러그인 매니페스트), Node.js ≥ 18 (CI 툴링), Python (선택적 스킬 메타데이터 검증)</li>
+<li><strong>핵심 종속성:</strong> <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 환경 변수, Claude Code v2.x 이상</li>
+<li><strong>라이선스:</strong> Apache 2.0</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>Harness is a <strong>team-architecture factory</strong> for Claude Code. Given a single-sentence domain description (e.g., "build a harness for a fintech risk-assessment team"), the plugin automatically selects one of six pre-defined team-architecture patterns (Pipeline, Fan-out/Fan-in, Expert Pool, Producer-Reviewer, Supervisor, Hierarchical Delegation) and scaffolds a team of specialized agents plus the skills they use. Generated artifacts are written as Markdown files under <code>.claude/agents/</code> and <code>.claude/skills/</code>. Harness occupies the <strong>L3 Meta-Factory / Team-Architecture Factory</strong> layer of the Claude Code ecosystem — it is a meta-tool that generates harnesses, not one that runs them.</p>
+<ul>
+<li><strong>Key tech stack:</strong> Claude Code Plugin System (Markdown-based), JSON (plugin manifest), Node.js ≥ 18 (CI tooling), Python (optional skill metadata validation)</li>
+<li><strong>Core dependency:</strong> <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> environment flag, Claude Code v2.x+</li>
+<li><strong>License:</strong> Apache 2.0</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>최소 버전</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>v2.x 이상</td>
+<td>플러그인 런타임, Agent Teams API</td>
+</tr>
+<tr>
+<td><strong>Node.js</strong></td>
+<td>≥ 18</td>
+<td>CI 툴링 (markdownlint, yaml-lint)</td>
+</tr>
+<tr>
+<td><strong>Git</strong></td>
+<td>최신 권장</td>
+<td>저장소 관리</td>
+</tr>
+<tr>
+<td><strong>Python</strong></td>
+<td>3.x (선택)</td>
+<td><code>scripts/validate_skills.py</code> 실행 시 필요</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>권장 IDE:</strong> VS Code, JetBrains IDEs (Markdown 미리보기 지원 환경 권장)</li>
+<li><strong>권장 익스텐션:</strong> Markdown All in One (VS Code), Mermaid Preview 플러그인</li>
+<li><strong>OS별 주의사항:</strong></li>
+<li>macOS/Linux: <code>~/.zshrc</code> 또는 <code>~/.bashrc</code>에 <code>export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 추가 권장</li>
+<li>Windows: WSL2 환경에서 사용 권장. PowerShell에서는 <code>$env:CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 형식 사용</li>
+</ul>
+<p><strong>[English]</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Minimum Version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>v2.x or later</td>
+<td>Plugin runtime, Agent Teams API</td>
+</tr>
+<tr>
+<td><strong>Node.js</strong></td>
+<td>≥ 18</td>
+<td>CI tooling (markdownlint, yaml-lint)</td>
+</tr>
+<tr>
+<td><strong>Git</strong></td>
+<td>Latest recommended</td>
+<td>Repository management</td>
+</tr>
+<tr>
+<td><strong>Python</strong></td>
+<td>3.x (optional)</td>
+<td>Required to run <code>scripts/validate_skills.py</code></td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Recommended IDEs:</strong> VS Code, JetBrains IDEs (any environment with Markdown preview support)</li>
+<li><strong>Recommended extensions:</strong> Markdown All in One (VS Code), Mermaid Preview plugin</li>
+<li><strong>OS-specific notes:</strong></li>
+<li>macOS/Linux: Add <code>export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> to <code>~/.zshrc</code> or <code>~/.bashrc</code></li>
+<li>Windows: WSL2 is recommended. In PowerShell use <code>$env:CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code></li>
+</ul>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<ol>
+<li>
+<p><strong>저장소 클론</strong>
+   <code>bash
+   git clone https://github.com/revfactory/harness.git
+   cd harness</code></p>
+</li>
+<li>
+<p><strong>의존성 설치</strong> (CI 툴링용)
+   <code>bash
+   npm install -g markdownlint-cli yaml-lint
+   # Python 스킬 검증이 필요한 경우
+   pip install -r requirements.txt  # 파일이 없으면 생략</code></p>
+</li>
+<li>
+<p><strong>환경 변수 설정</strong>
+   ```bash
+   # 현재 세션에서만 적용
+   export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</p>
+</li>
+</ol>
+<p># 영구 적용 (bash 기준)
+   echo 'export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1' &gt;&gt; ~/.bashrc
+   source ~/.bashrc
+   ```</p>
+<blockquote>
+<p><code>.env</code> 파일은 이 프로젝트에서 사용하지 않습니다. 환경 변수는 쉘 프로파일에 직접 설정합니다.</p>
+</blockquote>
+<ol>
+<li><strong>플러그인 로컬 연결 (개발/테스트용)</strong>
+   ```bash
+   # 마켓플레이스를 통한 설치 대신 로컬 체크아웃을 바로 연결
+   claude plugin link ./harness</li>
+</ol>
+<p># 연결 확인
+   claude plugin list | grep harness
+   ```</p>
+<p>또는 글로벌 스킬로 직접 복사:
+   <code>bash
+   cp -r skills/harness ~/.claude/skills/harness</code></p>
+<ol>
+<li><strong>설치 검증</strong>
+   ```bash
+   # 플러그인이 인식되는지 확인
+   claude plugin list</li>
+</ol>
+<p># 간단한 하네스 생성 테스트
+   mkdir /tmp/harness-test &amp;&amp; cd /tmp/harness-test
+   claude "build a harness for a simple content writing team"</p>
+<p># 생성된 파일 확인
+   ls -la .claude/agents/
+   ls -la .claude/skills/
+   ```</p>
+<p><strong>[English]</strong></p>
+<ol>
+<li>
+<p><strong>Clone the repository</strong>
+   <code>bash
+   git clone https://github.com/revfactory/harness.git
+   cd harness</code></p>
+</li>
+<li>
+<p><strong>Install dependencies</strong> (for CI tooling)
+   <code>bash
+   npm install -g markdownlint-cli yaml-lint
+   # If Python skill validation is needed
+   pip install -r requirements.txt  # skip if the file does not exist</code></p>
+</li>
+<li>
+<p><strong>Configure environment variables</strong>
+   ```bash
+   # Current session only
+   export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</p>
+</li>
+</ol>
+<p># Permanent (bash)
+   echo 'export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1' &gt;&gt; ~/.bashrc
+   source ~/.bashrc
+   ```</p>
+<blockquote>
+<p>This project does not use a <code>.env</code> file. Set the environment variable directly in your shell profile.</p>
+</blockquote>
+<ol>
+<li><strong>Link the plugin locally (for development/testing)</strong>
+   ```bash
+   # Link local checkout instead of installing from marketplace
+   claude plugin link ./harness</li>
+</ol>
+<p># Verify the link
+   claude plugin list | grep harness
+   ```</p>
+<p>Or copy directly as a global skill:
+   <code>bash
+   cp -r skills/harness ~/.claude/skills/harness</code></p>
+<ol>
+<li><strong>Verify the setup</strong>
+   ```bash
+   # Confirm the plugin is recognized
+   claude plugin list</li>
+</ol>
+<p># Quick harness generation test
+   mkdir /tmp/harness-test &amp;&amp; cd /tmp/harness-test
+   claude "build a harness for a simple content writing team"</p>
+<p># Check generated files
+   ls -la .claude/agents/
+   ls -la .claude/skills/
+   ```</p>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">harness/
+├── .claude-plugin/
+│   ├── plugin.json              # 플러그인 메인 매니페스트 (이름, 버전, 설명, 키워드)
+│   └── marketplace.json         # 마켓플레이스 배포 설정 (owner, plugins 목록)
+├── skills/
+│   └── harness/
+│       ├── SKILL.md             # ★ 핵심 파일: 7-Phase 워크플로우 정의 (~458줄)
+│       └── references/
+│           ├── agent-design-patterns.md  # 6가지 아키텍처 패턴 + 에이전트 분리 기준
+│           ├── orchestrator-template.md  # 오케스트레이터 스킬 템플릿
+│           ├── team-examples.md          # 5가지 실전 팀 구성 예시 (전체 파일 포함)
+│           ├── skill-writing-guide.md    # 스킬 작성 패턴 및 데이터 스키마 표준
+│           ├── skill-testing-guide.md    # 테스트/평가/반복 개선 방법론
+│           └── qa-agent-guide.md         # QA 에이전트 통합 가이드
+├── docs/
+│   ├── quickstart.md            # 5분 퀵스타트 가이드
+│   └── experimental-dependency.md  # AGENT_TEAMS 플래그 의존성 문서 (3가지 시나리오)
+├── _workspace/                  # 중간 산출물 저장소 (감사 보고서, 출시 계획 등)
+│   └── release/
+├── .github/
+│   ├── ISSUE_TEMPLATE/          # Bug/Feature/Question/Discussion 이슈 템플릿
+│   └── PULL_REQUEST_TEMPLATE.md # PR 템플릿 (Summary, Motivation, Scope, Tests, CHANGELOG)
+├── README.md                    # 영문 메인 README
+├── README_KO.md                 # 한국어 README
+├── README_JA.md                 # 일본어 README
+├── CONTRIBUTING.md              # 기여 가이드, SLA, 브랜치/커밋 컨벤션, 행동 강령
+├── CHANGELOG.md                 # 버전별 변경 이력 (Semantic Versioning 준수)
+├── LICENSE                      # Apache 2.0
+├── index.html                   # 프로젝트 랜딩 페이지
+└── privacy.html                 # 개인정보 정책 페이지
+</code></pre>
+<p><strong>핵심 모듈 간 의존 관계:</strong></p>
+<pre><code>SKILL.md (메인 진입점)
+  ├── Phase 0~7 워크플로우 정의
+  ├── → references/agent-design-patterns.md  (Phase 2-2, 2-3, 3-0 에서 참조)
+  ├── → references/orchestrator-template.md  (Phase 5 에서 참조)
+  ├── → references/skill-writing-guide.md    (Phase 4 에서 참조)
+  ├── → references/skill-testing-guide.md    (Phase 6-3 에서 참조)
+  ├── → references/team-examples.md          (Phase 3 에서 참조)
+  └── → references/qa-agent-guide.md         (Phase 3 QA 에이전트 포함 시 참조)
+
+plugin.json + marketplace.json
+  └── Claude Code 플러그인 시스템에서 SKILL.md를 /harness:harness 스킬로 등록
+</code></pre>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">harness/
+├── .claude-plugin/
+│   ├── plugin.json              # Main plugin manifest (name, version, description, keywords)
+│   └── marketplace.json         # Marketplace distribution config (owner, plugins list)
+├── skills/
+│   └── harness/
+│       ├── SKILL.md             # ★ Core file: 7-Phase workflow definition (~458 lines)
+│       └── references/
+│           ├── agent-design-patterns.md  # 6 architecture patterns + agent separation criteria
+│           ├── orchestrator-template.md  # Orchestrator skill template
+│           ├── team-examples.md          # 5 real-world team configs (full file content)
+│           ├── skill-writing-guide.md    # Skill writing patterns and data schema standards
+│           ├── skill-testing-guide.md    # Testing/evaluation/iteration methodology
+│           └── qa-agent-guide.md         # QA agent integration guide
+├── docs/
+│   ├── quickstart.md            # 5-minute quickstart guide
+│   └── experimental-dependency.md  # AGENT_TEAMS flag dependency doc (3 scenarios)
+├── _workspace/                  # Intermediate artifact store (audit reports, launch plans)
+│   └── release/
+├── .github/
+│   ├── ISSUE_TEMPLATE/          # Bug/Feature/Question/Discussion issue templates
+│   └── PULL_REQUEST_TEMPLATE.md # PR template (Summary, Motivation, Scope, Tests, CHANGELOG)
+├── README.md                    # English main README
+├── README_KO.md                 # Korean README
+├── README_JA.md                 # Japanese README
+├── CONTRIBUTING.md              # Contribution guide, SLA, branch/commit conventions, CoC
+├── CHANGELOG.md                 # Version history (Semantic Versioning)
+├── LICENSE                      # Apache 2.0
+├── index.html                   # Project landing page
+└── privacy.html                 # Privacy policy page
+</code></pre>
+<p><strong>Core module dependency relationships:</strong></p>
+<pre><code>SKILL.md (main entry point)
+  ├── Phases 0–7 workflow definition
+  ├── → references/agent-design-patterns.md  (referenced in Phases 2-2, 2-3, 3-0)
+  ├── → references/orchestrator-template.md  (referenced in Phase 5)
+  ├── → references/skill-writing-guide.md    (referenced in Phase 4)
+  ├── → references/skill-testing-guide.md    (referenced in Phase 6-3)
+  ├── → references/team-examples.md          (referenced in Phase 3)
+  └── → references/qa-agent-guide.md         (referenced in Phase 3 when QA agent included)
+
+plugin.json + marketplace.json
+  └── Registers SKILL.md as the /harness:harness skill in Claude Code's plugin system
+</code></pre>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 프로젝트는 전통적인 컴파일/빌드 단계가 없습니다. 주된 "빌드" 작업은 <strong>린트 검증</strong>입니다.</p>
+<ul>
+<li>
+<p><strong>Markdown 린트 (개발/프로덕션 공통)</strong>
+  <code>bash
+  npx markdownlint '**/*.md'
+  # 특정 파일만 검사
+  npx markdownlint skills/harness/SKILL.md</code></p>
+</li>
+<li>
+<p><strong>YAML 린트</strong> (이슈 템플릿 및 워크플로우 파일 대상)
+  <code>bash
+  npx yaml-lint .github/</code></p>
+</li>
+<li>
+<p><strong>스킬 메타데이터 검증</strong> (스크립트가 존재하는 경우)
+  <code>bash
+  python scripts/validate_skills.py</code></p>
+</li>
+<li>
+<p><strong>빌드 결과물 위치:</strong> 없음 (이 프로젝트는 Markdown 파일 자체가 배포 단위입니다)</p>
+</li>
+</ul>
+<p><strong>자주 발생하는 빌드 오류와 해결 방법:</strong></p>
+<table>
+<thead>
+<tr>
+<th>오류</th>
+<th>원인</th>
+<th>해결 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>markdownlint: command not found</code></td>
+<td>markdownlint-cli 미설치</td>
+<td><code>npm install -g markdownlint-cli</code></td>
+</tr>
+<tr>
+<td>Markdownlint MD013 (line length)</td>
+<td>줄 길이 초과</td>
+<td>해당 줄 끝에 <code>&lt;!-- markdownlint-disable MD013 --&gt;</code> 추가 또는 <code>.markdownlintrc</code> 설정</td>
+</tr>
+<tr>
+<td>YAML syntax error in <code>.github/</code></td>
+<td>잘못된 YAML 들여쓰기</td>
+<td>스페이스 2칸 사용, 탭 금지</td>
+</tr>
+<tr>
+<td><code>python scripts/validate_skills.py</code> 스크립트 없음</td>
+<td>아직 구현되지 않은 스크립트</td>
+<td>해당 단계 건너뜀 (<code>CONTRIBUTING.md</code> 참조: "if present")</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p>This project has no traditional compile/build step. The primary "build" is <strong>lint validation</strong>.</p>
+<ul>
+<li>
+<p><strong>Markdown lint (dev and production)</strong>
+  <code>bash
+  npx markdownlint '**/*.md'
+  # Lint a specific file
+  npx markdownlint skills/harness/SKILL.md</code></p>
+</li>
+<li>
+<p><strong>YAML lint</strong> (targets issue templates and workflow files)
+  <code>bash
+  npx yaml-lint .github/</code></p>
+</li>
+<li>
+<p><strong>Skill metadata validation</strong> (if the script exists)
+  <code>bash
+  python scripts/validate_skills.py</code></p>
+</li>
+<li>
+<p><strong>Build output location:</strong> None (Markdown files themselves are the deployable unit)</p>
+</li>
+</ul>
+<p><strong>Common build errors and solutions:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>markdownlint: command not found</code></td>
+<td>markdownlint-cli not installed</td>
+<td><code>npm install -g markdownlint-cli</code></td>
+</tr>
+<tr>
+<td>Markdownlint MD013 (line length)</td>
+<td>Line exceeds length limit</td>
+<td>Add <code>&lt;!-- markdownlint-disable MD013 --&gt;</code> or configure <code>.markdownlintrc</code></td>
+</tr>
+<tr>
+<td>YAML syntax error in <code>.github/</code></td>
+<td>Bad YAML indentation</td>
+<td>Use 2-space indentation, no tabs</td>
+</tr>
+<tr>
+<td><code>python scripts/validate_skills.py</code> not found</td>
+<td>Script not yet implemented</td>
+<td>Skip this step (CONTRIBUTING.md notes: "if present")</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p>Harness는 웹 서버나 독립 실행형 프로세스가 아닙니다. Claude Code CLI를 통해 실행됩니다.</p>
+<p><strong>1. 개발 모드 (로컬 체크아웃 연결)</strong></p>
+<pre><code class="language-bash"># 저장소 루트에서 실행
+claude plugin link ./harness
+
+# 임의 디렉토리에서 하네스 실행
+mkdir /tmp/my-project &amp;&amp; cd /tmp/my-project
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+claude &quot;build a harness for a code review team&quot;
+</code></pre>
+<p><strong>2. 글로벌 스킬로 직접 사용</strong></p>
+<pre><code class="language-bash">cp -r skills/harness ~/.claude/skills/harness
+# 이후 어느 디렉토리에서나 실행 가능
+claude &quot;하네스 구성해줘&quot;
+</code></pre>
+<p><strong>3. 마켓플레이스 설치 (프로덕션 사용)</strong></p>
+<pre><code class="language-bash">claude plugin marketplace add revfactory/harness
+claude plugin install harness@harness-marketplace
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+</code></pre>
+<p><strong>접속 URL/포트:</strong> 해당 없음 (CLI 도구)</p>
+<p><strong>실행 확인 방법:</strong></p>
+<pre><code class="language-bash"># 플러그인 목록 확인
+claude plugin list | grep harness
+
+# 생성된 에이전트/스킬 확인 (하네스 실행 후)
+ls -la .claude/agents/
+ls -la .claude/skills/
+
+# AGENT_TEAMS 플래그 확인
+echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS  # &quot;1&quot; 이 출력되어야 함
+</code></pre>
+<p><strong>[English]</strong></p>
+<p>Harness is not a web server or standalone process. It runs through the Claude Code CLI.</p>
+<p><strong>1. Development mode (link local checkout)</strong></p>
+<pre><code class="language-bash"># Run from the repository root
+claude plugin link ./harness
+
+# Run the harness from any directory
+mkdir /tmp/my-project &amp;&amp; cd /tmp/my-project
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+claude &quot;build a harness for a code review team&quot;
+</code></pre>
+<p><strong>2. Direct use as a global skill</strong></p>
+<pre><code class="language-bash">cp -r skills/harness ~/.claude/skills/harness
+# Now usable from any directory
+claude &quot;build a harness for X&quot;
+</code></pre>
+<p><strong>3. Marketplace install (production use)</strong></p>
+<pre><code class="language-bash">claude plugin marketplace add revfactory/harness
+claude plugin install harness@harness-marketplace
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+</code></pre>
+<p><strong>Access URL/Port:</strong> Not applicable (CLI tool)</p>
+<p><strong>How to verify it's working:</strong></p>
+<pre><code class="language-bash"># Check plugin list
+claude plugin list | grep harness
+
+# After running a harness, verify generated files
+ls -la .claude/agents/
+ls -la .claude/skills/
+
+# Verify AGENT_TEAMS flag
+echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS  # should print &quot;1&quot;
+</code></pre>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<p>이 프로젝트는 전통적인 단위 테스트 프레임워크(Jest, pytest 등)를 사용하지 않습니다. 검증은 <strong>린트 + 실행 기반 테스트</strong>로 이루어집니다.</p>
+<p><strong>정적 검증 (린트)</strong></p>
+<pre><code class="language-bash"># Markdown 린트
+npx markdownlint '**/*.md'
+
+# YAML 린트
+npx yaml-lint .github/
+
+# 스킬 메타데이터 검증 (스크립트 존재 시)
+python scripts/validate_skills.py
+</code></pre>
+<p><strong>실행 기반 기능 테스트 (Harness 자체 테스트 방법론)</strong></p>
+<p><code>references/skill-testing-guide.md</code>에 정의된 방법론에 따라, 생성된 스킬은 다음과 같이 검증합니다:</p>
+<pre><code class="language-bash"># 1. 테스트 디렉토리 생성
+mkdir /tmp/harness-test-{타임스탬프} &amp;&amp; cd /tmp/harness-test-{타임스탬프}
+
+# 2. With-skill 실행 (플러그인 활성화)
+claude &quot;build a harness for a research team&quot;
+
+# 3. 생성 결과 확인
+ls .claude/agents/ &amp;&amp; ls .claude/skills/
+
+# 4. 실제 작업 실행
+claude &quot;Investigate the current state of quantum computing&quot;
+</code></pre>
+<p><strong>트리거 검증 예시 (should-trigger / should-NOT-trigger)</strong></p>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>쿼리</th>
+<th>예상 동작</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Should-trigger</td>
+<td>"하네스 구성해줘"</td>
+<td>harness 스킬 트리거</td>
+</tr>
+<tr>
+<td>Should-trigger</td>
+<td>"build a harness for writing"</td>
+<td>harness 스킬 트리거</td>
+</tr>
+<tr>
+<td>Should-NOT-trigger</td>
+<td>"write a Python script"</td>
+<td>harness 스킬 비트리거</td>
+</tr>
+<tr>
+<td>Should-NOT-trigger</td>
+<td>"explain harness racing"</td>
+<td>harness 스킬 비트리거</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p>This project does not use a traditional unit-test framework (Jest, pytest, etc.). Validation is done via <strong>lint + execution-based tests</strong>.</p>
+<p><strong>Static validation (lint)</strong></p>
+<pre><code class="language-bash"># Markdown lint
+npx markdownlint '**/*.md'
+
+# YAML lint
+npx yaml-lint .github/
+
+# Skill metadata validation (if script present)
+python scripts/validate_skills.py
+</code></pre>
+<p><strong>Execution-based functional tests (Harness's own testing methodology)</strong></p>
+<p>Per the methodology in <code>references/skill-testing-guide.md</code>, generated skills are validated as follows:</p>
+<pre><code class="language-bash"># 1. Create a test directory
+mkdir /tmp/harness-test-$(date +%s) &amp;&amp; cd /tmp/harness-test-*
+
+# 2. With-skill run (plugin active)
+claude &quot;build a harness for a research team&quot;
+
+# 3. Verify generated output
+ls .claude/agents/ &amp;&amp; ls .claude/skills/
+
+# 4. Run a real task
+claude &quot;Investigate the current state of quantum computing&quot;
+</code></pre>
+<p><strong>Trigger verification example (should-trigger / should-NOT-trigger)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Category</th>
+<th>Query</th>
+<th>Expected behavior</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Should-trigger</td>
+<td>"하네스 구성해줘"</td>
+<td>harness skill triggers</td>
+</tr>
+<tr>
+<td>Should-trigger</td>
+<td>"build a harness for writing"</td>
+<td>harness skill triggers</td>
+</tr>
+<tr>
+<td>Should-NOT-trigger</td>
+<td>"write a Python script"</td>
+<td>harness skill does NOT trigger</td>
+</tr>
+<tr>
+<td>Should-NOT-trigger</td>
+<td>"explain harness racing"</td>
+<td>harness skill does NOT trigger</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>브랜치 전략</strong></p>
+<p><code>type/short-description</code> 형식을 사용합니다:</p>
+<table>
+<thead>
+<tr>
+<th>접두사</th>
+<th>사용 목적</th>
+<th>예시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat/</code></td>
+<td>새 기능</td>
+<td><code>feat/expert-pool-variance-mode</code></td>
+</tr>
+<tr>
+<td><code>fix/</code></td>
+<td>버그 수정</td>
+<td><code>fix/agent-teams-flag-detection</code></td>
+</tr>
+<tr>
+<td><code>docs/</code></td>
+<td>문서 전용 변경</td>
+<td><code>docs/quickstart-ko-section</code></td>
+</tr>
+<tr>
+<td><code>refactor/</code></td>
+<td>내부 구조 개선</td>
+<td><code>refactor/skill-loader-split</code></td>
+</tr>
+<tr>
+<td><code>chore/</code></td>
+<td>빌드/의존성/하우스키핑</td>
+<td><code>chore/upgrade-markdownlint</code></td>
+</tr>
+<tr>
+<td><code>test/</code></td>
+<td>테스트 전용</td>
+<td><code>test/fan-out-fan-in-e2e</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>커밋 메시지 컨벤션</strong> (Conventional Commits 경량 변형)</p>
+<pre><code>&lt;type&gt;(&lt;scope&gt;)!: &lt;short summary&gt;
+
+&lt;body - optional&gt;
+
+&lt;footer - optional&gt;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>커밋 타입</th>
+<th>SemVer 영향</th>
+<th>예시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat!:</code> 또는 footer에 <code>BREAKING CHANGE:</code></td>
+<td>major (1.x → 2.0)</td>
+<td><code>feat!: rename pattern "Supervisor" → "Orchestrator"</code></td>
+</tr>
+<tr>
+<td><code>feat:</code></td>
+<td>minor (1.2 → 1.3)</td>
+<td><code>feat: 전문가 풀 패턴에 분산 지표 추가</code></td>
+</tr>
+<tr>
+<td><code>fix:</code></td>
+<td>patch (1.2.3 → 1.2.4)</td>
+<td><code>fix: zsh에서 플래그 감지 오류 수정</code></td>
+</tr>
+<tr>
+<td><code>docs:</code> / <code>chore:</code> / <code>refactor:</code> / <code>test:</code></td>
+<td>릴리스 없음</td>
+<td><code>docs: 퀵스타트 한국어 섹션 추가</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>한국어와 영어 커밋 메시지 모두 허용됩니다.</p>
+</blockquote>
+<p><strong>PR/코드 리뷰 절차</strong></p>
+<ol>
+<li><code>.github/PULL_REQUEST_TEMPLATE.md</code>의 템플릿을 채워서 PR을 생성합니다</li>
+<li>Summary, Motivation, Scope, Tests, CHANGELOG, SemVer Impact를 필수 기재</li>
+<li>메인테이너 1명의 Approve가 필요 (응답 SLA: 72시간)</li>
+<li>PR 400줄 초과 시 Discussion을 먼저 진행 권장</li>
+<li>보안 이슈는 공개 이슈 대신 <code>robin.hwang@kakaocorp.com</code> (제목: <code>[harness-security]</code>)으로 보고</li>
+</ol>
+<p><strong>코딩 스타일 / 린트 규칙</strong></p>
+<ul>
+<li>Markdown: <code>npx markdownlint '**/*.md'</code> 통과 필수 (CI에서 자동 검증)</li>
+<li>YAML: <code>npx yaml-lint .github/</code> 통과 필수</li>
+<li><code>SKILL.md</code> 본문은 <strong>500줄 이내</strong> 유지 — 초과 시 <code>references/</code>로 분리</li>
+<li>YAML frontmatter에 <code>name</code>과 <code>description</code> 필드 필수</li>
+<li>Description은 "적극적(pushy)" 표현으로 작성 (트리거를 명시적으로 유도)</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p><strong>Branching strategy</strong></p>
+<p>Use the <code>type/short-description</code> format:</p>
+<table>
+<thead>
+<tr>
+<th>Prefix</th>
+<th>Use for</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat/</code></td>
+<td>New user-visible capability</td>
+<td><code>feat/expert-pool-variance-mode</code></td>
+</tr>
+<tr>
+<td><code>fix/</code></td>
+<td>Bug fix</td>
+<td><code>fix/agent-teams-flag-detection</code></td>
+</tr>
+<tr>
+<td><code>docs/</code></td>
+<td>Docs-only changes</td>
+<td><code>docs/quickstart-ko-section</code></td>
+</tr>
+<tr>
+<td><code>refactor/</code></td>
+<td>Internal structure, no behavior change</td>
+<td><code>refactor/skill-loader-split</code></td>
+</tr>
+<tr>
+<td><code>chore/</code></td>
+<td>Build, deps, housekeeping</td>
+<td><code>chore/upgrade-markdownlint</code></td>
+</tr>
+<tr>
+<td><code>test/</code></td>
+<td>Tests only</td>
+<td><code>test/fan-out-fan-in-e2e</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Commit message convention</strong> (light Conventional Commits variant)</p>
+<pre><code>&lt;type&gt;(&lt;scope&gt;)!: &lt;short summary&gt;
+
+&lt;body - optional&gt;
+
+&lt;footer - optional&gt;
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>Commit type</th>
+<th>SemVer impact</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>feat!:</code> or <code>BREAKING CHANGE:</code> in footer</td>
+<td>major (1.x → 2.0)</td>
+<td><code>feat!: rename pattern "Supervisor" → "Orchestrator"</code></td>
+</tr>
+<tr>
+<td><code>feat:</code></td>
+<td>minor (1.2 → 1.3)</td>
+<td><code>feat: add variance metric to Expert Pool pattern</code></td>
+</tr>
+<tr>
+<td><code>fix:</code></td>
+<td>patch (1.2.3 → 1.2.4)</td>
+<td><code>fix: correct flag detection on zsh</code></td>
+</tr>
+<tr>
+<td><code>docs:</code> / <code>chore:</code> / <code>refactor:</code> / <code>test:</code></td>
+<td>no release</td>
+<td><code>docs: add Korean quickstart section</code></td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Both Korean and English commit messages are accepted.</p>
+</blockquote>
+<p><strong>PR / code review process</strong></p>
+<ol>
+<li>Fill in the PR template from <code>.github/PULL_REQUEST_TEMPLATE.md</code></li>
+<li>Required fields: Summary, Motivation, Scope, Tests, CHANGELOG, SemVer Impact</li>
+<li>One approving review from a maintainer required (response SLA: 72 hours)</li>
+<li>PRs &gt; 400 lines of diff should have a Discussion first</li>
+<li>Security issues: email <code>robin.hwang@kakaocorp.com</code> (subject: <code>[harness-security]</code>) rather than opening a public issue</li>
+</ol>
+<p><strong>Coding style / lint rules</strong></p>
+<ul>
+<li>Markdown: must pass <code>npx markdownlint '**/*.md'</code> (auto-verified in CI)</li>
+<li>YAML: must pass <code>npx yaml-lint .github/</code></li>
+<li><code>SKILL.md</code> body: keep to <strong>≤ 500 lines</strong> — move excess content to <code>references/</code></li>
+<li>YAML frontmatter must include <code>name</code> and <code>description</code> fields</li>
+<li>Write descriptions in "pushy" style (explicitly invite triggers)</li>
+</ul>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. 하네스 실행 후 <code>.claude/agents/</code>가 비어있거나 생성되지 않습니다.</strong></p>
+<p><code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 환경 변수가 Claude Code를 실행한 셸에 설정되어 있지 않을 가능성이 높습니다. 새 터미널을 열면 이전에 설정한 <code>export</code>가 사라집니다.</p>
+<pre><code class="language-bash"># 현재 값 확인
+echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS
+
+# 설정되지 않았다면
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
+# 영구 설정
+echo 'export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1' &gt;&gt; ~/.zshrc
+source ~/.zshrc
+</code></pre>
+<hr />
+<p><strong>Q2. <code>claude plugin list</code>에 harness가 나타나지 않습니다.</strong></p>
+<p>플러그인이 설치되지 않았거나, 로컬 링크가 끊겼을 수 있습니다.</p>
+<pre><code class="language-bash"># 마켓플레이스 방식으로 재설치
+claude plugin marketplace add revfactory/harness
+claude plugin install harness@harness-marketplace
+
+# 또는 로컬 링크 방식
+claude plugin link /절대/경로/harness
+
+# 활성화 확인
+claude plugin enable harness@harness-marketplace
+</code></pre>
+<hr />
+<p><strong>Q3. 한국어 프롬프트("하네스 구성해줘")로 실행하면 아무 반응이 없습니다.</strong></p>
+<p>로케일 또는 토크나이저 라우팅 문제일 수 있습니다. <code>SKILL.md</code>의 <code>description</code> 필드에 한국어 트리거 키워드("하네스 구성", "하네스 구축")가 포함되어 있으나 Claude Code 버전에 따라 한국어 매칭이 불안정할 수 있습니다.</p>
+<pre><code class="language-bash"># 영어 프롬프트로 우선 확인
+claude &quot;build a harness for [your domain]&quot;
+
+# 영어도 실패하면 플러그인 상태 재확인
+claude plugin list | grep harness
+</code></pre>
+<hr />
+<p><strong>Q4. "Too many API calls" 또는 토큰 비용이 너무 많이 발생합니다.</strong></p>
+<p>에이전트 팀은 복잡한 작업 하나에 50K–200K 토큰을 소비할 수 있습니다.</p>
+<pre><code class="language-bash"># 여러 harness 호출을 &amp;&amp;로 체이닝하지 않기
+# 한 번에 하나씩 실행
+
+# --max-turns 플래그 사용 (지원 버전에 한해)
+claude --max-turns 3 &quot;build a harness for X&quot;
+</code></pre>
+<hr />
+<p><strong>Q5. Claude Code v2.x 버전을 어떻게 확인하고 업그레이드하나요?</strong></p>
+<pre><code class="language-bash"># 버전 확인
+claude --version
+
+# 2.x 미만이면 업그레이드
+npm i -g @anthropic-ai/claude-code
+</code></pre>
+<hr />
+<p><strong>Q6. CONTRIBUTING.md의 SLA가 지켜지지 않으면 어떻게 하나요?</strong></p>
+<p>해당 이슈/PR에 핑을 보내는 것이 예의 있는 피드백 루프입니다. 명시된 SLA: PR 1차 응답 72시간, Issue triage 48시간, P0 버그 해결 14일, 보안 보고 최초 확인 7일.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. After running harness, <code>.claude/agents/</code> is empty or was not created.</strong></p>
+<p>Most likely <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> is not set in the shell that launched Claude Code. Opening a new terminal clears any previously exported variables.</p>
+<pre><code class="language-bash"># Check current value
+echo $CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS
+
+# If not set
+export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+
+# Persistent setting
+echo 'export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1' &gt;&gt; ~/.zshrc
+source ~/.zshrc
+</code></pre>
+<hr />
+<p><strong>Q2. <code>claude plugin list</code> does not show harness.</strong></p>
+<p>The plugin may not be installed, or the local link may be broken.</p>
+<pre><code class="language-bash"># Reinstall via marketplace
+claude plugin marketplace add revfactory/harness
+claude plugin install harness@harness-marketplace
+
+# Or re-link locally
+claude plugin link /absolute/path/to/harness
+
+# Activate
+claude plugin enable harness@harness-marketplace
+</code></pre>
+<hr />
+<p><strong>Q3. Korean prompts ("하네스 구성해줘") produce no response.</strong></p>
+<p>This may be a locale or tokenizer routing issue. Although the <code>SKILL.md</code> description includes Korean trigger keywords, matching may be inconsistent across Claude Code versions.</p>
+<pre><code class="language-bash"># Try with English first
+claude &quot;build a harness for [your domain]&quot;
+
+# If English also fails, re-check plugin status
+claude plugin list | grep harness
+</code></pre>
+<hr />
+<p><strong>Q4. "Too many API calls" or token costs are very high.</strong></p>
+<p>Agent teams can consume 50K–200K tokens per complex task.</p>
+<pre><code class="language-bash"># Do not chain multiple harness invocations with &amp;&amp;
+# Run one at a time
+
+# Use --max-turns flag (if supported by your version)
+claude --max-turns 3 &quot;build a harness for X&quot;
+</code></pre>
+<hr />
+<p><strong>Q5. How do I check and upgrade my Claude Code version to v2.x?</strong></p>
+<pre><code class="language-bash"># Check version
+claude --version
+
+# If below 2.x, upgrade
+npm i -g @anthropic-ai/claude-code
+</code></pre>
+<hr />
+<p><strong>Q6. What should I do if the CONTRIBUTING.md SLA is missed?</strong></p>
+<p>Pinging the issue/PR is explicitly the agreed feedback loop and is not considered rude. Stated SLAs: PR first response 72h, Issue triage 48h, P0 bug resolution 14d, Security report acknowledgement 7d.</p>
+<hr />
+<hr />
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>분류:</strong> L3 Meta-Factory / Team-Architecture Factory (메타 스킬 / 플러그인)</p>
+<p>Harness는 다른 에이전트 팀을 설계하고 생성하는 <strong>메타 수준의 도구</strong>입니다. 일반적인 라이브러리(코드를 임포트해서 쓰는)나 보일러플레이트(한 번 클론해서 수정하는)가 아니라, <strong>Claude Code 플러그인으로 설치하여 대화 명령 한 줄로 AI 에이전트 팀 구조 전체를 자동 생성하는 도구</strong>입니다.</p>
+<p><strong>실전에서 해결하는 문제:</strong></p>
+<table>
+<thead>
+<tr>
+<th>문제</th>
+<th>Harness 없을 때</th>
+<th>Harness 있을 때</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>복잡한 멀티 에이전트 팀 설계</td>
+<td>패턴을 모르면 임시방편 구성 → 품질 불안정</td>
+<td>6가지 검증된 패턴 중 자동 선택 → 품질 예측 가능</td>
+</tr>
+<tr>
+<td>에이전트별 스킬 작성</td>
+<td>매번 처음부터 작성, 일관성 없음</td>
+<td>SKILL.md 템플릿 + progressive disclosure 자동 적용</td>
+</tr>
+<tr>
+<td>팀 구성 재사용</td>
+<td>프로젝트마다 수동 복사·수정</td>
+<td>harness 명령 한 줄로 도메인별 재생성</td>
+</tr>
+<tr>
+<td>에이전트 간 통신 프로토콜</td>
+<td>직접 설계해야 함</td>
+<td>오케스트레이터 템플릿으로 자동 생성</td>
+</tr>
+</tbody>
+</table>
+<p>저자 측정 A/B 테스트(n=15, sister repo <code>claude-code-harness</code>)에서 Harness 사용 시 평균 품질 점수 49.5 → 79.3 (+60%), 전승(15/15), 분산 -32% 개선이 확인되었습니다. (author-measured, third-party replications pending)</p>
+<p><strong>[English]</strong></p>
+<p><strong>Classification:</strong> L3 Meta-Factory / Team-Architecture Factory (meta-skill / plugin)</p>
+<p>Harness is a <strong>meta-level tool</strong> that designs and generates other agent teams. It is not a conventional library (imported into code) or boilerplate (cloned and modified once) — it is a <strong>Claude Code plugin that, when invoked with a single conversational command, automatically generates an entire AI agent team architecture</strong>.</p>
+<p><strong>Real-world problems it solves:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Problem</th>
+<th>Without Harness</th>
+<th>With Harness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Designing complex multi-agent teams</td>
+<td>Ad-hoc construction → unpredictable quality</td>
+<td>Auto-selects from 6 validated patterns → predictable quality</td>
+</tr>
+<tr>
+<td>Writing per-agent skills</td>
+<td>Written from scratch each time, inconsistent</td>
+<td>SKILL.md template + progressive disclosure auto-applied</td>
+</tr>
+<tr>
+<td>Reusing team structures</td>
+<td>Manual copy-and-modify per project</td>
+<td>Re-generate per domain with one harness command</td>
+</tr>
+<tr>
+<td>Inter-agent communication protocols</td>
+<td>Must design manually</td>
+<td>Auto-generated via orchestrator template</td>
+</tr>
+</tbody>
+</table>
+<p>An author-measured A/B test (n=15, sister repo <code>claude-code-harness</code>) showed: average quality score 49.5 → 79.3 (+60%), 15/15 win rate, −32% variance reduction. (author-measured, third-party replications pending)</p>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>Harness는 <strong>Claude Code Plugin System</strong> 위에 올라가는 메타 스킬입니다. 사용자의 도메인 설명을 입력받아 7단계 워크플로우를 거쳐 에이전트 정의 파일과 스킬 파일을 생성합니다.</p>
+<p><strong>핵심 컴포넌트:</strong></p>
+<table>
+<thead>
+<tr>
+<th>컴포넌트</th>
+<th>위치</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Harness 메타 스킬</strong></td>
+<td><code>skills/harness/SKILL.md</code></td>
+<td>7-Phase 워크플로우 실행, 도메인 분석 → 팀 설계 → 에이전트/스킬 생성</td>
+</tr>
+<tr>
+<td><strong>References</strong></td>
+<td><code>skills/harness/references/</code></td>
+<td>Progressive Disclosure — 필요할 때만 로딩되는 상세 패턴/템플릿/예시</td>
+</tr>
+<tr>
+<td><strong>플러그인 매니페스트</strong></td>
+<td><code>.claude-plugin/plugin.json</code></td>
+<td>Claude Code에 스킬 등록</td>
+</tr>
+<tr>
+<td><strong>마켓플레이스 설정</strong></td>
+<td><code>.claude-plugin/marketplace.json</code></td>
+<td>revfactory 마켓플레이스에 배포</td>
+</tr>
+<tr>
+<td><strong>생성 산출물</strong></td>
+<td><code>타깃/.claude/agents/*.md</code>, <code>타깃/.claude/skills/*/SKILL.md</code></td>
+<td>하네스가 생성하는 결과물 (harness 자체가 아니라 타깃 프로젝트에 위치)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>데이터 흐름 설명:</strong></p>
+<ol>
+<li>사용자가 트리거 문구 입력 → Claude Code가 <code>harness</code> 스킬 로딩</li>
+<li><code>SKILL.md</code> 본문이 컨텍스트에 로딩됨</li>
+<li>Phase 0: 기존 하네스 현황 감사 (<code>.claude/agents/</code>, <code>.claude/skills/</code> 읽기)</li>
+<li>Phase 1: 도메인 분석 (사용자 요청 + 프로젝트 코드베이스 탐색)</li>
+<li>Phase 2: 팀 아키텍처 결정 → <code>references/agent-design-patterns.md</code> 필요 시 로딩</li>
+<li>Phase 3~4: 에이전트/스킬 파일 생성 → <code>references/orchestrator-template.md</code>, <code>skill-writing-guide.md</code> 참조</li>
+<li>Phase 5: CLAUDE.md에 포인터 등록</li>
+<li>Phase 6: 트리거 검증 + 드라이런 → <code>references/skill-testing-guide.md</code> 참조</li>
+<li>Phase 7: 피드백 수집 및 진화</li>
+</ol>
+<p><strong>[English]</strong></p>
+<p>Harness is a meta-skill that sits on top of the <strong>Claude Code Plugin System</strong>. It takes a user's domain description, runs it through a 7-phase workflow, and generates agent definition files and skill files.</p>
+<p><strong>Core components:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Location</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Harness meta-skill</strong></td>
+<td><code>skills/harness/SKILL.md</code></td>
+<td>Runs the 7-Phase workflow: domain analysis → team design → agent/skill generation</td>
+</tr>
+<tr>
+<td><strong>References</strong></td>
+<td><code>skills/harness/references/</code></td>
+<td>Progressive Disclosure — detailed patterns/templates/examples loaded only when needed</td>
+</tr>
+<tr>
+<td><strong>Plugin manifest</strong></td>
+<td><code>.claude-plugin/plugin.json</code></td>
+<td>Registers the skill with Claude Code</td>
+</tr>
+<tr>
+<td><strong>Marketplace config</strong></td>
+<td><code>.claude-plugin/marketplace.json</code></td>
+<td>Deploys to the revfactory marketplace</td>
+</tr>
+<tr>
+<td><strong>Generated artifacts</strong></td>
+<td><code>target/.claude/agents/*.md</code>, <code>target/.claude/skills/*/SKILL.md</code></td>
+<td>Output produced by harness (lives in the <em>target</em> project, not in harness itself)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data flow:</strong></p>
+<ol>
+<li>User enters trigger phrase → Claude Code loads the <code>harness</code> skill</li>
+<li><code>SKILL.md</code> body is loaded into context</li>
+<li>Phase 0: Audit existing harness state (reads <code>.claude/agents/</code>, <code>.claude/skills/</code>)</li>
+<li>Phase 1: Domain analysis (user request + project codebase exploration)</li>
+<li>Phase 2: Team architecture decision → <code>references/agent-design-patterns.md</code> loaded if needed</li>
+<li>Phases 3–4: Agent/skill file generation → references <code>orchestrator-template.md</code>, <code>skill-writing-guide.md</code></li>
+<li>Phase 5: Register pointer in CLAUDE.md</li>
+<li>Phase 6: Trigger verification + dry-run → references <code>skill-testing-guide.md</code></li>
+<li>Phase 7: Collect feedback and evolve</li>
+</ol>
+<pre><code class="language-mermaid">flowchart TD
+    U([User: 도메인 설명\nDomain description]) --&gt; CC[Claude Code]
+    CC --&gt;|스킬 트리거\nSkill trigger| HS[SKILL.md\nHarness Meta-Skill]
+
+    HS --&gt; P0[Phase 0\n현황 감사\nAudit]
+    P0 --&gt;|기존 없음\nNew| P1
+    P0 --&gt;|기존 있음\nExisting| P1
+
+    P1[Phase 1\n도메인 분석\nDomain Analysis] --&gt; P2
+    P2[Phase 2\n팀 아키텍처 설계\nTeam Architecture] --&gt; P2A
+
+    P2A{패턴 선택\nPattern Select}
+    P2A --&gt;|파이프라인\nPipeline| P3
+    P2A --&gt;|팬아웃/팬인\nFan-out/Fan-in| P3
+    P2A --&gt;|전문가 풀\nExpert Pool| P3
+    P2A --&gt;|생성-검증\nProducer-Reviewer| P3
+    P2A --&gt;|감독자\nSupervisor| P3
+    P2A --&gt;|계층 위임\nHierarchical| P3
+
+    P3[Phase 3\n에이전트 정의\nAgent Definitions] --&gt; P4
+    P4[Phase 4\n스킬 생성\nSkill Generation] --&gt; P5
+    P5[Phase 5\n통합/오케스트레이션\nIntegration] --&gt; P6
+    P6[Phase 6\n검증\nValidation] --&gt; P7
+    P7[Phase 7\n진화\nEvolution]
+
+    P3 --&gt; |&quot;.claude/agents/*.md&quot;| OUT1[(Target Project\n에이전트 파일\nAgent Files)]
+    P4 --&gt; |&quot;.claude/skills/*/SKILL.md&quot;| OUT2[(Target Project\n스킬 파일\nSkill Files)]
+    P5 --&gt; |&quot;CLAUDE.md 포인터&quot;| OUT3[(Target Project\nCLAUDE.md)]
+
+    HS &lt;-.-&gt;|필요 시 로딩\nLoaded on demand| REF[references/\nagent-design-patterns.md\norchestrator-template.md\nskill-writing-guide.md\nskill-testing-guide.md\nteam-examples.md\nqa-agent-guide.md]
+</code></pre>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: 핀테크 리스크 평가 팀 (Expert Pool 패턴)</strong></p>
+<p><em>상황:</em> 대기업 대출 심사 자동화가 필요한 핀테크 스타트업</p>
+<p>단계별 적용:</p>
+<ol>
+<li>
+<p><strong>Harness 설치 및 환경 설정</strong>
+   <code>bash
+   export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+   claude plugin install harness@harness-marketplace</code></p>
+</li>
+<li>
+<p><strong>프로젝트 디렉토리로 이동 후 하네스 생성</strong>
+   <code>bash
+   cd /path/to/fintech-app
+   claude "build a harness for fintech risk assessment. I need agents that can analyze credit history, regulatory exposure (FSC, KFTC), and sector concentration risk — then produce a go/no-go recommendation memo."</code></p>
+</li>
+<li>
+<p><strong>생성된 팀 확인</strong>
+   <code>bash
+   ls .claude/agents/
+   # 예: credit-analyst.md, compliance-reviewer.md, risk-integrator.md
+   ls .claude/skills/
+   # 예: risk-assess/, compliance-check/, memo-writer/</code></p>
+</li>
+<li>
+<p><strong>실제 업무에 활용</strong>
+   <code>bash
+   claude "Ticket FIN-427: Mid-cap manufacturer, $80M revenue. Applying for $5M working-capital line. Produce risk assessment and go/no-go memo."</code></p>
+</li>
+<li>
+<p><strong>결과 검토 후 피드백으로 하네스 진화</strong></p>
+</li>
+<li>분석이 피상적이면: <code>"하네스 수정해줘 — 신용 분석 에이전트가 재무 비율까지 보도록"</code></li>
+</ol>
+<hr />
+<p><strong>시나리오 2: 소프트웨어 코드 리뷰 팀 (Fan-out/Fan-in 패턴)</strong></p>
+<p><em>상황:</em> PR 리뷰 자동화가 필요한 SaaS 개발팀</p>
+<ol>
+<li>
+<p><strong>하네스 생성</strong>
+   <code>bash
+   cd /path/to/my-saas
+   claude "build a harness for comprehensive code review. I want parallel agents checking architecture, security vulnerabilities, performance bottlenecks, and code style — then merging findings into a single report."</code></p>
+</li>
+<li>
+<p><strong>생성된 Fan-out 구조 확인</strong>
+   <code>.claude/agents/
+   ├── arch-reviewer.md       # 아키텍처 검토
+   ├── security-scanner.md    # 보안 취약점 스캔
+   ├── perf-analyzer.md       # 성능 분석
+   ├── style-checker.md       # 코드 스타일
+   └── report-integrator.md   # 결과 통합</code></p>
+</li>
+<li>
+<p><strong>PR 리뷰 자동화 실행</strong>
+   <code>bash
+   claude "Review the changes in PR #142 — focus on the new payment processing module"</code></p>
+</li>
+</ol>
+<hr />
+<p><strong>시나리오 3: 마케팅 콘텐츠 생성 팀 (Producer-Reviewer 패턴)</strong></p>
+<ol>
+<li>
+<p><strong>하네스 생성</strong>
+   <code>bash
+   claude "build a harness for marketing campaign creation. Research target market, write ad copy, design visual concepts, set up A/B test plans with iterative quality review."</code></p>
+</li>
+<li>
+<p><strong>활용</strong>
+   <code>bash
+   claude "새 SaaS 제품 출시를 위한 LinkedIn 광고 캠페인을 만들어줘. 타깃: 30-40대 스타트업 CTO"</code></p>
+</li>
+</ol>
+<hr />
+<p><strong>시나리오 4: 기업에서 실험적 플래그 없이 사용하기 (규제 환경 대응)</strong></p>
+<p>SOC 2, K-ISMS 등 규제로 프로덕션에서 실험적 플래그 사용이 불가한 경우:</p>
+<ol>
+<li>샌드박스 워크스테이션에서 <code>AGENT_TEAMS=1</code>로 하네스를 실행하여 <code>.claude/agents/</code> 및 <code>.claude/skills/</code> 파일 생성</li>
+<li>생성된 Markdown 파일을 프로덕션 저장소에 커밋</li>
+<li>프로덕션 Claude Code는 플래그 없이 생성된 단일 에이전트 스킬만 사용</li>
+</ol>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: Fintech Risk Assessment Team (Expert Pool pattern)</strong></p>
+<p><em>Context:</em> A fintech startup that needs to automate corporate loan screening</p>
+<p>Step-by-step:</p>
+<ol>
+<li>
+<p><strong>Install Harness and configure environment</strong>
+   <code>bash
+   export CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1
+   claude plugin install harness@harness-marketplace</code></p>
+</li>
+<li>
+<p><strong>Navigate to project directory and generate harness</strong>
+   <code>bash
+   cd /path/to/fintech-app
+   claude "build a harness for fintech risk assessment. I need agents that can analyze credit history, regulatory exposure (FSC, KFTC), and sector concentration risk — then produce a go/no-go recommendation memo."</code></p>
+</li>
+<li>
+<p><strong>Verify generated team</strong>
+   <code>bash
+   ls .claude/agents/
+   # e.g.: credit-analyst.md, compliance-reviewer.md, risk-integrator.md
+   ls .claude/skills/
+   # e.g.: risk-assess/, compliance-check/, memo-writer/</code></p>
+</li>
+<li>
+<p><strong>Use for real tasks</strong>
+   <code>bash
+   claude "Ticket FIN-427: Mid-cap manufacturer, $80M revenue. Applying for $5M working-capital line. Produce risk assessment and go/no-go memo."</code></p>
+</li>
+<li>
+<p><strong>Iterate via feedback</strong></p>
+</li>
+<li>If analysis is too shallow: <code>"Modify the harness — make the credit analyst also check financial ratios"</code></li>
+</ol>
+<hr />
+<p><strong>Scenario 2: Software Code Review Team (Fan-out/Fan-in pattern)</strong></p>
+<p><em>Context:</em> A SaaS team that wants to automate PR reviews</p>
+<ol>
+<li>
+<p><strong>Generate harness</strong>
+   <code>bash
+   cd /path/to/my-saas
+   claude "build a harness for comprehensive code review. I want parallel agents checking architecture, security vulnerabilities, performance bottlenecks, and code style — then merging findings into a single report."</code></p>
+</li>
+<li>
+<p><strong>Verify Fan-out structure</strong>
+   <code>.claude/agents/
+   ├── arch-reviewer.md       # Architecture review
+   ├── security-scanner.md    # Security vulnerability scan
+   ├── perf-analyzer.md       # Performance analysis
+   ├── style-checker.md       # Code style
+   └── report-integrator.md   # Results integration</code></p>
+</li>
+<li>
+<p><strong>Run automated PR review</strong>
+   <code>bash
+   claude "Review the changes in PR #142 — focus on the new payment processing module"</code></p>
+</li>
+</ol>
+<hr />
+<p><strong>Scenario 3: Marketing Content Team (Producer-Reviewer pattern)</strong></p>
+<ol>
+<li>
+<p><strong>Generate harness</strong>
+   <code>bash
+   claude "build a harness for marketing campaign creation. Research target market, write ad copy, design visual concepts, set up A/B test plans with iterative quality review."</code></p>
+</li>
+<li>
+<p><strong>Use it</strong>
+   <code>bash
+   claude "Create a LinkedIn ad campaign for a new SaaS product launch targeting startup CTOs aged 30-40."</code></p>
+</li>
+</ol>
+<hr />
+<p><strong>Scenario 4: Using without the experimental flag (regulated environments)</strong></p>
+<p>For environments where production cannot use experimental flags (SOC 2, K-ISMS, etc.):</p>
+<ol>
+<li>Run harness with <code>AGENT_TEAMS=1</code> on a sandbox workstation to generate <code>.claude/agents/</code> and <code>.claude/skills/</code> files</li>
+<li>Commit the generated Markdown files into the production repository</li>
+<li>Production Claude Code uses the generated single-agent skills without requiring the flag</li>
+</ol>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>설정 변경 포인트</strong></p>
+<table>
+<thead>
+<tr>
+<th>설정 대상</th>
+<th>파일/방법</th>
+<th>영향 범위</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>플러그인 버전/설명/키워드</td>
+<td><code>.claude-plugin/plugin.json</code></td>
+<td>마켓플레이스 노출 방식</td>
+</tr>
+<tr>
+<td>마켓플레이스 등록 정보</td>
+<td><code>.claude-plugin/marketplace.json</code></td>
+<td>배포 채널</td>
+</tr>
+<tr>
+<td>스킬 트리거 문구</td>
+<td><code>skills/harness/SKILL.md</code> frontmatter <code>description</code></td>
+<td>어떤 입력에서 하네스가 실행되는지</td>
+</tr>
+<tr>
+<td>7-Phase 워크플로우 로직</td>
+<td><code>skills/harness/SKILL.md</code> 본문</td>
+<td>전체 생성 동작</td>
+</tr>
+<tr>
+<td>아키텍처 패턴 상세</td>
+<td><code>skills/harness/references/agent-design-patterns.md</code></td>
+<td>패턴 선택 기준 및 에이전트 설계 방식</td>
+</tr>
+<tr>
+<td>오케스트레이터 템플릿</td>
+<td><code>skills/harness/references/orchestrator-template.md</code></td>
+<td>생성되는 오케스트레이터 파일의 구조</td>
+</tr>
+<tr>
+<td>스킬 작성 기준</td>
+<td><code>skills/harness/references/skill-writing-guide.md</code></td>
+<td>생성되는 스킬의 품질 기준</td>
+</tr>
+<tr>
+<td>모델 설정</td>
+<td><code>SKILL.md</code> Phase 3 내 모델 지시문</td>
+<td>에이전트가 사용할 모델 (<code>opus</code> 기본값)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>새로운 아키텍처 패턴 추가 시 수정 파일:</strong></p>
+<ol>
+<li><code>references/agent-design-patterns.md</code> — 새 패턴 이름, 설명, 사용 기준 추가</li>
+<li><code>skills/harness/SKILL.md</code> Phase 2-2 — 패턴 목록 표에 새 패턴 행 추가</li>
+<li><code>references/team-examples.md</code> — 새 패턴의 실전 예시 파일 추가</li>
+<li><code>references/orchestrator-template.md</code> — 새 패턴용 오케스트레이터 템플릿 섹션 추가</li>
+</ol>
+<p><strong>Progressive Disclosure 구조 활용:</strong>
+- <code>SKILL.md</code> 본문이 500줄 근접 시 세부 내용을 <code>references/new-feature.md</code>로 분리
+- 본문에 "언제 이 파일을 읽으라"는 포인터만 남김
+- <code>references/</code> 파일이 300줄 초과 시 상단에 목차 추가 필수</p>
+<p><strong>[English]</strong></p>
+<p><strong>Configuration touch points</strong></p>
+<table>
+<thead>
+<tr>
+<th>Target</th>
+<th>File/Method</th>
+<th>Scope of impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Plugin version/description/keywords</td>
+<td><code>.claude-plugin/plugin.json</code></td>
+<td>Marketplace visibility</td>
+</tr>
+<tr>
+<td>Marketplace registration</td>
+<td><code>.claude-plugin/marketplace.json</code></td>
+<td>Distribution channel</td>
+</tr>
+<tr>
+<td>Skill trigger phrases</td>
+<td><code>skills/harness/SKILL.md</code> frontmatter <code>description</code></td>
+<td>What inputs cause harness to execute</td>
+</tr>
+<tr>
+<td>7-Phase workflow logic</td>
+<td><code>skills/harness/SKILL.md</code> body</td>
+<td>Overall generation behavior</td>
+</tr>
+<tr>
+<td>Architecture pattern details</td>
+<td><code>skills/harness/references/agent-design-patterns.md</code></td>
+<td>Pattern selection criteria and agent design</td>
+</tr>
+<tr>
+<td>Orchestrator template</td>
+<td><code>skills/harness/references/orchestrator-template.md</code></td>
+<td>Structure of generated orchestrator files</td>
+</tr>
+<tr>
+<td>Skill quality criteria</td>
+<td><code>skills/harness/references/skill-writing-guide.md</code></td>
+<td>Quality of generated skills</td>
+</tr>
+<tr>
+<td>Model setting</td>
+<td>Model directive in <code>SKILL.md</code> Phase 3</td>
+<td>Model used by agents (<code>opus</code> default)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Files to modify when adding a new architecture pattern:</strong></p>
+<ol>
+<li><code>references/agent-design-patterns.md</code> — Add new pattern name, description, selection criteria</li>
+<li><code>skills/harness/SKILL.md</code> Phase 2-2 — Add new pattern row to the patterns table</li>
+<li><code>references/team-examples.md</code> — Add a real-world example for the new pattern</li>
+<li><code>references/orchestrator-template.md</code> — Add an orchestrator template section for the new pattern</li>
+</ol>
+<p><strong>Using Progressive Disclosure:</strong>
+- When <code>SKILL.md</code> body approaches 500 lines, split detail into <code>references/new-feature.md</code>
+- Leave only a pointer in the body ("read this file when X")
+- Reference files over 300 lines must include a table of contents at the top</p>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p>Harness 자체는 서버에 배포하는 애플리케이션이 아닙니다. <strong>배포 = 마켓플레이스 등록 또는 직접 설치</strong>입니다.</p>
+<p><strong>마켓플레이스 배포 (공개 릴리스)</strong></p>
+<pre><code class="language-bash"># 1. CHANGELOG.md에 버전 항목 추가
+# 2. plugin.json 및 marketplace.json 버전 동기화
+# 3. git 태그 생성
+git tag v1.3.0
+git push origin v1.3.0
+
+# 4. GitHub Release 생성
+gh release create v1.3.0 --notes &quot;릴리스 내용&quot;
+</code></pre>
+<p>릴리스 케이던스: 2주마다 (P0 수정은 비정기 패치 릴리스)</p>
+<p><strong>엔터프라이즈/사내 배포 (직접 설치)</strong></p>
+<pre><code class="language-bash"># 방법 A: 글로벌 스킬로 팀 전체 배포
+cp -r skills/harness ~/.claude/skills/harness
+# (팀 전체에 동일하게 배포)
+
+# 방법 B: 저장소를 클론하여 플러그인 링크
+git clone https://github.com/revfactory/harness.git /opt/harness
+claude plugin link /opt/harness
+</code></pre>
+<p><strong>환경별 설정 분리:</strong>
+- 개발/CI: <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> 설정 필수
+- 규제 환경 프로덕션: 플래그 없이 생성된 단일 에이전트 스킬 파일만 사용 (<code>docs/experimental-dependency.md</code> §FAQ Q1 참조)</p>
+<p><strong>CI/CD 파이프라인 연동:</strong></p>
+<pre><code class="language-yaml"># .github/workflows/lint.yml (예시)
+name: Lint
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: npm install -g markdownlint-cli yaml-lint
+      - run: npx markdownlint '**/*.md'
+      - run: npx yaml-lint .github/
+</code></pre>
+<p><strong>컨테이너화:</strong> 해당 없음. Harness는 Claude Code CLI에 의존하며 현재 컨테이너 이미지를 제공하지 않습니다.</p>
+<p><strong>[English]</strong></p>
+<p>Harness itself is not an application deployed to a server. <strong>Deployment = marketplace registration or direct installation</strong>.</p>
+<p><strong>Marketplace deployment (public release)</strong></p>
+<pre><code class="language-bash"># 1. Add version entry to CHANGELOG.md
+# 2. Sync versions in plugin.json and marketplace.json
+# 3. Create git tag
+git tag v1.3.0
+git push origin v1.3.0
+
+# 4. Create GitHub Release
+gh release create v1.3.0 --notes &quot;Release notes here&quot;
+</code></pre>
+<p>Release cadence: every 2 weeks (P0 fixes may cut off-schedule patch releases)</p>
+<p><strong>Enterprise/internal deployment (direct install)</strong></p>
+<pre><code class="language-bash"># Option A: Deploy as global skill for the whole team
+cp -r skills/harness ~/.claude/skills/harness
+# (repeat on each team member's machine)
+
+# Option B: Clone the repo and link as plugin
+git clone https://github.com/revfactory/harness.git /opt/harness
+claude plugin link /opt/harness
+</code></pre>
+<p><strong>Environment-specific configuration:</strong>
+- Development/CI: <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> must be set
+- Regulated production: Use only the generated single-agent skill files without the flag (see <code>docs/experimental-dependency.md</code> §FAQ Q1)</p>
+<p><strong>CI/CD pipeline integration:</strong></p>
+<pre><code class="language-yaml"># .github/workflows/lint.yml (example)
+name: Lint
+on: [push, pull_request]
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - run: npm install -g markdownlint-cli yaml-lint
+      - run: npx markdownlint '**/*.md'
+      - run: npx yaml-lint .github/
+</code></pre>
+<p><strong>Containerization:</strong> Not applicable. Harness depends on the Claude Code CLI and does not currently provide a container image.</p>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>알려진 성능 특성</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>수치/내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>토큰 소비 (복잡한 작업 1회)</td>
+<td>50K–200K 토큰</td>
+</tr>
+<tr>
+<td><code>SKILL.md</code> 본문 크기 목표</td>
+<td>500줄 이내</td>
+</tr>
+<tr>
+<td>권장 팀 규모 (소규모 작업)</td>
+<td>2~3명 에이전트</td>
+</tr>
+<tr>
+<td>권장 팀 규모 (중규모 작업)</td>
+<td>3~5명 에이전트</td>
+</tr>
+<tr>
+<td>권장 팀 규모 (대규모 작업)</td>
+<td>5~7명 에이전트</td>
+</tr>
+</tbody>
+</table>
+<p><strong>성능 병목 지점:</strong></p>
+<ol>
+<li><strong>SKILL.md 크기:</strong> 스킬 본문이 500줄을 초과하면 컨텍스트 로딩 비용 증가 → <code>references/</code>로 분리</li>
+<li><strong>팀 크기:</strong> 팀원이 많을수록 <code>SendMessage</code> 통신 오버헤드 증가 → 3명 집중 팀이 5명 산만 팀보다 효율적</li>
+<li><strong>Phase 간 팀 재구성:</strong> <code>TeamCreate/TeamDelete</code> 비용 발생 → Phase별 재구성이 꼭 필요한 경우에만 사용</li>
+<li><strong>직렬 체이닝:</strong> <code>&amp;&amp;</code>로 여러 Claude 호출을 연결하면 API 비용 폭발적 증가 → 하나씩 실행</li>
+</ol>
+<p><strong>확장 전략:</strong></p>
+<ul>
+<li><strong>수평 확장:</strong> 도메인별로 별도 하네스를 생성하여 독립 실행 (팀 간 컨텍스트 분리)</li>
+<li><strong>점진적 품질 개선:</strong> Phase 7 피드백 루프를 통해 하네스 자체를 지속 개선</li>
+<li><strong>harness-100 활용:</strong> 100개 사전 제작 하네스 카탈로그(<a href="https://github.com/revfactory/harness-100">revfactory/harness-100</a>)에서 도메인별 팀을 즉시 클론하여 토큰 비용 절감</li>
+</ul>
+<p><strong>모니터링 및 로깅:</strong></p>
+<ul>
+<li><code>_workspace/</code> 디렉토리에 중간 산출물 보존 → 실행 후 감사 추적 가능</li>
+<li>파일명 컨벤션: <code>{phase}_{agent}_{artifact}.{ext}</code> (예: <code>01_analyst_requirements.md</code>)</li>
+<li>CLAUDE.md 변경 이력 테이블이 하네스 진화의 로그 역할 수행</li>
+</ul>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation — Claude Code Agent Teams 비용 제어에 대한 공식 가이드는 <code>docs/cost-controls.md</code> (forthcoming per quickstart.md)를 참조할 예정입니다.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Known performance characteristics</strong></p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Value</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Token consumption (single complex task)</td>
+<td>50K–200K tokens</td>
+</tr>
+<tr>
+<td><code>SKILL.md</code> body size target</td>
+<td>≤ 500 lines</td>
+</tr>
+<tr>
+<td>Recommended team size (small tasks)</td>
+<td>2–3 agents</td>
+</tr>
+<tr>
+<td>Recommended team size (medium tasks)</td>
+<td>3–5 agents</td>
+</tr>
+<tr>
+<td>Recommended team size (large tasks)</td>
+<td>5–7 agents</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Known performance bottlenecks:</strong></p>
+<ol>
+<li><strong>SKILL.md size:</strong> Body over 500 lines increases context-loading cost → split into <code>references/</code></li>
+<li><strong>Team size:</strong> More members means more <code>SendMessage</code> communication overhead → 3 focused agents beat 5 scattered ones</li>
+<li><strong>Per-phase team reconstruction:</strong> <code>TeamCreate/TeamDelete</code> carries cost → only use when phase-level restructuring is genuinely required</li>
+<li><strong>Serial chaining:</strong> Chaining multiple Claude invocations with <code>&amp;&amp;</code> causes exponential API cost → run one at a time</li>
+</ol>
+<p><strong>Scaling strategies:</strong></p>
+<ul>
+<li><strong>Horizontal scaling:</strong> Generate separate harnesses per domain for independent execution (isolated contexts per team)</li>
+<li><strong>Iterative quality improvement:</strong> Use Phase 7 feedback loop to continuously improve the harness itself</li>
+<li><strong>Use harness-100:</strong> Clone domain-specific teams instantly from the 100-harness catalog (<a href="https://github.com/revfactory/harness-100">revfactory/harness-100</a>) to reduce token cost</li>
+</ul>
+<p><strong>Monitoring and logging:</strong></p>
+<ul>
+<li>Intermediate artifacts preserved in <code>_workspace/</code> → audit-traceable post-execution</li>
+<li>File naming convention: <code>{phase}_{agent}_{artifact}.{ext}</code> (e.g., <code>01_analyst_requirements.md</code>)</li>
+<li>CLAUDE.md change history table serves as the harness evolution log</li>
+</ul>
+<blockquote>
+<p>Note: Recommended based on official documentation — the official cost-controls guide for Claude Code Agent Teams will be at <code>docs/cost-controls.md</code> (forthcoming per quickstart.md).</p>
+</blockquote>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>환경 변수 및 시크릿 관리</strong></p>
+<ul>
+<li>[ ] <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code>은 Anthropic API 키가 아니며 기밀이 아닙니다. 그러나 <strong>실제 <code>ANTHROPIC_API_KEY</code>는 절대 저장소에 커밋하지 마십시오</strong>.</li>
+<li>[ ] <code>.env</code> 파일이 있다면 반드시 <code>.gitignore</code>에 추가</li>
+<li>[ ] CI/CD에서 API 키는 GitHub Actions Secrets 또는 동급 시크릿 매니저에 저장</li>
+<li>[ ] <code>_workspace/</code> 내 중간 산출물에 민감 데이터(PII, 인증 정보)가 포함되지 않도록 주의</li>
+</ul>
+<p><strong>인증/인가</strong></p>
+<ul>
+<li>[ ] Harness 자체는 인증 시스템을 구현하지 않습니다. 인증은 Claude Code CLI 수준(Anthropic API Key)에서 처리됩니다.</li>
+<li>[ ] 생성된 에이전트 파일이 외부 API를 호출하도록 설계되는 경우, 해당 에이전트의 스킬 내에 인증 로직을 명시적으로 기술해야 합니다.</li>
+</ul>
+<p><strong>의존성 취약점 점검</strong></p>
+<pre><code class="language-bash"># Node.js 의존성 (CI 툴링)
+npm audit
+
+# Python 의존성 (있는 경우)
+pip-audit  # 또는 safety check
+</code></pre>
+<p><strong>보안 보고 채널</strong></p>
+<ul>
+<li>공개 이슈 대신 반드시 비공개 채널 사용</li>
+<li>이메일: <code>robin.hwang@kakaocorp.com</code> (제목 접두사: <code>[harness-security]</code>)</li>
+<li>응답 SLA: 7일 이내 최초 확인, 30일 이내 패치 목표</li>
+</ul>
+<p><strong>알려진 보안 고려사항</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>위험</th>
+<th>완화 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>생성된 에이전트가 악의적 코드를 실행할 가능성</td>
+<td>낮음 (Markdown 파일이 실행 코드가 아님)</td>
+<td>생성된 <code>.claude/agents/*.md</code> 파일을 배포 전 검토</td>
+</tr>
+<tr>
+<td><code>EXPERIMENTAL_AGENT_TEAMS</code> 플래그</td>
+<td>규제 환경에서 컴플라이언스 문제 가능</td>
+<td>샌드박스에서만 플래그 사용, 생성 산출물만 프로덕션 배포</td>
+</tr>
+<tr>
+<td>프롬프트 인젝션</td>
+<td>도메인 설명에 악성 지시문 삽입</td>
+<td>도메인 설명 입력값 검토, 신뢰할 수 있는 사용자만 harness 실행 권한 부여</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Environment variable and secret management</strong></p>
+<ul>
+<li>[ ] <code>CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS=1</code> is not an API key and is not confidential. However, <strong>never commit the actual <code>ANTHROPIC_API_KEY</code> to the repository</strong>.</li>
+<li>[ ] If a <code>.env</code> file is used, ensure it is in <code>.gitignore</code></li>
+<li>[ ] In CI/CD, store API keys in GitHub Actions Secrets or an equivalent secret manager</li>
+<li>[ ] Ensure intermediate artifacts in <code>_workspace/</code> do not contain sensitive data (PII, credentials)</li>
+</ul>
+<p><strong>Authentication / authorization</strong></p>
+<ul>
+<li>[ ] Harness itself does not implement an authentication system. Authentication is handled at the Claude Code CLI level (Anthropic API Key).</li>
+<li>[ ] If generated agents are designed to call external APIs, authentication logic must be explicitly described within those agents' skills.</li>
+</ul>
+<p><strong>Dependency vulnerability scanning</strong></p>
+<pre><code class="language-bash"># Node.js dependencies (CI tooling)
+npm audit
+
+# Python dependencies (if present)
+pip-audit  # or: safety check
+</code></pre>
+<p><strong>Security reporting channel</strong></p>
+<ul>
+<li>Always use the private channel — do not open public issues for security matters</li>
+<li>Email: <code>robin.hwang@kakaocorp.com</code> (subject prefix: <code>[harness-security]</code>)</li>
+<li>Response SLA: Initial acknowledgement within 7 days, patch target 30 days</li>
+</ul>
+<p><strong>Known security considerations</strong></p>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Risk</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Generated agents executing malicious code</td>
+<td>Low (Markdown files are not executable code)</td>
+<td>Review generated <code>.claude/agents/*.md</code> files before deployment</td>
+</tr>
+<tr>
+<td><code>EXPERIMENTAL_AGENT_TEAMS</code> flag</td>
+<td>Possible compliance issue in regulated environments</td>
+<td>Use flag only in sandbox; deploy only generated artifacts to production</td>
+</tr>
+<tr>
+<td>Prompt injection</td>
+<td>Malicious instructions embedded in domain description</td>
+<td>Review domain description input; restrict harness execution to trusted users</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서</strong></p>
+<ul>
+<li><a href="https://github.com/revfactory/harness">Harness README (English)</a></li>
+<li><a href="https://github.com/revfactory/harness/blob/main/README_KO.md">Harness README (한국어)</a></li>
+<li><a href="https://github.com/revfactory/harness/blob/main/docs/quickstart.md">5분 퀵스타트</a></li>
+<li><a href="https://github.com/revfactory/harness/blob/main/docs/experimental-dependency.md">실험적 플래그 의존성 문서</a></li>
+<li><a href="https://github.com/revfactory/harness/blob/main/CONTRIBUTING.md">기여 가이드 (CONTRIBUTING.md)</a></li>
+</ul>
+<p><strong>Anthropic 관련 공식 문서</strong> <em>(공식 문서 기반 권장 사항)</em></p>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Effective harnesses for long-running agents</a></li>
+<li><a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Harness design for long-running apps</a></li>
+<li><a href="https://www.anthropic.com/engineering/managed-agents">Scaling Managed Agents</a></li>
+</ul>
+<p><strong>사전 제작 하네스 카탈로그</strong></p>
+<ul>
+<li><a href="https://github.com/revfactory/harness-100">revfactory/harness-100</a> — 10개 도메인 × 10개 하네스 = 100개 프로덕션 준비 팀 (EN + KO, 총 200패키지, 1,808개 Markdown 파일)</li>
+</ul>
+<p><strong>연구 자료</strong></p>
+<ul>
+<li><a href="https://github.com/revfactory/claude-code-harness">revfactory/claude-code-harness</a> — 15개 소프트웨어 엔지니어링 태스크 A/B 테스트, +60% 품질 향상 측정</li>
+<li>Hwang, M. (2026). <em>Harness: Structured Pre-Configuration for Enhancing LLM Code Agent Output Quality.</em></li>
+</ul>
+<p><strong>유사 프로젝트 비교 (장단점)</strong></p>
+<table>
+<thead>
+<tr>
+<th>프로젝트</th>
+<th>포지션</th>
+<th>Harness 대비</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/coleam00/Archon">coleam00/Archon</a></td>
+<td>Runtime-Configuration Factory (L3)</td>
+<td><strong>장점:</strong> 결정론적, 반복 재현 가능한 런타임 설정. <strong>단점:</strong> 팀 아키텍처 패턴 설계 미지원. Harness와 상호 보완적 (Harness로 설계 → Archon으로 런타임 배포)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/SaehwanPark/meta-harness">SaehwanPark/meta-harness</a></td>
+<td>Codex 런타임 포트</td>
+<td><strong>장점:</strong> Codex 환경 지원. <strong>단점:</strong> Claude Code 전용 기능 미지원. Harness는 Claude Code-native 깊이에 집중</td>
+</tr>
+<tr>
+<td><a href="https://github.com/affaan-m/everything-claude-code">affaan-m/ECC</a></td>
+<td>Cross-Harness Workflow 표준화 계층 (L2)</td>
+<td><strong>장점:</strong> 복수 하네스 간 스킬/규칙/훅 표준화. <strong>단점:</strong> 팀 아키텍처 생성 미지원. 직렬 조합 가능 (Harness로 생성 → ECC로 표준화)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/wshobson/agents">wshobson/agents</a></td>
+<td>에이전트/스킬 카탈로그 (182 에이전트, 149 스킬)</td>
+<td><strong>장점:</strong> 즉시 사용 가능한 에이전트 부품 다수. <strong>단점:</strong> 팀 아키텍처 설계 미지원. Harness로 팀 구조 설계 후 wshobson 카탈로그에서 부품 조달하는 조합 가능</td>
+</tr>
+<tr>
+<td><a href="https://langchain-ai.github.io/langgraph/">LangGraph</a></td>
+<td>상태-그래프 오케스트레이션 (LLM-agnostic)</td>
+<td><strong>장점:</strong> 장기 실행, 상태 복구 가능한 오케스트레이션. <strong>단점:</strong> Claude Code-native 아님, 팀 아키텍처 생성 미지원. 장기 상태가 중요하면 LangGraph, 빠른 Claude Code-native 팀 설계면 Harness</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Official documentation</strong></p>
+<ul>
+<li><a href="https://github.com/revfactory/harness">Harness README (English)</a></li>
+<li><a href="https://github.com/revfactory/harness/blob/main/README_KO.md">Harness README (Korean)</a></li>
+<li><a href="https://github.com/revfactory/harness/blob/main/docs/quickstart.md">5-Minute Quickstart</a></li>
+<li><a href="https://github.com/revfactory/harness/blob/main/docs/experimental-dependency.md">Experimental Flag Dependency document</a></li>
+<li><a href="https://github.com/revfactory/harness/blob/main/CONTRIBUTING.md">Contributing Guide (CONTRIBUTING.md)</a></li>
+</ul>
+<p><strong>Anthropic official documentation</strong> <em>(Recommended based on official documentation)</em></p>
+<ul>
+<li><a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents">Effective harnesses for long-running agents</a></li>
+<li><a href="https://www.anthropic.com/engineering/harness-design-long-running-apps">Harness design for long-running apps</a></li>
+<li><a href="https://www.anthropic.com/engineering/managed-agents">Scaling Managed Agents</a></li>
+</ul>
+<p><strong>Pre-built harness catalog</strong></p>
+<ul>
+<li><a href="https://github.com/revfactory/harness-100">revfactory/harness-100</a> — 10 domains × 10 harnesses = 100 production-ready teams (EN + KO, 200 packages total, 1,808 Markdown files)</li>
+</ul>
+<p><strong>Research</strong></p>
+<ul>
+<li><a href="https://github.com/revfactory/claude-code-harness">revfactory/claude-code-harness</a> — A/B test across 15 software engineering tasks, measured +60% quality improvement</li>
+<li>Hwang, M. (2026). <em>Harness: Structured Pre-Configuration for Enhancing LLM Code Agent Output Quality.</em></li>
+</ul>
+<p><strong>Comparison with similar projects (pros and cons)</strong></p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Position</th>
+<th>vs. Harness</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/coleam00/Archon">coleam00/Archon</a></td>
+<td>Runtime-Configuration Factory (L3)</td>
+<td><strong>Pro:</strong> Deterministic, reproducible runtime configs. <strong>Con:</strong> No team architecture pattern design. Complementary to Harness (design with Harness → deploy runtime with Archon)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/SaehwanPark/meta-harness">SaehwanPark/meta-harness</a></td>
+<td>Codex runtime port</td>
+<td><strong>Pro:</strong> Supports Codex runtime. <strong>Con:</strong> Claude Code-native features not supported. Harness focuses on Claude Code-native depth</td>
+</tr>
+<tr>
+<td><a href="https://github.com/affaan-m/everything-claude-code">affaan-m/ECC</a></td>
+<td>Cross-harness workflow standardization (L2)</td>
+<td><strong>Pro:</strong> Standardizes skills/rules/hooks across multiple harnesses. <strong>Con:</strong> Does not generate team architectures. Serial combination possible (Harness generates → ECC standardizes)</td>
+</tr>
+<tr>
+<td><a href="https://github.com/wshobson/agents">wshobson/agents</a></td>
+<td>Agent/skill catalog (182 agents, 149 skills)</td>
+<td><strong>Pro:</strong> Large catalog of ready-to-use agent parts. <strong>Con:</strong> No team architecture design. Can combine: design team structure with Harness, source agent parts from wshobson catalog</td>
+</tr>
+<tr>
+<td><a href="https://langchain-ai.github.io/langgraph/">LangGraph</a></td>
+<td>State-graph orchestration (LLM-agnostic)</td>
+<td><strong>Pro:</strong> Long-running, state-recoverable orchestration. <strong>Con:</strong> Not Claude Code-native, no team architecture generation. Choose LangGraph for long-lived state, Harness for fast Claude Code-native team design</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<hr />
+<h1 id="final-report">최종 보고서 / Final Report</h1>
+<h2 id="files-to-be-written">생성된 파일 / Files to be written</h2>
+<p><strong>단일 프로젝트 모드 (Single Project Mode)</strong></p>
+<table>
+<thead>
+<tr>
+<th>파일 경로</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/revfactory_harness/.review/GUIDE4Junior.md</code></td>
+<td>위 내용으로 작성 예정</td>
+</tr>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/revfactory_harness/.review/GUIDE4ImpMethod.md</code></td>
+<td>위 내용으로 작성 예정</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>OUTPUT INSTRUCTION에 따라 파일을 직접 작성하지 않고 위 내용을 마크다운으로 출력했습니다.
+Per the OUTPUT INSTRUCTION, files were not written; the guide content is output directly above as markdown.</p>
+</blockquote>
+<h2 id="sections-relying-on-web-search">웹 검색 의존 섹션 / Sections relying on web search</h2>
+<p>이 분석에서는 프로젝트 자체 파일(<code>README.md</code>, <code>SKILL.md</code>, <code>CONTRIBUTING.md</code>, <code>CHANGELOG.md</code>, <code>docs/quickstart.md</code>, <code>docs/experimental-dependency.md</code>, <code>plugin.json</code>)만으로 충분한 정보를 확보할 수 있었습니다. 웹 검색 없이 모든 섹션을 채울 수 있었습니다. 단, 다음 항목은 Anthropic 공식 문서 URL을 문서 자체에서 그대로 인용했습니다:</p>
+<ul>
+<li><code>experimental-dependency.md</code>에 링크된 Anthropic Engineering 블로그 포스트 3건 (Section 8 References)</li>
+<li><code>CONTRIBUTING.md</code> 및 <code>docs/quickstart.md</code>에 언급된 <code>docs/cost-controls.md</code> (아직 작성되지 않은 forthcoming 문서 — Section 6에서 명시)</li>
+</ul>
+<p>This analysis was able to fill all sections from the project's own files only. No external web search was required. The following items were cited verbatim from URLs found in project files:</p>
+<ul>
+<li>3 Anthropic Engineering blog posts linked from <code>experimental-dependency.md</code> (Section 8 References)</li>
+<li><code>docs/cost-controls.md</code> mentioned in <code>quickstart.md</code> as "forthcoming" — noted explicitly in Section 6</li>
+</ul>
+<h2 id="skipped-sections">건너뛴 섹션 / Skipped sections</h2>
+<p>해당 없는 섹션 없음. 다음 사항을 명시적으로 처리했습니다:</p>
+<ul>
+<li><strong>빌드 결과물 (Section 5):</strong> 전통적 컴파일 없음 — 린트만 존재함을 명확히 설명</li>
+<li><strong>접속 URL/포트 (Section 6):</strong> 해당 없음 — CLI 도구임을 명확히 설명</li>
+<li><strong>단위 테스트 프레임워크 (Section 7):</strong> 없음 — 실행 기반 + 린트 검증 방식으로 대체 설명</li>
+<li><strong>Docker/Kubernetes (ImpMethod Section 5):</strong> 해당 없음 — CLI 도구이므로 컨테이너화 불필요함을 명확히 설명</li>
+</ul>
+<p>No sections were skipped outright. The following were explicitly addressed as not applicable:</p>
+<ul>
+<li><strong>Build artifacts (Section 5):</strong> No traditional compilation — lint only; explained clearly</li>
+<li><strong>Access URL/port (Section 6):</strong> Not applicable — CLI tool; explained clearly</li>
+<li><strong>Unit test framework (Section 7):</strong> None — replaced with execution-based + lint validation explanation</li>
+<li><strong>Docker/Kubernetes (ImpMethod Section 5):</strong> Not applicable — CLI tool; containerization not needed; explained clearly</li>
+</ul></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>revfactory/harness</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/revfactory/harness" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

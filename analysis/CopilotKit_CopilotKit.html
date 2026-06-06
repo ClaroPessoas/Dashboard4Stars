@@ -1,0 +1,3234 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CopilotKit/CopilotKit - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/CopilotKit/CopilotKit" target="_blank" rel="noopener">CopilotKit/CopilotKit</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">The Frontend Stack for Agents & Generative UI. React + Angular. Makers of the AG-UI Protocol</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 32493</span>
+      <span class="badge badge-stars">+350 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>이제 수집된 모든 데이터를 바탕으로 종합 보고서를 작성합니다.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-06
+대상 / Target: <code>/tmp/github-dashboard-analysis/CopilotKit_CopilotKit</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<p><strong>해결하는 문제 / Problem solved</strong>
+CopilotKit은 풀스택 에이전틱(Agentic) 애플리케이션, 생성형 UI, AI 채팅 인터페이스를 빠르게 구축할 수 있게 해주는 SDK입니다. 개발자가 LangGraph, CrewAI 등 AI 에이전트를 React·Angular·Vue·React Native·Slack·Teams 등의 UI와 연결하는 복잡성을 추상화합니다.</p>
+<p><strong>분류 / Classification</strong>: <strong>Framework + Platform</strong> (오픈코어 모델 / Open-Core Model)</p>
+<ul>
+<li>오픈소스 프레임워크 계층: React/Angular/Vue UI SDK + 런타임 어댑터 (MIT 라이선스)</li>
+<li>클라우드 플랫폼 계층: CopilotKit Intelligence Platform (프리미엄/엔터프라이즈, 라이선스 키 기반)</li>
+</ul>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>TypeScript (Node.js ≥18) · Python 3.10–3.14</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>React 18/19, Angular, Vue, React Native; Express 4 · Hono 4 (서버사이드 / Server-side)</td>
+</tr>
+<tr>
+<td>주요 라이브러리 / Key Libraries</td>
+<td>Vercel AI SDK (<code>ai</code>, <code>@ai-sdk/*</code>), LangChain/LangGraph, GraphQL Yoga, type-graphql, RxJS, Zod, Pino</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>인메모리(기본) / SQLite (선택적 지속성 / Optional persistence)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>SSE (Server-Sent Events) 기반 AG-UI 프로토콜; GraphQL (내부 클라이언트 통신)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Docker + Railway; npm 패키지(15개) + PyPI 패키지(1개)</td>
+</tr>
+<tr>
+<td>패키지 관리 / Package Management</td>
+<td>pnpm 10.33.4 워크스페이스 모노레포 · Nx 22.5 빌드 오케스트레이션</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│  프론트엔드 계층 / Frontend Layer                             │
+│  @copilotkit/react-core · react-ui · react-native            │
+│  @copilotkit/angular · vue · react-textarea                  │
+└───────────────────┬─────────────────────────────────────────┘
+                    │ AG-UI Protocol (SSE Event Stream)
+                    │ RUN_STARTED → STEP_STARTED → TEXT_DELTA
+                    │ → TOOL_CALL → STEP_FINISHED → RUN_FINISHED
+┌───────────────────▼─────────────────────────────────────────┐
+│  런타임 계층 / Runtime Layer                                  │
+│  @copilotkit/runtime (Express/Hono 어댑터)                   │
+│  GraphQL API · beforeRequestMiddleware · LicenseVerifier     │
+│  CopilotObservability (Pino 구조화 로그)                      │
+└───────────────────┬─────────────────────────────────────────┘
+                    │ AgentRunner (InMemory | SQLite)
+┌───────────────────▼─────────────────────────────────────────┐
+│  에이전트 계층 / Agent Layer                                  │
+│  LangGraph (JS/Python) · CrewAI · 내장 에이전트(Vercel AI SDK)│
+│  MCP (Model Context Protocol) 서버 통합                      │
+│  @copilotkit/sdk-js · sdk-python/copilotkit                  │
+└─────────────────────────────────────────────────────────────┘
+
+        │ (선택) 클라우드 / (Optional) Cloud
+        ▼
+┌─────────────────────────────────┐
+│  CopilotKit Intelligence Platform│
+│  api.cloud.copilotkit.ai         │
+│  · Cloud Guardrails              │
+│  · Threads &amp; Persistence (SaaS)  │
+│  · Self-Learning Agents (CLHF)   │
+└─────────────────────────────────┘
+</code></pre>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>CopilotKit_CopilotKit/
+├── packages/                 # 20개 npm 패키지 (@copilotkit/*)
+│   ├── runtime/              # 서버사이드 런타임 핵심
+│   ├── react-core/           # React 훅 &amp; 공급자
+│   ├── react-ui/             # UI 컴포넌트
+│   ├── react-textarea/       # AI 텍스트에리어
+│   ├── react-native/         # 모바일 지원
+│   ├── angular/              # Angular 통합
+│   ├── vue/                  # Vue 통합
+│   ├── core/                 # 브라우저 독립 코어 로직
+│   ├── shared/               # 공유 타입/유틸리티
+│   ├── sdk-js/               # LangGraph JS SDK
+│   ├── runtime-client-gql/   # GraphQL 클라이언트
+│   ├── sqlite-runner/        # SQLite 영속성
+│   ├── a2ui-renderer/        # A2UI 프로토콜 렌더러
+│   ├── agentcore-runner/     # AgentCore 통합
+│   ├── voice/                # 음성 전사
+│   └── web-inspector/        # 디버그 콘솔
+├── sdk-python/               # Python SDK (copilotkit 0.1.94)
+├── showcase/                 # 쇼케이스 앱 (Docker/Railway)
+├── examples/                 # 예제 애플리케이션
+├── .github/workflows/        # 39개 CI/CD 워크플로우
+├── .changeset/               # 버전 관리 (9개 대기 중)
+├── CLAUDE.md · CONTRIBUTING.md · CODE_OF_CONDUCT.md · SECURITY.md
+└── LICENSE (MIT)
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><strong>LICENSE 파일 직접 확인 결과:</strong></p>
+<ul>
+<li><strong>라이선스명 / License</strong>: MIT License</li>
+<li><strong>저작권자 / Copyright holder</strong>: Atai Barkai (개인, 스타트업 창업자)</li>
+<li><strong>핵심 의무사항</strong>: 소프트웨어 배포 시 저작권 고지 및 MIT 라이선스 문구 포함</li>
+<li><strong>제한사항</strong>: 없음 (상용화, 수정, 재배포 자유)</li>
+<li><strong>특이사항</strong>: Python SDK 저작권자는 Markus Ecker (기여자) — <code>sdk-python/pyproject.toml</code> 확인</li>
+</ul>
+<p>모든 13개 npm 패키지(<code>@copilotkit/runtime</code>, <code>react-core</code>, <code>react-ui</code>, <code>react-textarea</code>, <code>react-native</code>, <code>angular</code>, <code>vue</code>, <code>shared</code>, <code>sdk-js</code>, <code>runtime-client-gql</code>, <code>typescript-config</code>, <code>tsconfig</code>, <code>a2ui-renderer</code>)가 MIT 선언.</p>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p>주요 직접 의존성 (packages/runtime 기준):</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>express</code></td>
+<td>^4.21.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>hono</code></td>
+<td>^4.11.4</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>graphql</code></td>
+<td>^16.8.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>graphql-yoga</code></td>
+<td>^5.3.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>type-graphql</code></td>
+<td>2.0.0-rc.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>rxjs</code></td>
+<td>7.8.1</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>zod</code></td>
+<td>^3.23.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>uuid</code></td>
+<td>^10.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>pino</code></td>
+<td>^9.2.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>ws</code></td>
+<td>^8.18.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@ai-sdk/openai</code></td>
+<td>^3.0.36</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@ai-sdk/anthropic</code></td>
+<td>^3.0.49</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@ai-sdk/google</code></td>
+<td>^3.0.33</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>ai</code></td>
+<td>^6.0.104</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>openai</code></td>
+<td>^4.85.1</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@modelcontextprotocol/sdk</code></td>
+<td>^1.18.2</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@ag-ui/core</code></td>
+<td>0.0.53</td>
+<td>MIT (추정)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@ag-ui/client</code></td>
+<td>0.0.53</td>
+<td>MIT (추정)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>class-transformer</code></td>
+<td>^0.5.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>class-validator</code></td>
+<td>^0.14.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@scarf/scarf</code></td>
+<td>^1.3.0</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>@segment/analytics-node</code></td>
+<td>^2.1.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>phoenix</code></td>
+<td>^1.8.4</td>
+<td>Apache-2.0 (추정)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>partial-json</code></td>
+<td>^0.1.7</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>clarinet</code></td>
+<td>^0.12.4</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><strong><code>@copilotkit/license-verifier</code></strong></td>
+<td><strong>~0.4.2</strong></td>
+<td><strong>비공개/독점</strong></td>
+<td><strong>상용 전용</strong></td>
+<td><strong>🟡</strong></td>
+</tr>
+<tr>
+<td><code>@hono/node-server</code></td>
+<td>^1.13.5</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>reflect-metadata</code></td>
+<td>^0.2.2</td>
+<td>Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Python SDK (sdk-python/pyproject.toml):</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지</th>
+<th>버전</th>
+<th>라이선스</th>
+<th>분류</th>
+<th>위험도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>langgraph</code></td>
+<td>&gt;=0.3.25,&lt;2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>langchain</code></td>
+<td>&gt;=0.3.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>fastapi</code></td>
+<td>&gt;=0.115.0,&lt;1.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>ag-ui-langgraph</code></td>
+<td>&gt;=0.0.38</td>
+<td>MIT (추정)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>ag-ui-protocol</code></td>
+<td>&gt;=0.1.15</td>
+<td>MIT (추정)</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>pydantic-core</code></td>
+<td>&gt;=2.35.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>crewai</code></td>
+<td>&gt;=0.118.0 (선택)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>partialjson</code></td>
+<td>^0.0.8</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td><code>toml</code></td>
+<td>^0.10.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td><strong>MIT, Apache 2.0, BSD-3-Clause, ISC</strong></td>
+<td>소스 비공개 허용 · 전체 코드베이스 해당 / Source closure allowed — applies to entire codebase</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 (해당 없음 / Not applicable)</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 (해당 없음 / Not applicable)</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 소스 공개 의무 (해당 없음 / Not applicable)</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지 (해당 없음 / Not applicable)</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>결론 / Conclusion</strong>: 공개된 모든 의존성은 Permissive 라이선스 계열입니다. GPL·AGPL 계열 의존성은 검출되지 않았습니다.</p>
+</blockquote>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>MIT + Apache 2.0 혼용</strong>: 완전 호환 — MIT는 Apache 2.0의 특허 조항(Section 3)을 흡수하는 방식으로 공존 가능.</p>
+<p><strong>GPL 전파 위험</strong>: 없음. 직접 의존성 전체가 Permissive 계열이므로 GPL 전파 체인이 형성되지 않습니다.</p>
+<p><strong>AGPL SaaS 위험</strong>: 없음. AGPL 라이선스 의존성이 없어 SaaS 배포 시 소스 공개 의무가 발생하지 않습니다.</p>
+<p><strong>⚠️ 특수 항목: <code>@copilotkit/license-verifier</code> (~0.4.2)</strong></p>
+<p>이 패키지는 npm 공개 레지스트리에 <code>@copilotkit</code> 스코프로 게시되어 있으나, 라이선스 정보가 공개된 소스 저장소에서 확인 불가합니다. 런타임 패키지의 핵심 의존성으로 포함되어 있으며 Ed25519 서명된 JWT 토큰 검증 및 텔레메트리 ID 추출을 수행합니다. 상용화 도입 전 해당 패키지의 라이선스 조항을 반드시 별도 확인해야 합니다.</p>
+<p><strong>⚠️ 특수 항목: <code>@scarf/scarf</code> (BSD-3-Clause)</strong></p>
+<p>scarf는 설치/런타임 분석 텔레메트리를 수집하는 라이브러리입니다. 기업 환경에서 네트워크 외부 통신 제한 정책이 있을 경우 비활성화(<code>SCARF_ANALYTICS=false</code>) 조치가 필요합니다.</p>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] <strong>저작권 고지</strong>: MIT 라이선스에 따라 배포물에 <code>Copyright Atai Barkai</code> 고지 포함 필요</li>
+<li>[ ] <strong>NOTICE 파일</strong>: 별도 NOTICE 파일 부재 — 직접 생성하여 서드파티 고지 통합 필요</li>
+<li>[x] <strong>소스 공개 의무</strong>: 없음 (Permissive 전용 → 소스 비공개 허용)</li>
+<li>[ ] <strong>라이선스 배너</strong>: 무료 사용 시 "Powered by CopilotKit" 브랜딩 표시 (소프트웨어 기술적 강제) — 상용 라이선스 구매 시 제거 가능</li>
+<li>[ ] <strong>텔레메트리 고지</strong>: <code>@scarf/scarf</code> 및 <code>@segment/analytics-node</code> 사용으로 인한 데이터 수집을 최종 사용자에게 고지할 필요 가능성</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<p><strong>SECURITY.md</strong>: ✅ 존재 — 상세한 취약점 신고 프로세스 정의</p>
+<ul>
+<li>신고 채널: security@copilotkit.ai (공개 이슈 금지)</li>
+<li>응답 SLA: 48시간 접수 확인, 5영업일 내 조사, 30일 내 수정</li>
+<li>에스컬레이션: Discord 커뮤니티 경로 제공</li>
+</ul>
+<p><strong>Dependabot</strong> (<code>.github/dependabot.yml</code>): ✅ 구성됨
+- GitHub Actions 의존성에 대해 일일 업데이트 검사
+- 마이너/패치 그룹화, 메이저 별도 처리
+- 최대 10개 동시 PR</p>
+<p><strong>Renovate</strong> (<code>renovate.json</code>): ✅ 구성됨
+- npm + Poetry 지원
+- 예제 패키지 및 코어 패키지 선택적 업데이트</p>
+<p><strong>Snyk</strong>: ❌ <code>.snyk</code> 파일 부재 — Snyk 통합 미구성
+<strong>SBOM (CycloneDX/SPDX)</strong>: ❌ 자동 생성 없음</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>보안 강점:</strong></p>
+<ol>
+<li><strong>OIDC 신뢰 게시자 (npm/PyPI)</strong>: 장기 API 토큰 없이 OIDC 기반 배포 — 자격증명 유출 위험 최소화</li>
+<li><strong>GitHub Actions SHA 고정</strong>: 모든 외부 액션이 커밋 해시로 고정</li>
+<li><strong>zizmor 정적 분석</strong> (<code>.github/zizmor.yml</code>): PR마다 GitHub Actions 템플릿 인젝션·권한 과다 스캔, 매주 월요일 스케줄 실행</li>
+<li><strong>포크 PR 공급망 모니터링</strong> (<code>security_fork-pr-alert.yml</code>): <code>[skip ci]</code> 패턴, 제로파일 강제 푸시, 대형 번들 파일 삽입 탐지</li>
+<li><strong>빌드 설정 허용목록</strong> (<code>config-allowlist.txt</code>): 115개+ 허용 빌드 설정 파일 목록 관리, 미승인 설정 파일 빌드 차단</li>
+<li><strong>최소 권한 원칙</strong>: 모든 워크플로우 기본 <code>contents: read</code></li>
+</ol>
+<p><strong>루트 package.json 보안 오버라이드</strong>: 130개+ 패키지의 취약 버전을 오버라이드로 패치 (<code>express</code>, <code>axios</code>, <code>tar</code>, <code>node-forge</code>, <code>hono</code>, <code>dompurify</code>, <code>lodash</code>, <code>body-parser</code> 등)</p>
+<p><strong>잠재 위험:</strong>
+- <code>type-graphql 2.0.0-rc.1</code> — 릴리스 후보 버전 사용 (프로덕션 안정성 주의)
+- Snyk 통합 미구성 (CVE 실시간 DB 연동 없음)
+- GitHub Advanced Security (CodeQL) 워크플로우 미확인</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>인증/인가 방식</strong>: CopilotKit 자체는 인증 레이어를 제공하지 않으며, Express/Hono 미들웨어를 통해 상위 애플리케이션에서 처리하도록 설계. 이는 프레임워크의 의도적 설계이나 도입 시 별도 인증 구현 필요.</p>
+<p><strong>시크릿 관리</strong>: <code>.env.example</code> 패턴 사용, 실제 키는 미커밋 확인. GitHub Actions는 환경 변수 + OIDC 조합 사용. <code>COPILOTKIT_LICENSE_TOKEN</code> 서버 환경변수로 관리.</p>
+<p><strong>텔레메트리</strong>: 라이선스 키 보유 시 전량 전송, 미보유 시 샘플링 전송. <code>SCARF_ANALYTICS=false</code>로 비활성화 가능.</p>
+<p><strong>SBOM</strong>: 자동화 파이프라인 없음 — 엔터프라이즈 도입 시 별도 구성 필요.</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td><code>07fe6ae</code> — feat(showcase): mount /api/probes (2025년경)</td>
+</tr>
+<tr>
+<td>현재 JS SDK 버전 / JS SDK version</td>
+<td>1.59.5 (모노레포 통합 버전)</td>
+</tr>
+<tr>
+<td>현재 Python SDK 버전 / Python SDK version</td>
+<td>0.1.94</td>
+</tr>
+<tr>
+<td>대기 중인 변경셋 / Pending changesets</td>
+<td>9개 (주요 기능 포함: 디버그 모드, 스레드 UX, 앵귤러 패치 등)</td>
+</tr>
+<tr>
+<td>CI/CD 워크플로우 / Workflows</td>
+<td>39개 (테스트·보안·쇼케이스·릴리스·소셜)</td>
+</tr>
+<tr>
+<td>주요 기여자 / Maintainers</td>
+<td>5인 (CODEOWNERS: @tylerslaton, @jpr5, @ranst91, @marthakelly, @mme)</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>v1.59.5 (최신), Git 태그 없음 (얕은 클론)</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>확인 불가 (로컬 클론 — GitHub API 필요)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재 — 상세한 기여 가이드, Node 20.x, pnpm v9 요구사항, 커밋 컨벤션</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>✅ 존재 — 포용성·협업·존중·혁신 명시, 사고 처리 절차 포함</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재 — 취약점 신고 SLA 명시</td>
+</tr>
+<tr>
+<td>CODEOWNERS</td>
+<td>✅ 존재 — 5인 코어팀, 빌드 설정 파일 별도 리뷰어 지정</td>
+</tr>
+<tr>
+<td>PR 템플릿</td>
+<td>✅ 존재 — 변경 설명, 잠재 문제, 질문 섹션</td>
+</tr>
+<tr>
+<td>이슈 템플릿</td>
+<td>✅ 존재 — 버그 리포트·기능 요청 구조화</td>
+</tr>
+<tr>
+<td>공개 로드맵</td>
+<td>❌ 없음 — 내부 ENT-xxx 티켓 시스템만 참조됨</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 없음 (dev-docs/architecture/ 문서는 설명 수준)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>기업 지원</strong>: CopilotKit Inc. (벤처 지원 스타트업) — <code>copilotkit.ai</code> 상용 서비스 운영, Intelligence Platform 유료화</li>
+<li><strong>재단 소속</strong>: CNCF/ASF 미소속 — 독립 스타트업 거버넌스</li>
+<li><strong>AG-UI 프로토콜</strong>: Google, LangChain, AWS, Microsoft, Mastra, PydanticAI 채택 발표 (생태계 견인력 존재)</li>
+<li><strong>LTS</strong>: 공식 LTS 정책 없음</li>
+<li><strong>릴리스 주기</strong>: <code>changelog.txt</code> 기준 1.8.x대 패치 릴리스, npm 태그상 1.59.5 (주기적 릴리스 활성)</li>
+<li><strong>SemVer</strong>: pnpm 모노레포 통합 버전 관리, 실질적 SemVer 준수</li>
+<li><strong>커뮤니티</strong>: Discord 기반 실시간 지원, 2024–2025 커뮤니티 데모 다수</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p><strong>컨테이너화</strong>: ✅ Dockerfile 5개 (showcase/aimock, shell, pocketbase, harness, shell-dashboard), Railway 기반 배포 패턴</p>
+<p><strong>헬스체크</strong>: ✅ Docker Healthcheck 구성됨</p>
+<pre><code class="language-yaml">healthcheck:
+  test: [&quot;CMD&quot;, &quot;curl&quot;, &quot;-f&quot;, &quot;http://localhost:10000/api/health&quot;]
+  interval: 5s
+  timeout: 3s
+  retries: 5
+  start_period: 15s
+</code></pre>
+<p>Fleet 컨트롤 플레인용 <code>/api/probes</code> 트리거 엔드포인트 마운트 (최신 커밋)</p>
+<p><strong>구조화 로깅</strong>: ✅ Pino (JSON 구조화 로그, 설정 가능 상세도) + 클라이언트사이드 AG-UI 전송 레벨 디버그 출력</p>
+<p><strong>메트릭/관측성</strong>: ⚠️ 부분적 — <code>CopilotObservabilityConfig</code> 인터페이스 (<code>packages/runtime/src/lib/observability.ts</code>)로 LLM 요청/응답/오류 훅 제공하나 Prometheus 엔드포인트 없음. 상용 라이선스 보유자는 Intelligence Platform 대시보드 사용 가능.</p>
+<p><strong>멀티테넌시</strong>: ⚠️ 부분적 — 런타임은 단일 인스턴스 기반. 멀티테넌트 격리는 Intelligence Platform(클라우드)에서 처리. 자체 호스팅 시 별도 격리 구현 필요.</p>
+<p><strong>분산 추적</strong>: ❌ OpenTelemetry 통합 미확인</p>
+<p><strong>12-Factor App 준수</strong>:
+- ✅ 환경변수를 통한 설정 주입 (<code>COPILOTKIT_LICENSE_TOKEN</code>, <code>COPILOT_CLOUD_BASE_URL</code>)
+- ✅ Stateless 프로세스 (InMemoryAgentRunner 기본)
+- ✅ pnpm-lock.yaml 재현 가능한 빌드
+- ⚠️ 상태 저장은 SQLite 파일 또는 클라우드 의존</p>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>테스트 유형 / Test Type</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 / Unit Tests</td>
+<td>✅</td>
+<td>Vitest, Node 20/22/24 매트릭스</td>
+</tr>
+<tr>
+<td>통합 테스트 / Integration Tests</td>
+<td>✅</td>
+<td>런타임 + 문서 통합 테스트</td>
+</tr>
+<tr>
+<td>E2E 테스트 / E2E Tests</td>
+<td>✅</td>
+<td>Playwright 기반 쇼케이스 E2E</td>
+</tr>
+<tr>
+<td>Python 단위 테스트 / Python Unit</td>
+<td>✅</td>
+<td>pytest + pytest-asyncio</td>
+</tr>
+<tr>
+<td>비주얼 테스트 / Visual Tests</td>
+<td>✅</td>
+<td>shell-dashboard Playwright visual</td>
+</tr>
+<tr>
+<td>커버리지 / Coverage</td>
+<td>🔵</td>
+<td>수치 미공개, CI 자동화됨</td>
+</tr>
+<tr>
+<td>AI 모의 테스트 / AI Mock Tests</td>
+<td>✅</td>
+<td>aimock 픽스처 기반 (비용 없음)</td>
+</tr>
+<tr>
+<td>번들 크기 검사</td>
+<td>✅</td>
+<td>static_bundle_size.yml</td>
+</tr>
+<tr>
+<td>타입 검사 / Type Check</td>
+<td>✅</td>
+<td><code>attw</code> (are-the-types-wrong)</td>
+</tr>
+</tbody>
+</table>
+<p>CI: 39개 워크플로우 중 7개 테스트 전용 + 6개 쇼케이스 검증</p>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p>해당 없음 — 전체 의존성이 Permissive 계열이므로 Copyleft 모듈 격리 작업 불필요.</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>요소 / Factor</th>
+<th>준수 여부</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>코드베이스 / Codebase</td>
+<td>✅</td>
+<td>단일 Git 레포 + Nx 모노레포</td>
+</tr>
+<tr>
+<td>의존성 / Dependencies</td>
+<td>✅</td>
+<td>pnpm-lock.yaml, poetry.lock, uv.lock</td>
+</tr>
+<tr>
+<td>설정 / Config</td>
+<td>✅</td>
+<td>환경변수 우선, .env.example 제공</td>
+</tr>
+<tr>
+<td>서비스 / Backing services</td>
+<td>✅</td>
+<td>SQLite/Cloud 교체 가능</td>
+</tr>
+<tr>
+<td>빌드·릴리스·실행 / Build, release, run</td>
+<td>✅</td>
+<td>Nx 빌드 + nx release</td>
+</tr>
+<tr>
+<td>프로세스 / Processes</td>
+<td>✅</td>
+<td>Stateless 기본 (SQLiteRunner 선택)</td>
+</tr>
+<tr>
+<td>포트 바인딩 / Port binding</td>
+<td>✅</td>
+<td>Express/Hono 독립 서버</td>
+</tr>
+<tr>
+<td>동시성 / Concurrency</td>
+<td>⚠️</td>
+<td>수평 확장 가이드 없음</td>
+</tr>
+<tr>
+<td>폐기 가능성 / Disposability</td>
+<td>✅</td>
+<td>Docker + Railway 빠른 시작/종료</td>
+</tr>
+<tr>
+<td>개발/운영 환경 유사성 / Dev/prod parity</td>
+<td>✅</td>
+<td>aimock + docker-compose 로컬 환경</td>
+</tr>
+<tr>
+<td>로그 / Logs</td>
+<td>✅</td>
+<td>Pino 구조화 JSON 로그</td>
+</tr>
+<tr>
+<td>관리 프로세스 / Admin processes</td>
+<td>🔵</td>
+<td>명시적 관리 작업 가이드 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🔵 부분적</td>
+<td>의존성 목록화는 되어 있으나 공식 SBOM 없음</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>❌ 없음</td>
+<td>Snyk/FOSSA 등 자동화 스캔 파이프라인 미설정</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🔵 부분적</td>
+<td>루트 package.json 오버라이드로 취약 버전 교체; 공식 프로세스 문서 없음</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>❌ 없음</td>
+<td>공식 OSS 검토·승인 프로세스 문서 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>❌ 없음</td>
+<td>NOTICE 파일 부재, 배포물 내 라이선스 고지 메커니즘 미정의</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권</strong>:
+- "CopilotKit" 브랜드는 CopilotKit Inc. 소유 추정
+- 무료 사용 시 "Powered by CopilotKit" 배너 소프트웨어적 강제 (라이선스 검증 시스템에 의해)
+- 상업적 목적의 CopilotKit 명칭/로고 사용은 상표권 침해 가능성 검토 필요</p>
+<p><strong>특허 위험</strong>:
+- <strong>Apache 2.0 의존성</strong> (<code>rxjs</code>, Vercel AI SDK, MCP SDK 등): 명시적 특허 실시권 포함 (Section 3) — 기여자로부터 특허 실시권 자동 부여 ✅
+- <strong>MIT 의존성</strong> (<code>express</code>, <code>graphql</code>, <code>hono</code> 등): 특허 실시권 조항 없음 — 이론적 특허 위험 존재하나 업계 표준 수준 ⚠️
+- CopilotKit 자체 보유 특허 여부: 확인 불가</p>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>결론: 전파 위험 없음</strong></p>
+<p>직접 및 전이 의존성 전체가 Permissive 계열로 구성되어 있어 GPL/AGPL 전파 체인이 형성되지 않습니다.</p>
+<p><strong>⚠️ 대신 주목할 위험: 오픈코어 벤더 종속 시나리오</strong></p>
+<p>CopilotKit은 MIT 라이선스이지만 다음 메커니즘으로 클라우드 종속성을 유도합니다:</p>
+<ol>
+<li><strong><code>@copilotkit/license-verifier</code> 의존성</strong>: 런타임 패키지에 하드코딩된 독점 패키지 — 이 패키지가 접근 불가능해질 경우 런타임이 동작 불능</li>
+<li><strong>브랜딩 배너</strong>: 무료 사용 시 소프트웨어적 강제 — "Powered by CopilotKit" 제거에 상용 라이선스 필요</li>
+<li><strong>클라우드 전용 기능</strong>: Threads·Guardrails·CLHF 등 프리미엄 기능은 <code>api.cloud.copilotkit.ai</code> 호출 필수</li>
+</ol>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>MIT + Apache 2.0 전용; GPL/AGPL 없음. <code>@copilotkit/license-verifier</code> 라이선스 별도 확인 필요</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🔵 Review</td>
+<td>OIDC·zizmor·공급망 모니터링 등 성숙한 체계. Snyk·SBOM·CodeQL 미구성은 개선 필요</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🔵 Review</td>
+<td>기업 지원 활성화, 소규모 코어팀(5인), 공개 로드맵 없음. AG-UI 프로토콜 생태계 채택은 긍정적 신호</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🔵 Review</td>
+<td>헬스체크·구조화 로깅·Docker 지원. Prometheus·분산 추적·수평 확장 가이드 미비</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟡 Caution</td>
+<td>오픈코어 모델 이해 및 클라우드 종속성 관리 필요. <code>license-verifier</code> 패키지 대응 전략 수립 요구</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>OpenChain 프로세스 미수립, NOTICE 파일 없음, SBOM 없음. 엔터프라이즈 도입 전 OSPO 프로세스 구축 필요</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>라이선스 청결도</strong>: 전체 의존성 Permissive 계열, GPL/AGPL 없음 — 법적 리스크 최소</li>
+<li><strong>성숙한 보안 체계</strong>: OIDC 배포, GitHub Actions SHA 고정, 공급망 모니터링, zizmor 정적 분석 등 업계 선도 수준</li>
+<li><strong>AG-UI 프로토콜 생태계</strong>: Google·LangChain·AWS·Microsoft 채택 발표 — 프로토콜 표준화로 장기 생태계 지속 가능성 확보</li>
+<li><strong>멀티플랫폼 지원</strong>: React/Angular/Vue/React Native/Slack/Teams 단일 런타임 — 통합 투자 비용 절감</li>
+<li><strong>운영 준비도</strong>: Docker 헬스체크, Pino 구조화 로그, Railway 배포 패턴, aimock 기반 결정적 CI 테스트</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong><code>@copilotkit/license-verifier</code> 불투명성</strong>: 독점 패키지로서 라이선스 조항 확인 불가. 벤더 단종 시 런타임 의존성 파괴 위험</li>
+<li><strong>오픈코어 벤더 종속</strong>: 브랜딩 배너·클라우드 API·라이선스 키 등 소프트웨어적 강제로 인한 제품 자율성 제약</li>
+<li><strong>OpenChain 프로세스 미수립</strong>: SBOM 자동화, 소스 스캔, NOTICE 배포 체계 없음 — 대형 고객 납품 시 규정 준수 위험</li>
+<li><strong>거버넌스 취약성</strong>: 스타트업 단일 법인 지배구조, 공개 로드맵 없음 — 기업 인수·방향 전환·서비스 중단 리스크</li>
+<li><strong>프로덕션 관측성 격차</strong>: Prometheus 메트릭·분산 추적 미구성 — 엔터프라이즈 모니터링 스택 통합 시 추가 작업 필요</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 Review (조건부 채택 / Conditional Adoption)</p>
+<p><strong>한국어 판정 요약:</strong></p>
+<p>CopilotKit은 기술적으로 우수하고 라이선스 측면에서 깨끗한 프로젝트입니다. MIT 라이선스 기반의 전체 의존성, 성숙한 보안 체계, AG-UI 프로토콜 생태계 강점이 상용화의 긍정적 기반을 형성합니다.</p>
+<p>그러나 <strong>오픈코어 비즈니스 모델</strong>을 명확히 이해하고 전략적으로 접근해야 합니다. 무료 사용 시 브랜딩 배너 강제, <code>@copilotkit/license-verifier</code> 독점 패키지 의존, 프리미엄 기능의 클라우드 서비스 의존이 장기적 자율성을 제약할 수 있습니다.</p>
+<p><strong>채택 전 필수 조건:</strong>
+1. <code>@copilotkit/license-verifier</code> 패키지의 라이선스 조항 법무팀 검토
+2. 상용 라이선스 구매 vs. 오픈소스 무료 사용 시 브랜딩 노출 수용 여부 결정
+3. OpenChain 수준의 SBOM·NOTICE 프로세스 내재화
+4. 라이선스-verifier 의존성에 대한 대응 전략(fork 또는 대체) 사전 수립</p>
+<p><strong>영어 판정 요약 / English Summary:</strong></p>
+<p>CopilotKit is a technically strong, license-clean open-source framework well-suited for agentic AI application development. Its MIT license, permissive dependency chain, and mature supply-chain security practices make it an attractive candidate for commercial adoption. However, its open-core model — featuring a closed <code>@copilotkit/license-verifier</code> package in the runtime's critical path, mandatory "Powered by CopilotKit" branding on the free tier, and premium functionality gated behind a proprietary cloud API — requires a deliberate commercial strategy before enterprise adoption. Teams should audit the license-verifier package terms, decide on the free vs. paid tier, and establish OpenChain-compliant SBOM and NOTICE processes internally before shipping to end customers.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>- [x] Permissive 분류 확인 (MIT/Apache 2.0 전용)</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 소스 공개 의무 없음 확인</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 라이선스 호환성 충돌 없음 (GPL/AGPL 미존재)</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] <code>@copilotkit/license-verifier</code> 라이선스 조항 별도 확인</td>
+<td>⚠️ 필요</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>- [ ] MIT 저작권 문구 배포물 포함 방법 정의</td>
+<td>⚠️ 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] NOTICE 파일 생성 및 배포 위치 정의</td>
+<td>⚠️ 필요</td>
+</tr>
+<tr>
+<td>상용화 브랜딩 / Branding</td>
+<td>- [ ] 무료 사용 시 "Powered by CopilotKit" 배너 수용 또는 유료 라이선스 구매 결정</td>
+<td>⚠️ 결정 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 상용 제품 내 CopilotKit 상표 사용 범위 법무 검토</td>
+<td>⚠️ 검토 필요</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>- [x] Permissive 전용 — 소스 공개 의무 없음</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>- [x] CVE 모니터링 체계 (Dependabot + Renovate)</td>
+<td>✅ 기본 구성됨</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] Snyk/FOSSA 통합 추가 구성</td>
+<td>⚠️ 권고</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] SBOM 자동 생성 파이프라인 구축</td>
+<td>⚠️ 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 중고위험 취약점 오버라이드 패치 확인</td>
+<td>✅ 구성됨</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>- [x] 유지보수 활성도 확인 (v1.59.5, 39개 워크플로우)</td>
+<td>✅ 활성</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 기업 스폰서 확인 (CopilotKit Inc.)</td>
+<td>✅ 확인됨</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 서비스 중단 리스크 대비 fork/대체 전략 수립</td>
+<td>⚠️ 권고</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>- [ ] 라이선스 검사 자동화 (FOSSA/TLDR Legal)</td>
+<td>⚠️ 미구성</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 오픈소스 BOM 자동 생성 (CycloneDX/SPDX)</td>
+<td>⚠️ 미구성</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 위반 라이선스 빌드 차단 게이트 구성</td>
+<td>⚠️ 미구성</td>
+</tr>
+<tr>
+<td>텔레메트리 / Telemetry</td>
+<td>- [ ] <code>@scarf/scarf</code> 비활성화 여부 결정 (<code>SCARF_ANALYTICS=false</code>)</td>
+<td>⚠️ 결정 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] Segment 분석 데이터 수집 최종 사용자 고지 검토</td>
+<td>⚠️ 검토 필요</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>- [ ] 고객 계약서에 MIT/Apache 라이선스 의무 명시</td>
+<td>⚠️ 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 외부 감사 대비 문서 구비 (NOTICE, BOM, 라이선스 보고서)</td>
+<td>⚠️ 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] <code>@copilotkit/license-verifier</code> 의존성 리스크 계약 반영</td>
+<td>⚠️ 필요</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong><code>@copilotkit/license-verifier</code> 라이선스 확인</strong>: npm 레지스트리 및 CopilotKit 영업팀에 직접 문의하여 해당 패키지의 라이선스 조항, 재배포 가능 여부, 서비스 중단 시 대응 방안 명확화. 이 패키지는 <code>@copilotkit/runtime</code>의 직접 의존성으로 런타임 동작의 핵심 경로에 위치.</p>
+</li>
+<li>
+<p><strong>상용 라이선스 계층 결정</strong>: CopilotKit 무료 사용(브랜딩 배너 노출) vs. 상용 라이선스 구매(브랜딩 제거) 중 비즈니스 전략에 부합하는 계층 선택. 가격 정책 문의: <code>https://copilotkit.ai/pricing</code></p>
+</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>NOTICE 파일 생성</strong>: 저장소 루트 및 배포물에 포함할 NOTICE 파일 생성 — MIT 저작권자(Atai Barkai) 고지, Apache 2.0 의존성(rxjs, Vercel AI SDK, MCP SDK 등) 특허 실시권 고지 포함.</p>
+</li>
+<li>
+<p><strong>텔레메트리 정책 결정</strong>: <code>@scarf/scarf</code> 및 <code>@segment/analytics-node</code> 데이터 수집에 대한 내부 정책 수립. 기업 보안 정책상 외부 전송 제한 시 환경변수(<code>SCARF_ANALYTICS=false</code>)로 비활성화.</p>
+</li>
+<li>
+<p><strong>Snyk 또는 FOSSA 통합</strong>: 현재 Dependabot·Renovate 외에 CVE 실시간 DB 연동 스캐너 추가 구성하여 취약점 탐지 격차 보완.</p>
+</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>SBOM 자동화</strong>: CI 파이프라인에 CycloneDX 또는 SPDX 형식의 소프트웨어 자재명세서(SBOM) 자동 생성 추가.</p>
+</li>
+<li>
+<p><strong>라이선스 스캔 게이트</strong>: FOSSA·scancode 등을 CI에 통합하여 신규 의존성 추가 시 금지 라이선스 자동 차단.</p>
+</li>
+<li>
+<p><strong>Prometheus 메트릭 통합</strong>: <code>CopilotObservabilityConfig</code> 훅을 활용하여 Prometheus 메트릭 엔드포인트 구현 또는 OpenTelemetry 연동으로 엔터프라이즈 모니터링 스택 연계.</p>
+</li>
+<li>
+<p><strong>수평 확장 아키텍처 검토</strong>: SQLiteRunner 기반의 상태 저장 패턴을 Redis 또는 외부 DB로 교체하는 수평 확장 전략 수립 (Intelligence Platform 미사용 자체 호스팅 시나리오).</p>
+</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>AG-UI 프로토콜 동향 모니터링</strong>: Google·LangChain·AWS·Microsoft 채택 현황 및 프로토콜 버전 변화 추적. 주요 기여자 지위 확보 고려(커뮤니티 영향력 및 조기 호환성 확보).</p>
+</li>
+<li>
+<p><strong>fork 대응 전략 수립</strong>: 서비스 종료·방향 전환 시나리오 대비, 내부 포크 유지를 위한 최소 패치 전략 및 대체 오픈소스 솔루션(예: Vercel AI SDK 직접 사용, 독자 AG-UI 구현) 평가.</p>
+</li>
+<li>
+<p><strong>분기별 의존성 감사</strong>: 라이선스 변경(특히 BUSL/Commons Clause 전환 사례), EOL 버전, 신규 CVE에 대한 정기 감사 수행.</p>
+</li>
+</ol></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>I now have all the information needed to write both guides. Here they are:</p>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>CopilotKit은 AI 에이전트 기반 애플리케이션을 쉽게 구축할 수 있게 해주는 오픈소스 프레임워크입니다. 프론트엔드(React, Angular, Vue, React Native)부터 백엔드 런타임(Express, Hono), 에이전트 레이어(LangGraph, CrewAI, 내장 에이전트)까지 세 계층으로 구성되어 있으며, 계층 간 통신은 AG-UI 프로토콜(이벤트 기반 Server-Sent Events over HTTP)을 사용합니다. 현재 버전은 1.59.5이며, 20개의 npm 패키지로 구성된 Nx 모노레포입니다.</p>
+<ul>
+<li><strong>주요 기술 스택</strong>:</li>
+<li>언어: TypeScript 5.x, JavaScript</li>
+<li>프레임워크: React 18/19, Vue 3, Angular 19, React Native 0.70+</li>
+<li>백엔드: Node.js ≥18, Express, Hono</li>
+<li>AI SDK: Anthropic, OpenAI, Google Gemini, Groq, LangChain, LangGraph, Vercel AI SDK</li>
+<li>빌드 도구: Nx 22.5, pnpm 10.33.4, tsdown, Vite, esbuild</li>
+<li>상태 관리 / 통신: RxJS, GraphQL (graphql-yoga, urql), AG-UI SSE</li>
+<li>스키마: Zod, class-validator</li>
+<li>테스트: Vitest 3.x, Playwright (E2E)</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>CopilotKit is an open-source framework for building AI-agent-powered applications. It has a three-layer architecture: <strong>Frontend</strong> (React, Angular, Vue, React Native) → <strong>Runtime</strong> (Express/Hono Node.js server) → <strong>Agent</strong> (LangGraph, CrewAI, built-in, or custom agents), with layers communicating via the AG-UI protocol (event-based Server-Sent Events over HTTP). The current version is 1.59.5 and the repository is an Nx monorepo of 20 npm packages.</p>
+<ul>
+<li><strong>Key tech stack</strong>:</li>
+<li>Languages: TypeScript 5.x, JavaScript</li>
+<li>Frameworks: React 18/19, Vue 3, Angular 19, React Native 0.70+</li>
+<li>Backend: Node.js ≥18, Express, Hono</li>
+<li>AI SDKs: Anthropic, OpenAI, Google Gemini, Groq, LangChain, LangGraph, Vercel AI SDK</li>
+<li>Build tools: Nx 22.5, pnpm 10.33.4, tsdown, Vite, esbuild</li>
+<li>State / communication: RxJS, GraphQL (graphql-yoga, urql), AG-UI SSE streams</li>
+<li>Schema validation: Zod, class-validator</li>
+<li>Testing: Vitest 3.x, Playwright (E2E)</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>필수 도구 (버전 포함)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>최소 버전</th>
+<th>권장 버전</th>
+<th>참고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node.js</td>
+<td>18.x</td>
+<td>20.x 또는 22.x</td>
+<td>LTS 버전 권장</td>
+</tr>
+<tr>
+<td>pnpm</td>
+<td>10.x</td>
+<td>10.33.4</td>
+<td><code>npm i -g pnpm@10</code></td>
+</tr>
+<tr>
+<td>Git</td>
+<td>2.x</td>
+<td>최신</td>
+<td>worktree 기능 사용</td>
+</tr>
+<tr>
+<td>Python (선택)</td>
+<td>3.8+</td>
+<td>3.11+</td>
+<td>Python SDK, ruff 포매터 사용 시</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Windows 특이사항</strong>: 개발자 모드를 활성화해야 pnpm 심링크가 정상 작동합니다.<br />
+<code>설정 → 업데이트 및 보안 → 개발자용 → 개발자 모드 켜기</code></p>
+<p><strong>권장 IDE 및 플러그인</strong>:
+- <strong>VS Code</strong> (권장) + 익스텐션:
+  - ESLint / OXLint 지원
+  - Nx Console (모노레포 태스크 실행)
+  - Tailwind CSS IntelliSense
+  - GraphQL 언어 지원
+  - TypeScript + JavaScript 언어 기능 (내장)
+- <strong>JetBrains WebStorm / IntelliJ</strong> – Nx, TypeScript, GraphQL 플러그인</p>
+<p><strong>[English]</strong></p>
+<p><strong>Required tools (with versions)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Minimum</th>
+<th>Recommended</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Node.js</td>
+<td>18.x</td>
+<td>20.x or 22.x</td>
+<td>LTS recommended</td>
+</tr>
+<tr>
+<td>pnpm</td>
+<td>10.x</td>
+<td>10.33.4</td>
+<td><code>npm i -g pnpm@10</code></td>
+</tr>
+<tr>
+<td>Git</td>
+<td>2.x</td>
+<td>Latest</td>
+<td>Needed for worktree workflow</td>
+</tr>
+<tr>
+<td>Python (optional)</td>
+<td>3.8+</td>
+<td>3.11+</td>
+<td>For Python SDK and ruff formatter</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Windows note</strong>: Developer Mode must be enabled for pnpm symlinks to work.<br />
+<code>Settings → Update &amp; Security → For developers → Developer Mode ON</code></p>
+<p><strong>Recommended IDE &amp; plugins</strong>:
+- <strong>VS Code</strong> (recommended) + extensions:
+  - ESLint / OXLint support
+  - Nx Console (run monorepo tasks from UI)
+  - Tailwind CSS IntelliSense
+  - GraphQL language support
+  - TypeScript + JavaScript Language Features (built-in)
+- <strong>JetBrains WebStorm / IntelliJ</strong> – Nx, TypeScript, GraphQL plugins</p>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>1. 저장소 클론</strong></p>
+<pre><code class="language-bash">git clone https://github.com/CopilotKit/CopilotKit.git
+cd CopilotKit
+</code></pre>
+<p><strong>2. pnpm 전역 설치 (아직 없는 경우)</strong></p>
+<pre><code class="language-bash">npm install -g pnpm@10
+# 또는 corepack 사용
+corepack enable
+corepack prepare pnpm@10.33.4 --activate
+</code></pre>
+<p><strong>3. 의존성 설치</strong></p>
+<pre><code class="language-bash">pnpm install
+</code></pre>
+<blockquote>
+<p>주의: <code>npm install</code> 또는 <code>yarn install</code>을 사용하지 마세요. <code>pnpm-workspace.yaml</code>로 관리되는 워크스페이스 구조를 깨뜨립니다.</p>
+</blockquote>
+<p><strong>4. 전체 패키지 빌드</strong></p>
+<pre><code class="language-bash">pnpm build
+# 또는 Nx를 직접 사용
+npx nx run-many -t build --projects=packages/**
+</code></pre>
+<blockquote>
+<p>초기 빌드는 패키지 간 의존성 때문에 시간이 걸릴 수 있습니다. Nx가 의존 순서를 자동으로 관리합니다.</p>
+</blockquote>
+<p><strong>5. 환경 변수 설정</strong></p>
+<p>CopilotKit 런타임은 AI 공급자 API 키가 필요합니다. 최소 하나의 키가 필요합니다:</p>
+<pre><code class="language-bash"># 예제 앱이나 showcase 실행 시 필요한 .env 파일 예시
+# (각 예제 디렉토리의 .env.example 참고)
+
+OPENAI_API_KEY=sk-proj-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_GENERATIVE_AI_API_KEY=AIza...
+GROQ_API_KEY=gsk_...
+
+# LangGraph 사용 시 (선택)
+LANGSMITH_API_KEY=lsv2_...
+LANGCHAIN_TRACING_V2=true
+
+# CopilotKit 라이선스 (선택 - 오픈소스 프로젝트는 불필요)
+COPILOTKIT_LICENSE_KEY=...
+</code></pre>
+<p><strong>6. 특정 패키지 개발 모드 실행</strong></p>
+<pre><code class="language-bash"># 모든 패키지를 watch 모드로
+pnpm dev
+
+# 특정 패키지만
+npx nx run @copilotkit/react-core:dev
+npx nx run @copilotkit/runtime:dev
+</code></pre>
+<p><strong>7. 검증: 설치 확인</strong></p>
+<pre><code class="language-bash"># 빌드 확인
+pnpm build
+
+# 타입 체크
+pnpm check-types
+
+# 테스트 실행
+pnpm test
+
+# Nx 프로젝트 그래프 확인 (브라우저에서 열림)
+npx nx graph
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>1. Clone the repository</strong></p>
+<pre><code class="language-bash">git clone https://github.com/CopilotKit/CopilotKit.git
+cd CopilotKit
+</code></pre>
+<p><strong>2. Install pnpm globally (if not already installed)</strong></p>
+<pre><code class="language-bash">npm install -g pnpm@10
+# or use corepack
+corepack enable
+corepack prepare pnpm@10.33.4 --activate
+</code></pre>
+<p><strong>3. Install dependencies</strong></p>
+<pre><code class="language-bash">pnpm install
+</code></pre>
+<blockquote>
+<p>Warning: Do not use <code>npm install</code> or <code>yarn install</code> — this will break the workspace structure managed by <code>pnpm-workspace.yaml</code>.</p>
+</blockquote>
+<p><strong>4. Build all packages</strong></p>
+<pre><code class="language-bash">pnpm build
+# or directly via Nx
+npx nx run-many -t build --projects=packages/**
+</code></pre>
+<blockquote>
+<p>The initial build may take a few minutes due to inter-package dependencies. Nx manages the build order automatically.</p>
+</blockquote>
+<p><strong>5. Configure environment variables</strong></p>
+<p>The CopilotKit runtime requires at least one AI provider API key:</p>
+<pre><code class="language-bash"># Example .env for running examples / showcase apps
+# (see .env.example in each example directory)
+
+OPENAI_API_KEY=sk-proj-...
+ANTHROPIC_API_KEY=sk-ant-...
+GOOGLE_GENERATIVE_AI_API_KEY=AIza...
+GROQ_API_KEY=gsk_...
+
+# LangGraph integration (optional)
+LANGSMITH_API_KEY=lsv2_...
+LANGCHAIN_TRACING_V2=true
+
+# CopilotKit license (optional — not needed for open-source use)
+COPILOTKIT_LICENSE_KEY=...
+</code></pre>
+<p><strong>6. Start a package in dev/watch mode</strong></p>
+<pre><code class="language-bash"># Watch all packages
+pnpm dev
+
+# Watch a specific package
+npx nx run @copilotkit/react-core:dev
+npx nx run @copilotkit/runtime:dev
+</code></pre>
+<p><strong>7. Verify the installation</strong></p>
+<pre><code class="language-bash"># Confirm build succeeds
+pnpm build
+
+# Type check
+pnpm check-types
+
+# Run tests
+pnpm test
+
+# Open Nx project graph in browser
+npx nx graph
+</code></pre>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">CopilotKit/
+├── packages/                        # 20개 공개 npm 패키지 (@copilotkit/ 스코프)
+│   ├── runtime/                     # 서버사이드 런타임 (Express/Hono, GraphQL, AgentRunner)
+│   ├── react-core/                  # React 훅, 컨텍스트, 공개 API
+│   ├── core/                        # 프론트엔드 코어 유틸리티 (v2)
+│   ├── react-ui/                    # 채팅 UI 컴포넌트 (CopilotChat, CopilotSidebar 등)
+│   ├── react-textarea/              # AI 보조 텍스트 입력 컴포넌트
+│   ├── shared/                      # 공통 타입, 유틸리티, 라이선스 검증
+│   ├── sdk-js/                      # LangGraph/LangChain 에이전트 통합 SDK
+│   ├── runtime-client-gql/          # urql 기반 GraphQL 클라이언트 (프론트→런타임)
+│   ├── a2ui-renderer/               # Agentic UI (A2UI) 선언적 UI 렌더러
+│   ├── voice/                       # 음성 입력 및 TTS
+│   ├── react-native/                # React Native 지원 및 폴리필
+│   ├── sqlite-runner/               # SQLite 기반 에이전트 상태 관리 러너
+│   ├── agentcore-runner/            # AWS Bedrock AgentCore 호환 러너
+│   ├── angular/                     # Angular 라이브러리 (DI 토큰, 시그널)
+│   ├── vue/                         # Vue 3 컴포저블 및 컴포넌트
+│   ├── web-inspector/               # 디버그 웹 컴포넌트 (Lit 기반)
+│   ├── typescript-config/           # 공유 TypeScript 설정
+│   ├── tsconfig/                    # 대체 TypeScript 설정
+│   ├── tailwind-config/             # 공유 Tailwind CSS 설정
+│   └── demo-agents/                 # 데모 에이전트 (비공개 패키지)
+│
+├── examples/
+│   ├── v1/                          # 레거시 예제 (v1 호환성 유지)
+│   ├── v2/                          # 현재 예제 (React, Vue, Angular, Next.js 등)
+│   ├── showcases/                   # 고급 데모 (banking, generative-ui-playground)
+│   └── integrations/               # 22개 플랫폼 통합 예제
+│
+├── showcase/                        # 레퍼런스 구현체
+│   ├── shell-docs/                  # 공식 문서 사이트 (Next.js + MDX)
+│   │   └── src/content/            # ← 문서 작성 위치 (docs/ 아님!)
+│   ├── shell-dashboard/             # 독립 Next.js 앱 (pnpm 워크스페이스 제외)
+│   ├── harness/                     # 평가/테스트 하네스
+│   └── aimock/                      # AI 응답 모킹 서비스
+│
+├── skills/                          # Claude Code 스킬 정의
+├── scripts/                         # 빌드 및 자동화 스크립트
+├── .github/workflows/               # CI/CD 파이프라인
+├── package.json                     # 루트 모노레포 설정
+├── pnpm-workspace.yaml              # 워크스페이스 정의
+├── nx.json                          # Nx 빌드 시스템 설정
+├── lefthook.yml                     # Git 훅 설정
+├── release.config.json              # 릴리스 관리
+└── .mcp.json                        # MCP 서버 설정
+</code></pre>
+<p><strong>핵심 모듈 간 의존 관계:</strong></p>
+<pre><code>[사용자 앱]
+    │
+    ├── @copilotkit/react-core  ──→  @copilotkit/runtime-client-gql  ──→  [Runtime HTTP]
+    │       │                              │
+    │       ├── @copilotkit/core           └── @copilotkit/shared
+    │       ├── @copilotkit/react-ui
+    │       └── @copilotkit/a2ui-renderer
+    │
+    └── @copilotkit/runtime  ──→  AI SDK (Anthropic/OpenAI/Google)
+            │                ──→  AgentRunner (LangGraph/CrewAI)
+            └── @copilotkit/shared
+</code></pre>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">CopilotKit/
+├── packages/                        # 20 public npm packages (all @copilotkit/ scoped)
+│   ├── runtime/                     # Server-side runtime (Express/Hono, GraphQL, AgentRunner)
+│   ├── react-core/                  # React hooks, context, public API
+│   ├── core/                        # Frontend core utilities (v2)
+│   ├── react-ui/                    # Chat UI components (CopilotChat, CopilotSidebar, etc.)
+│   ├── react-textarea/              # AI-assisted text input component
+│   ├── shared/                      # Common types, utilities, license verification
+│   ├── sdk-js/                      # LangGraph/LangChain agent integration SDK
+│   ├── runtime-client-gql/          # urql-based GraphQL client (frontend→runtime)
+│   ├── a2ui-renderer/               # Agentic Declarative UI (A2UI) renderer
+│   ├── voice/                       # Voice input and TTS
+│   ├── react-native/                # React Native support and polyfills
+│   ├── sqlite-runner/               # SQLite-backed agent state runner
+│   ├── agentcore-runner/            # AWS Bedrock AgentCore-compatible runner
+│   ├── angular/                     # Angular library (DI tokens, signals)
+│   ├── vue/                         # Vue 3 composables and components
+│   ├── web-inspector/               # Debug web component (Lit-based)
+│   ├── typescript-config/           # Shared TypeScript configuration
+│   ├── tsconfig/                    # Alternative TypeScript config
+│   ├── tailwind-config/             # Shared Tailwind CSS config
+│   └── demo-agents/                 # Demo agents (private package)
+│
+├── examples/
+│   ├── v1/                          # Legacy examples (v1 compatibility)
+│   ├── v2/                          # Current examples (React, Vue, Angular, Next.js)
+│   ├── showcases/                   # Advanced demos (banking, generative-ui-playground)
+│   └── integrations/               # 22 platform integration examples
+│
+├── showcase/                        # Reference implementations
+│   ├── shell-docs/                  # Official documentation site (Next.js + MDX)
+│   │   └── src/content/            # ← Write docs HERE (not the top-level docs/)
+│   ├── shell-dashboard/             # Standalone Next.js app (excluded from pnpm workspace)
+│   ├── harness/                     # Evaluation/test harness
+│   └── aimock/                      # AI response mocking service
+│
+├── skills/                          # Claude Code skill definitions
+├── scripts/                         # Build and automation scripts
+├── .github/workflows/               # CI/CD pipelines
+├── package.json                     # Root monorepo config
+├── pnpm-workspace.yaml              # Workspace definition
+├── nx.json                          # Nx build system config
+├── lefthook.yml                     # Git hooks config
+├── release.config.json              # Release management
+└── .mcp.json                        # MCP server configs
+</code></pre>
+<p><strong>Core module dependency relationships:</strong></p>
+<pre><code>[User App]
+    │
+    ├── @copilotkit/react-core  ──→  @copilotkit/runtime-client-gql  ──→  [Runtime HTTP]
+    │       │                              │
+    │       ├── @copilotkit/core           └── @copilotkit/shared
+    │       ├── @copilotkit/react-ui
+    │       └── @copilotkit/a2ui-renderer
+    │
+    └── @copilotkit/runtime  ──→  AI SDK (Anthropic/OpenAI/Google)
+            │                ──→  AgentRunner (LangGraph/CrewAI)
+            └── @copilotkit/shared
+</code></pre>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>전체 패키지 빌드 (프로덕션)</strong></p>
+<pre><code class="language-bash">pnpm build
+# 내부적으로 실행: nx run-many -t build --projects=packages/**
+</code></pre>
+<p><strong>특정 패키지 빌드</strong></p>
+<pre><code class="language-bash">npx nx run @copilotkit/runtime:build
+npx nx run @copilotkit/react-core:build
+npx nx run @copilotkit/react-ui:build
+</code></pre>
+<p><strong>영향받은 패키지만 빌드 (PR 리뷰 시 유용)</strong></p>
+<pre><code class="language-bash">npx nx affected -t build
+</code></pre>
+<p><strong>예제 애플리케이션 빌드</strong></p>
+<pre><code class="language-bash">pnpm build:examples
+</code></pre>
+<p><strong>CSS 별도 빌드가 필요한 패키지</strong> (<code>react-core</code>, <code>react-ui</code>, <code>react-textarea</code>, <code>angular</code>)</p>
+<pre><code class="language-bash">npx nx run @copilotkit/react-ui:build:css
+npx nx run @copilotkit/react-core:build:css
+</code></pre>
+<p><strong>빌드 결과물 위치</strong>:
+- 각 패키지: <code>packages/&lt;name&gt;/dist/</code>
+- ESM: <code>dist/index.mjs</code> + 타입: <code>dist/index.d.mts</code>
+- CJS: <code>dist/index.cjs</code> + 타입: <code>dist/index.d.cts</code>
+- CSS (해당 패키지): <code>dist/styles.css</code></p>
+<p><strong>자주 발생하는 빌드 오류:</strong></p>
+<table>
+<thead>
+<tr>
+<th>오류</th>
+<th>원인</th>
+<th>해결 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cannot find module '@copilotkit/shared'</code></td>
+<td>의존 패키지 미빌드</td>
+<td><code>pnpm build</code> 전체 실행</td>
+</tr>
+<tr>
+<td><code>type-graphql</code> 데코레이터 오류</td>
+<td>TypeScript <code>emitDecoratorMetadata</code> 미설정</td>
+<td><code>tsconfig.json</code>에 <code>"emitDecoratorMetadata": true</code> 확인</td>
+</tr>
+<tr>
+<td>GraphQL codegen 실패</td>
+<td>스키마 파일 없음</td>
+<td><code>npx nx run @copilotkit/runtime-client-gql:graphql-codegen</code> 먼저 실행</td>
+</tr>
+<tr>
+<td>pnpm 심링크 실패 (Windows)</td>
+<td>개발자 모드 미활성화</td>
+<td>Windows 개발자 모드 활성화 후 재설치</td>
+</tr>
+<tr>
+<td>Nx 캐시 문제</td>
+<td>오래된 캐시</td>
+<td><code>npx nx reset</code> 실행 후 재빌드</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Build all packages (production)</strong></p>
+<pre><code class="language-bash">pnpm build
+# Internally runs: nx run-many -t build --projects=packages/**
+</code></pre>
+<p><strong>Build a specific package</strong></p>
+<pre><code class="language-bash">npx nx run @copilotkit/runtime:build
+npx nx run @copilotkit/react-core:build
+npx nx run @copilotkit/react-ui:build
+</code></pre>
+<p><strong>Build only affected packages (useful during PR review)</strong></p>
+<pre><code class="language-bash">npx nx affected -t build
+</code></pre>
+<p><strong>Build example applications</strong></p>
+<pre><code class="language-bash">pnpm build:examples
+</code></pre>
+<p><strong>Packages requiring separate CSS build</strong> (<code>react-core</code>, <code>react-ui</code>, <code>react-textarea</code>, <code>angular</code>)</p>
+<pre><code class="language-bash">npx nx run @copilotkit/react-ui:build:css
+npx nx run @copilotkit/react-core:build:css
+</code></pre>
+<p><strong>Build output locations</strong>:
+- Each package: <code>packages/&lt;name&gt;/dist/</code>
+- ESM: <code>dist/index.mjs</code> + types: <code>dist/index.d.mts</code>
+- CJS: <code>dist/index.cjs</code> + types: <code>dist/index.d.cts</code>
+- CSS (applicable packages): <code>dist/styles.css</code></p>
+<p><strong>Common build errors:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Cannot find module '@copilotkit/shared'</code></td>
+<td>Dependency package not built</td>
+<td>Run full <code>pnpm build</code></td>
+</tr>
+<tr>
+<td><code>type-graphql</code> decorator errors</td>
+<td>Missing <code>emitDecoratorMetadata</code> in tsconfig</td>
+<td>Verify <code>"emitDecoratorMetadata": true</code> in <code>tsconfig.json</code></td>
+</tr>
+<tr>
+<td>GraphQL codegen failure</td>
+<td>Missing schema file</td>
+<td>Run <code>npx nx run @copilotkit/runtime-client-gql:graphql-codegen</code> first</td>
+</tr>
+<tr>
+<td>pnpm symlink failures (Windows)</td>
+<td>Developer Mode not enabled</td>
+<td>Enable Windows Developer Mode and reinstall</td>
+</tr>
+<tr>
+<td>Nx cache issues</td>
+<td>Stale cache</td>
+<td>Run <code>npx nx reset</code> then rebuild</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>개발 모드 (watch 모드로 전체 빌드)</strong></p>
+<pre><code class="language-bash">pnpm dev
+</code></pre>
+<p><strong>특정 패키지 watch 모드</strong></p>
+<pre><code class="language-bash">npx nx run @copilotkit/react-core:dev
+npx nx run @copilotkit/runtime:dev
+</code></pre>
+<p><strong>예제 앱 실행 (React 예제)</strong></p>
+<pre><code class="language-bash"># v2 React 예제 실행
+cd examples/v2/react
+pnpm install   # 워크스페이스 의존성 이미 설치되어 있으면 불필요
+pnpm dev
+# → http://localhost:3000
+</code></pre>
+<p><strong>Storybook 실행 (컴포넌트 개발)</strong></p>
+<pre><code class="language-bash">pnpm storybook            # React Storybook
+pnpm storybook:angular    # Angular Storybook
+pnpm storybook:vue        # Vue Storybook
+# → http://localhost:6006
+</code></pre>
+<p><strong>데모 앱 실행</strong></p>
+<pre><code class="language-bash">pnpm demo:react     # React 데모 앱
+pnpm demo:angular   # Angular 데모 앱
+pnpm demo:vue       # Vue 데모 앱
+</code></pre>
+<p><strong>문서 사이트 실행</strong></p>
+<pre><code class="language-bash">pnpm docs
+# → http://localhost:3000 (shell-docs Next.js 앱)
+</code></pre>
+<p><strong>showcase/shell-dashboard (독립 앱)</strong></p>
+<pre><code class="language-bash"># 이 앱은 pnpm 워크스페이스 외부에 있어 별도 설치 필요
+cd showcase/shell-dashboard
+npm install   # pnpm 아닌 npm 사용
+npm run dev
+</code></pre>
+<p><strong>실행 확인 방법:</strong>
+- 런타임 서버: <code>http://localhost:4000/graphql</code> (GraphQL Playground)
+- React 예제: <code>http://localhost:3000</code>
+- 로그 확인: pino 기반 구조적 로그가 콘솔에 출력됨</p>
+<p><strong>[English]</strong></p>
+<p><strong>Development mode (watch mode for all packages)</strong></p>
+<pre><code class="language-bash">pnpm dev
+</code></pre>
+<p><strong>Watch mode for a specific package</strong></p>
+<pre><code class="language-bash">npx nx run @copilotkit/react-core:dev
+npx nx run @copilotkit/runtime:dev
+</code></pre>
+<p><strong>Run example apps (React example)</strong></p>
+<pre><code class="language-bash"># Run the v2 React example
+cd examples/v2/react
+pnpm install   # not needed if workspace deps already installed
+pnpm dev
+# → http://localhost:3000
+</code></pre>
+<p><strong>Run Storybook (component development)</strong></p>
+<pre><code class="language-bash">pnpm storybook            # React Storybook
+pnpm storybook:angular    # Angular Storybook
+pnpm storybook:vue        # Vue Storybook
+# → http://localhost:6006
+</code></pre>
+<p><strong>Run demo apps</strong></p>
+<pre><code class="language-bash">pnpm demo:react     # React demo
+pnpm demo:angular   # Angular demo
+pnpm demo:vue       # Vue demo
+</code></pre>
+<p><strong>Run documentation site</strong></p>
+<pre><code class="language-bash">pnpm docs
+# → http://localhost:3000 (shell-docs Next.js app)
+</code></pre>
+<p><strong>showcase/shell-dashboard (standalone app)</strong></p>
+<pre><code class="language-bash"># This app lives outside the pnpm workspace — install separately
+cd showcase/shell-dashboard
+npm install   # uses npm, not pnpm
+npm run dev
+</code></pre>
+<p><strong>Verifying the app is running:</strong>
+- Runtime server: <code>http://localhost:4000/graphql</code> (GraphQL Playground)
+- React example: <code>http://localhost:3000</code>
+- Logs: pino-based structured logs printed to console</p>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>전체 단위 테스트 실행</strong></p>
+<pre><code class="language-bash">pnpm test
+# 내부적으로: nx run-many -t test --projects=packages/**
+</code></pre>
+<p><strong>특정 패키지 테스트</strong></p>
+<pre><code class="language-bash">npx nx run @copilotkit/react-core:test
+npx nx run @copilotkit/runtime:test
+npx nx run @copilotkit/shared:test
+</code></pre>
+<p><strong>watch 모드 (TDD 개발 시)</strong></p>
+<pre><code class="language-bash">pnpm test:watch
+# 또는 특정 패키지
+npx nx run @copilotkit/react-core:test -- --watch
+</code></pre>
+<p><strong>커버리지 보고서 생성</strong></p>
+<pre><code class="language-bash">pnpm test:coverage
+# 결과: packages/&lt;name&gt;/coverage/ 디렉토리에 HTML 보고서 생성
+</code></pre>
+<p><strong>영향받은 패키지만 테스트</strong></p>
+<pre><code class="language-bash">npx nx affected -t test
+</code></pre>
+<p><strong>E2E 테스트 (showcase/tests)</strong></p>
+<pre><code class="language-bash"># Playwright 기반 E2E (실행 환경 구성 필요)
+cd showcase/tests
+pnpm test:e2e
+</code></pre>
+<p><strong>테스트 파일 위치:</strong>
+- 패키지 내 단위 테스트: <code>packages/&lt;name&gt;/src/**/__tests__/*.test.ts</code>
+- 또는: <code>packages/&lt;name&gt;/src/**/*.spec.ts</code>
+- E2E 테스트: <code>showcase/tests/</code></p>
+<p><strong>테스트 데이터/픽스처:</strong>
+- <code>showcase/aimock/</code> — AI 응답을 Vitest 스냅샷으로 모킹하는 서비스. 테스트 재현성을 위해 실제 AI 호출 없이도 검증 가능.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Run all unit tests</strong></p>
+<pre><code class="language-bash">pnpm test
+# Internally: nx run-many -t test --projects=packages/**
+</code></pre>
+<p><strong>Test a specific package</strong></p>
+<pre><code class="language-bash">npx nx run @copilotkit/react-core:test
+npx nx run @copilotkit/runtime:test
+npx nx run @copilotkit/shared:test
+</code></pre>
+<p><strong>Watch mode (TDD)</strong></p>
+<pre><code class="language-bash">pnpm test:watch
+# or for a specific package
+npx nx run @copilotkit/react-core:test -- --watch
+</code></pre>
+<p><strong>Generate coverage reports</strong></p>
+<pre><code class="language-bash">pnpm test:coverage
+# Output: HTML report under packages/&lt;name&gt;/coverage/
+</code></pre>
+<p><strong>Test only affected packages</strong></p>
+<pre><code class="language-bash">npx nx affected -t test
+</code></pre>
+<p><strong>E2E tests (showcase/tests)</strong></p>
+<pre><code class="language-bash"># Playwright-based E2E (requires local environment setup)
+cd showcase/tests
+pnpm test:e2e
+</code></pre>
+<p><strong>Test file locations:</strong>
+- Package unit tests: <code>packages/&lt;name&gt;/src/**/__tests__/*.test.ts</code>
+- Or: <code>packages/&lt;name&gt;/src/**/*.spec.ts</code>
+- E2E tests: <code>showcase/tests/</code></p>
+<p><strong>Test data / fixtures:</strong>
+- <code>showcase/aimock/</code> — mocks AI responses using Vitest snapshots, enabling deterministic test runs without real AI API calls.</p>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>브랜치 전략:</strong></p>
+<table>
+<thead>
+<tr>
+<th>작업 유형</th>
+<th>브랜치 명명 규칙</th>
+<th>예시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기능 추가</td>
+<td><code>feat/&lt;ISSUE_NUMBER&gt;-&lt;custom-name&gt;</code></td>
+<td><code>feat/1234-add-voice-hook</code></td>
+</tr>
+<tr>
+<td>버그 수정</td>
+<td><code>fix/&lt;ISSUE_NUMBER&gt;-&lt;custom-name&gt;</code></td>
+<td><code>fix/567-runtime-sse-error</code></td>
+</tr>
+<tr>
+<td>문서 작업</td>
+<td><code>docs/&lt;ISSUE_NUMBER&gt;-&lt;custom-name&gt;</code></td>
+<td><code>docs/890-update-runtime-guide</code></td>
+</tr>
+</tbody>
+</table>
+<p>항상 <code>main</code>을 기반 브랜치로 사용합니다. <strong>비용이 있는 작업(신규 기능, 리팩터링)은 반드시 git worktree에서 작업</strong>합니다:</p>
+<pre><code class="language-bash">git worktree add ../CopilotKit-feat-1234 -b feat/1234-my-feature
+cd ../CopilotKit-feat-1234
+</code></pre>
+<p><strong>커밋 메시지 컨벤션 (Conventional Commits):</strong></p>
+<p>형식: <code>&lt;type&gt;(&lt;package&gt;): &lt;subject&gt;</code></p>
+<pre><code>feat(react-core): add useCoAgent hook for multi-agent support
+fix(runtime): resolve SSE connection leak on disconnect
+docs(react-ui): update CopilotChat props documentation
+chore(deps): update AI SDK to 6.1.0
+test(shared): add unit tests for message normalization
+</code></pre>
+<ul>
+<li>헤더 최대 길이: 120자</li>
+<li>머지 커밋은 commitlint 건너뜀</li>
+<li>lefthook 사전 커밋 훅이 자동으로 커밋 메시지 검증</li>
+</ul>
+<p><strong>PR / 코드 리뷰 절차:</strong>
+1. <code>main</code> 기반으로 브랜치/worktree 생성
+2. 변경사항 구현 및 테스트 작성
+3. <code>pnpm lint &amp;&amp; pnpm check-types &amp;&amp; pnpm test</code> 통과 확인
+4. 특정 파일 스테이징: <code>git add packages/runtime/src/...</code> (절대 <code>git add .</code> 사용 금지)
+5. PR 생성: <code>gh pr create --base main</code>
+6. PR 설명에 변경 동기, 테스트 방법, 스크린샷(UI 변경 시) 포함</p>
+<p><strong>코딩 스타일 / 린트 규칙:</strong>
+- <strong>린터</strong>: oxlint (Rust 기반, ESLint 대체)
+- <strong>포매터</strong>: oxfmt (자동 포맷)
+- TypeScript <code>type</code> import 우선 사용 (<code>import type { Foo }</code>)
+- React: 자기 닫힘 컴포넌트 필수 (<code>&lt;Foo /&gt;</code>)
+- CopilotKit 컴포넌트 접두사 규칙: <code>Copilot*</code> 또는 <code>cpk*</code>
+- Zod 단일 인자 <code>z.record()</code> 사용 금지 (타입 안전성)</p>
+<pre><code class="language-bash"># 수동 린팅
+pnpm lint
+
+# 자동 포맷 적용
+pnpm format
+
+# 포맷 확인만 (수정 없음)
+pnpm check-format
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Branching strategy:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Work type</th>
+<th>Branch naming</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Feature</td>
+<td><code>feat/&lt;ISSUE_NUMBER&gt;-&lt;custom-name&gt;</code></td>
+<td><code>feat/1234-add-voice-hook</code></td>
+</tr>
+<tr>
+<td>Bug fix</td>
+<td><code>fix/&lt;ISSUE_NUMBER&gt;-&lt;custom-name&gt;</code></td>
+<td><code>fix/567-runtime-sse-error</code></td>
+</tr>
+<tr>
+<td>Documentation</td>
+<td><code>docs/&lt;ISSUE_NUMBER&gt;-&lt;custom-name&gt;</code></td>
+<td><code>docs/890-update-runtime-guide</code></td>
+</tr>
+</tbody>
+</table>
+<p>Always base branches on <code>main</code>. <strong>For non-trivial work (new features, refactors), always use a git worktree for isolation</strong>:</p>
+<pre><code class="language-bash">git worktree add ../CopilotKit-feat-1234 -b feat/1234-my-feature
+cd ../CopilotKit-feat-1234
+</code></pre>
+<p><strong>Commit message conventions (Conventional Commits):</strong></p>
+<p>Format: <code>&lt;type&gt;(&lt;package&gt;): &lt;subject&gt;</code></p>
+<pre><code>feat(react-core): add useCoAgent hook for multi-agent support
+fix(runtime): resolve SSE connection leak on disconnect
+docs(react-ui): update CopilotChat props documentation
+chore(deps): update AI SDK to 6.1.0
+test(shared): add unit tests for message normalization
+</code></pre>
+<ul>
+<li>Max header length: 120 characters</li>
+<li>Merge commits skip commitlint</li>
+<li>The lefthook pre-commit hook validates messages automatically</li>
+</ul>
+<p><strong>PR / code review process:</strong>
+1. Create branch/worktree based on <code>main</code>
+2. Implement changes and write tests
+3. Confirm <code>pnpm lint &amp;&amp; pnpm check-types &amp;&amp; pnpm test</code> all pass
+4. Stage specific files: <code>git add packages/runtime/src/...</code> (never <code>git add .</code>)
+5. Create PR: <code>gh pr create --base main</code>
+6. PR description must include: motivation for change, how to test, screenshots (for UI changes)</p>
+<p><strong>Coding style / lint rules:</strong>
+- <strong>Linter</strong>: oxlint (Rust-based, replaces ESLint)
+- <strong>Formatter</strong>: oxfmt (auto-format on save)
+- Prefer TypeScript <code>type</code> imports: <code>import type { Foo }</code>
+- React: self-closing components required: <code>&lt;Foo /&gt;</code>
+- CopilotKit component naming prefix: <code>Copilot*</code> or <code>cpk*</code>
+- Forbidden: single-argument <code>z.record()</code> (Zod type safety rule)</p>
+<pre><code class="language-bash"># Manual lint
+pnpm lint
+
+# Auto-fix formatting
+pnpm format
+
+# Check format only (no changes)
+pnpm check-format
+</code></pre>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. <code>pnpm install</code> 이후 빌드 시 "패키지를 찾을 수 없음" 오류가 발생합니다.</strong><br />
+원인: 패키지 간 의존성(<code>workspace:*</code>)이 있어 순서대로 빌드해야 합니다.<br />
+해결: <code>pnpm build</code>를 루트에서 한 번 실행하면 Nx가 의존 순서를 자동으로 처리합니다.</p>
+<p><strong>Q2. Windows에서 pnpm install 중 심링크 오류가 발생합니다.</strong><br />
+원인: pnpm은 하드링크/심링크를 사용하는데, Windows에서는 개발자 모드가 필요합니다.<br />
+해결:
+1. <code>설정 → 업데이트 및 보안 → 개발자용 → 개발자 모드</code> 활성화
+2. 관리자 권한으로 PowerShell 재시작
+3. <code>pnpm install</code> 재실행</p>
+<p><strong>Q3. <code>npx nx run @copilotkit/xxx:build</code> 명령어가 "project not found" 오류를 냅니다.</strong><br />
+원인: Nx 캐시 또는 워크스페이스 인식 문제.<br />
+해결:</p>
+<pre><code class="language-bash">npx nx reset          # Nx 캐시 초기화
+pnpm install          # 의존성 재설치
+npx nx graph          # 프로젝트 그래프 확인
+</code></pre>
+<p><strong>Q4. 커밋 시 pre-commit 훅이 실패합니다.</strong><br />
+원인: lefthook이 lint, 타입 체크, 테스트를 자동 실행합니다.<br />
+해결: 오류 메시지를 확인하고 해당 문제를 수정합니다. 주요 체크:</p>
+<pre><code class="language-bash">pnpm lint       # 린팅 오류 확인
+pnpm check-types  # 타입 오류 확인
+pnpm test       # 테스트 실패 확인
+</code></pre>
+<p><strong>Q5. GraphQL 코드 생성 오류가 발생합니다.</strong><br />
+원인: <code>@copilotkit/runtime-client-gql</code>은 GraphQL 스키마에서 타입을 자동 생성합니다.<br />
+해결:</p>
+<pre><code class="language-bash">npx nx run @copilotkit/runtime:build   # 런타임 먼저 빌드
+npx nx run @copilotkit/runtime-client-gql:graphql-codegen  # 코드 재생성
+</code></pre>
+<p><strong>Q6. 로컬 A2UI 패키지를 연동하고 싶습니다.</strong><br />
+해결: <code>.pnpmfile.cjs</code>에 로컬 A2UI 연동 설정이 있습니다:</p>
+<pre><code class="language-bash">A2UI_LOCAL=1 pnpm install
+# @a2ui/web_core, @a2ui/react가 로컬 경로로 매핑됩니다
+</code></pre>
+<p><strong>Q7. 새 훅(hook)을 만들 때 무엇을 해야 하나요?</strong><br />
+<code>@copilotkit/react-core</code>에서 훅을 구현한 후 반드시:
+1. JSDoc 작성 (사용 예제 포함)
+2. Vitest 단위 테스트 작성
+3. <code>showcase/shell-docs/src/content/reference/hooks/&lt;hookName&gt;.mdx</code> 문서 파일 생성
+4. 개념 가이드가 필요하면 <code>showcase/shell-docs/src/content/docs/</code> 추가</p>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. After <code>pnpm install</code>, the build fails with "cannot find module" errors.</strong><br />
+Cause: Packages have <code>workspace:*</code> cross-dependencies and must be built in dependency order.<br />
+Fix: Run <code>pnpm build</code> from the root once — Nx automatically resolves the correct build order.</p>
+<p><strong>Q2. Symlink errors during <code>pnpm install</code> on Windows.</strong><br />
+Cause: pnpm uses hard links/symlinks which require Developer Mode on Windows.<br />
+Fix:
+1. <code>Settings → Update &amp; Security → For developers → Developer Mode</code> ON
+2. Restart PowerShell as administrator
+3. Re-run <code>pnpm install</code></p>
+<p><strong>Q3. <code>npx nx run @copilotkit/xxx:build</code> says "project not found".</strong><br />
+Cause: Stale Nx cache or workspace registration issue.<br />
+Fix:</p>
+<pre><code class="language-bash">npx nx reset          # Clear Nx cache
+pnpm install          # Reinstall dependencies
+npx nx graph          # Verify project is in graph
+</code></pre>
+<p><strong>Q4. Pre-commit hooks fail when I try to commit.</strong><br />
+Cause: lefthook automatically runs lint, type-check, and tests on commit.<br />
+Fix: Read the error message and address the specific failure:</p>
+<pre><code class="language-bash">pnpm lint         # Check for lint errors
+pnpm check-types  # Check for type errors
+pnpm test         # Check for test failures
+</code></pre>
+<p><strong>Q5. GraphQL code generation errors.</strong><br />
+Cause: <code>@copilotkit/runtime-client-gql</code> auto-generates types from the GraphQL schema, which must be built first.<br />
+Fix:</p>
+<pre><code class="language-bash">npx nx run @copilotkit/runtime:build                            # Build runtime first
+npx nx run @copilotkit/runtime-client-gql:graphql-codegen      # Re-generate code
+</code></pre>
+<p><strong>Q6. How do I link a local A2UI package for development?</strong><br />
+Fix: <code>.pnpmfile.cjs</code> already supports this via environment variable:</p>
+<pre><code class="language-bash">A2UI_LOCAL=1 pnpm install
+# @a2ui/web_core and @a2ui/react map to your local sibling repo
+</code></pre>
+<p><strong>Q7. What do I need to do when creating a new hook?</strong><br />
+Implement the hook in <code>@copilotkit/react-core</code>, then <strong>all</strong> of these are required:
+1. Write JSDoc with usage examples
+2. Write Vitest unit tests (behavior, edge cases, lifecycle)
+3. Create <code>showcase/shell-docs/src/content/reference/hooks/&lt;hookName&gt;.mdx</code>
+4. Add a conceptual guide under <code>showcase/shell-docs/src/content/docs/</code> if needed</p>
+<h2 id="-">---</h2>
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<p>CopilotKit은 <strong>AI 에이전트 프레임워크</strong>로, 다음과 같이 분류됩니다:</p>
+<ul>
+<li><strong>분류</strong>: 프레임워크 (Framework) + 라이브러리 컬렉션 (Library collection)</li>
+<li><strong>역할</strong>: 기존 웹 애플리케이션에 AI 에이전트 기능을 빠르게 추가할 수 있는 종단 간(end-to-end) 솔루션</li>
+<li><strong>해결하는 실전 문제들</strong>:</li>
+<li><strong>AI 채팅 UI 구현의 복잡성</strong>: SSE 스트리밍, 메시지 상태 관리, 툴 호출 UI — 모두 CopilotKit이 추상화</li>
+<li><strong>멀티 에이전트 오케스트레이션</strong>: LangGraph, CrewAI 에이전트를 프론트엔드와 연결하는 보일러플레이트 제거</li>
+<li><strong>프레임워크 불가지론</strong>: React, Vue, Angular, React Native — 동일한 런타임 API를 공유</li>
+<li><strong>AI 공급자 추상화</strong>: OpenAI, Anthropic, Google, Groq를 단일 인터페이스로 전환</li>
+<li><strong>Agentic UI(A2UI)</strong>: 에이전트가 직접 UI 컴포넌트를 선언하고 렌더링하는 패러다임 지원</li>
+<li><strong>생산 준비(Production-ready)</strong>: 라이선스 검증, 분석, 모니터링, 보안이 내장</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>CopilotKit is an <strong>AI agent framework</strong>, classified as:</p>
+<ul>
+<li><strong>Classification</strong>: Framework + Library collection</li>
+<li><strong>Role</strong>: An end-to-end solution for adding AI agent capabilities to existing web applications</li>
+<li><strong>Real-world problems it solves</strong>:</li>
+<li><strong>Complexity of AI chat UIs</strong>: SSE streaming, message state management, tool-call UI — all abstracted away</li>
+<li><strong>Multi-agent orchestration</strong>: Removes boilerplate for connecting LangGraph / CrewAI agents to the frontend</li>
+<li><strong>Framework agnosticism</strong>: React, Vue, Angular, React Native — all share the same runtime API</li>
+<li><strong>AI provider abstraction</strong>: Switch between OpenAI, Anthropic, Google, Groq via a single interface</li>
+<li><strong>Agentic UI (A2UI)</strong>: Supports the paradigm where agents declaratively define and render UI components</li>
+<li><strong>Production-ready</strong>: License verification, analytics, monitoring, and security built in</li>
+</ul>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>전체 아키텍처 다이어그램 (Mermaid):</strong></p>
+<pre><code class="language-mermaid">graph TD
+    subgraph &quot;Frontend Layer&quot;
+        A[User App&lt;br/&gt;React/Vue/Angular/RN]
+        B[@copilotkit/react-core&lt;br/&gt;CopilotKit Provider + Hooks]
+        C[@copilotkit/react-ui&lt;br/&gt;CopilotChat, CopilotSidebar]
+        D[@copilotkit/a2ui-renderer&lt;br/&gt;Agentic UI Renderer]
+        E[@copilotkit/runtime-client-gql&lt;br/&gt;urql GraphQL Client]
+    end
+
+    subgraph &quot;Transport Layer&quot;
+        F[AG-UI Protocol&lt;br/&gt;HTTP POST + SSE Stream]
+        G[GraphQL over HTTP&lt;br/&gt;/copilotkit endpoint]
+    end
+
+    subgraph &quot;Runtime Layer&quot;
+        H[@copilotkit/runtime&lt;br/&gt;CopilotRuntime]
+        I[graphql-yoga&lt;br/&gt;GraphQL Server]
+        J[AgentRunner&lt;br/&gt;LangGraph/CrewAI/Custom]
+        K[LLM Adapters&lt;br/&gt;OpenAI/Anthropic/Google/Groq]
+    end
+
+    subgraph &quot;Agent Layer&quot;
+        L[LangGraph Agent]
+        M[CrewAI Agent]
+        N[Custom Agent]
+    end
+
+    A --&gt; B
+    B --&gt; C
+    B --&gt; D
+    B --&gt; E
+    E --&gt;|HTTP POST| G
+    G --&gt; F
+    F --&gt;|SSE Events| E
+    H --&gt; I
+    I --&gt; J
+    J --&gt; K
+    J --&gt; L
+    J --&gt; M
+    J --&gt; N
+</code></pre>
+<p><strong>핵심 컴포넌트와 역할:</strong></p>
+<table>
+<thead>
+<tr>
+<th>컴포넌트</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CopilotKit</code> Provider</td>
+<td>프론트엔드 컨텍스트 루트, 런타임 URL 설정</td>
+</tr>
+<tr>
+<td><code>CopilotChat</code> / <code>CopilotSidebar</code></td>
+<td>즉시 사용 가능한 채팅 UI</td>
+</tr>
+<tr>
+<td><code>useCopilotChat</code></td>
+<td>저수준 채팅 훅 (커스텀 UI용)</td>
+</tr>
+<tr>
+<td><code>useCopilotAction</code></td>
+<td>프론트엔드 툴 등록 (에이전트가 호출 가능)</td>
+</tr>
+<tr>
+<td><code>useCoAgent</code></td>
+<td>에이전트 상태 구독 및 제어</td>
+</tr>
+<tr>
+<td><code>CopilotRuntime</code></td>
+<td>서버사이드 런타임 클래스</td>
+</tr>
+<tr>
+<td><code>AgentRunner</code></td>
+<td>에이전트 실행 추상화 레이어</td>
+</tr>
+<tr>
+<td>AG-UI Protocol</td>
+<td>런타임 ↔ 프론트엔드 이벤트 스트리밍</td>
+</tr>
+</tbody>
+</table>
+<p><strong>데이터 흐름:</strong></p>
+<ol>
+<li>사용자 메시지 전송 → <code>CopilotKit</code> Provider가 GraphQL mutation 실행</li>
+<li>HTTP POST → 런타임 <code>/copilotkit</code> 엔드포인트</li>
+<li><code>AgentRunner</code>가 에이전트 식별 및 실행</li>
+<li>LLM 응답 스트리밍 → AG-UI 이벤트(텍스트 청크, 툴 호출)를 SSE로 전송</li>
+<li>프론트엔드 툴 호출 시: 로컬 핸들러 실행 → 결과를 에이전트로 반환</li>
+<li>최종 상태 업데이트 → React 상태 재렌더링</li>
+</ol>
+<p><strong>[English]</strong></p>
+<p><strong>Overall architecture diagram (Mermaid):</strong></p>
+<pre><code class="language-mermaid">graph TD
+    subgraph &quot;Frontend Layer&quot;
+        A[User App&lt;br/&gt;React/Vue/Angular/RN]
+        B[@copilotkit/react-core&lt;br/&gt;CopilotKit Provider + Hooks]
+        C[@copilotkit/react-ui&lt;br/&gt;CopilotChat, CopilotSidebar]
+        D[@copilotkit/a2ui-renderer&lt;br/&gt;Agentic UI Renderer]
+        E[@copilotkit/runtime-client-gql&lt;br/&gt;urql GraphQL Client]
+    end
+
+    subgraph &quot;Transport Layer&quot;
+        F[AG-UI Protocol&lt;br/&gt;HTTP POST + SSE Stream]
+        G[GraphQL over HTTP&lt;br/&gt;/copilotkit endpoint]
+    end
+
+    subgraph &quot;Runtime Layer&quot;
+        H[@copilotkit/runtime&lt;br/&gt;CopilotRuntime]
+        I[graphql-yoga&lt;br/&gt;GraphQL Server]
+        J[AgentRunner&lt;br/&gt;LangGraph/CrewAI/Custom]
+        K[LLM Adapters&lt;br/&gt;OpenAI/Anthropic/Google/Groq]
+    end
+
+    subgraph &quot;Agent Layer&quot;
+        L[LangGraph Agent]
+        M[CrewAI Agent]
+        N[Custom Agent]
+    end
+
+    A --&gt; B
+    B --&gt; C
+    B --&gt; D
+    B --&gt; E
+    E --&gt;|HTTP POST| G
+    G --&gt; F
+    F --&gt;|SSE Events| E
+    H --&gt; I
+    I --&gt; J
+    J --&gt; K
+    J --&gt; L
+    J --&gt; M
+    J --&gt; N
+</code></pre>
+<p><strong>Core components and roles:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CopilotKit</code> Provider</td>
+<td>Frontend context root; sets runtime URL</td>
+</tr>
+<tr>
+<td><code>CopilotChat</code> / <code>CopilotSidebar</code></td>
+<td>Ready-to-use chat UI components</td>
+</tr>
+<tr>
+<td><code>useCopilotChat</code></td>
+<td>Low-level chat hook for custom UIs</td>
+</tr>
+<tr>
+<td><code>useCopilotAction</code></td>
+<td>Register frontend tools (callable by agents)</td>
+</tr>
+<tr>
+<td><code>useCoAgent</code></td>
+<td>Subscribe to and control agent state</td>
+</tr>
+<tr>
+<td><code>CopilotRuntime</code></td>
+<td>Server-side runtime class</td>
+</tr>
+<tr>
+<td><code>AgentRunner</code></td>
+<td>Agent execution abstraction layer</td>
+</tr>
+<tr>
+<td>AG-UI Protocol</td>
+<td>Runtime ↔ frontend event streaming</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Data flow:</strong></p>
+<ol>
+<li>User sends message → <code>CopilotKit</code> Provider executes GraphQL mutation</li>
+<li>HTTP POST → runtime <code>/copilotkit</code> endpoint</li>
+<li><code>AgentRunner</code> resolves and executes the agent</li>
+<li>LLM response streams back → AG-UI events (text chunks, tool calls) sent via SSE</li>
+<li>On frontend tool call: local handler executes → result returned to agent</li>
+<li>Final state update → React state re-renders UI</li>
+</ol>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: 기존 Next.js 앱에 AI 채팅 사이드바 추가</strong></p>
+<p><em>전제: 기존 Next.js 앱에 GPT-4o 기반 채팅 사이드바를 5분 안에 추가</em></p>
+<p>1단계 — 패키지 설치:</p>
+<pre><code class="language-bash">npm install @copilotkit/react-core @copilotkit/react-ui @copilotkit/runtime
+</code></pre>
+<p>2단계 — API 라우트 생성 (<code>app/api/copilotkit/route.ts</code>):</p>
+<pre><code class="language-typescript">import { CopilotRuntime, OpenAIAdapter, copilotRuntimeNextJSAppRouterEndpoint } from &quot;@copilotkit/runtime&quot;;
+import OpenAI from &quot;openai&quot;;
+import { NextRequest } from &quot;next/server&quot;;
+
+const copilotKit = new CopilotRuntime();
+
+export const POST = async (req: NextRequest) =&gt; {
+  const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
+    runtime: copilotKit,
+    serviceAdapter: new OpenAIAdapter({ openai: new OpenAI() }),
+    endpoint: &quot;/api/copilotkit&quot;,
+  });
+  return handleRequest(req);
+};
+</code></pre>
+<p>3단계 — 레이아웃에 Provider 추가 (<code>app/layout.tsx</code>):</p>
+<pre><code class="language-tsx">import { CopilotKit } from &quot;@copilotkit/react-core&quot;;
+import &quot;@copilotkit/react-ui/styles.css&quot;;
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;CopilotKit runtimeUrl=&quot;/api/copilotkit&quot;&gt;
+      {children}
+    &lt;/CopilotKit&gt;
+  );
+}
+</code></pre>
+<p>4단계 — 페이지에 사이드바 컴포넌트 추가:</p>
+<pre><code class="language-tsx">import { CopilotSidebar } from &quot;@copilotkit/react-ui&quot;;
+
+export default function Page() {
+  return (
+    &lt;CopilotSidebar defaultOpen instructions=&quot;You are a helpful assistant.&quot;&gt;
+      &lt;YourPageContent /&gt;
+    &lt;/CopilotSidebar&gt;
+  );
+}
+</code></pre>
+<hr />
+<p><strong>시나리오 2: 커스텀 프론트엔드 툴 등록 (에이전트가 UI 액션 실행)</strong></p>
+<p><em>전제: 에이전트가 "장바구니에 상품 추가"와 같은 UI 동작을 호출할 수 있게 하기</em></p>
+<pre><code class="language-tsx">import { useCopilotAction } from &quot;@copilotkit/react-core&quot;;
+
+function ProductPage() {
+  const [cart, setCart] = useState([]);
+
+  // 에이전트가 호출할 수 있는 툴 등록
+  useCopilotAction({
+    name: &quot;addToCart&quot;,
+    description: &quot;Add a product to the shopping cart&quot;,
+    parameters: [
+      { name: &quot;productId&quot;, type: &quot;string&quot;, description: &quot;Product ID&quot; },
+      { name: &quot;quantity&quot;, type: &quot;number&quot;, description: &quot;Quantity&quot; },
+    ],
+    handler: async ({ productId, quantity }) =&gt; {
+      setCart(prev =&gt; [...prev, { productId, quantity }]);
+      return `Added ${quantity} of product ${productId} to cart`;
+    },
+  });
+
+  return &lt;ProductList /&gt;;
+}
+</code></pre>
+<hr />
+<p><strong>시나리오 3: LangGraph 에이전트와 연동 (멀티 에이전트 워크플로우)</strong></p>
+<p><em>전제: Python LangGraph 에이전트를 프론트엔드와 연결</em></p>
+<p>백엔드 (<code>packages/sdk-js</code> 사용):</p>
+<pre><code class="language-typescript">import { CopilotRuntime, LangGraphAgent } from &quot;@copilotkit/runtime&quot;;
+
+const copilotKit = new CopilotRuntime({
+  agents: [
+    new LangGraphAgent({
+      name: &quot;research_agent&quot;,
+      description: &quot;Researches topics and summarizes findings&quot;,
+      url: &quot;http://localhost:8000/copilotkit&quot;,  // LangGraph 서버 URL
+    }),
+  ],
+});
+</code></pre>
+<p>프론트엔드 (<code>useCoAgent</code>로 에이전트 상태 구독):</p>
+<pre><code class="language-tsx">import { useCoAgent, useCoAgentAction } from &quot;@copilotkit/react-core&quot;;
+
+function ResearchApp() {
+  const { state, setState } = useCoAgent({
+    name: &quot;research_agent&quot;,
+    initialState: { query: &quot;&quot;, results: [] },
+  });
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Current query: {state.query}&lt;/p&gt;
+      &lt;ul&gt;{state.results.map(r =&gt; &lt;li key={r.id}&gt;{r.title}&lt;/li&gt;)}&lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<hr />
+<p><strong>시나리오 4: Agentic UI (A2UI) — 에이전트가 동적 UI 렌더링</strong></p>
+<p><em>전제: 에이전트가 응답 중에 동적으로 UI 컴포넌트를 선택해 렌더링</em></p>
+<pre><code class="language-tsx">import { CopilotKit } from &quot;@copilotkit/react-core&quot;;
+import { A2UIRenderer } from &quot;@copilotkit/a2ui-renderer&quot;;
+
+// 에이전트가 반환하는 선언적 UI를 렌더링
+function App() {
+  return (
+    &lt;CopilotKit runtimeUrl=&quot;/api/copilotkit&quot;&gt;
+      &lt;A2UIRenderer /&gt;
+      &lt;YourContent /&gt;
+    &lt;/CopilotKit&gt;
+  );
+}
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: Add an AI chat sidebar to an existing Next.js app</strong></p>
+<p><em>Goal: Add a GPT-4o-powered chat sidebar to an existing Next.js app in under 5 minutes</em></p>
+<p>Step 1 — Install packages:</p>
+<pre><code class="language-bash">npm install @copilotkit/react-core @copilotkit/react-ui @copilotkit/runtime
+</code></pre>
+<p>Step 2 — Create API route (<code>app/api/copilotkit/route.ts</code>):</p>
+<pre><code class="language-typescript">import { CopilotRuntime, OpenAIAdapter, copilotRuntimeNextJSAppRouterEndpoint } from &quot;@copilotkit/runtime&quot;;
+import OpenAI from &quot;openai&quot;;
+import { NextRequest } from &quot;next/server&quot;;
+
+const copilotKit = new CopilotRuntime();
+
+export const POST = async (req: NextRequest) =&gt; {
+  const { handleRequest } = copilotRuntimeNextJSAppRouterEndpoint({
+    runtime: copilotKit,
+    serviceAdapter: new OpenAIAdapter({ openai: new OpenAI() }),
+    endpoint: &quot;/api/copilotkit&quot;,
+  });
+  return handleRequest(req);
+};
+</code></pre>
+<p>Step 3 — Add Provider to layout (<code>app/layout.tsx</code>):</p>
+<pre><code class="language-tsx">import { CopilotKit } from &quot;@copilotkit/react-core&quot;;
+import &quot;@copilotkit/react-ui/styles.css&quot;;
+
+export default function RootLayout({ children }) {
+  return (
+    &lt;CopilotKit runtimeUrl=&quot;/api/copilotkit&quot;&gt;
+      {children}
+    &lt;/CopilotKit&gt;
+  );
+}
+</code></pre>
+<p>Step 4 — Add sidebar to a page:</p>
+<pre><code class="language-tsx">import { CopilotSidebar } from &quot;@copilotkit/react-ui&quot;;
+
+export default function Page() {
+  return (
+    &lt;CopilotSidebar defaultOpen instructions=&quot;You are a helpful assistant.&quot;&gt;
+      &lt;YourPageContent /&gt;
+    &lt;/CopilotSidebar&gt;
+  );
+}
+</code></pre>
+<hr />
+<p><strong>Scenario 2: Register custom frontend tools (agents invoke UI actions)</strong></p>
+<p><em>Goal: Let an agent call "add item to cart" or similar UI-bound operations</em></p>
+<pre><code class="language-tsx">import { useCopilotAction } from &quot;@copilotkit/react-core&quot;;
+
+function ProductPage() {
+  const [cart, setCart] = useState([]);
+
+  useCopilotAction({
+    name: &quot;addToCart&quot;,
+    description: &quot;Add a product to the shopping cart&quot;,
+    parameters: [
+      { name: &quot;productId&quot;, type: &quot;string&quot;, description: &quot;Product ID&quot; },
+      { name: &quot;quantity&quot;, type: &quot;number&quot;, description: &quot;Quantity&quot; },
+    ],
+    handler: async ({ productId, quantity }) =&gt; {
+      setCart(prev =&gt; [...prev, { productId, quantity }]);
+      return `Added ${quantity} of product ${productId} to cart`;
+    },
+  });
+
+  return &lt;ProductList /&gt;;
+}
+</code></pre>
+<hr />
+<p><strong>Scenario 3: LangGraph agent integration (multi-agent workflow)</strong></p>
+<p><em>Goal: Connect a Python LangGraph agent to the frontend</em></p>
+<p>Backend (using <code>@copilotkit/runtime</code>):</p>
+<pre><code class="language-typescript">import { CopilotRuntime, LangGraphAgent } from &quot;@copilotkit/runtime&quot;;
+
+const copilotKit = new CopilotRuntime({
+  agents: [
+    new LangGraphAgent({
+      name: &quot;research_agent&quot;,
+      description: &quot;Researches topics and summarizes findings&quot;,
+      url: &quot;http://localhost:8000/copilotkit&quot;,  // LangGraph server URL
+    }),
+  ],
+});
+</code></pre>
+<p>Frontend (subscribe to agent state with <code>useCoAgent</code>):</p>
+<pre><code class="language-tsx">import { useCoAgent } from &quot;@copilotkit/react-core&quot;;
+
+function ResearchApp() {
+  const { state, setState } = useCoAgent({
+    name: &quot;research_agent&quot;,
+    initialState: { query: &quot;&quot;, results: [] },
+  });
+
+  return (
+    &lt;div&gt;
+      &lt;p&gt;Current query: {state.query}&lt;/p&gt;
+      &lt;ul&gt;{state.results.map(r =&gt; &lt;li key={r.id}&gt;{r.title}&lt;/li&gt;)}&lt;/ul&gt;
+    &lt;/div&gt;
+  );
+}
+</code></pre>
+<hr />
+<p><strong>Scenario 4: Agentic UI (A2UI) — agent-driven dynamic rendering</strong></p>
+<p><em>Goal: The agent dynamically selects and renders UI components during its response</em></p>
+<pre><code class="language-tsx">import { CopilotKit } from &quot;@copilotkit/react-core&quot;;
+import { A2UIRenderer } from &quot;@copilotkit/a2ui-renderer&quot;;
+
+function App() {
+  return (
+    &lt;CopilotKit runtimeUrl=&quot;/api/copilotkit&quot;&gt;
+      &lt;A2UIRenderer /&gt;
+      &lt;YourContent /&gt;
+    &lt;/CopilotKit&gt;
+  );
+}
+</code></pre>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>설정 변경 포인트 (환경 변수, 설정 파일):</strong></p>
+<pre><code class="language-typescript">// CopilotRuntime 런타임 수준 설정
+const runtime = new CopilotRuntime({
+  middleware: { onBeforeRequest, onAfterRequest },  // 요청 인터셉터
+  agents: [...],     // 에이전트 등록
+  actions: [...],    // 서버사이드 툴 등록
+  publicApiKey: process.env.COPILOTKIT_PUBLIC_API_KEY,
+});
+
+// LLM 어댑터 교체
+const adapter = new AnthropicAdapter({ model: &quot;claude-opus-4-8&quot; });
+// 또는
+const adapter = new GoogleGenerativeAIAdapter({ model: &quot;gemini-2.0-flash&quot; });
+</code></pre>
+<p><strong>AI 공급자 전환 (어댑터 패턴):</strong></p>
+<table>
+<thead>
+<tr>
+<th>공급자</th>
+<th>어댑터 클래스</th>
+<th>환경 변수</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td><code>OpenAIAdapter</code></td>
+<td><code>OPENAI_API_KEY</code></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td><code>AnthropicAdapter</code></td>
+<td><code>ANTHROPIC_API_KEY</code></td>
+</tr>
+<tr>
+<td>Google Gemini</td>
+<td><code>GoogleGenerativeAIAdapter</code></td>
+<td><code>GOOGLE_GENERATIVE_AI_API_KEY</code></td>
+</tr>
+<tr>
+<td>Groq</td>
+<td><code>GroqAdapter</code></td>
+<td><code>GROQ_API_KEY</code></td>
+</tr>
+<tr>
+<td>Vercel AI SDK</td>
+<td><code>VercelAIAdapter</code></td>
+<td>공급자별 키</td>
+</tr>
+</tbody>
+</table>
+<p><strong>프론트엔드 커스터마이징 포인트:</strong></p>
+<ul>
+<li><code>CopilotChat</code> props: <code>instructions</code>, <code>labels</code>, <code>makeSystemMessage</code>, <code>onSubmitMessage</code></li>
+<li>커스텀 메시지 렌더러: <code>Messages</code> 컴포넌트 override</li>
+<li>CSS 변수로 스타일 오버라이드:</li>
+</ul>
+<pre><code class="language-css">:root {
+  --copilot-kit-primary-color: #your-brand-color;
+  --copilot-kit-background-color: #ffffff;
+  --copilot-kit-response-button-color: #007bff;
+}
+</code></pre>
+<p><strong>기능 추가 시 수정해야 할 주요 파일/모듈:</strong></p>
+<table>
+<thead>
+<tr>
+<th>추가할 기능</th>
+<th>수정 패키지</th>
+<th>주요 파일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>새 React 훅</td>
+<td><code>react-core</code></td>
+<td><code>src/hooks/</code>, <code>src/index.tsx</code></td>
+</tr>
+<tr>
+<td>새 서버사이드 툴</td>
+<td><code>runtime</code></td>
+<td><code>src/action-input/</code>, <code>src/lib/</code></td>
+</tr>
+<tr>
+<td>새 UI 컴포넌트</td>
+<td><code>react-ui</code></td>
+<td><code>src/components/</code>, <code>src/ui/</code></td>
+</tr>
+<tr>
+<td>새 에이전트 러너</td>
+<td><code>runtime</code></td>
+<td><code>src/lib/agent-runner.ts</code></td>
+</tr>
+<tr>
+<td>새 LLM 어댑터</td>
+<td><code>runtime</code></td>
+<td><code>src/lib/llm-adapters/</code></td>
+</tr>
+<tr>
+<td>새 Vue 컴포저블</td>
+<td><code>vue</code></td>
+<td><code>src/composables/</code></td>
+</tr>
+<tr>
+<td>새 Angular 서비스</td>
+<td><code>angular</code></td>
+<td><code>src/lib/services/</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>훅/미들웨어 구조:</strong></p>
+<pre><code class="language-typescript">// 서버사이드 미들웨어 (요청 전후 처리)
+const runtime = new CopilotRuntime({
+  middleware: {
+    onBeforeRequest: async (ctx) =&gt; {
+      // 인증, 로깅, 컨텍스트 주입
+      return ctx;
+    },
+    onAfterRequest: async (ctx, response) =&gt; {
+      // 응답 후처리, 감사 로그
+    },
+  },
+});
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Configuration touch points (env vars, config files):</strong></p>
+<pre><code class="language-typescript">// CopilotRuntime runtime-level configuration
+const runtime = new CopilotRuntime({
+  middleware: { onBeforeRequest, onAfterRequest },  // request interceptors
+  agents: [...],     // register remote agents
+  actions: [...],    // register server-side tools
+  publicApiKey: process.env.COPILOTKIT_PUBLIC_API_KEY,
+});
+
+// Swap LLM adapter
+const adapter = new AnthropicAdapter({ model: &quot;claude-opus-4-8&quot; });
+// or
+const adapter = new GoogleGenerativeAIAdapter({ model: &quot;gemini-2.0-flash&quot; });
+</code></pre>
+<p><strong>Switching AI providers (adapter pattern):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Adapter class</th>
+<th>Env var</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td><code>OpenAIAdapter</code></td>
+<td><code>OPENAI_API_KEY</code></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td><code>AnthropicAdapter</code></td>
+<td><code>ANTHROPIC_API_KEY</code></td>
+</tr>
+<tr>
+<td>Google Gemini</td>
+<td><code>GoogleGenerativeAIAdapter</code></td>
+<td><code>GOOGLE_GENERATIVE_AI_API_KEY</code></td>
+</tr>
+<tr>
+<td>Groq</td>
+<td><code>GroqAdapter</code></td>
+<td><code>GROQ_API_KEY</code></td>
+</tr>
+<tr>
+<td>Vercel AI SDK</td>
+<td><code>VercelAIAdapter</code></td>
+<td>Provider-specific key</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Frontend customization points:</strong></p>
+<ul>
+<li><code>CopilotChat</code> props: <code>instructions</code>, <code>labels</code>, <code>makeSystemMessage</code>, <code>onSubmitMessage</code></li>
+<li>Custom message renderer: override the <code>Messages</code> component</li>
+<li>Style overrides via CSS variables:</li>
+</ul>
+<pre><code class="language-css">:root {
+  --copilot-kit-primary-color: #your-brand-color;
+  --copilot-kit-background-color: #ffffff;
+  --copilot-kit-response-button-color: #007bff;
+}
+</code></pre>
+<p><strong>Key files to modify when adding features:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature to add</th>
+<th>Target package</th>
+<th>Key files</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New React hook</td>
+<td><code>react-core</code></td>
+<td><code>src/hooks/</code>, <code>src/index.tsx</code></td>
+</tr>
+<tr>
+<td>New server-side tool</td>
+<td><code>runtime</code></td>
+<td><code>src/action-input/</code>, <code>src/lib/</code></td>
+</tr>
+<tr>
+<td>New UI component</td>
+<td><code>react-ui</code></td>
+<td><code>src/components/</code>, <code>src/ui/</code></td>
+</tr>
+<tr>
+<td>New agent runner</td>
+<td><code>runtime</code></td>
+<td><code>src/lib/agent-runner.ts</code></td>
+</tr>
+<tr>
+<td>New LLM adapter</td>
+<td><code>runtime</code></td>
+<td><code>src/lib/llm-adapters/</code></td>
+</tr>
+<tr>
+<td>New Vue composable</td>
+<td><code>vue</code></td>
+<td><code>src/composables/</code></td>
+</tr>
+<tr>
+<td>New Angular service</td>
+<td><code>angular</code></td>
+<td><code>src/lib/services/</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Hook / middleware architecture:</strong></p>
+<pre><code class="language-typescript">// Server-side middleware (pre/post-request processing)
+const runtime = new CopilotRuntime({
+  middleware: {
+    onBeforeRequest: async (ctx) =&gt; {
+      // auth, logging, context injection
+      return ctx;
+    },
+    onAfterRequest: async (ctx, response) =&gt; {
+      // post-response processing, audit logs
+    },
+  },
+});
+</code></pre>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>프로덕션 빌드 절차:</strong></p>
+<pre><code class="language-bash"># 전체 패키지 빌드
+pnpm build
+
+# 타입 및 패키지 품질 검증
+pnpm check-types
+pnpm check:packages   # publint + attw 실행
+</code></pre>
+<p><strong>환경별 설정 분리:</strong></p>
+<pre><code class="language-typescript">// 환경 변수 기반 LLM 어댑터 선택
+const getAdapter = () =&gt; {
+  switch (process.env.AI_PROVIDER) {
+    case &quot;anthropic&quot;: return new AnthropicAdapter();
+    case &quot;google&quot;: return new GoogleGenerativeAIAdapter();
+    default: return new OpenAIAdapter();
+  }
+};
+</code></pre>
+<p><strong>CI/CD 파이프라인 통합:</strong></p>
+<p>CopilotKit 자체 CI/CD는 GitHub Actions 기반입니다. 새 서비스에 통합 시 권장 파이프라인:</p>
+<pre><code class="language-yaml"># .github/workflows/deploy.yml 예시
+jobs:
+  deploy:
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm check-types
+      - run: pnpm test
+      - run: pnpm check:packages
+      # 이후 배포 단계
+</code></pre>
+<p><strong>컨테이너화 (Docker):</strong></p>
+<pre><code class="language-dockerfile"># 런타임 서버를 위한 Dockerfile 예시
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm &amp;&amp; pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+EXPOSE 4000
+CMD [&quot;node&quot;, &quot;dist/server.js&quot;]
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+showcase 앱의 <code>docker-compose.local.yml</code> 파일에서 로컬 개발 Docker 구성 참고 가능.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Production build steps:</strong></p>
+<pre><code class="language-bash"># Build all packages
+pnpm build
+
+# Type and package quality verification
+pnpm check-types
+pnpm check:packages   # runs publint + attw
+</code></pre>
+<p><strong>Environment-specific configuration separation:</strong></p>
+<pre><code class="language-typescript">// Environment variable-based LLM adapter selection
+const getAdapter = () =&gt; {
+  switch (process.env.AI_PROVIDER) {
+    case &quot;anthropic&quot;: return new AnthropicAdapter();
+    case &quot;google&quot;: return new GoogleGenerativeAIAdapter();
+    default: return new OpenAIAdapter();
+  }
+};
+</code></pre>
+<p><strong>CI/CD pipeline integration:</strong></p>
+<p>CopilotKit uses GitHub Actions internally. Recommended pipeline for integrating into your own service:</p>
+<pre><code class="language-yaml"># .github/workflows/deploy.yml example
+jobs:
+  deploy:
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with: { version: 10 }
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm build
+      - run: pnpm check-types
+      - run: pnpm test
+      - run: pnpm check:packages
+      # followed by deployment steps
+</code></pre>
+<p><strong>Containerization (Docker):</strong></p>
+<pre><code class="language-dockerfile"># Example Dockerfile for a runtime server
+FROM node:20-alpine AS builder
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN npm install -g pnpm &amp;&amp; pnpm install --frozen-lockfile
+COPY . .
+RUN pnpm build
+
+FROM node:20-alpine AS runner
+WORKDIR /app
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/node_modules ./node_modules
+EXPOSE 4000
+CMD [&quot;node&quot;, &quot;dist/server.js&quot;]
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+See <code>showcase/docker-compose.local.yml</code> for a reference Docker Compose setup for local development.</p>
+</blockquote>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>알려진 성능 병목 지점:</strong>
+1. <strong>SSE 연결 지속</strong>: LLM 응답 스트리밍 중 연결이 오래 유지됨 → 리버스 프록시(nginx, Cloudflare)의 타임아웃 설정 필요
+2. <strong>GraphQL 오버헤드</strong>: 모든 채팅 요청이 GraphQL을 거침 → 프로덕션에서 DataLoader 패턴 활용 권장
+3. <strong>에이전트 콜드 스타트</strong>: LangGraph 에이전트가 Python 기반일 경우 첫 호출 지연 발생</p>
+<p><strong>수평/수직 확장 전략:</strong>
+- <strong>수평 확장</strong>: <code>CopilotRuntime</code>은 무상태(stateless) 설계 → 로드 밸런서 뒤 다중 인스턴스 배포 가능
+- <strong>에이전트 상태 지속성</strong>: <code>@copilotkit/sqlite-runner</code>로 에이전트 스레드 상태를 SQLite에 저장 (단일 서버용)
+- <strong>분산 상태</strong>: AWS Bedrock AgentCore 사용 시 <code>@copilotkit/agentcore-runner</code> 활용</p>
+<p><strong>캐싱 전략:</strong>
+- LLM 응답 자체는 캐시하지 않음 (스트리밍 특성상 어려움)
+- 에이전트 메타데이터(사용 가능한 툴 목록 등)는 프론트엔드에서 캐시 가능
+- Nx 빌드 캐시: CI에서 원격 캐시 설정으로 빌드 시간 단축</p>
+<p><strong>모니터링 및 로깅:</strong></p>
+<pre><code class="language-typescript">// pino 기반 구조적 로깅 내장
+// 환경 변수로 로그 레벨 제어
+process.env.LOG_LEVEL = &quot;info&quot;; // debug, info, warn, error
+
+// Segment 분석 (선택적 비활성화)
+process.env.COPILOTKIT_TELEMETRY_DISABLED = &quot;1&quot;;
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+LangSmith를 통한 LangGraph 에이전트 트레이싱: <code>LANGCHAIN_TRACING_V2=true</code>, <code>LANGSMITH_API_KEY=...</code></p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Known performance bottlenecks:</strong>
+1. <strong>Persistent SSE connections</strong>: LLM response streaming keeps connections open — configure reverse proxy (nginx, Cloudflare) timeouts accordingly
+2. <strong>GraphQL overhead</strong>: Every chat request passes through GraphQL — consider DataLoader patterns in high-throughput scenarios
+3. <strong>Agent cold starts</strong>: Python-based LangGraph agents may have first-call latency</p>
+<p><strong>Horizontal / vertical scaling strategies:</strong>
+- <strong>Horizontal</strong>: <code>CopilotRuntime</code> is stateless by design → deploy multiple instances behind a load balancer
+- <strong>Agent state persistence</strong>: Use <code>@copilotkit/sqlite-runner</code> for single-server thread state (SQLite-backed)
+- <strong>Distributed state</strong>: For AWS Bedrock, use <code>@copilotkit/agentcore-runner</code></p>
+<p><strong>Caching strategy:</strong>
+- LLM responses themselves are not cached (streaming nature makes this difficult)
+- Agent metadata (available tool lists, etc.) can be cached on the frontend
+- Nx build cache: configure remote cache in CI to drastically reduce build times</p>
+<p><strong>Monitoring and logging:</strong></p>
+<pre><code class="language-typescript">// pino-based structured logging is built in
+// Control log level via environment variable
+process.env.LOG_LEVEL = &quot;info&quot;; // debug, info, warn, error
+
+// Disable Segment telemetry (optional)
+process.env.COPILOTKIT_TELEMETRY_DISABLED = &quot;1&quot;;
+</code></pre>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation<br />
+For LangGraph agent tracing via LangSmith: set <code>LANGCHAIN_TRACING_V2=true</code> and <code>LANGSMITH_API_KEY=...</code></p>
+</blockquote>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>환경 변수 및 시크릿 관리:</strong>
+- [ ] AI 공급자 API 키(<code>OPENAI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code> 등)를 절대 클라이언트 번들에 포함하지 않기
+- [ ] <code>.env</code> 파일은 <code>.gitignore</code>에 포함되어 있는지 확인
+- [ ] CI/CD 환경에서 GitHub Secrets 또는 Vault 사용
+- [ ] <code>COPILOTKIT_LICENSE_KEY</code>는 서버사이드 환경 변수로만 사용</p>
+<p><strong>인증/인가 구현 포인트:</strong></p>
+<pre><code class="language-typescript">// 런타임 미들웨어에서 요청 인증
+const runtime = new CopilotRuntime({
+  middleware: {
+    onBeforeRequest: async (ctx) =&gt; {
+      const token = ctx.request.headers.get(&quot;Authorization&quot;);
+      if (!token || !isValidToken(token)) {
+        throw new Error(&quot;Unauthorized&quot;);
+      }
+      return ctx;
+    },
+  },
+});
+</code></pre>
+<p><strong>의존성 취약점 점검:</strong></p>
+<pre><code class="language-bash"># pnpm audit 실행
+pnpm audit
+
+# Dependabot이 renovate.json 설정으로 자동 PR 생성
+# .github/workflows/security_zizmor.yml — GitHub Actions 보안 스캐닝
+</code></pre>
+<p><strong>알려진 보안 고려사항:</strong>
+- <code>pnpm-lock.yaml</code>에 30+ 보안 패치 override가 있음 (<code>path-to-regexp</code>, <code>axios</code>, <code>handlebars</code>, <code>tar</code>, <code>node-forge</code> 등) — 업데이트 시 이 override들을 유지할 것
+- <code>block-exotic-subdeps=true</code> <code>.npmrc</code> 설정으로 비정상 하위 의존성 차단
+- <code>minimum-release-age=1440</code> — 최신 배포된 패키지가 24시간 후에만 설치됨 (공급망 공격 방어)
+- <code>lefthook.yml</code>의 <code>check-binaries</code> 훅이 커밋 전 바이너리 파일 보안 스캔 수행</p>
+<p><strong>[English]</strong></p>
+<p><strong>Environment variable and secret management:</strong>
+- [ ] Never include AI provider API keys (<code>OPENAI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, etc.) in the client bundle
+- [ ] Confirm <code>.env</code> files are listed in <code>.gitignore</code>
+- [ ] Use GitHub Secrets or Vault in CI/CD
+- [ ] <code>COPILOTKIT_LICENSE_KEY</code> must only be used as a server-side env var</p>
+<p><strong>Authentication / authorization implementation points:</strong></p>
+<pre><code class="language-typescript">// Authenticate requests in runtime middleware
+const runtime = new CopilotRuntime({
+  middleware: {
+    onBeforeRequest: async (ctx) =&gt; {
+      const token = ctx.request.headers.get(&quot;Authorization&quot;);
+      if (!token || !isValidToken(token)) {
+        throw new Error(&quot;Unauthorized&quot;);
+      }
+      return ctx;
+    },
+  },
+});
+</code></pre>
+<p><strong>Dependency vulnerability scanning:</strong></p>
+<pre><code class="language-bash"># Run pnpm audit
+pnpm audit
+
+# Dependabot creates automated PRs via renovate.json
+# .github/workflows/security_zizmor.yml — GitHub Actions security scanning
+</code></pre>
+<p><strong>Known security considerations:</strong>
+- <code>pnpm-lock.yaml</code> contains 30+ security-patch overrides (<code>path-to-regexp</code>, <code>axios</code>, <code>handlebars</code>, <code>tar</code>, <code>node-forge</code>, etc.) — preserve these overrides when updating dependencies
+- <code>block-exotic-subdeps=true</code> in <code>.npmrc</code> blocks unusual subdependencies
+- <code>minimum-release-age=1440</code> — newly published packages can only install after 24 hours (supply-chain attack mitigation)
+- <code>check-binaries</code> hook in <code>lefthook.yml</code> scans binary files for security issues before every commit</p>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서:</strong>
+- 공식 문서 사이트: https://docs.copilotkit.ai
+- GitHub 저장소: https://github.com/CopilotKit/CopilotKit
+- AG-UI 프로토콜: https://ag-ui.com (upstream 저장소)
+- npm 패키지: https://www.npmjs.com/org/copilotkit</p>
+<p><strong>커뮤니티 리소스:</strong>
+- Discord 커뮤니티: https://discord.gg/6dffbvGU3D
+- GitHub Issues: https://github.com/CopilotKit/CopilotKit/issues
+- "good first issue" 라벨: 신규 기여자 추천 이슈</p>
+<p><strong>유사 프로젝트 비교 (장단점):</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>CopilotKit</th>
+<th>Vercel AI SDK</th>
+<th>LangChain.js</th>
+<th>OpenAI Assistants API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>강점</strong></td>
+<td>완전한 E2E 프레임워크, 다중 프레임워크 지원, A2UI</td>
+<td>간결한 React hooks, Next.js 최적화</td>
+<td>강력한 체인/에이전트 구성</td>
+<td>관리형 서비스, 파일 스토리지</td>
+</tr>
+<tr>
+<td><strong>약점</strong></td>
+<td>복잡한 모노레포 구조, 학습 곡선</td>
+<td>백엔드 에이전트 오케스트레이션 미지원</td>
+<td>프론트엔드 UI 없음</td>
+<td>OpenAI 종속, 상태 관리 제한</td>
+</tr>
+<tr>
+<td><strong>최적 사용 사례</strong></td>
+<td>복잡한 AI 에이전트 앱</td>
+<td>단순 AI 채팅 추가</td>
+<td>Python 생태계 중심</td>
+<td>간단한 어시스턴트</td>
+</tr>
+<tr>
+<td><strong>프레임워크</strong></td>
+<td>React, Vue, Angular, RN</td>
+<td>React, Next.js</td>
+<td>Node.js</td>
+<td>공급자 무관</td>
+</tr>
+<tr>
+<td><strong>오픈소스</strong></td>
+<td>✅ MIT</td>
+<td>✅ Apache 2.0</td>
+<td>✅ MIT</td>
+<td>❌ 관리형</td>
+</tr>
+</tbody>
+</table>
+<p><strong>관련 기술 공식 문서:</strong>
+- LangGraph (Python): https://langchain-ai.github.io/langgraph/
+- LangGraph.js: https://langchain-ai.github.io/langgraphjs/
+- Nx 모노레포: https://nx.dev/docs
+- Vitest: https://vitest.dev
+- pnpm 워크스페이스: https://pnpm.io/workspaces
+- Zod 스키마: https://zod.dev
+- GraphQL Yoga: https://the-guild.dev/graphql/yoga-server/docs</p>
+<p><strong>[English]</strong></p>
+<p><strong>Official documentation:</strong>
+- Official docs site: https://docs.copilotkit.ai
+- GitHub repository: https://github.com/CopilotKit/CopilotKit
+- AG-UI Protocol: https://ag-ui.com (upstream repository)
+- npm packages: https://www.npmjs.com/org/copilotkit</p>
+<p><strong>Community resources:</strong>
+- Discord community: https://discord.gg/6dffbvGU3D
+- GitHub Issues: https://github.com/CopilotKit/CopilotKit/issues
+- "good first issue" label: recommended entry points for new contributors</p>
+<p><strong>Comparison with similar projects (pros and cons):</strong></p>
+<table>
+<thead>
+<tr>
+<th></th>
+<th>CopilotKit</th>
+<th>Vercel AI SDK</th>
+<th>LangChain.js</th>
+<th>OpenAI Assistants API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Strengths</strong></td>
+<td>Full E2E framework, multi-framework, A2UI</td>
+<td>Concise React hooks, Next.js optimized</td>
+<td>Powerful chain/agent composition</td>
+<td>Managed service, file storage</td>
+</tr>
+<tr>
+<td><strong>Weaknesses</strong></td>
+<td>Complex monorepo, learning curve</td>
+<td>No backend agent orchestration</td>
+<td>No frontend UI</td>
+<td>OpenAI lock-in, limited state control</td>
+</tr>
+<tr>
+<td><strong>Best for</strong></td>
+<td>Complex AI agent apps</td>
+<td>Simple AI chat addition</td>
+<td>Python-centric ecosystem</td>
+<td>Simple assistants</td>
+</tr>
+<tr>
+<td><strong>Frameworks</strong></td>
+<td>React, Vue, Angular, RN</td>
+<td>React, Next.js</td>
+<td>Node.js</td>
+<td>Provider-agnostic</td>
+</tr>
+<tr>
+<td><strong>Open source</strong></td>
+<td>✅ MIT</td>
+<td>✅ Apache 2.0</td>
+<td>✅ MIT</td>
+<td>❌ Managed</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Related technology official docs:</strong>
+- LangGraph (Python): https://langchain-ai.github.io/langgraph/
+- LangGraph.js: https://langchain-ai.github.io/langgraphjs/
+- Nx monorepo: https://nx.dev/docs
+- Vitest: https://vitest.dev
+- pnpm workspaces: https://pnpm.io/workspaces
+- Zod schema validation: https://zod.dev
+- GraphQL Yoga: https://the-guild.dev/graphql/yoga-server/docs</p>
+<hr />
+<h2 id="generation-report">작성 완료 보고 / Generation Report</h2>
+<p><strong>[한국어]</strong></p>
+<p>생성된 파일 (OUTPUT INSTRUCTION에 따라 파일 직접 저장 없이 마크다운으로 출력):</p>
+<ul>
+<li><code>GUIDE4Junior.md</code> — 주니어 개발자 가이드 (9개 섹션, 한/영 이중언어)</li>
+<li><code>GUIDE4ImpMethod.md</code> — 실전 활용 가이드 (8개 섹션, 한/영 이중언어)</li>
+</ul>
+<p><strong>웹 검색에 의존한 섹션</strong>: 없음. 모든 내용은 저장소 내 파일(<code>CLAUDE.md</code>, <code>.claude/docs/</code>, <code>package.json</code>, <code>nx.json</code>, <code>lefthook.yml</code>, <code>release.config.json</code>, <code>.oxlintrc.json</code>, <code>pnpm-workspace.yaml</code>, <code>CONTRIBUTING.md</code>, <code>.github/workflows/</code>)에서 직접 추출되었습니다.</p>
+<p><strong>해당 없어 생략된 섹션</strong>: 없음. 모든 섹션이 작성되었습니다. 단, 섹션 3(환경 변수)에서 루트 <code>.env.example</code> 파일이 없어 개별 패키지/예제의 패턴을 기반으로 예시를 구성하였습니다.</p>
+<p><strong>[English]</strong></p>
+<p>Generated files (output as Markdown per OUTPUT INSTRUCTION — no files written to disk):</p>
+<ul>
+<li><code>GUIDE4Junior.md</code> — Junior Developer Guide (9 sections, bilingual KO/EN)</li>
+<li><code>GUIDE4ImpMethod.md</code> — Implementation Method Guide (8 sections, bilingual KO/EN)</li>
+</ul>
+<p><strong>Sections relying on web search</strong>: None. All content was derived directly from repository files (<code>CLAUDE.md</code>, <code>.claude/docs/</code>, <code>package.json</code>, <code>nx.json</code>, <code>lefthook.yml</code>, <code>release.config.json</code>, <code>.oxlintrc.json</code>, <code>pnpm-workspace.yaml</code>, <code>CONTRIBUTING.md</code>, <code>.github/workflows/</code>).</p>
+<p><strong>Sections skipped as not applicable</strong>: None — all sections are complete. One note: Section 3 (environment variables) was constructed from per-package and example patterns since no root-level <code>.env.example</code> file exists.</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>CopilotKit/CopilotKit</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/CopilotKit/CopilotKit" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

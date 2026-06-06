@@ -1,0 +1,2871 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NousResearch/hermes-agent - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener">NousResearch/hermes-agent</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">The agent that grows with you</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 182549</span>
+      <span class="badge badge-stars">+1,821 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>이제 보고서를 작성하겠습니다.</p>
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-06
+대상 / Target: <code>/tmp/github-dashboard-analysis/NousResearch_hermes-agent</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<ul>
+<li><strong>해결하는 문제 / Problem solved</strong>: 다양한 LLM 프로바이더를 지원하고, 경험으로부터 스킬을 자가 생성·개선하는 자기 발전형(self-improving) AI 에이전트. 터미널(TUI), 메시징 플랫폼(Telegram, Discord, Slack, WhatsApp, Signal, Matrix, WeChat, DingTalk, Feishu 등), OpenAI 호환 API 서버까지 단일 에이전트 프로세스로 통합 제공. 크론 스케줄러, 서브에이전트 병렬 위임, 배치 궤적 생성(학습 데이터 생성) 기능 포함.</li>
+<li><strong>분류 / Classification</strong>: Application + Platform (복합형 — CLI Agent 프레임워크이자 배포 가능한 플랫폼)</li>
+</ul>
+<p><strong>영문 요약 / English Summary</strong>:
+Hermes Agent is a self-improving AI agent built by Nous Research that features a closed learning loop (autonomous skill creation, skill self-improvement, persistent memory, cross-session recall). It supports 10+ LLM providers via an OpenAI-compatible interface, integrates with 15+ messaging platforms, includes a built-in cron scheduler, and can delegate to parallel sub-agents. The platform targets both personal use (desktop, VPS) and cloud/serverless deployment (Modal, Daytona, Docker, Singularity).</p>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Python 3.11–3.13, Node.js ≥20 (TUI/WebUI 빌드용)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>FastAPI (API 서버·대시보드), prompt_toolkit (TUI), uvicorn (ASGI), s6-overlay (프로세스 수퍼비전), asyncio 기반 에이전트 루프</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>파일시스템 기반 상태(hermes_state.py — SQLite WAL 모드), 선택적 외부 메모리 프로바이더(Honcho, mem0, Supermemory, Hindsight 등)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>OpenAI 호환 REST/SSE, MCP (stdio/HTTP), ACP (Agent Client Protocol), Telegram Bot API, Discord WebSocket, Slack Bolt, Matrix/mautrix</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Docker + docker-compose (s6-overlay supervision), Nix flake, Modal, Daytona, SSH, Singularity, Windows native, Termux(Android)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                      Entry Points                           │
+│  CLI (hermes_cli/)   Gateway (gateway/)   ACP Adapter       │
+│  TUI Gateway         Batch Runner         API Server        │
+└─────────────┬────────────────┬───────────────────┬──────────┘
+              │                │                   │
+┌─────────────▼────────────────▼───────────────────▼──────────┐
+│                    Agent Core (run_agent.py)                 │
+│  conversation_loop → tool_executor → tool_dispatch_helpers   │
+│  context_engine → prompt_builder → model_tools               │
+└─────────────┬────────────────┬───────────────────┬──────────┘
+              │                │                   │
+┌─────────────▼──┐  ┌──────────▼────┐  ┌──────────▼──────────┐
+│ LLM Adapters   │  │ Skill System  │  │  Tool System        │
+│ anthropic      │  │ skills/       │  │  model_tools.py     │
+│ openai compat  │  │ skill_bundles │  │  toolsets.py        │
+│ gemini         │  │ optional-skills│ │  tools/             │
+│ bedrock        │  └───────────────┘  └─────────────────────┘
+│ azure, etc.    │
+└────────────────┘
+              │
+┌─────────────▼──────────────────────────────────────────────┐
+│                   Plugin System                             │
+│  plugins/memory/    plugins/platforms/   plugins/dashboard  │
+│  plugins/browser/   plugins/web/         plugins/kanban     │
+└────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>아키텍처 패턴</strong>: 이벤트 구동(asyncio) + 플러그인 기반 헥사고날 구조. 에이전트 루프(conversation_loop)가 중심이며, LLM 어댑터, 툴, 메모리, 메시징 채널이 모두 플러그인/어댑터로 교체 가능하도록 설계됨.</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>NousResearch_hermes-agent/
+├── cli.py                     # 대형 CLI 진입점 (730KB)
+├── run_agent.py               # 에이전트 루프 진입점 (224KB)
+├── hermes_state.py            # 상태 관리 / SQLite (184KB)
+├── model_tools.py             # LLM 어댑터 통합 (53KB)
+├── toolsets.py                # 툴셋 시스템 (30KB)
+├── agent/                     # 핵심 에이전트 모듈
+│   ├── conversation_loop.py   # 메인 에이전트 루프
+│   ├── context_engine.py      # 컨텍스트 관리
+│   ├── anthropic_adapter.py   # Anthropic 어댑터
+│   ├── bedrock_adapter.py     # AWS Bedrock 어댑터
+│   ├── gemini_*.py            # Gemini 어댑터들
+│   ├── lsp/                   # LSP 클라이언트 (코드 진단)
+│   └── secret_sources/        # 시크릿 관리 (Bitwarden 등)
+├── acp_adapter/               # Agent Client Protocol 어댑터
+├── gateway/                   # 메시징 게이트웨이
+│   └── platforms/             # 15+ 플랫폼 어댑터
+├── plugins/                   # 플러그인 시스템
+│   ├── memory/                # 8개 메모리 프로바이더
+│   ├── platforms/             # 추가 플랫폼 플러그인
+│   └── dashboard/             # 웹 대시보드
+├── skills/                    # 번들 스킬 (자동 포함)
+├── optional-skills/           # 선택적 스킬
+├── tools/                     # 툴 구현체
+├── tests/                     # 광범위한 테스트 스위트
+├── Dockerfile                 # 프로덕션 Docker 이미지 (s6-overlay)
+├── docker-compose.yml         # 컴포즈 설정
+├── pyproject.toml             # PEP 517/639 패키지 메타데이터
+├── uv.lock                    # uv 의존성 잠금 파일
+├── package.json / package-lock.json  # Node.js 의존성
+├── SECURITY.md                # 상세 신뢰 모델 및 보안 정책
+├── CONTRIBUTING.md            # 기여 가이드
+└── .github/
+    ├── dependabot.yml         # Actions SHA 자동 업데이트
+    └── workflows/             # 14개 CI 워크플로우
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<ul>
+<li><strong>라이선스</strong>: MIT License</li>
+<li><strong>저작권자</strong>: Copyright (c) 2025 Nous Research</li>
+<li><strong>주요 의무</strong>:</li>
+<li>소프트웨어 복사본 배포 시 저작권 고지 및 라이선스 전문 포함 필수</li>
+<li>소스 비공개(proprietary) 상용화 허용</li>
+<li>특허 부여 없음 (MIT는 특허 조항 미포함)</li>
+<li>보증 없음 (AS IS)</li>
+</ul>
+<blockquote>
+<p><strong>상용화 적합성</strong>: MIT 라이선스는 상용화에 가장 적합한 퍼미시브 라이선스 중 하나로, 소스 비공개 파생물 제작·배포 가능.</p>
+</blockquote>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p>총 219개 패키지(uv.lock 기준). 핵심 및 주의 대상 의존성만 기재.</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>openai</td>
+<td>2.24.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>anthropic</td>
+<td>0.86.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>httpx</td>
+<td>0.28.1</td>
+<td>BSD-3</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>rich</td>
+<td>14.3.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>pydantic</td>
+<td>2.13.4</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>fastapi</td>
+<td>0.133.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>uvicorn</td>
+<td>0.41.0</td>
+<td>BSD-3</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>jinja2</td>
+<td>3.1.6</td>
+<td>BSD-3</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>starlette</td>
+<td>1.0.1</td>
+<td>BSD-3</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>requests</td>
+<td>2.33.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>pyyaml</td>
+<td>6.0.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>prompt_toolkit</td>
+<td>3.0.52</td>
+<td>BSD-3</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>cryptography</td>
+<td>(transitive)</td>
+<td>Apache 2.0 / BSD</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>aiohttp</td>
+<td>3.13.3</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td><strong>python-telegram-bot</strong></td>
+<td><strong>22.6</strong></td>
+<td><strong>LGPL-3.0</strong></td>
+<td><strong>Weak Copyleft</strong></td>
+<td><strong>🟡 검토</strong></td>
+</tr>
+<tr>
+<td>discord.py</td>
+<td>2.7.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>slack-bolt</td>
+<td>1.27.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>slack-sdk</td>
+<td>3.40.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>mautrix</td>
+<td>0.21.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>lark-oapi (Feishu)</td>
+<td>1.5.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>mcp</td>
+<td>1.26.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>faster-whisper</td>
+<td>1.2.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>boto3</td>
+<td>1.42.89</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>azure-identity</td>
+<td>1.25.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>PyJWT</td>
+<td>2.12.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>defusedxml</td>
+<td>0.7.1</td>
+<td>Python-2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>google-api-python-client</td>
+<td>2.194.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>modal</td>
+<td>1.3.4</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>pillow</td>
+<td>12.2.0</td>
+<td>MIT-CMU</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>honcho-ai</td>
+<td>2.0.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+<tr>
+<td>psutil</td>
+<td>7.2.2</td>
+<td>BSD-3</td>
+<td>Permissive</td>
+<td>🟢 낮음</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>참고</strong>: <code>python-telegram-bot</code>은 <code>messaging</code> 선택적 추가(optional extra)로만 설치되며, 코어 의존성이 아님. LGPL-3.0 의미는 아래 2.4 절에서 상세 분석.</p>
+</blockquote>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD-2, BSD-3, ISC, Python-2.0</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td><strong>LGPL-3.0</strong> (python-telegram-bot)</td>
+<td>동적 링크 시 제한적, 선택 의존성이므로 분리 가능</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>해당 없음 / Not present</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>해당 없음 / Not present</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>해당 없음 / Not present</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>핵심 위험 없음 / No Core Risk</strong></p>
+<p>프로젝트 자체가 MIT이며, 대부분의 의존성이 MIT/Apache 2.0/BSD 계열 퍼미시브 라이선스임. AGPL, GPL, SSPL은 의존성 트리에 존재하지 않음.</p>
+<p><strong>주의사항 — python-telegram-bot (LGPL-3.0)</strong>:
+- <code>messaging</code> extra의 선택적 의존성
+- LGPL-3.0은 이 라이브러리를 동적으로(Dynamic linking) 호출할 경우 상용 소프트웨어에서 사용 가능
+- Python의 경우 일반적으로 <code>import</code>는 동적 연결로 간주되나, 라이브러리 코드를 정적 번들링(e.g., Nuitka, PyInstaller 단일 바이너리)할 경우 LGPL 의무(수정 허용, 라이선스 고지) 이행 필요
+- Telegram 기능을 번들하지 않을 경우(선택 미포함 배포) 문제 없음
+- 코어(<code>dependencies</code>)에 포함되지 않으므로 분리 및 제외 배포 가능</p>
+<p><strong>Apache 2.0 특허 부여 / Patent Grant</strong>:
+- <code>openai</code>, <code>mautrix</code>, <code>boto3</code>, <code>aiohttp</code>, <code>google-api-python-client</code> 등 Apache 2.0 패키지들은 명시적 특허 라이선스를 부여함
+- MIT 라이선스(프로젝트 자체 포함)에는 특허 부여 조항 없음 — 상용화 시 별도 특허 위험 검토 필요</p>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] <strong>저작권 고지</strong>: MIT 라이선스 고지 포함 필요 (프로젝트 MIT, 다수 의존성 MIT/Apache 2.0)</li>
+<li>[ ] <strong>NOTICE/고지문 배포 위치</strong>: NOTICE 파일 부재 — 별도 NOTICE 작성 필요 (Apache 2.0 의존성의 NOTICE 병합)</li>
+<li>[x] <strong>소스 공개 의무</strong>: 없음 (GPL/AGPL 미사용)</li>
+<li>[ ] <strong>LGPL 의무 (python-telegram-bot 포함 배포 시)</strong>: 라이브러리 교체 허용 문서, 수정된 경우 소스 공개</li>
+<li>[ ] <strong>SBOM 생성</strong>: 현재 SBOM(CycloneDX/SPDX) 파일 없음 — 생성 권장</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<p><strong>SECURITY.md 존재 및 내용</strong>:
+- <strong>우수</strong> — 업계 최고 수준의 보안 정책 문서화
+- 명확한 신뢰 경계 정의: "유일한 보안 경계는 OS"라고 명시
+- 2개 OS 수준 격리 자세 정의: Terminal-backend isolation, Whole-process wrapping
+- §2.1~§2.6: 에이전트 프로세스, 자격증명 범위, 인프로세스 휴리스틱, 플러그인 신뢰 모델, 외부 서피스 명확히 기술
+- 취약점 보고: GitHub Security Advisories + security@nousresearch.com
+- 공시 창: 90일 (또는 수정 시까지)
+- 버그 바운티 없음</p>
+<p><strong>자동화된 취약점 관리</strong>:
+- <strong>Dependabot</strong>: GitHub Actions SHA 자동 업데이트 (주 1회, Monday). PyPI/npm은 수동 검토 정책으로 의도적으로 비활성화 (공급망 정책에 따른 정확 핀 전략 유지)
+- <strong>OSV-Scanner</strong>: 잠금 파일(uv.lock, package-lock.json) 대상 주 1회 CVE 스캔 + PR 변경 시 스캔, Security 탭 SARIF 업로드
+- <strong>Supply Chain Audit Workflow</strong>: PR별 악성 패턴 감지 (<code>.pth</code> 파일, base64+exec/eval 조합, 난독화된 subprocess, 인스톨 훅 파일 변경)
+- <strong>dep-bounds</strong>: pyproject.toml 변경 시 PyPI 의존성 상한선 누락 차단</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>양호한 사항</strong>:
+- 모든 직접 의존성 정확 버전 핀 (예: <code>openai==2.24.0</code>, <code>requests==2.33.0</code>)
+- 공급망 공격 대응 직접 명시: <code>mistralai</code> 2.4.6 오염 사례(Mini Shai-Hulud 웜) 대응으로 2026-05-12에 <code>[all]</code> extra에서 위험 의존성 제거
+- CVE 참조 코드 주석: <code>requests==2.33.0  # CVE-2026-25645</code>, <code>PyJWT[crypto]==2.12.1  # CVE-2026-32597</code>, <code>starlette==1.0.1  # CVE-2026-48710</code>
+- Docker 이미지: s6-overlay에서 비루트(non-root) 사용자, SHA256 체크섬 검증된 tarball 사용
+- 하드코딩된 시크릿 없음 (<code>.env.example</code> 패턴 사용, 실제 키 미커밋)</p>
+<p><strong>주의사항</strong>:
+- <code>network_mode: host</code> 사용 (docker-compose.yml) — NAT 격리 없음, 운영환경 네트워크 정책 필요
+- 플러그인/스킬이 에이전트 프로세스와 동일한 권한으로 실행 — 서드파티 플러그인 설치 시 운영자 코드 리뷰 필수 (SECURITY.md §2.4~2.5에 명시)
+- 현재 SBOM 없음 — 감사 추적 제한</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>인증/인가</td>
+<td>부분 구현</td>
+<td>메시징 어댑터별 allowlist, API 서버 키 옵션</td>
+</tr>
+<tr>
+<td>시크릿 관리</td>
+<td>.env + credential_pool.py</td>
+<td>Bitwarden 통합(agent/secret_sources/), OpenShell Provider 지원</td>
+</tr>
+<tr>
+<td>환경변수 격리</td>
+<td>구현됨</td>
+<td>서브프로세스에 자격증명 노출 방지 (SECURITY.md §2.3)</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>없음 / Not found</td>
+<td>CycloneDX/SPDX 파일 미생성</td>
+</tr>
+<tr>
+<td>컨테이너 하드닝</td>
+<td>양호</td>
+<td>비루트 사용자, SHA256 검증, tini→s6-overlay 마이그레이션</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06-05 (<code>fix(dashboard): reap orphaned embedded-chat sessions</code>)</td>
+</tr>
+<tr>
+<td>커밋 이력 / Commit history</td>
+<td>Shallow clone 1개 커밋만 확인 가능 — 전체 히스토리 직접 평가 불가</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>Shallow clone으로 측정 제한 (<code>.mailmap</code> 파일 5KB 존재 → 다수 기여자 추정)</td>
+</tr>
+<tr>
+<td>버전 / Version</td>
+<td>0.15.1 (pyproject.toml) — 활발한 개발 지속 중</td>
+</tr>
+<tr>
+<td>오픈 이슈 / Open issues</td>
+<td>GitHub 직접 접근 불가 (로컬 클론 제한)</td>
+</tr>
+<tr>
+<td>문서 사이트 / Docs site</td>
+<td>https://hermes-agent.nousresearch.com/docs/</td>
+</tr>
+</tbody>
+</table>
+<p><strong>활성도 근거</strong>: 버전 0.15.x, 광범위한 CI 워크플로우(14개), 다국어 문서(영문/중문), <code>README.zh-CN.md</code> 별도 제공, Discord 커뮤니티 운영, Skills Hub (agentskills.io), 중국어(DingTalk, Feishu, WeChat, Weixin) 플랫폼까지 지원 → 글로벌 규모의 활발한 개발 징후.</p>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서 / Document</th>
+<th>존재 / Present</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재 (44KB)</td>
+<td>매우 상세 — Skill vs Tool 결정 기준, 개발 환경, PR 프로세스, 의존성 핀 정책, Windows 안전성 가이드</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재 (15KB)</td>
+<td>상세한 신뢰 모델, 범위 정의, 격리 포스처</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ 부재 / Not found — file absent</td>
+<td>커뮤니티 표준 행동 강령 없음</td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td>❌ 부재 / Not found — file absent</td>
+<td>릴리스 노트 없음 (GitHub Releases에 있을 가능성)</td>
+</tr>
+<tr>
+<td>.github/PULL_REQUEST_TEMPLATE.md</td>
+<td>✅ 존재</td>
+<td>PR 표준화</td>
+</tr>
+<tr>
+<td>.github/ISSUE_TEMPLATE/</td>
+<td>✅ 4종 (bug, feature, setup_help, config)</td>
+<td>이슈 분류 체계</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>기업</strong>: Nous Research (AI 연구 회사, HuggingFace 생태계 핵심 기관)</li>
+<li><strong>재단 소속</strong>: 없음 (CNCF/ASF/LF 미가입)</li>
+<li><strong>상업 서비스</strong>: Nous Portal (구독 기반 모델·툴 통합 서비스) 직접 연계 — 프리미엄 수익화 모델 존재</li>
+<li><strong>LTS 정책</strong>: 별도 LTS 버전 없음 — 단일 메인 브랜치 기반 개발</li>
+<li><strong>상용화 관점</strong>: Nous Research가 직접 상업적 포털 서비스를 운영하므로 장기 유지보수 동기 충분. 단, 단일 기업 의존성은 위험 요소.</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>상태 / Status</th>
+<th>세부 내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>멀티테넌시</td>
+<td>❌ 기본 미지원</td>
+<td>단일 테넌트 개인 에이전트 설계 — 상용 멀티테넌트 배포 시 아키텍처 조정 필요</td>
+</tr>
+<tr>
+<td>수평 확장</td>
+<td>부분</td>
+<td>서브에이전트 병렬화 지원, 단 상태는 파일시스템 기반 (단일 노드)</td>
+</tr>
+<tr>
+<td>컨테이너화</td>
+<td>✅ 우수</td>
+<td>Docker + docker-compose + s6-overlay supervision, 비루트 사용자 지원</td>
+</tr>
+<tr>
+<td>헬스체크</td>
+<td>⚠️ 불명확</td>
+<td>Dockerfile에 HEALTHCHECK 지시어 없음 (확인 불가 — file absent 수준은 아님)</td>
+</tr>
+<tr>
+<td>메트릭</td>
+<td>부분</td>
+<td><code>plugins/observability/</code> 존재 — Prometheus 등 노출 범위 별도 확인 필요</td>
+</tr>
+<tr>
+<td>구조화 로깅</td>
+<td>✅ 구현</td>
+<td><code>hermes_logging.py</code> (18KB) 전용 모듈</td>
+</tr>
+<tr>
+<td>분산 추적</td>
+<td>❌ 확인 불가</td>
+<td>OpenTelemetry 통합 미확인</td>
+</tr>
+<tr>
+<td>설정 주입</td>
+<td>✅ 양호</td>
+<td>환경변수 + YAML 설정 파일, <code>.env</code> 지원</td>
+</tr>
+<tr>
+<td>12-Factor</td>
+<td>부분</td>
+<td>상태를 파일시스템에 저장 → Factor VI(Stateless) 미충족; 환경변수 주입(Factor III) 지원</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<p><strong>테스트 구조</strong>:
+- <code>tests/</code> 디렉토리: 70+ 테스트 파일, 26개 하위 디렉토리 (unit, integration, e2e, stress)
+- pytest 기반, pytest-asyncio, pytest-timeout 포함
+- CI 6-slice 병렬 매트릭스 (GitHub Actions)
+- 테스트 유형: 단위, 통합(<code>-m integration</code> 마크), e2e, 스트레스</p>
+<p><strong>품질 도구</strong>:
+- <strong>ruff</strong>: 린트 (blocking 검사 — PLW1514 위반 시 머지 차단)
+- <strong>ty</strong>: 타입 체커 (어드바이저리)
+- <strong>Docker lint</strong> (hadolint): <code>.hadolint.yaml</code> 설정 존재
+- <strong>Windows footgun checker</strong>: Windows 비호환 Python 패턴 정적 검사</p>
+<p><strong>커버리지</strong>: 측정 파일 미확인 — 별도 커버리지 리포트 없음.</p>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p>Strong Copyleft(GPL) 의존성이 없으므로 해당 없음. LGPL인 <code>python-telegram-bot</code>은 <code>messaging</code> optional extra에만 포함되어 있어, 코어 배포에서 완전히 제외 가능.</p>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I. Codebase</td>
+<td>✅</td>
+<td>단일 Git 리포지토리</td>
+</tr>
+<tr>
+<td>II. Dependencies</td>
+<td>✅</td>
+<td><code>pyproject.toml</code> + <code>uv.lock</code> 정확 핀</td>
+</tr>
+<tr>
+<td>III. Config</td>
+<td>✅</td>
+<td>환경변수 + YAML 지원</td>
+</tr>
+<tr>
+<td>IV. Backing Services</td>
+<td>⚠️</td>
+<td>메모리/DB를 로컬 파일로 기본 처리</td>
+</tr>
+<tr>
+<td>V. Build/Release/Run</td>
+<td>✅</td>
+<td>Docker 빌드 분리</td>
+</tr>
+<tr>
+<td>VI. Processes</td>
+<td>❌</td>
+<td>파일시스템 상태 (<code>~/.hermes/</code>) — stateless 불충족</td>
+</tr>
+<tr>
+<td>VII. Port Binding</td>
+<td>✅</td>
+<td>uvicorn/FastAPI</td>
+</tr>
+<tr>
+<td>VIII. Concurrency</td>
+<td>⚠️</td>
+<td>asyncio 내부 동시성, 수평 확장 미지원</td>
+</tr>
+<tr>
+<td>IX. Disposability</td>
+<td>⚠️</td>
+<td>s6-overlay 우아한 종료 지원</td>
+</tr>
+<tr>
+<td>X. Dev/Prod Parity</td>
+<td>✅</td>
+<td>Docker 기반 동일 환경</td>
+</tr>
+<tr>
+<td>XI. Logs</td>
+<td>✅</td>
+<td><code>hermes_logging.py</code> 구조화 로깅</td>
+</tr>
+<tr>
+<td>XII. Admin Processes</td>
+<td>⚠️</td>
+<td><code>hermes doctor</code> 등 관리 명령 존재</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>⚠️ 부분</td>
+<td>uv.lock + package-lock.json 존재, 체계적 BOM 없음</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>⚠️ 부분</td>
+<td>OSV-Scanner 운영, SBOM 미생성, 라이선스 자동 스캔 미확인</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>✅ 부분</td>
+<td>정확 버전 핀, CVE 대응 주석 존재, 공급망 사건 대응 이력</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>❌ 미확인</td>
+<td>공식적 OSPO 프로세스 또는 라이선스 게이트 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>❌ 미완</td>
+<td>NOTICE 파일 없음, 고지문 배포 위치 미정의</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<ul>
+<li><strong>상표</strong>: "Hermes Agent" 및 "Nous Research" — 기업 명칭. 상용화 시 브랜드 사용 제한 없음(MIT 라이선스는 상표 제한 조항 없음). 단, "Hermes" 명칭으로 독자 상업 서비스 출시 시 Nous Research와 브랜드 혼동 위험 존재.</li>
+<li><strong>로고</strong>: MIT 라이선스에 로고 사용 제한 없으나, Nous Research 브랜드 아이덴티티 혼동 방지를 위해 자체 브랜드로 재포장(rebrand) 권장.</li>
+<li><strong>특허</strong>:</li>
+<li>프로젝트 자체 MIT — 특허 부여 없음</li>
+<li>Apache 2.0 의존성(openai, boto3, mautrix 등) — 기여자로부터 명시적 특허 라이선스 부여</li>
+<li>자가개선형 에이전트 루프, 스킬 자동 생성 등 기능에 대한 제3자 특허 침해 위험은 별도 특허 조사 필요</li>
+</ul>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>해당 없음</strong>: AGPL, GPL 의존성이 확인되지 않았으므로 SaaS 배포에 따른 소스 공개 의무 없음.</p>
+<p><strong>LGPL-3.0 (python-telegram-bot) 시나리오</strong>:
+- <strong>시나리오 A: Telegram 기능 포함 SaaS 배포</strong> → LGPL-3.0 의무 이행 필요. 이 라이브러리를 동적으로 import하므로 소스 공개 의무 없음. 단, 해당 라이브러리의 수정본을 사용하는 경우 수정된 소스 공개 필요.
+- <strong>시나리오 B: 단일 바이너리 패키징(PyInstaller 등)</strong> → 정적 번들링으로 간주될 경우 LGPL §4 조건(라이브러리 교체 허용) 이행 필요.
+- <strong>시나리오 C: Telegram 기능 제외 배포</strong> → LGPL 의무 없음.</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>프로젝트 MIT, 핵심 의존성 모두 퍼미시브. LGPL(python-telegram-bot)은 선택적이며 분리 가능</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟢 Safe</td>
+<td>업계 최고 수준 SECURITY.md, OSV-Scanner, 공급망 감사 워크플로우, 정확 버전 핀 전략</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🔵 Review</td>
+<td>Nous Research 직접 후원, 활발한 개발 징후, 단 CODE_OF_CONDUCT 없음, LTS 없음</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🔵 Review</td>
+<td>Docker/s6-overlay 우수, 구조화 로깅 우수, 단 헬스체크 미확인, 단일 테넌트 설계</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟡 Caution</td>
+<td>멀티테넌트 미지원, 파일시스템 상태 관리, 수평 확장 미지원 — 상용 SaaS 전환 시 아키텍처 수정 필요</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟡 Caution</td>
+<td>NOTICE 파일 없음, SBOM 없음, OpenChain 미준수 — 엔터프라이즈 납품 시 Gap 존재</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>탁월한 공급망 보안 체계</strong>: 정확 버전 핀(Exact-pin) 전략, OSV-Scanner 주간 자동 스캔, 공급망 공격 패턴 감지 워크플로우, 실제 사고(mistralai 2.4.6 오염) 대응 이력 — 업계 상위 수준</li>
+<li><strong>광범위한 플랫폼 지원</strong>: 15+ 메시징 플랫폼, 10+ LLM 프로바이더, 6가지 터미널 백엔드 — 상용 솔루션의 다양한 통합 요구사항 충족 가능</li>
+<li><strong>MIT 라이선스 + 퍼미시브 의존성</strong>: 상용화 법적 위험 최소화. AGPL/GPL 의존성 전무</li>
+<li><strong>상세한 보안 정책 및 신뢰 모델</strong>: SECURITY.md가 운영 포스처별 격리 범위를 명확히 정의 — 엔터프라이즈 납품 시 설명 가능한 보안 모델 제공</li>
+<li><strong>플러그인 기반 확장 아키텍처</strong>: 메모리 프로바이더, 메시징 플랫폼, 툴, 스킬이 모두 플러그인/extra로 분리 — 상용화 목적에 맞게 기능 선택적 포함/제외 가능</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>멀티테넌트 미지원</strong>: 현재 단일 사용자 개인 에이전트로 설계됨 (<code>~/.hermes/</code> 파일시스템 기반 상태). B2B SaaS 상용화 시 테넌트별 상태 격리, 인증/인가 레이어 추가가 필수적이며, 아키텍처 수준의 수정 필요</li>
+<li><strong>NOTICE 파일 및 SBOM 부재</strong>: Apache 2.0 의존성(openai, boto3, aiohttp 등)은 NOTICE 파일 병합 의무 존재. 엔터프라이즈 고객사 납품 또는 ISO 5230 컴플라이언스 요구 시 CycloneDX/SPDX SBOM 필수</li>
+<li><strong>단일 기업 의존성</strong>: Nous Research가 유일한 주요 후원자. 재단(CNCF/ASF) 거버넌스 없음 — 기업 전략 변화 시 유지보수 불확실성</li>
+<li><strong>CODE_OF_CONDUCT 부재</strong>: 커뮤니티 기여 확장 시 필요. 엔터프라이즈 오픈소스 정책 요건을 미충족할 수 있음</li>
+<li><strong>헬스체크/관측성 기본 통합 미확인</strong>: Kubernetes 배포 시 readiness/liveness probe, Prometheus 메트릭 엔드포인트가 기본 포함되지 않을 수 있음 — 운영 환경 배포 전 확인 및 추가 필요</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 <strong>Review</strong> (조건부 채택 / Conditional Adoption)</p>
+<p><strong>한국어 판정 근거</strong>:</p>
+<p>Hermes Agent는 MIT 라이선스 기반의 탁월한 공급망 보안 및 플러그인 아키텍처를 갖춘 프로젝트로, 상용화의 법적 장벽은 낮고 기술적 완성도는 높은 편입니다. 특히 정확 버전 핀 전략, 공급망 공격 감지 자동화, 상세한 보안 정책 문서는 엔터프라이즈 수준에 근접합니다.</p>
+<p>단, 다음 조건이 충족되어야 상용 배포 적합:
+1. <strong>멀티테넌트 지원</strong>: 사용자별 상태 격리 및 인증 레이어 설계·구현 (단기 아키텍처 투자 필요)
+2. <strong>NOTICE 파일 + SBOM 생성</strong>: Apache 2.0 의존성 NOTICE 병합 및 CycloneDX 형식 SBOM 자동 생성 파이프라인 추가
+3. <strong>LGPL 처리 방침</strong>: Telegram 기능 포함 여부에 따른 라이선스 의무 이행 방식 사전 결정
+4. <strong>헬스체크/메트릭</strong>: Kubernetes 적합성을 위한 <code>/health</code> 엔드포인트 및 Prometheus 메트릭 확인·추가</p>
+<p><strong>영문 판정 근거 / English Rationale</strong>:</p>
+<p>Hermes Agent carries minimal license risk (MIT project, no AGPL/GPL dependencies) and demonstrates industry-leading supply-chain discipline (exact version pinning, OSV-Scanner, supply-chain audit CI). The architecture is extensible via plugins and optional extras, enabling targeted feature packaging.</p>
+<p>Primary commercialization blockers are operational rather than legal: (1) single-tenant filesystem-state design incompatible with multi-tenant SaaS without architectural rework, (2) missing NOTICE file and SBOM for enterprise compliance audits, (3) no health check probe for Kubernetes, and (4) no LTS policy for long-term enterprise commitments.</p>
+<p>Recommended adoption path: embed as a single-tenant agent engine, wrapping with a multi-tenant orchestration layer above it, while building out the missing compliance artifacts in parallel.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>- [x] Permissive/Weak/Strong Copyleft 분류 확인 / Classification verified</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 소스 공개 의무 여부 확인 / Source disclosure obligation checked</td>
+<td>✅ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 라이선스 호환성 충돌 없음 / No compatibility conflicts</td>
+<td>✅ 충돌 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] LGPL(python-telegram-bot) 처리 방침 결정 / LGPL handling policy</td>
+<td>❌ 미결정</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>- [x] 저작권 문구 포함 / Copyright notice included (MIT LICENSE 파일)</td>
+<td>✅ 존재</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] NOTICE 파일 생성 (Apache 2.0 의존성) / NOTICE file created</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 고지문 배포 위치 정의 / NOTICE distribution location defined</td>
+<td>❌ 미정의</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>- [x] Strong Copyleft 미사용 확인 / No strong copyleft confirmed</td>
+<td>✅ 해당 없음</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>- [ ] CycloneDX/SPDX SBOM 생성 / SBOM generated</td>
+<td>❌ 미생성</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] CI SBOM 자동 생성 파이프라인 / CI SBOM pipeline configured</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>- [x] CVE 모니터링 체계 수립 / CVE monitoring in place</td>
+<td>✅ OSV-Scanner</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 공급망 감사 / Supply chain audit</td>
+<td>✅ GitHub Actions</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 헬스체크 엔드포인트 / Health check endpoint</td>
+<td>❌ 미확인</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>- [x] 유지보수 활성도·커밋 주기 확인 / Maintenance activity confirmed</td>
+<td>✅ 활성</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 기업 스폰서 존재 / Corporate sponsor available</td>
+<td>✅ Nous Research</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] LTS 정책 / LTS policy</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>- [x] 의존성 잠금 파일 / Lockfile present</td>
+<td>✅ uv.lock + package-lock.json</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 라이선스 검사 자동화 / License scan automated</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 오픈소스 BOM 자동 생성 / BOM auto-generation</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 위반 라이선스 빌드 차단 / Prohibited license build gate</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>- [ ] 고객 계약서에 라이선스 의무 명시 / License obligations in customer contract</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 외부 감사 대비 문서 구비 / Audit-ready docs (NOTICE, BOM, report)</td>
+<td>❌ 미완</td>
+</tr>
+<tr>
+<td>운영 / Operations</td>
+<td>- [ ] 멀티테넌트 격리 설계 / Multi-tenant isolation design</td>
+<td>❌ 아키텍처 수정 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] Kubernetes 헬스프로브 / Kubernetes health probes</td>
+<td>❌ 미확인</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong>NOTICE 파일 생성</strong>: Apache 2.0 의존성(openai, boto3, aiohttp, mautrix, modal, google-api-python-client 등)의 NOTICE 및 저작권 고지를 집계한 <code>NOTICE.txt</code> 파일을 프로젝트 루트에 생성. 배포 패키지(PyPI wheel, Docker 이미지)에 포함.</p>
+</li>
+<li>
+<p><strong>LGPL 배포 방침 결정</strong>: Telegram 기능(python-telegram-bot) 포함 배포 여부를 확정하고, 포함 시 LGPL-3.0 의무(라이브러리 교체 허용 방법 문서화)를 이행하는 절차를 내부 정책으로 수립.</p>
+</li>
+</ol>
+<hr />
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>SBOM 생성 파이프라인 구축</strong>: <code>uv export</code> + <code>cyclonedx-py</code> 또는 GitHub의 Dependency Graph를 활용한 CycloneDX 형식 SBOM 자동 생성 및 각 릴리스 첨부.</p>
+</li>
+<li>
+<p><strong>라이선스 스캔 CI 통합</strong>: <code>pip-licenses</code>, <code>OSS Review Toolkit</code>, 또는 <code>FOSSA</code>를 CI에 추가하여 신규 의존성 추가 시 금지 라이선스 자동 차단.</p>
+</li>
+<li>
+<p><strong>헬스체크 엔드포인트 추가</strong>: FastAPI 서버(<code>web</code> extra)에 <code>/health</code> 및 <code>/ready</code> 엔드포인트 추가. Dockerfile에 <code>HEALTHCHECK</code> 지시어 포함. kubernetes 배포 시 liveness/readiness probe 설정.</p>
+</li>
+</ol>
+<hr />
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>멀티테넌트 아키텍처 설계</strong>: 현재 <code>~/.hermes/</code> 파일시스템 상태를 테넌트별 격리 가능한 구조로 재설계. 사용자별 상태를 외부 DB(PostgreSQL, Redis)로 이관하는 로드맵 수립.</p>
+</li>
+<li>
+<p><strong>CODE_OF_CONDUCT 추가</strong>: Contributor Covenant 또는 동등한 행동 강령 문서 추가 — 기업 오픈소스 정책 요건 충족 및 커뮤니티 건강성 강화.</p>
+</li>
+<li>
+<p><strong>Prometheus 메트릭 표준화</strong>: <code>plugins/observability/</code>를 확장하여 에이전트 루프 지연, 툴 실행 횟수, LLM 토큰 소비량 등 핵심 운영 지표를 Prometheus 형식으로 표준 노출.</p>
+</li>
+</ol>
+<hr />
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>LTS 정책 수립</strong>: 엔터프라이즈 납품 요건 충족을 위한 6~12개월 LTS 지원 주기 및 보안 패치 전용 브랜치 전략 수립.</p>
+</li>
+<li>
+<p><strong>재단 거버넌스 검토</strong>: 프로젝트 규모 성장 시 CNCF Sandbox 또는 Linux Foundation 편입 검토 — 단일 기업 리스크 분산 및 엔터프라이즈 신뢰도 제고.</p>
+</li>
+<li>
+<p><strong>분기별 라이선스 컴플라이언스 감사</strong>: 신규 의존성 추가 및 버전 업그레이드 시 라이선스 변경 여부 정기 검토 체계 운영. 특히 Weak Copyleft 및 Copyleft 방향 리라이선싱(예: mautrix 등) 모니터링.</p>
+</li>
+<li>
+<p><strong>OpenChain ISO 5230 인증 준비</strong>: NOTICE 파일, SBOM, 라이선스 정책 문서화, 내부 교육 프로그램 등 ISO 5230 요건을 단계적으로 충족하여 엔터프라이즈 B2B 납품 시 인증 근거 확보.</p>
+</li>
+</ol></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>Now I have enough information to produce the full guides. Outputting directly as the final report.</p>
+<hr />
+<h1 id="output-paths">생성 파일 경로 / Output Paths</h1>
+<p>단일 프로젝트 모드: <code>/tmp/github-dashboard-analysis/NousResearch_hermes-agent/.review/GUIDE4Junior.md</code> 및 <code>.review/GUIDE4ImpMethod.md</code></p>
+<p>Single-project mode: <code>.review/GUIDE4Junior.md</code> and <code>.review/GUIDE4ImpMethod.md</code> under the project root.</p>
+<hr />
+<h1 id="1-file-1-reviewguide4juniormd">파일 1 / File 1: <code>.review/GUIDE4Junior.md</code></h1>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>Hermes Agent는 Nous Research가 개발한 <strong>자기 개선형 AI 에이전트</strong>입니다. 사용 경험을 바탕으로 스스로 스킬(Skill)을 생성하고 개선하며, 대화 간 사용자 모델을 구축하고, 자연어 기반의 크론(cron) 스케줄링을 지원합니다. 단일 로컬 머신부터 Docker, SSH, Modal, Daytona 등 다양한 터미널 백엔드를 통해 클라우드/서버리스 환경에서도 실행할 수 있으며, Telegram·Discord·Slack·WhatsApp 등의 메시징 플랫폼을 통해 접근 가능합니다.</p>
+<ul>
+<li><strong>주요 기술 스택</strong>:</li>
+<li>언어: Python 3.11–3.13 (코어), TypeScript/React (TUI·웹 대시보드)</li>
+<li>프레임워크: OpenAI SDK (v2.24.0), FastAPI, Uvicorn, Ink (터미널 UI), Vite + Tailwind (웹)</li>
+<li>패키지 관리: <code>uv</code> (Python), <code>npm</code> (Node.js)</li>
+<li>데이터베이스: SQLite (FTS5 전문 검색 포함, <code>hermes_state.py</code>)</li>
+<li>주요 라이브러리: <code>openai</code>, <code>pydantic</code>, <code>prompt_toolkit</code>, <code>rich</code>, <code>croniter</code>, <code>httpx</code>, <code>tenacity</code>, <code>ruamel.yaml</code></li>
+<li>버전: <code>0.15.1</code> (MIT 라이선스)</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>Hermes Agent is a <strong>self-improving AI agent</strong> built by Nous Research. It creates and refines skills from experience, builds a persistent user model across sessions, and supports natural-language cron scheduling. It runs on local machines as well as cloud/serverless environments via Docker, SSH, Modal, and Daytona terminal backends, and is accessible through Telegram, Discord, Slack, WhatsApp, and other messaging platforms.</p>
+<ul>
+<li><strong>Key tech stack</strong>:</li>
+<li>Languages: Python 3.11–3.13 (core), TypeScript/React (TUI and web dashboard)</li>
+<li>Frameworks: OpenAI SDK (v2.24.0), FastAPI, Uvicorn, Ink (terminal UI), Vite + Tailwind (web)</li>
+<li>Package management: <code>uv</code> (Python), <code>npm</code> (Node.js)</li>
+<li>Database: SQLite with FTS5 full-text search (<code>hermes_state.py</code>)</li>
+<li>Key libraries: <code>openai</code>, <code>pydantic</code>, <code>prompt_toolkit</code>, <code>rich</code>, <code>croniter</code>, <code>httpx</code>, <code>tenacity</code>, <code>ruamel.yaml</code></li>
+<li>Version: <code>0.15.1</code> (MIT license)</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>최소 버전</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Python</strong></td>
+<td>3.11 (상한 &lt;3.14)</td>
+<td>uv가 없으면 자동 설치</td>
+</tr>
+<tr>
+<td><strong>uv</strong></td>
+<td>최신</td>
+<td><code>curl -LsSf https://astral.sh/uv/install.sh \| sh</code></td>
+</tr>
+<tr>
+<td><strong>Git</strong></td>
+<td>(최신) + git-lfs</td>
+<td>바이너리 에셋(LFS) 필요</td>
+</tr>
+<tr>
+<td><strong>Node.js</strong></td>
+<td>20+ (권장 22 LTS)</td>
+<td>브라우저 도구, WhatsApp 브리지, TUI·웹 빌드용</td>
+</tr>
+<tr>
+<td><strong>ripgrep (<code>rg</code>)</strong></td>
+<td>15.1.0</td>
+<td><code>search_files</code> 도구 필수</td>
+</tr>
+<tr>
+<td><strong>ffmpeg</strong></td>
+<td>(최신)</td>
+<td>음성 트랜스크립션(선택)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>권장 IDE</strong>: VS Code (Python, Pylance, ruff 확장 설치), PyCharm</li>
+<li><strong>OS별 주의사항</strong>:</li>
+<li><strong>Windows</strong>: WSL2 사용 권장. 네이티브 PowerShell 설치도 지원되나 브라우저 대시보드 채팅 패널은 WSL2 전용 POSIX PTY 사용</li>
+<li><strong>macOS/Linux</strong>: 기본 지원, git-lfs 별도 설치 필요 (<code>brew install git-lfs</code> 또는 <code>apt install git-lfs</code>)</li>
+<li><strong>Android/Termux</strong>: 공식 문서의 Termux 가이드 참고, <code>[termux]</code> extra 사용</li>
+</ul>
+<p><strong>[English]</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Minimum version</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Python</strong></td>
+<td>3.11 (upper bound &lt;3.14)</td>
+<td>uv can install it automatically</td>
+</tr>
+<tr>
+<td><strong>uv</strong></td>
+<td>latest</td>
+<td><code>curl -LsSf https://astral.sh/uv/install.sh \| sh</code></td>
+</tr>
+<tr>
+<td><strong>Git</strong></td>
+<td>(latest) + git-lfs</td>
+<td>Binary assets require LFS</td>
+</tr>
+<tr>
+<td><strong>Node.js</strong></td>
+<td>20+ (22 LTS recommended)</td>
+<td>Browser tools, WhatsApp bridge, TUI/web build</td>
+</tr>
+<tr>
+<td><strong>ripgrep (<code>rg</code>)</strong></td>
+<td>15.1.0</td>
+<td>Required by <code>search_files</code> tool</td>
+</tr>
+<tr>
+<td><strong>ffmpeg</strong></td>
+<td>(latest)</td>
+<td>Voice transcription (optional)</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>Recommended IDE</strong>: VS Code with Python, Pylance, ruff extensions; or PyCharm</li>
+<li><strong>OS-specific notes</strong>:</li>
+<li><strong>Windows</strong>: WSL2 is recommended. Native PowerShell install is supported, but the browser dashboard chat pane requires a POSIX PTY only available under WSL2.</li>
+<li><strong>macOS/Linux</strong>: Supported natively; install git-lfs separately (<code>brew install git-lfs</code> or <code>apt install git-lfs</code>).</li>
+<li><strong>Android/Termux</strong>: Follow the official Termux guide; use the <code>[termux]</code> extra instead of <code>[all]</code>.</li>
+</ul>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>1. 저장소 클론</strong></p>
+<pre><code class="language-bash">git clone https://github.com/NousResearch/hermes-agent.git
+cd hermes-agent
+</code></pre>
+<p><strong>2. 의존성 설치 (빠른 경로 — 스크립트 사용)</strong></p>
+<pre><code class="language-bash">./setup-hermes.sh   # uv 설치, venv 생성, .[all] 설치, ~/.local/bin/hermes 심볼릭 링크
+</code></pre>
+<p>또는 수동:</p>
+<pre><code class="language-bash"># uv 설치 (아직 없는 경우)
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ~/.bashrc    # 또는 ~/.zshrc
+
+# Python 3.11 가상환경 생성
+uv venv venv --python 3.11
+export VIRTUAL_ENV=&quot;$(pwd)/venv&quot;
+
+# 전체 의존성 설치 (개발 도구 포함)
+uv pip install -e &quot;.[all,dev]&quot;
+
+# (선택) Node.js 의존성 (브라우저 도구, TUI/웹 빌드)
+npm install
+</code></pre>
+<p><strong>3. 환경 변수 설정</strong></p>
+<pre><code class="language-bash"># 설정 디렉토리 생성
+mkdir -p ~/.hermes/{cron,sessions,logs,memories,skills}
+
+# config.yaml 예시 복사
+cp cli-config.yaml.example ~/.hermes/config.yaml
+
+# .env 파일 생성 후 최소 1개의 LLM 프로바이더 키 입력
+touch ~/.hermes/.env
+echo &quot;OPENROUTER_API_KEY=sk-or-xxxxxxxx&quot; &gt;&gt; ~/.hermes/.env
+</code></pre>
+<p><code>.env.example</code> 기준 최소 필수 설정:</p>
+<pre><code class="language-dotenv"># LLM 프로바이더 (하나 이상 필수)
+OPENROUTER_API_KEY=sk-or-xxxxxxxx    # OpenRouter (200+ 모델 접근)
+# 또는
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxx    # 직접 Anthropic API
+# 또는
+OPENAI_API_KEY=sk-xxxxxxxx           # OpenAI
+
+# 터미널 설정 (기본값으로도 동작)
+TERMINAL_TIMEOUT=60
+TERMINAL_LIFETIME_SECONDS=300
+</code></pre>
+<p><strong>4. 데이터베이스/외부 서비스 초기화</strong></p>
+<p>SQLite DB는 첫 실행 시 <code>~/.hermes/state.db</code>에 자동 생성됩니다. 메시징 플랫폼(Telegram 등)이 필요하면:</p>
+<pre><code class="language-bash">hermes gateway setup     # 대화형 메시징 게이트웨이 설정 마법사
+</code></pre>
+<p><strong>5. 설치 검증</strong></p>
+<pre><code class="language-bash">hermes doctor            # 환경 진단
+hermes chat -q &quot;Hello&quot;   # 단일 응답 테스트
+hermes --version         # 버전 확인
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>1. Clone the repository</strong></p>
+<pre><code class="language-bash">git clone https://github.com/NousResearch/hermes-agent.git
+cd hermes-agent
+</code></pre>
+<p><strong>2. Install dependencies (fast path — script)</strong></p>
+<pre><code class="language-bash">./setup-hermes.sh   # installs uv, creates venv, installs .[all], symlinks ~/.local/bin/hermes
+</code></pre>
+<p>Or manually:</p>
+<pre><code class="language-bash"># Install uv if not present
+curl -LsSf https://astral.sh/uv/install.sh | sh
+source ~/.bashrc    # or ~/.zshrc
+
+# Create Python 3.11 virtual environment
+uv venv venv --python 3.11
+export VIRTUAL_ENV=&quot;$(pwd)/venv&quot;
+
+# Install all dependencies including dev tools
+uv pip install -e &quot;.[all,dev]&quot;
+
+# (Optional) Node.js dependencies for browser tools, TUI/web build
+npm install
+</code></pre>
+<p><strong>3. Configure environment variables</strong></p>
+<pre><code class="language-bash"># Create config directories
+mkdir -p ~/.hermes/{cron,sessions,logs,memories,skills}
+
+# Copy example config
+cp cli-config.yaml.example ~/.hermes/config.yaml
+
+# Create .env and add at least one LLM provider key
+touch ~/.hermes/.env
+echo &quot;OPENROUTER_API_KEY=sk-or-xxxxxxxx&quot; &gt;&gt; ~/.hermes/.env
+</code></pre>
+<p>Minimum <code>.env</code> from <code>.env.example</code>:</p>
+<pre><code class="language-dotenv"># LLM provider (at least one required)
+OPENROUTER_API_KEY=sk-or-xxxxxxxx    # OpenRouter (200+ models)
+# or
+ANTHROPIC_API_KEY=sk-ant-xxxxxxxx    # Direct Anthropic API
+# or
+OPENAI_API_KEY=sk-xxxxxxxx           # OpenAI
+
+# Terminal settings (defaults work fine)
+TERMINAL_TIMEOUT=60
+TERMINAL_LIFETIME_SECONDS=300
+</code></pre>
+<p><strong>4. Initialize database / external services</strong></p>
+<p>The SQLite DB is auto-created at <code>~/.hermes/state.db</code> on first run. For messaging platforms (e.g. Telegram):</p>
+<pre><code class="language-bash">hermes gateway setup    # interactive messaging gateway wizard
+</code></pre>
+<p><strong>5. Verify setup</strong></p>
+<pre><code class="language-bash">hermes doctor           # environment diagnostics
+hermes chat -q &quot;Hello&quot;  # single-turn smoke test
+hermes --version        # check version
+</code></pre>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">hermes-agent/
+├── run_agent.py              # AIAgent 클래스 — 핵심 대화 루프, 도구 디스패치, 세션 영속화
+├── cli.py                    # HermesCLI — prompt_toolkit 기반 대화형 TUI
+├── model_tools.py            # 도구 오케스트레이션 (tools/registry.py 얇은 래퍼)
+├── toolsets.py               # 도구 그룹/프리셋 (hermes-cli, hermes-telegram 등)
+├── hermes_state.py           # FTS5 전문검색 포함 SQLite 세션 DB
+├── batch_runner.py           # 병렬 배치 처리 (궤적 생성용)
+├── trajectory_compressor.py  # 훈련 데이터용 궤적 압축
+├── mcp_serve.py              # MCP 서버 진입점
+├── hermes_constants.py       # 전역 상수
+├── hermes_state.py           # 상태 관리
+├── hermes_bootstrap.py       # 부트스트랩 로직
+│
+├── agent/                    # 에이전트 내부 모듈 (run_agent.py에서 추출)
+│   ├── prompt_builder.py     # 시스템 프롬프트 조립
+│   ├── context_compressor.py # 컨텍스트 한계 시 자동 요약
+│   ├── auxiliary_client.py   # 요약/비전 OpenAI 클라이언트 해석
+│   ├── display.py            # KawaiiSpinner, 도구 진행 포맷
+│   ├── model_metadata.py     # 모델 컨텍스트 길이, 토큰 추정
+│   └── trajectory.py         # 궤적 저장 헬퍼
+│
+├── hermes_cli/               # CLI 커맨드 구현체
+│   ├── main.py               # 진입점, 인수 파싱, 커맨드 디스패치
+│   ├── config.py             # 설정 관리, 마이그레이션
+│   ├── setup.py              # 대화형 설정 마법사
+│   ├── auth.py               # 프로바이더 해석, OAuth, Nous Portal
+│   ├── commands.py           # 슬래시 커맨드 레지스트리, 자동완성
+│   ├── callbacks.py          # 대화형 콜백 (clarify, sudo, 승인)
+│   ├── doctor.py             # 진단 도구
+│   ├── skills_hub.py         # Skills Hub CLI + /skills 슬래시 커맨드
+│   └── skin_engine.py        # 스킨/테마 엔진
+│
+├── tools/                    # 40+ 자가 등록 도구 구현체
+│   ├── registry.py           # 중앙 도구 레지스트리 (스키마, 핸들러, 디스패치)
+│   ├── approval.py           # 위험 명령 감지 + 세션별 승인 흐름
+│   ├── terminal_tool.py      # 터미널 오케스트레이션
+│   ├── file_operations.py    # read_file, write_file, search, patch 등
+│   ├── web_tools.py          # web_search, web_extract
+│   ├── vision_tools.py       # 멀티모달 이미지 분석
+│   ├── delegate_tool.py      # 서브에이전트 생성, 병렬 작업
+│   ├── code_execution_tool.py # 샌드박스 Python + RPC 도구 접근
+│   ├── memory_tool.py        # 영속 메모리 읽기/쓰기
+│   ├── cronjob_tools.py      # 스케줄 작업 관리
+│   ├── skill_tools.py        # 스킬 검색, 로드, 관리
+│   ├── mcp_tool.py           # MCP 서버 클라이언트
+│   └── environments/         # 터미널 실행 백엔드
+│       ├── base.py
+│       ├── local.py          # 로컬 프로세스
+│       ├── docker.py         # Docker 컨테이너
+│       ├── ssh.py            # 원격 SSH
+│       ├── singularity.py    # Singularity HPC
+│       ├── modal.py          # Modal 서버리스
+│       └── daytona.py        # Daytona 개발 환경
+│
+├── gateway/                  # 메시징 게이트웨이
+│   ├── run.py                # GatewayRunner — 플랫폼 라이프사이클, 메시지 라우팅
+│   ├── config.py             # 플랫폼 설정 해석
+│   ├── session.py            # 세션 저장, 컨텍스트 프롬프트, 리셋 정책
+│   └── platforms/            # 플랫폼 어댑터
+│       ├── telegram.py
+│       ├── discord_adapter.py
+│       ├── slack.py
+│       ├── whatsapp.py
+│       └── ...
+│
+├── tui_gateway/              # 브라우저 기반 TUI WebSocket 서버
+│   ├── server.py
+│   └── slash_worker.py
+│
+├── ui-tui/                   # TypeScript/Ink 터미널 UI (React v19)
+│   ├── src/app.tsx
+│   └── package.json
+│
+├── web/                      # React 웹 대시보드 (Vite + Tailwind)
+│   ├── src/App.tsx
+│   └── package.json
+│
+├── acp_adapter/              # Agent Client Protocol 어댑터
+├── plugins/                  # 메모리 프로바이더 + 플랫폼 플러그인
+├── providers/                # LLM 프로바이더 어댑터
+├── skills/                   # 번들 스킬 (~100+, 카테고리별 분류)
+├── optional-skills/          # 공식 선택적 스킬
+├── tests/                    # 테스트 스위트 (pytest)
+├── scripts/                  # 인스톨러 및 헬퍼 스크립트
+├── docker/                   # Docker/s6-overlay 설정
+├── website/                  # 문서 사이트 (Docusaurus)
+│
+├── pyproject.toml            # Python 패키지 매니페스트
+├── uv.lock                   # 잠금된 의존성 버전
+├── Dockerfile                # 멀티 스테이지 Docker 빌드
+├── cli-config.yaml.example   # 참고용 설정 예시
+├── .env.example              # 환경 변수 참조
+└── AGENTS.md                 # AI 코딩 어시스턴트 가이드
+</code></pre>
+<p><strong>핵심 의존 관계</strong>:
+- <code>hermes_cli/main.py</code> → <code>cli.py</code> (HermesCLI) → <code>run_agent.py</code> (AIAgent) → <code>model_tools.py</code> → <code>tools/registry.py</code>
+- <code>gateway/run.py</code> (GatewayRunner) → <code>run_agent.py</code> (AIAgent) — 메시징 세션 재사용
+- <code>tools/*.py</code> → 임포트 시 <code>tools/registry.py</code>에 자가 등록 → <code>model_tools.py</code>의 <code>discover_builtin_tools()</code> 트리거
+- <code>agent/prompt_builder.py</code> ← <code>run_agent.py</code> — 시스템 프롬프트 조립 (스킬, 메모리, 컨텍스트 파일)</p>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">hermes-agent/
+├── run_agent.py              # AIAgent class — core conversation loop, tool dispatch, session persistence
+├── cli.py                    # HermesCLI — prompt_toolkit interactive TUI
+├── model_tools.py            # Tool orchestration (thin layer over tools/registry.py)
+├── toolsets.py               # Tool groupings and presets (hermes-cli, hermes-telegram, etc.)
+├── hermes_state.py           # SQLite session DB with FTS5 full-text search
+├── batch_runner.py           # Parallel batch processing for trajectory generation
+├── trajectory_compressor.py  # Trajectory compression for training data
+├── mcp_serve.py              # MCP server entry point
+│
+├── agent/                    # Agent internals (extracted from run_agent.py)
+│   ├── prompt_builder.py     # System prompt assembly
+│   ├── context_compressor.py # Auto-summarization at context limits
+│   ├── auxiliary_client.py   # Resolves auxiliary OpenAI clients
+│   ├── display.py            # KawaiiSpinner, tool progress formatting
+│   ├── model_metadata.py     # Model context lengths, token estimation
+│   └── trajectory.py         # Trajectory saving helpers
+│
+├── hermes_cli/               # CLI command implementations
+│   ├── main.py               # Entry point, argument parsing, command dispatch
+│   ├── config.py             # Config management, migration
+│   ├── setup.py              # Interactive setup wizard
+│   ├── auth.py               # Provider resolution, OAuth, Nous Portal
+│   ├── commands.py           # Slash-command registry, autocomplete
+│   ├── callbacks.py          # Interactive callbacks (clarify, sudo, approval)
+│   ├── doctor.py             # Diagnostics
+│   ├── skills_hub.py         # Skills Hub CLI + /skills slash command
+│   └── skin_engine.py        # Skin/theme engine
+│
+├── tools/                    # 40+ self-registering tool implementations
+│   ├── registry.py           # Central tool registry (schemas, handlers, dispatch)
+│   ├── approval.py           # Dangerous command detection + per-session approval
+│   ├── terminal_tool.py      # Terminal orchestration
+│   ├── file_operations.py    # read_file, write_file, search, patch, etc.
+│   ├── web_tools.py          # web_search, web_extract
+│   ├── vision_tools.py       # Multimodal image analysis
+│   ├── delegate_tool.py      # Subagent spawning, parallel tasks
+│   ├── code_execution_tool.py # Sandboxed Python with RPC tool access
+│   ├── memory_tool.py        # Persistent memory read/write
+│   ├── cronjob_tools.py      # Scheduled task management
+│   ├── skill_tools.py        # Skill search, load, manage
+│   ├── mcp_tool.py           # MCP server client
+│   └── environments/         # Terminal execution backends
+│       ├── local.py, docker.py, ssh.py, singularity.py, modal.py, daytona.py
+│
+├── gateway/                  # Messaging gateway
+│   ├── run.py                # GatewayRunner — platform lifecycle, message routing
+│   ├── session.py            # Session store, context prompts, reset policies
+│   └── platforms/            # Adapters: telegram.py, discord_adapter.py, slack.py, whatsapp.py ...
+│
+├── tui_gateway/              # Browser-based TUI WebSocket server
+├── ui-tui/                   # TypeScript/Ink terminal UI (React v19)
+├── web/                      # React web dashboard (Vite + Tailwind)
+├── acp_adapter/              # Agent Client Protocol adapter
+├── plugins/                  # Memory providers and platform plugins
+├── providers/                # LLM provider adapters
+├── skills/                   # Bundled skills (~100+, organized by category)
+├── optional-skills/          # Official optional skills
+├── tests/                    # pytest test suite
+├── scripts/                  # Installer and helper scripts
+├── docker/                   # Docker/s6-overlay configuration
+└── website/                  # Documentation site (Docusaurus)
+</code></pre>
+<p><strong>Core dependency flow</strong>:
+- <code>hermes_cli/main.py</code> → <code>cli.py</code> (HermesCLI) → <code>run_agent.py</code> (AIAgent) → <code>model_tools.py</code> → <code>tools/registry.py</code>
+- <code>gateway/run.py</code> (GatewayRunner) → <code>run_agent.py</code> (AIAgent) — reuses agent for messaging sessions
+- <code>tools/*.py</code> → self-register into <code>tools/registry.py</code> at import time → triggered by <code>discover_builtin_tools()</code> in <code>model_tools.py</code>
+- <code>agent/prompt_builder.py</code> ← <code>run_agent.py</code> — assembles system prompt (skills, memory, context files)</p>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Python 패키지 빌드 (개발용 — editable 설치)</strong></p>
+<pre><code class="language-bash"># 개발 editable 설치 (소스 변경 즉시 반영)
+uv pip install -e &quot;.[all,dev]&quot;
+</code></pre>
+<p><strong>Python 패키지 빌드 (배포용 wheel/sdist)</strong></p>
+<pre><code class="language-bash">uv build                      # dist/ 폴더에 .whl 및 .tar.gz 생성
+# 또는
+python -m build               # setuptools&gt;=77 필요
+</code></pre>
+<p><strong>TUI (ui-tui) 빌드</strong></p>
+<pre><code class="language-bash">cd ui-tui
+npm run build                 # dist/entry.js 생성 (esbuild 번들)
+</code></pre>
+<p><strong>웹 대시보드 빌드</strong></p>
+<pre><code class="language-bash">cd web
+npm run build                 # hermes_cli/web_dist/ 에 배포 에셋 생성
+</code></pre>
+<p><strong>빌드 결과물 위치</strong>:
+- Python wheel: <code>dist/hermes_agent-X.Y.Z-py3-none-any.whl</code>
+- TUI 번들: <code>ui-tui/dist/entry.js</code>
+- 웹 에셋: <code>hermes_cli/web_dist/</code> (런타임에 <code>HERMES_WEB_DIST</code> 환경변수로 지정)</p>
+<p><strong>자주 발생하는 빌드 오류</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>오류</th>
+<th>원인</th>
+<th>해결 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Python version not found</code></td>
+<td>Python 3.14+ 설치됨</td>
+<td><code>uv venv .venv --python 3.11</code> 명시적 지정</td>
+</tr>
+<tr>
+<td><code>maturin: build error</code></td>
+<td>Rust 바인딩 컴파일 실패</td>
+<td><code>[all]</code> extra 대신 선택적 extra 사용; pydantic-core 바퀴 확인</td>
+</tr>
+<tr>
+<td><code>npm ENOTEMPTY</code></td>
+<td>node_modules 불일치</td>
+<td><code>npm clean-install</code> 실행</td>
+</tr>
+<tr>
+<td><code>setuptools&lt;77</code></td>
+<td>이전 빌드 백엔드</td>
+<td><code>pip install -U "setuptools&gt;=77"</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Python package build (development — editable install)</strong></p>
+<pre><code class="language-bash"># Editable install — source changes take effect immediately
+uv pip install -e &quot;.[all,dev]&quot;
+</code></pre>
+<p><strong>Python package build (distribution wheel/sdist)</strong></p>
+<pre><code class="language-bash">uv build                      # creates .whl and .tar.gz in dist/
+# or
+python -m build               # requires setuptools&gt;=77
+</code></pre>
+<p><strong>TUI (ui-tui) build</strong></p>
+<pre><code class="language-bash">cd ui-tui
+npm run build                 # produces dist/entry.js (esbuild bundle)
+</code></pre>
+<p><strong>Web dashboard build</strong></p>
+<pre><code class="language-bash">cd web
+npm run build                 # produces deployment assets in hermes_cli/web_dist/
+</code></pre>
+<p><strong>Build output locations</strong>:
+- Python wheel: <code>dist/hermes_agent-X.Y.Z-py3-none-any.whl</code>
+- TUI bundle: <code>ui-tui/dist/entry.js</code>
+- Web assets: <code>hermes_cli/web_dist/</code> (set via <code>HERMES_WEB_DIST</code> env var at runtime)</p>
+<p><strong>Common build errors</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Python version not found</code></td>
+<td>Python 3.14+ installed</td>
+<td>Explicitly specify: <code>uv venv .venv --python 3.11</code></td>
+</tr>
+<tr>
+<td><code>maturin: build error</code></td>
+<td>Rust binding compile failure</td>
+<td>Use selective extras instead of <code>[all]</code>; check pydantic-core wheel availability</td>
+</tr>
+<tr>
+<td><code>npm ENOTEMPTY</code></td>
+<td>node_modules mismatch</td>
+<td>Run <code>npm clean-install</code></td>
+</tr>
+<tr>
+<td><code>setuptools&lt;77</code></td>
+<td>Old build backend</td>
+<td><code>pip install -U "setuptools&gt;=77"</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>대화형 CLI (기본)</strong></p>
+<pre><code class="language-bash">./hermes               # 프로젝트 루트에서 venv 자동 감지 후 실행
+# 또는 (심볼릭 링크 설정 후)
+hermes                 # 전역 실행
+hermes --tui           # 내장 React 기반 TUI 실행
+</code></pre>
+<p><strong>단일 질문 (비대화형)</strong></p>
+<pre><code class="language-bash">hermes chat -q &quot;Python에서 소수를 구하는 함수를 작성해줘&quot;
+</code></pre>
+<p><strong>모델/설정 변경</strong></p>
+<pre><code class="language-bash">hermes model           # 대화형 프로바이더·모델 선택
+hermes setup           # 전체 설정 마법사
+hermes config set terminal.backend docker   # 터미널 백엔드 변경
+</code></pre>
+<p><strong>메시징 게이트웨이 (Telegram, Discord 등)</strong></p>
+<pre><code class="language-bash">hermes gateway setup   # 플랫폼 설정 (최초 1회)
+hermes gateway start   # 게이트웨이 데몬 시작
+hermes gateway status  # 실행 상태 확인
+hermes gateway stop    # 데몬 중지
+</code></pre>
+<p><strong>Docker로 실행</strong></p>
+<pre><code class="language-bash">docker pull ghcr.io/nousresearch/hermes-agent:latest
+docker run -it \
+  -v ~/.hermes:/opt/data \
+  -e OPENROUTER_API_KEY=sk-or-xxx \
+  ghcr.io/nousresearch/hermes-agent:latest
+</code></pre>
+<p><strong>접속 URL 및 포트</strong>:
+- 웹 대시보드: <code>http://localhost:PORT</code> (기본 FastAPI/uvicorn, <code>hermes dashboard</code> 명령으로 시작)
+- TUI 게이트웨이: <code>ws://localhost:PORT</code> (내부 WebSocket, <code>tui_gateway/server.py</code>)</p>
+<p><strong>실행 확인 방법</strong>:</p>
+<pre><code class="language-bash">hermes doctor          # 설정·의존성·API 연결 상태 진단
+hermes chat -q &quot;Hi&quot;    # 응답 스모크 테스트
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Interactive CLI (default)</strong></p>
+<pre><code class="language-bash">./hermes               # auto-detects venv from project root
+# or (after symlinking)
+hermes                 # global access
+hermes --tui           # launch the built-in React TUI
+</code></pre>
+<p><strong>Single query (non-interactive)</strong></p>
+<pre><code class="language-bash">hermes chat -q &quot;Write a Python function to find prime numbers&quot;
+</code></pre>
+<p><strong>Change model/settings</strong></p>
+<pre><code class="language-bash">hermes model           # interactive provider and model selection
+hermes setup           # full setup wizard
+hermes config set terminal.backend docker   # change terminal backend
+</code></pre>
+<p><strong>Messaging gateway (Telegram, Discord, etc.)</strong></p>
+<pre><code class="language-bash">hermes gateway setup   # configure platform (first time)
+hermes gateway start   # start gateway daemon
+hermes gateway status  # check running status
+hermes gateway stop    # stop daemon
+</code></pre>
+<p><strong>Run with Docker</strong></p>
+<pre><code class="language-bash">docker pull ghcr.io/nousresearch/hermes-agent:latest
+docker run -it \
+  -v ~/.hermes:/opt/data \
+  -e OPENROUTER_API_KEY=sk-or-xxx \
+  ghcr.io/nousresearch/hermes-agent:latest
+</code></pre>
+<p><strong>Access URL and ports</strong>:
+- Web dashboard: <code>http://localhost:PORT</code> (FastAPI/uvicorn, started with <code>hermes dashboard</code>)
+- TUI gateway: <code>ws://localhost:PORT</code> (internal WebSocket, <code>tui_gateway/server.py</code>)</p>
+<p><strong>How to verify the app is running</strong>:</p>
+<pre><code class="language-bash">hermes doctor          # diagnose config, dependencies, and API connectivity
+hermes chat -q &quot;Hi&quot;    # smoke test for a live response
+</code></pre>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>권장 방법 (CI와 동일, 격리된 환경)</strong></p>
+<pre><code class="language-bash"># venv를 먼저 활성화
+source .venv/bin/activate   # 또는 export VIRTUAL_ENV=&quot;$(pwd)/venv&quot;
+
+# CI와 동일한 방식: 파일별 독립 프로세스, 병렬 실행
+scripts/run_tests.sh
+</code></pre>
+<p><strong>직접 pytest 실행</strong></p>
+<pre><code class="language-bash"># 전체 테스트 (통합 테스트 제외)
+pytest tests/ -v
+
+# 특정 파일
+pytest tests/test_file_operations.py -v
+
+# 특정 마커
+pytest tests/ -m &quot;not integration&quot; -v
+
+# 스킬 테스트
+scripts/run_tests.sh tests/skills/test_&lt;skill&gt;_skill.py -q
+</code></pre>
+<p><strong>병렬 슬라이스 실행 (CI 매트릭스 복제)</strong></p>
+<pre><code class="language-bash"># 슬라이스 1/6 실행 (총 6개 슬라이스)
+python scripts/run_tests_parallel.py --slice 1/6
+</code></pre>
+<p><strong>E2E 테스트</strong></p>
+<pre><code class="language-bash"># i18n 스모크 테스트 (로케일 번들 확인)
+python -m pytest -m integration tests/test_wheel_locales_e2e.py -v
+
+# E2E 전체 (API 키 없이도 실행 가능)
+python -m pytest tests/e2e/ -v --tb=short
+</code></pre>
+<p><strong>테스트 커버리지 확인</strong>:</p>
+<pre><code class="language-bash">pytest tests/ --cov=. --cov-report=html    # htmlcov/ 에 HTML 보고서 생성
+</code></pre>
+<p><strong>테스트 타임아웃</strong>: 각 테스트에 30초 하드 캡 적용 (<code>pyproject.toml</code>의 <code>addopts</code>에 <code>--timeout=30</code> 설정됨)</p>
+<p><strong>테스트 데이터/픽스처</strong>: <code>tests/fixtures/</code>, <code>tests/fakes/</code>에 위치. 외부 API는 <code>unittest.mock</code> / <code>monkeypatch</code>로 목(mock) 처리. 실제 API 호출이 필요한 테스트는 <code>@pytest.mark.integration</code>으로 표시.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Recommended method (matches CI, isolated environment)</strong></p>
+<pre><code class="language-bash"># Activate the venv first
+source .venv/bin/activate   # or export VIRTUAL_ENV=&quot;$(pwd)/venv&quot;
+
+# Per-file isolated processes, parallel execution — same as CI
+scripts/run_tests.sh
+</code></pre>
+<p><strong>Direct pytest invocation</strong></p>
+<pre><code class="language-bash"># All tests (excluding integration)
+pytest tests/ -v
+
+# Specific file
+pytest tests/test_file_operations.py -v
+
+# Specific markers
+pytest tests/ -m &quot;not integration&quot; -v
+
+# Skill tests
+scripts/run_tests.sh tests/skills/test_&lt;skill&gt;_skill.py -q
+</code></pre>
+<p><strong>Parallel sliced run (reproducing CI matrix)</strong></p>
+<pre><code class="language-bash"># Run slice 1 of 6
+python scripts/run_tests_parallel.py --slice 1/6
+</code></pre>
+<p><strong>E2E tests</strong></p>
+<pre><code class="language-bash"># i18n smoke test (locale bundle check)
+python -m pytest -m integration tests/test_wheel_locales_e2e.py -v
+
+# Full E2E suite (works without real API keys)
+python -m pytest tests/e2e/ -v --tb=short
+</code></pre>
+<p><strong>Check test coverage</strong>:</p>
+<pre><code class="language-bash">pytest tests/ --cov=. --cov-report=html    # produces HTML report in htmlcov/
+</code></pre>
+<p><strong>Test timeout</strong>: A 30-second hard cap is applied per test (configured in <code>pyproject.toml</code> via <code>addopts = "--timeout=30 --timeout-method=signal"</code>).</p>
+<p><strong>Test data / fixtures</strong>: Located in <code>tests/fixtures/</code> and <code>tests/fakes/</code>. External APIs are mocked with <code>unittest.mock</code> / <code>monkeypatch</code>. Tests that require real API calls are marked <code>@pytest.mark.integration</code>.</p>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>브랜치 전략</strong>:</p>
+<pre><code>fix/description       # 버그 수정
+feat/description      # 신기능
+docs/description      # 문서
+test/description      # 테스트
+refactor/description  # 코드 재구성 (동작 변경 없음)
+</code></pre>
+<p><strong>커밋 메시지 컨벤션</strong> — <a href="https://www.conventionalcommits.org/">Conventional Commits</a>:</p>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;description&gt;
+
+예시:
+fix(cli): save_config_value에서 모델이 string일 때 크래시 방지
+feat(gateway): WhatsApp 다중 사용자 세션 격리 추가
+fix(security): sudo 비밀번호 파이핑의 셸 인젝션 방지
+test(tools): file_operations 단위 테스트 추가
+</code></pre>
+<p>스코프: <code>cli</code>, <code>gateway</code>, <code>tools</code>, <code>skills</code>, <code>agent</code>, <code>install</code>, <code>whatsapp</code>, <code>security</code> 등</p>
+<p><strong>PR 절차</strong>:
+1. <code>scripts/run_tests.sh</code> 실행 (CI와 동일)
+2. <code>hermes</code>를 직접 실행하여 변경된 코드 경로 수동 테스트
+3. 파일 I/O, 프로세스 관리, 터미널 처리 변경 시 크로스플랫폼 영향 고려
+4. PR당 1개의 논리적 변경 — 버그 수정 + 리팩터 혼합 금지
+5. PR 설명에 포함: 변경 내용 및 이유, 테스트 방법, 테스트한 플랫폼, 관련 이슈</p>
+<p><strong>코딩 스타일 및 린트 규칙</strong>:
+- PEP 8 (엄격한 라인 길이 강제 안 함)
+- ruff 린터: <code>ruff check .</code> (<code>PLW1514</code> — 인코딩 미지정 <code>open()</code> 검출)
+- ty 타입 체커: <code>ty check</code> (Python 3.13 모드)
+- 주석: 비명백한 의도, 트레이드오프, API 특이사항만. "코드가 하는 일" 서술 금지
+- 의존성: PyPI 패키지는 반드시 <code>&lt;next_major</code> 상한 포함 (공급망 보안 정책)
+- Windows 호환: <code>scripts/check-windows-footguns.py</code>로 Windows 안전하지 않은 패턴 검사</p>
+<p><strong>[English]</strong></p>
+<p><strong>Branching strategy</strong>:</p>
+<pre><code>fix/description       # Bug fixes
+feat/description      # New features
+docs/description      # Documentation
+test/description      # Tests
+refactor/description  # Code restructuring (no behavior change)
+</code></pre>
+<p><strong>Commit message conventions</strong> — <a href="https://www.conventionalcommits.org/">Conventional Commits</a>:</p>
+<pre><code>&lt;type&gt;(&lt;scope&gt;): &lt;description&gt;
+
+Examples:
+fix(cli): prevent crash in save_config_value when model is a string
+feat(gateway): add WhatsApp multi-user session isolation
+fix(security): prevent shell injection in sudo password piping
+test(tools): add unit tests for file_operations
+</code></pre>
+<p>Scopes: <code>cli</code>, <code>gateway</code>, <code>tools</code>, <code>skills</code>, <code>agent</code>, <code>install</code>, <code>whatsapp</code>, <code>security</code>, etc.</p>
+<p><strong>PR / code review process</strong>:
+1. Run <code>scripts/run_tests.sh</code> (same as CI)
+2. Manually run <code>hermes</code> and exercise the changed code path
+3. Consider cross-platform impact for file I/O, process management, and terminal handling changes
+4. One logical change per PR — do not mix bug fixes with refactors
+5. PR description must include: what changed and why, how to test, platforms tested, related issues</p>
+<p><strong>Coding style and lint rules</strong>:
+- PEP 8 (no strict line-length enforcement)
+- ruff linter: <code>ruff check .</code> (enforces <code>PLW1514</code> — unspecified encoding on <code>open()</code>)
+- ty type checker: <code>ty check</code> (Python 3.13 mode)
+- Comments: only for non-obvious intent, trade-offs, or API quirks. Never narrate what the code does.
+- Dependencies: PyPI packages must include a <code>&lt;next_major</code> upper bound (supply-chain hardening policy)
+- Windows safety: run <code>scripts/check-windows-footguns.py</code> to catch unsafe POSIX patterns in diffs</p>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. <code>hermes doctor</code>가 <code>ripgrep not found</code> 경고를 보입니다.</strong>
+<code>search_files</code> 도구는 <code>rg</code> (ripgrep)에 의존합니다. 설치:</p>
+<pre><code class="language-bash"># macOS
+brew install ripgrep
+
+# Ubuntu/Debian
+sudo apt-get install ripgrep
+
+# 직접 바이너리 설치 (CI 방식)
+curl -sSfL -o rg.tar.gz \
+  &quot;https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-x86_64-unknown-linux-musl.tar.gz&quot;
+tar -xzf rg.tar.gz &amp;&amp; sudo mv ripgrep-*/rg /usr/local/bin/
+</code></pre>
+<p><strong>Q2. LLM API 키를 설정했는데 <code>API key not found</code> 오류가 납니다.</strong>
+키는 <code>~/.hermes/.env</code>에 저장되어야 합니다. 프로젝트 루트의 <code>.env</code> 파일은 개발 전용입니다.</p>
+<pre><code class="language-bash"># 키가 올바른 위치에 있는지 확인
+cat ~/.hermes/.env | grep API_KEY
+
+# 또는 설정 마법사 재실행
+hermes setup
+</code></pre>
+<p><strong>Q3. Python 설치 중 <code>pydantic-core</code> 빌드 오류가 발생합니다.</strong>
+Python 3.14+를 사용 중일 가능성이 있습니다. <code>pyproject.toml</code>은 <code>&lt;3.14</code>를 명시합니다.</p>
+<pre><code class="language-bash">uv venv .venv --python 3.11    # 명시적으로 3.11 지정
+source .venv/bin/activate
+uv pip install -e &quot;.[all,dev]&quot;
+</code></pre>
+<p><strong>Q4. <code>hermes gateway start</code> 후 Telegram 봇이 응답하지 않습니다.</strong></p>
+<pre><code class="language-bash"># 봇 토큰이 설정되어 있는지 확인
+grep TELEGRAM ~/.hermes/.env
+
+# 허용 사용자 ID 확인 (Telegram @userinfobot으로 내 ID 확인)
+# ~/.hermes/.env 에 추가:
+# TELEGRAM_ALLOWED_USERS=123456789
+</code></pre>
+<p><strong>Q5. 테스트가 통과되는데 기능이 작동하지 않습니다 (또는 그 반대).</strong>
+단위/통합 테스트는 외부 API를 목(mock)으로 처리합니다. 실제 기능 동작은 반드시 <code>hermes chat -q "..."</code> 또는 <code>hermes --tui</code>로 직접 확인하세요. 테스트 환경에서는 <code>OPENROUTER_API_KEY=""</code>로 설정되어 실제 API 호출이 없습니다.</p>
+<p><strong>Q6. Docker 컨테이너에서 <code>EACCES</code> 권한 오류가 발생합니다.</strong>
+볼륨 마운트 권한 문제입니다. <code>HERMES_UID</code>를 호스트 사용자의 UID로 설정:</p>
+<pre><code class="language-bash">docker run -it \
+  -e HERMES_UID=$(id -u) \
+  -v ~/.hermes:/opt/data \
+  ghcr.io/nousresearch/hermes-agent:latest
+</code></pre>
+<p><strong>Q7. Windows에서 <code>os.kill</code> 관련 이상 동작이 발생합니다.</strong>
+<code>os.kill(pid, 0)</code>은 Windows에서 POSIX와 다르게 동작합니다(실제로 프로세스를 종료시킬 수 있음). 프로세스 생존 확인에는 반드시 <code>psutil.pid_exists(pid)</code>를 사용하세요.</p>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. <code>hermes doctor</code> shows a <code>ripgrep not found</code> warning.</strong>
+The <code>search_files</code> tool depends on <code>rg</code> (ripgrep). Install it:</p>
+<pre><code class="language-bash"># macOS
+brew install ripgrep
+
+# Ubuntu/Debian
+sudo apt-get install ripgrep
+
+# Direct binary install (CI-style)
+curl -sSfL -o rg.tar.gz \
+  &quot;https://github.com/BurntSushi/ripgrep/releases/download/15.1.0/ripgrep-15.1.0-x86_64-unknown-linux-musl.tar.gz&quot;
+tar -xzf rg.tar.gz &amp;&amp; sudo mv ripgrep-*/rg /usr/local/bin/
+</code></pre>
+<p><strong>Q2. I've set an LLM API key but get <code>API key not found</code> errors.</strong>
+Keys must be in <code>~/.hermes/.env</code>, not the project-root <code>.env</code> (which is for development overrides only).</p>
+<pre><code class="language-bash"># Check the key is in the right place
+cat ~/.hermes/.env | grep API_KEY
+
+# Or re-run the setup wizard
+hermes setup
+</code></pre>
+<p><strong>Q3. I get a <code>pydantic-core</code> build error during installation.</strong>
+You may be using Python 3.14+. The <code>pyproject.toml</code> explicitly restricts to <code>&lt;3.14</code>.</p>
+<pre><code class="language-bash">uv venv .venv --python 3.11    # explicitly pin to 3.11
+source .venv/bin/activate
+uv pip install -e &quot;.[all,dev]&quot;
+</code></pre>
+<p><strong>Q4. The Telegram bot doesn't respond after <code>hermes gateway start</code>.</strong></p>
+<pre><code class="language-bash"># Verify bot token is set
+grep TELEGRAM ~/.hermes/.env
+
+# Check allowed users (get your ID from @userinfobot in Telegram)
+# Add to ~/.hermes/.env:
+# TELEGRAM_ALLOWED_USERS=123456789
+</code></pre>
+<p><strong>Q5. Tests pass but the feature doesn't work (or vice versa).</strong>
+Unit/integration tests mock external APIs. Always verify real behavior directly with <code>hermes chat -q "..."</code> or <code>hermes --tui</code>. In CI, <code>OPENROUTER_API_KEY=""</code> prevents real API calls — tests verify code logic, not end-to-end feature behavior.</p>
+<p><strong>Q6. I get <code>EACCES</code> permission errors in the Docker container.</strong>
+This is a volume-mount permissions issue. Set <code>HERMES_UID</code> to your host user's UID:</p>
+<pre><code class="language-bash">docker run -it \
+  -e HERMES_UID=$(id -u) \
+  -v ~/.hermes:/opt/data \
+  ghcr.io/nousresearch/hermes-agent:latest
+</code></pre>
+<p><strong>Q7. Strange behavior related to <code>os.kill</code> on Windows.</strong>
+<code>os.kill(pid, 0)</code> does NOT behave like POSIX on Windows — it maps to <code>CTRL_C_EVENT</code> and can kill processes. Always use <code>psutil.pid_exists(pid)</code> for liveness checks across all platforms.</p>
+<hr />
+<hr />
+<h1 id="2-file-2-reviewguide4impmethodmd">파일 2 / File 2: <code>.review/GUIDE4ImpMethod.md</code></h1>
+<hr />
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>분류</strong>: 완전한 AI 에이전트 프레임워크 (애플리케이션 + 프레임워크 하이브리드)</p>
+<p>Hermes Agent는 단순한 라이브러리가 아니라 자기 완결적인 AI 에이전트 런타임입니다. 다음과 같은 실전 문제를 해결하기 위해 사용됩니다:</p>
+<ul>
+<li><strong>다중 플랫폼 접근성</strong>: 하나의 에이전트를 CLI, Telegram, Discord, Slack, WhatsApp, Signal, 이메일에서 동시에 사용</li>
+<li><strong>공급자 독립성</strong>: LLM 프로바이더 변경 없이 200+ 모델 전환 (코드 수정 없음)</li>
+<li><strong>자기 개선 학습 루프</strong>: 복잡한 작업 완료 후 스킬 자동 생성 및 개선</li>
+<li><strong>서버리스 또는 저비용 클라우드 운영</strong>: Modal, Daytona 등을 통해 유휴 시 비용 거의 없이 운영</li>
+<li><strong>연구 목적 (배치 궤적 생성)</strong>: 다음 세대 도구 호출 모델 학습용 궤적 데이터 수집</li>
+</ul>
+<p><strong>사용 케이스별 분류</strong>:
+| 활용 유형 | 설명 |
+|-----------|------|
+| <strong>개인 AI 어시스턴트</strong> | 로컬/VPS에서 24/7 동작, 메시징으로 접근 |
+| <strong>개발 자동화</strong> | 코드 리뷰, 배포, 주간 보고서 크론 스케줄링 |
+| <strong>연구 인프라</strong> | 배치 에이전트 실행, 궤적 수집, 모델 평가 |
+| <strong>확장형 에이전트 플랫폼</strong> | 플러그인 추가로 새 메모리·메시징 백엔드 연결 |</p>
+<p><strong>[English]</strong></p>
+<p><strong>Classification</strong>: Complete AI agent framework (application + framework hybrid)</p>
+<p>Hermes Agent is a self-contained AI agent runtime, not just a library. It solves these real-world problems:</p>
+<ul>
+<li><strong>Multi-platform accessibility</strong>: Use a single agent simultaneously across CLI, Telegram, Discord, Slack, WhatsApp, Signal, and email</li>
+<li><strong>Provider independence</strong>: Switch between 200+ models without code changes</li>
+<li><strong>Self-improving learning loop</strong>: Automatically creates and refines skills after complex tasks</li>
+<li><strong>Serverless or low-cost cloud operation</strong>: Modal/Daytona keep costs near zero when idle</li>
+<li><strong>Research infrastructure (batch trajectory generation)</strong>: Collect trajectory data for training next-generation tool-calling models</li>
+</ul>
+<p><strong>Use-case breakdown</strong>:
+| Use type | Description |
+|----------|-------------|
+| <strong>Personal AI assistant</strong> | 24/7 on local or VPS, accessible via messaging |
+| <strong>Development automation</strong> | Cron-scheduled code review, deploy, weekly reports |
+| <strong>Research infrastructure</strong> | Batch agent runs, trajectory collection, model evaluation |
+| <strong>Extensible agent platform</strong> | Add plugins for new memory/messaging backends |</p>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>전체 아키텍처</strong>:</p>
+<ul>
+<li><strong>핵심 루프</strong>: <code>AIAgent._run_agent_loop()</code> — 사용자 메시지 → 시스템 프롬프트 조립 → LLM 호출 → 도구 실행 → 응답 반환 (컨텍스트 압축 포함)</li>
+<li><strong>도구 시스템</strong>: 각 <code>tools/*.py</code>가 임포트 시 <code>registry.py</code>에 자가 등록, 스키마 + 핸들러 공존</li>
+<li><strong>세션 영속화</strong>: SQLite (<code>hermes_state.py</code>) + FTS5 전문 검색으로 대화 간 컨텍스트 검색</li>
+<li><strong>스킬 시스템</strong>: 마크다운 파일(<code>SKILL.md</code>) 기반, 에이전트가 동적으로 생성·개선 가능</li>
+<li><strong>게이트웨이</strong>: <code>GatewayRunner</code>가 플랫폼별 어댑터를 통해 메시지를 에이전트로 라우팅</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p><strong>Overall architecture</strong>:</p>
+<ul>
+<li><strong>Core loop</strong>: <code>AIAgent._run_agent_loop()</code> — user message → system prompt assembly → LLM call → tool execution → response return (with context compression)</li>
+<li><strong>Tool system</strong>: Each <code>tools/*.py</code> self-registers in <code>registry.py</code> at import time with schema + handler co-located</li>
+<li><strong>Session persistence</strong>: SQLite (<code>hermes_state.py</code>) + FTS5 full-text search for cross-session context retrieval</li>
+<li><strong>Skills system</strong>: Markdown-file-based (<code>SKILL.md</code>), dynamically creatable and improvable by the agent</li>
+<li><strong>Gateway</strong>: <code>GatewayRunner</code> routes messages through platform-specific adapters to the agent</li>
+</ul>
+<pre><code class="language-mermaid">flowchart TD
+    CLI[&quot;hermes CLI\n(prompt_toolkit TUI)&quot;]
+    GW[&quot;Messaging Gateway\n(Telegram / Discord / Slack / WhatsApp)&quot;]
+    TUI[&quot;Browser TUI\n(tui_gateway WebSocket)&quot;]
+
+    CLI --&gt;|user input| AGENT
+    GW --&gt;|normalized message| AGENT
+    TUI --&gt;|slash_worker RPC| AGENT
+
+    subgraph AGENT[&quot;AIAgent (_run_agent_loop)&quot;]
+        PB[&quot;prompt_builder.py\nSystem prompt assembly\n(skills + memory + context files)&quot;]
+        LLM[&quot;LLM API Call\n(OpenAI-compatible)\nOpenRouter / Anthropic / Gemini / ...&quot;]
+        TOOLS[&quot;Tool Registry\n(tools/registry.py)\n40+ self-registered tools&quot;]
+        CC[&quot;Context Compressor\n(auto-summarize at limit)&quot;]
+    end
+
+    PB --&gt; LLM
+    LLM --&gt;|tool_calls| TOOLS
+    TOOLS --&gt;|tool_results| LLM
+    LLM --&gt;|text response| OUTPUT
+    LLM -.-&gt;|approaching limit| CC
+    CC -.-&gt;|compressed history| LLM
+
+    subgraph TOOLS_DETAIL[&quot;Tools (selected)&quot;]
+        TERM[&quot;terminal_tool\n(local/docker/ssh/modal)&quot;]
+        FILE[&quot;file_operations\n(read/write/patch/search)&quot;]
+        WEB[&quot;web_tools\n(search + extract)&quot;]
+        MEM[&quot;memory_tool\n(MEMORY.md / Honcho)&quot;]
+        SKILL_T[&quot;skill_tools\n(create/improve/load)&quot;]
+        DELEGATE[&quot;delegate_tool\n(subagent spawn)&quot;]
+        CRON[&quot;cronjob_tools\n(schedule tasks)&quot;]
+    end
+
+    TOOLS --&gt; TOOLS_DETAIL
+
+    OUTPUT[&quot;Response&quot;]
+    STATE[&quot;hermes_state.py\nSQLite + FTS5\n(session persistence)&quot;]
+    OUTPUT --&gt; STATE
+</code></pre>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: $5 VPS에 개인 AI 비서 배포 (Telegram 연동)</strong></p>
+<ol>
+<li>VPS에 접속하여 원라인 설치:
+   <code>bash
+   curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+   source ~/.bashrc</code></li>
+<li>Telegram BotFather에서 봇 토큰 발급 후 설정:
+   <code>bash
+   hermes setup     # 인터랙티브 마법사로 LLM 키 + Telegram 설정</code></li>
+<li>게이트웨이 시작 (백그라운드 데몬):
+   <code>bash
+   hermes gateway start
+   hermes gateway status   # 실행 확인</code></li>
+<li>Telegram에서 봇에게 메시지 전송 → 즉시 응답</li>
+<li>크론 작업 추가 (자연어로):
+   <code>[Telegram에서] 매일 오전 9시에 내 깃허브 PR 리뷰해줘</code></li>
+</ol>
+<p><strong>시나리오 2: Modal 서버리스 클라우드 배포 (유휴 비용 거의 없음)</strong></p>
+<ol>
+<li>Modal CLI 설치 및 인증:
+   <code>bash
+   pip install modal &amp;&amp; modal setup</code></li>
+<li>Hermes 터미널 백엔드를 modal로 변경:
+   <code>bash
+   hermes config set terminal.backend modal</code></li>
+<li>Modal 이미지 설정 확인 (<code>.env.example</code>):
+   <code>dotenv
+   TERMINAL_MODAL_IMAGE=nikolaik/python-nodejs:python3.11-nodejs20</code></li>
+<li>에이전트가 명령을 실행할 때마다 Modal 컨테이너가 스핀업, 완료 후 종료 → 유휴 비용 없음</li>
+</ol>
+<p><strong>시나리오 3: Docker 컨테이너로 팀 공유 AI 에이전트 운영</strong></p>
+<ol>
+<li>공식 이미지 사용:
+   <code>bash
+   docker run -d --name hermes \
+     -v /host/hermes-data:/opt/data \
+     -e OPENROUTER_API_KEY=sk-or-xxx \
+     -e TELEGRAM_BOT_TOKEN=xxx \
+     -e TELEGRAM_ALLOWED_USERS=111,222,333 \
+     --restart unless-stopped \
+     ghcr.io/nousresearch/hermes-agent:latest</code></li>
+<li><code>TELEGRAM_ALLOWED_USERS</code>에 팀원 ID 추가하여 접근 제어</li>
+<li><code>/opt/data</code> 볼륨에 메모리·스킬·세션 영속화</li>
+<li><code>docker exec hermes hermes doctor</code>로 상태 확인</li>
+</ol>
+<p><strong>시나리오 4: 배치 궤적 생성 (LLM 훈련 데이터 수집)</strong></p>
+<ol>
+<li>작업 목록 파일 준비 (<code>tasks.json</code>)</li>
+<li>배치 러너 실행:
+   <code>bash
+   python -m batch_runner --tasks tasks.json --output trajectories/</code></li>
+<li><code>trajectory_compressor.py</code>로 압축:
+   <code>bash
+   python trajectory_compressor.py trajectories/ --output compressed/</code></li>
+<li>생성된 궤적을 파인튜닝 파이프라인에 공급</li>
+</ol>
+<p><strong>시나리오 5: 커스텀 스킬 작성 및 배포</strong></p>
+<ol>
+<li>스킬 디렉토리 생성:
+   <code>bash
+   mkdir -p ~/.hermes/skills/my-category/my-skill</code></li>
+<li><code>SKILL.md</code> 작성 (프론트매터 + 절차 포함)</li>
+<li>스킬 테스트:
+   <code>bash
+   hermes -q "Use my-skill to do X"</code></li>
+<li>Skills Hub 공유:
+   <code>bash
+   hermes skills publish my-skill</code></li>
+</ol>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: Deploy a personal AI assistant on a $5 VPS (Telegram integration)</strong></p>
+<ol>
+<li>SSH into VPS, run one-line install:
+   <code>bash
+   curl -fsSL https://hermes-agent.nousresearch.com/install.sh | bash
+   source ~/.bashrc</code></li>
+<li>Get a Telegram bot token from BotFather, then configure:
+   <code>bash
+   hermes setup     # interactive wizard: LLM key + Telegram config</code></li>
+<li>Start gateway as background daemon:
+   <code>bash
+   hermes gateway start
+   hermes gateway status   # confirm running</code></li>
+<li>Send a message to the bot in Telegram → immediate response</li>
+<li>Add a cron task in natural language:
+   <code>[In Telegram] Review my GitHub PRs every morning at 9am</code></li>
+</ol>
+<p><strong>Scenario 2: Modal serverless cloud deployment (near-zero idle cost)</strong></p>
+<ol>
+<li>Install and authenticate Modal CLI:
+   <code>bash
+   pip install modal &amp;&amp; modal setup</code></li>
+<li>Switch Hermes terminal backend to modal:
+   <code>bash
+   hermes config set terminal.backend modal</code></li>
+<li>Verify Modal image configuration (<code>.env.example</code>):
+   <code>dotenv
+   TERMINAL_MODAL_IMAGE=nikolaik/python-nodejs:python3.11-nodejs20</code></li>
+<li>Each time the agent executes a command, a Modal container spins up, then exits on completion → zero idle cost.</li>
+</ol>
+<p><strong>Scenario 3: Shared team AI agent via Docker</strong></p>
+<ol>
+<li>Use the official image:
+   <code>bash
+   docker run -d --name hermes \
+     -v /host/hermes-data:/opt/data \
+     -e OPENROUTER_API_KEY=sk-or-xxx \
+     -e TELEGRAM_BOT_TOKEN=xxx \
+     -e TELEGRAM_ALLOWED_USERS=111,222,333 \
+     --restart unless-stopped \
+     ghcr.io/nousresearch/hermes-agent:latest</code></li>
+<li>Add team member IDs to <code>TELEGRAM_ALLOWED_USERS</code> for access control</li>
+<li><code>/opt/data</code> volume persists memories, skills, and sessions</li>
+<li>Check status: <code>docker exec hermes hermes doctor</code></li>
+</ol>
+<p><strong>Scenario 4: Batch trajectory generation (LLM training data collection)</strong></p>
+<ol>
+<li>Prepare a task list file (<code>tasks.json</code>)</li>
+<li>Run the batch runner:
+   <code>bash
+   python -m batch_runner --tasks tasks.json --output trajectories/</code></li>
+<li>Compress with <code>trajectory_compressor.py</code>:
+   <code>bash
+   python trajectory_compressor.py trajectories/ --output compressed/</code></li>
+<li>Feed generated trajectories into your fine-tuning pipeline.</li>
+</ol>
+<p><strong>Scenario 5: Write and deploy a custom skill</strong></p>
+<ol>
+<li>Create skill directory:
+   <code>bash
+   mkdir -p ~/.hermes/skills/my-category/my-skill</code></li>
+<li>Write <code>SKILL.md</code> (frontmatter + procedure)</li>
+<li>Test the skill:
+   <code>bash
+   hermes -q "Use my-skill to do X"</code></li>
+<li>Share on Skills Hub:
+   <code>bash
+   hermes skills publish my-skill</code></li>
+</ol>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>설정 변경 포인트</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>설정 파일</th>
+<th>경로</th>
+<th>주요 설정</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>메인 설정</td>
+<td><code>~/.hermes/config.yaml</code></td>
+<td>모델, 프로바이더, 터미널 백엔드, 압축, 스킨</td>
+</tr>
+<tr>
+<td>환경 변수</td>
+<td><code>~/.hermes/.env</code></td>
+<td>API 키, 메시징 토큰, 디버그 플래그</td>
+</tr>
+<tr>
+<td>스킬</td>
+<td><code>~/.hermes/skills/</code></td>
+<td>SKILL.md 파일로 에이전트 절차 정의</td>
+</tr>
+<tr>
+<td>메모리</td>
+<td><code>~/.hermes/memories/</code></td>
+<td>MEMORY.md, USER.md 등 영속 메모리</td>
+</tr>
+<tr>
+<td>퍼소나</td>
+<td><code>~/.hermes/SOUL.md</code></td>
+<td>에이전트 퍼소나/정체성 정의</td>
+</tr>
+</tbody>
+</table>
+<p><strong>새 기능 추가 시 수정 파일</strong>:</p>
+<ul>
+<li><strong>새 도구 추가</strong>: <code>tools/</code> 아래 새 <code>.py</code> 파일 생성 + <code>toolsets.py</code>의 관련 toolset에 이름 추가</li>
+<li><strong>새 메시징 플랫폼</strong>: <code>gateway/platforms/</code> 아래 새 어댑터 생성, <code>gateway/run.py</code>에 플랫폼 등록</li>
+<li><strong>새 터미널 백엔드</strong>: <code>tools/environments/</code>에 <code>BaseEnvironment</code> ABC 구현</li>
+<li><strong>새 LLM 프로바이더</strong>: <code>providers/</code> 아래 프로바이더 어댑터 추가 + <code>hermes_cli/auth.py</code> 업데이트</li>
+<li><strong>새 메모리 프로바이더</strong>: 프로젝트 외부 독립 플러그인으로 구현 (<code>plugins/memory/</code>에는 더 이상 새 추가 불가)</li>
+</ul>
+<p><strong>플러그인/미들웨어/훅 구조</strong>:</p>
+<p>도구는 임포트 시 자가 등록됩니다:</p>
+<pre><code class="language-python"># tools/my_tool.py
+from tools.registry import registry
+
+def my_handler(param: str, **kwargs) -&gt; str:
+    return f&quot;결과: {param}&quot;
+
+MY_SCHEMA = {
+    &quot;type&quot;: &quot;function&quot;,
+    &quot;function&quot;: {
+        &quot;name&quot;: &quot;my_tool&quot;,
+        &quot;description&quot;: &quot;무엇을 하는 도구인지 설명.&quot;,
+        &quot;parameters&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {&quot;param&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;파라미터&quot;}},
+            &quot;required&quot;: [&quot;param&quot;],
+        },
+    },
+}
+
+registry.register(
+    name=&quot;my_tool&quot;,
+    toolset=&quot;my_toolset&quot;,
+    schema=MY_SCHEMA,
+    handler=lambda args, **kw: my_handler(**args, **kw),
+)
+</code></pre>
+<p>스킨/테마는 YAML 파일로 코드 변경 없이 추가:</p>
+<pre><code class="language-bash"># ~/.hermes/skins/mytheme.yaml
+# /skin mytheme 명령으로 적용
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Configuration touch points</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Config file</th>
+<th>Path</th>
+<th>Key settings</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Main config</td>
+<td><code>~/.hermes/config.yaml</code></td>
+<td>Model, provider, terminal backend, compression, skin</td>
+</tr>
+<tr>
+<td>Environment vars</td>
+<td><code>~/.hermes/.env</code></td>
+<td>API keys, messaging tokens, debug flags</td>
+</tr>
+<tr>
+<td>Skills</td>
+<td><code>~/.hermes/skills/</code></td>
+<td>SKILL.md files defining agent procedures</td>
+</tr>
+<tr>
+<td>Memory</td>
+<td><code>~/.hermes/memories/</code></td>
+<td>MEMORY.md, USER.md — persistent memory</td>
+</tr>
+<tr>
+<td>Persona</td>
+<td><code>~/.hermes/SOUL.md</code></td>
+<td>Agent persona / identity definition</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key files to modify when adding features</strong>:</p>
+<ul>
+<li><strong>New tool</strong>: Create a new <code>.py</code> file under <code>tools/</code> + add the tool name to the relevant toolset in <code>toolsets.py</code></li>
+<li><strong>New messaging platform</strong>: Create a new adapter under <code>gateway/platforms/</code>, register in <code>gateway/run.py</code></li>
+<li><strong>New terminal backend</strong>: Implement <code>BaseEnvironment</code> ABC under <code>tools/environments/</code></li>
+<li><strong>New LLM provider</strong>: Add a provider adapter under <code>providers/</code> + update <code>hermes_cli/auth.py</code></li>
+<li><strong>New memory provider</strong>: Implement as a standalone external plugin (new additions to <code>plugins/memory/</code> are no longer accepted in-tree)</li>
+</ul>
+<p><strong>Plugin / middleware / hook architecture</strong>:</p>
+<p>Tools self-register at import time:</p>
+<pre><code class="language-python"># tools/my_tool.py
+from tools.registry import registry
+
+def my_handler(param: str, **kwargs) -&gt; str:
+    return f&quot;result: {param}&quot;
+
+MY_SCHEMA = {
+    &quot;type&quot;: &quot;function&quot;,
+    &quot;function&quot;: {
+        &quot;name&quot;: &quot;my_tool&quot;,
+        &quot;description&quot;: &quot;What this tool does.&quot;,
+        &quot;parameters&quot;: {
+            &quot;type&quot;: &quot;object&quot;,
+            &quot;properties&quot;: {&quot;param&quot;: {&quot;type&quot;: &quot;string&quot;, &quot;description&quot;: &quot;The parameter&quot;}},
+            &quot;required&quot;: [&quot;param&quot;],
+        },
+    },
+}
+
+registry.register(
+    name=&quot;my_tool&quot;,
+    toolset=&quot;my_toolset&quot;,
+    schema=MY_SCHEMA,
+    handler=lambda args, **kw: my_handler(**args, **kw),
+)
+</code></pre>
+<p>Skins/themes are added as YAML files with no code changes:</p>
+<pre><code class="language-bash"># ~/.hermes/skins/mytheme.yaml
+# Apply with: /skin mytheme
+</code></pre>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>프로덕션 빌드 및 배포 절차</strong>:</p>
+<p><strong>방법 1: Docker (권장)</strong></p>
+<pre><code class="language-bash"># 공식 이미지 사용 (멀티 아키텍처: amd64, arm64)
+docker pull ghcr.io/nousresearch/hermes-agent:latest
+
+# 또는 직접 빌드
+docker build \
+  --build-arg HERMES_GIT_SHA=$(git rev-parse HEAD) \
+  -t hermes-agent:local .
+</code></pre>
+<p><strong>방법 2: PyPI 패키지</strong></p>
+<pre><code class="language-bash">pip install hermes-agent    # 기본 설치
+pip install &quot;hermes-agent[all]&quot;   # 전체 기능
+</code></pre>
+<p><strong>환경별 설정 분리</strong>:</p>
+<pre><code class="language-bash"># 개발 환경
+HERMES_HOME=~/.hermes-dev hermes chat -q &quot;test&quot;
+
+# 스테이징/프로덕션 — Docker 볼륨으로 분리
+docker run -v /data/prod-hermes:/opt/data ...
+docker run -v /data/staging-hermes:/opt/data ...
+</code></pre>
+<p><strong>CI/CD 파이프라인 연동</strong>:</p>
+<p><code>.github/workflows/docker-publish.yml</code>이 <code>main</code> 브랜치 푸시 시 자동으로:
+1. <code>docker build --build-arg HERMES_GIT_SHA=${{ github.sha }}</code>
+2. <code>ghcr.io/nousresearch/hermes-agent</code> 레지스트리에 푸시
+3. <code>latest</code> 및 버전 태그 적용</p>
+<p>자체 CI/CD에서 사용:</p>
+<pre><code class="language-yaml"># GitHub Actions 예시
+- name: Deploy Hermes
+  run: |
+    docker pull ghcr.io/nousresearch/hermes-agent:latest
+    docker stop hermes || true
+    docker rm hermes || true
+    docker run -d --name hermes \
+      -v ${{ secrets.HERMES_DATA_PATH }}:/opt/data \
+      -e OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }} \
+      -e TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} \
+      --restart unless-stopped \
+      ghcr.io/nousresearch/hermes-agent:latest
+</code></pre>
+<p><strong>컨테이너화 가이드 (Docker)</strong>:
+- 기본 이미지: <code>debian:13.4</code> + s6-overlay 프로세스 슈퍼바이저
+- PID 1: <code>/init</code> (s6-overlay) — 좀비 프로세스 자동 회수
+- 데이터 볼륨: <code>/opt/data</code> (메모리, 스킬, 세션, 설정)
+- UID 재매핑: <code>HERMES_UID</code> 환경변수로 호스트 UID 매핑 가능
+- 포트: 웹 대시보드는 필요 시 <code>-p 8080:8080</code> 추가</p>
+<p><strong>Webhook 모드 (Telegram, 클라우드 배포 시)</strong>:</p>
+<pre><code class="language-dotenv">TELEGRAM_WEBHOOK_URL=https://my-app.fly.dev/telegram
+TELEGRAM_WEBHOOK_PORT=8443
+TELEGRAM_WEBHOOK_SECRET=random_secret_here
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Production build and deployment steps</strong>:</p>
+<p><strong>Method 1: Docker (recommended)</strong></p>
+<pre><code class="language-bash"># Use official image (multi-arch: amd64, arm64)
+docker pull ghcr.io/nousresearch/hermes-agent:latest
+
+# Or build directly
+docker build \
+  --build-arg HERMES_GIT_SHA=$(git rev-parse HEAD) \
+  -t hermes-agent:local .
+</code></pre>
+<p><strong>Method 2: PyPI package</strong></p>
+<pre><code class="language-bash">pip install hermes-agent         # base install
+pip install &quot;hermes-agent[all]&quot;  # full feature set
+</code></pre>
+<p><strong>Environment-specific configuration separation</strong>:</p>
+<pre><code class="language-bash"># Development
+HERMES_HOME=~/.hermes-dev hermes chat -q &quot;test&quot;
+
+# Staging/production — separate via Docker volumes
+docker run -v /data/prod-hermes:/opt/data ...
+docker run -v /data/staging-hermes:/opt/data ...
+</code></pre>
+<p><strong>CI/CD pipeline integration</strong>:</p>
+<p><code>.github/workflows/docker-publish.yml</code> automatically on <code>main</code> branch pushes:
+1. <code>docker build --build-arg HERMES_GIT_SHA=${{ github.sha }}</code>
+2. Pushes to <code>ghcr.io/nousresearch/hermes-agent</code> registry
+3. Applies <code>latest</code> and version tags</p>
+<p>Using in your own CI/CD:</p>
+<pre><code class="language-yaml"># GitHub Actions example
+- name: Deploy Hermes
+  run: |
+    docker pull ghcr.io/nousresearch/hermes-agent:latest
+    docker stop hermes || true &amp;&amp; docker rm hermes || true
+    docker run -d --name hermes \
+      -v ${{ secrets.HERMES_DATA_PATH }}:/opt/data \
+      -e OPENROUTER_API_KEY=${{ secrets.OPENROUTER_API_KEY }} \
+      -e TELEGRAM_BOT_TOKEN=${{ secrets.TELEGRAM_BOT_TOKEN }} \
+      --restart unless-stopped \
+      ghcr.io/nousresearch/hermes-agent:latest
+</code></pre>
+<p><strong>Containerization guide (Docker)</strong>:
+- Base image: <code>debian:13.4</code> + s6-overlay process supervisor
+- PID 1: <code>/init</code> (s6-overlay) — automatic zombie process reaping
+- Data volume: <code>/opt/data</code> (memories, skills, sessions, config)
+- UID remapping: <code>HERMES_UID</code> env var maps to host user UID
+- Ports: add <code>-p 8080:8080</code> if exposing the web dashboard</p>
+<p><strong>Webhook mode (Telegram, cloud deployments)</strong>:</p>
+<pre><code class="language-dotenv">TELEGRAM_WEBHOOK_URL=https://my-app.fly.dev/telegram
+TELEGRAM_WEBHOOK_PORT=8443
+TELEGRAM_WEBHOOK_SECRET=random_secret_here
+</code></pre>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>알려진 성능 병목 지점</strong>:</p>
+<ol>
+<li>
+<p><strong>컨텍스트 압축 지연</strong>: 세션이 길어지면 자동 압축 트리거 시 추가 LLM 호출 발생. 임계값 조정:
+   <code>yaml
+   # ~/.hermes/config.yaml
+   compression:
+     enabled: true
+     threshold: 0.85   # 85%에서 압축 (기본값)
+     summary_model: "google/gemini-3-flash-preview"  # 경량 모델 사용</code></p>
+</li>
+<li>
+<p><strong>터미널 백엔드 스핀업 시간</strong>: Modal/Daytona 백엔드는 콜드 스타트 ~2–10초. 빈번한 단기 명령에는 <code>local</code> 백엔드 사용.</p>
+</li>
+<li>
+<p><strong>도구 레지스트리 초기화</strong>: 에이전트 시작 시 모든 <code>tools/*.py</code>를 임포트. 불필요한 도구셋 비활성화:
+   <code>bash
+   hermes tools   # 도구셋별 활성화/비활성화</code></p>
+</li>
+<li>
+<p><strong>스킬 시스템 프롬프트 크기</strong>: 스킬이 많을수록 시스템 프롬프트 증가 → 토큰 비용 상승. 조건부 스킬 활성화(<code>requires_toolsets</code>, <code>fallback_for_toolsets</code>) 활용.</p>
+</li>
+</ol>
+<p><strong>수평/수직 확장 전략</strong>:
+- <strong>수직 확장</strong>: 단일 인스턴스는 메모리/CPU 추가로 확장. SQLite는 단일 프로세스 최적화.
+- <strong>수평 확장</strong>: 각 사용자/플랫폼을 독립 컨테이너로 분리 (<code>HERMES_HOME</code> 다르게 설정). 게이트웨이 Webhook 모드 사용 (폴링 대신).
+- <strong>다중 에이전트 위임</strong>: <code>delegate_tool</code>로 병렬 서브에이전트 생성 — 독립 작업 병렬화에 효과적.</p>
+<p><strong>캐싱 전략</strong>:
+- 스킬 인덱스는 <code>~/.hermes/skills/</code> 변경 시만 재빌드
+- 세션 검색은 SQLite FTS5 인덱스 활용 (빠른 전문 검색)
+- LLM 응답 캐싱은 내장 미지원 — 프록시 레이어(OpenRouter 캐싱 기능 활용) 고려</p>
+<p><strong>모니터링 및 로깅</strong>:</p>
+<pre><code class="language-bash"># 실시간 로그 스트리밍
+tail -f ~/.hermes/sessions/*.jsonl     # 게이트웨이 세션 로그
+
+# 진단
+hermes doctor                           # 환경 상태 전체 점검
+
+# Docker 환경
+docker logs -f hermes                   # 컨테이너 로그
+</code></pre>
+<p>세션 로그는 <code>logs/session_YYYYMMDD_HHMMSS_UUID.json</code> 형식으로 자동 저장.</p>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Known performance bottlenecks</strong>:</p>
+<ol>
+<li>
+<p><strong>Context compression latency</strong>: Long sessions trigger auto-compression (an extra LLM call). Tune the threshold:
+   <code>yaml
+   # ~/.hermes/config.yaml
+   compression:
+     enabled: true
+     threshold: 0.85   # compress at 85% (default)
+     summary_model: "google/gemini-3-flash-preview"  # use a lightweight model</code></p>
+</li>
+<li>
+<p><strong>Terminal backend cold-start time</strong>: Modal/Daytona backends have ~2–10s cold start. For frequent short commands, use the <code>local</code> backend.</p>
+</li>
+<li>
+<p><strong>Tool registry initialization</strong>: All <code>tools/*.py</code> are imported at agent startup. Disable unused toolsets:
+   <code>bash
+   hermes tools   # enable/disable toolsets interactively</code></p>
+</li>
+<li>
+<p><strong>Skills system prompt size</strong>: More active skills = larger system prompt = higher token cost. Use conditional skill activation (<code>requires_toolsets</code>, <code>fallback_for_toolsets</code>) to keep prompts lean.</p>
+</li>
+</ol>
+<p><strong>Horizontal / vertical scaling strategies</strong>:
+- <strong>Vertical scaling</strong>: Single instance scales with more RAM/CPU. SQLite is optimized for single-process use.
+- <strong>Horizontal scaling</strong>: Isolate each user/platform in its own container (different <code>HERMES_HOME</code>). Use Webhook mode for the gateway instead of polling.
+- <strong>Multi-agent delegation</strong>: Use <code>delegate_tool</code> to spawn parallel subagents — effective for independent parallel workstreams.</p>
+<p><strong>Caching strategy</strong>:
+- Skill index is only rebuilt when <code>~/.hermes/skills/</code> changes
+- Session search uses SQLite FTS5 index for fast full-text queries
+- LLM response caching is not built in — consider a proxy layer (e.g., OpenRouter's caching features)</p>
+<p><strong>Monitoring and logging</strong>:</p>
+<pre><code class="language-bash"># Real-time log streaming
+tail -f ~/.hermes/sessions/*.jsonl     # gateway session logs
+
+# Diagnostics
+hermes doctor                           # full environment health check
+
+# Docker
+docker logs -f hermes                   # container logs
+</code></pre>
+<p>Session logs are auto-saved as <code>logs/session_YYYYMMDD_HHMMSS_UUID.json</code>.</p>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>환경 변수 및 시크릿 관리</strong>:
+- [ ] API 키는 <code>~/.hermes/.env</code>에 저장 (소스 코드 또는 <code>config.yaml</code>에 직접 넣지 말 것)
+- [ ] Docker 배포 시 Secrets Manager 또는 환경 변수로 주입 (이미지에 하드코딩 금지)
+- [ ] SSH 원격 백엔드 사용 시 에이전트가 <code>.env</code> 파일에 접근 불가 (보안 권장)
+- [ ] 로그에 API 키/토큰/비밀번호가 노출되지 않는지 주기적 확인</p>
+<p><strong>인증/인가 구현 포인트</strong>:
+- 메시징 게이트웨이: <code>TELEGRAM_ALLOWED_USERS</code>, <code>DISCORD_ALLOWED_USERS</code>, <code>SLACK_BOT_TOKEN</code> 등으로 허용 사용자 명시
+- <code>GATEWAY_ALLOW_ALL_USERS=false</code> (기본값 유지 — 의도적인 공개 접근이 아닌 한 변경 금지)
+- Docker <code>exec</code> 시 특권 드롭: <code>/opt/hermes/bin/hermes</code> exec shim이 root로 실행 시 자동 <code>s6-setuidgid hermes</code>
+- 위험 명령 실행 전 사용자 승인: <code>tools/approval.py</code>의 패턴 매칭 + 세션별 승인 흐름</p>
+<p><strong>의존성 취약점 점검</strong>:</p>
+<pre><code class="language-bash"># OSV 스캐너 (CI에서 자동 실행)
+osv-scanner --lockfile uv.lock
+
+# ruff 린트 (공급망 보안 관련 코딩 패턴 검사)
+ruff check .
+
+# Windows 안전 패턴 검사
+python scripts/check-windows-footguns.py
+</code></pre>
+<p><strong>알려진 보안 고려사항</strong>:
+- <strong>셸 인젝션</strong>: <code>tools/approval.py</code>의 위험 명령 감지 + <code>shlex.quote()</code> 사용 (sudo 비밀번호 파이핑)
+- <strong>경로 트래버설</strong>: 쓰기 거부 목록(<code>~/.ssh/authorized_keys</code>, <code>/etc/shadow</code>)을 <code>os.path.realpath()</code>로 심볼릭 링크 우회 방지
+- <strong>프롬프트 인젝션</strong>: <code>tools/cronjob_tools.py</code>의 크론 프롬프트 인젝션 스캐너
+- <strong>스킬 보안</strong>: <code>tools/skills_guard.py</code>가 허브 설치 스킬의 악성 패턴 검사
+- <strong>코드 실행 샌드박스</strong>: <code>execute_code</code>의 자식 프로세스에서 API 키 환경변수 제거
+- <strong>컨테이너 강화</strong>: Docker 전체 capabilities 드롭, 권한 상승 금지, PID 제한, 크기 제한 tmpfs
+- <strong>공급망</strong>: 모든 PyPI 의존성 exact pin + <code>&lt;next_major</code> 상한 (2026년 supply chain 공격 이후 정책)</p>
+<p><strong>[English]</strong></p>
+<p><strong>Environment variable and secret management</strong>:
+- [ ] API keys stored in <code>~/.hermes/.env</code> only (never hardcode in source code or <code>config.yaml</code>)
+- [ ] For Docker deployments, inject via Secrets Manager or environment variables (never bake into the image)
+- [ ] When using the SSH remote backend, the agent cannot access the local <code>.env</code> file (recommended for security)
+- [ ] Periodically audit logs to ensure no API keys/tokens/passwords appear in output</p>
+<p><strong>Authentication / authorization implementation points</strong>:
+- Messaging gateway: specify allowed users via <code>TELEGRAM_ALLOWED_USERS</code>, <code>DISCORD_ALLOWED_USERS</code>, <code>SLACK_BOT_TOKEN</code>, etc.
+- Keep <code>GATEWAY_ALLOW_ALL_USERS=false</code> (the default) unless intentionally enabling public access
+- Docker <code>exec</code> privilege drop: <code>/opt/hermes/bin/hermes</code> exec shim auto-drops to <code>s6-setuidgid hermes</code> when invoked as root
+- Dangerous command approval before execution: <code>tools/approval.py</code> pattern matching + per-session approval flow</p>
+<p><strong>Dependency vulnerability scanning</strong>:</p>
+<pre><code class="language-bash"># OSV scanner (runs automatically in CI)
+osv-scanner --lockfile uv.lock
+
+# Ruff lint (checks supply-chain-related coding patterns)
+ruff check .
+
+# Windows safety pattern checker
+python scripts/check-windows-footguns.py
+</code></pre>
+<p><strong>Known security considerations</strong>:
+- <strong>Shell injection</strong>: Dangerous command detection in <code>tools/approval.py</code> + <code>shlex.quote()</code> for sudo password piping
+- <strong>Path traversal</strong>: Write deny list (<code>~/.ssh/authorized_keys</code>, <code>/etc/shadow</code>) resolved via <code>os.path.realpath()</code> to prevent symlink bypass
+- <strong>Prompt injection</strong>: Cron prompt injection scanner in <code>tools/cronjob_tools.py</code>
+- <strong>Skill security</strong>: <code>tools/skills_guard.py</code> scans hub-installed skills for malicious patterns
+- <strong>Code execution sandbox</strong>: <code>execute_code</code> child process strips API key env vars from its environment
+- <strong>Container hardening</strong>: Docker drops all capabilities, no privilege escalation, PID limits, size-limited tmpfs
+- <strong>Supply chain</strong>: All PyPI dependencies are exact-pinned with <code>&lt;next_major</code> upper bound (policy after 2026 supply-chain attacks)</p>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서</strong>:
+- <a href="https://hermes-agent.nousresearch.com/docs/">Hermes Agent 공식 문서</a> — 전체 문서 허브
+- <a href="https://hermes-agent.nousresearch.com/docs/getting-started/quickstart">빠른 시작 가이드</a> — 2분 내 첫 대화
+- <a href="https://hermes-agent.nousresearch.com/docs/user-guide/cli">CLI 사용법</a> — 명령어, 단축키, 퍼소나
+- <a href="https://hermes-agent.nousresearch.com/docs/user-guide/configuration">설정 레퍼런스</a> — 전체 config.yaml 옵션
+- <a href="https://hermes-agent.nousresearch.com/docs/user-guide/messaging">메시징 게이트웨이</a> — Telegram, Discord, Slack 등
+- <a href="https://hermes-agent.nousresearch.com/docs/user-guide/security">보안 가이드</a> — 명령 승인, DM 페어링, 컨테이너 격리
+- <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/architecture">아키텍처 문서</a> — 에이전트 루프, 핵심 클래스
+- <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/contributing">기여 가이드</a> — 개발 환경, PR 절차
+- <a href="https://hermes-agent.nousresearch.com/docs/reference/environment-variables">환경 변수 레퍼런스</a></p>
+<p><strong>커뮤니티 리소스</strong>:
+- <a href="https://discord.gg/NousResearch">Nous Research Discord</a> — 질문, 스킬 공유, 프로젝트 쇼케이스
+- <a href="https://agentskills.io">Skills Hub (agentskills.io)</a> — 커뮤니티 스킬 레지스트리
+- <a href="https://github.com/NousResearch/hermes-agent/issues">GitHub Issues</a> — 버그 리포트, 기능 요청
+- <a href="https://github.com/NousResearch/hermes-agent/blob/main/README.zh-CN.md">중국어 README</a></p>
+<p><strong>관련 프로젝트</strong>:
+- <a href="https://github.com/avifenesh/computer-use-linux">computer-use-linux</a> — Linux 데스크탑 제어 MCP 서버
+- <a href="https://github.com/AaronWong1999/hermesclaw">HermesClaw</a> — WeChat 브리지 커뮤니티 플러그인
+- <a href="https://portal.nousresearch.com">Nous Portal</a> — API 키 없이 300+ 모델 접근 구독 서비스</p>
+<p><strong>유사 프로젝트 비교 (장단점)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>프로젝트</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hermes Agent</strong></td>
+<td>자기 개선 스킬 루프, 멀티 플랫폼 게이트웨이, 서버리스 지원, 완전한 오픈소스</td>
+<td>Python 3.11+ 필요, 초기 설정 복잡도 있음</td>
+</tr>
+<tr>
+<td><strong>OpenHands (formerly OpenDevin)</strong></td>
+<td>강력한 코딩 에이전트, 웹 UI</td>
+<td>주로 코딩에 특화, 메시징 플랫폼 연동 제한</td>
+</tr>
+<tr>
+<td><strong>AutoGPT</strong></td>
+<td>인지도 높음, 대규모 커뮤니티</td>
+<td>아키텍처 복잡, 운영 안정성 이슈</td>
+</tr>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>Anthropic 공식 지원, 우수한 코딩 성능</td>
+<td>Anthropic 모델 전용, 오픈소스 아님</td>
+</tr>
+<tr>
+<td><strong>Agno (formerly Phidata)</strong></td>
+<td>다목적 에이전트 프레임워크, RAG 통합</td>
+<td>자기 개선 루프 없음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Official documentation</strong>:
+- <a href="https://hermes-agent.nousresearch.com/docs/">Hermes Agent Docs</a> — full documentation hub
+- <a href="https://hermes-agent.nousresearch.com/docs/getting-started/quickstart">Quickstart</a> — first conversation in 2 minutes
+- <a href="https://hermes-agent.nousresearch.com/docs/user-guide/cli">CLI Usage</a> — commands, keybindings, personalities
+- <a href="https://hermes-agent.nousresearch.com/docs/user-guide/configuration">Configuration Reference</a> — complete config.yaml options
+- <a href="https://hermes-agent.nousresearch.com/docs/user-guide/messaging">Messaging Gateway</a> — Telegram, Discord, Slack, etc.
+- <a href="https://hermes-agent.nousresearch.com/docs/user-guide/security">Security Guide</a> — command approval, DM pairing, container isolation
+- <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/architecture">Architecture Docs</a> — agent loop, core classes
+- <a href="https://hermes-agent.nousresearch.com/docs/developer-guide/contributing">Contributing Guide</a> — dev setup, PR process
+- <a href="https://hermes-agent.nousresearch.com/docs/reference/environment-variables">Environment Variables Reference</a></p>
+<p><strong>Community resources</strong>:
+- <a href="https://discord.gg/NousResearch">Nous Research Discord</a> — questions, skill sharing, project showcases
+- <a href="https://agentskills.io">Skills Hub (agentskills.io)</a> — community skill registry
+- <a href="https://github.com/NousResearch/hermes-agent/issues">GitHub Issues</a> — bug reports, feature requests
+- <a href="https://github.com/NousResearch/hermes-agent/blob/main/README.zh-CN.md">Chinese README</a></p>
+<p><strong>Related projects</strong>:
+- <a href="https://github.com/avifenesh/computer-use-linux">computer-use-linux</a> — Linux desktop control MCP server
+- <a href="https://github.com/AaronWong1999/hermesclaw">HermesClaw</a> — WeChat bridge community plugin
+- <a href="https://portal.nousresearch.com">Nous Portal</a> — subscription service for 300+ model access without per-API keys</p>
+<p><strong>Comparison with similar projects (pros and cons)</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>Project</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Hermes Agent</strong></td>
+<td>Self-improving skill loop, multi-platform gateway, serverless support, fully open-source</td>
+<td>Requires Python 3.11+, some initial setup complexity</td>
+</tr>
+<tr>
+<td><strong>OpenHands</strong></td>
+<td>Strong coding agent, good web UI</td>
+<td>Primarily coding-focused, limited messaging platform integration</td>
+</tr>
+<tr>
+<td><strong>AutoGPT</strong></td>
+<td>High name recognition, large community</td>
+<td>Complex architecture, operational stability issues</td>
+</tr>
+<tr>
+<td><strong>Claude Code</strong></td>
+<td>Anthropic-backed, excellent coding performance</td>
+<td>Anthropic models only, not open-source</td>
+</tr>
+<tr>
+<td><strong>Agno (formerly Phidata)</strong></td>
+<td>Versatile agent framework, RAG integration</td>
+<td>No self-improving loop</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<hr />
+<h2 id="final-summary">최종 요약 / Final Summary</h2>
+<p><strong>[한국어]</strong></p>
+<p>다음 파일들이 생성되어야 합니다:</p>
+<table>
+<thead>
+<tr>
+<th>경로</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/NousResearch_hermes-agent/.review/GUIDE4Junior.md</code></td>
+<td>9개 섹션: 프로젝트 개요, 개발 환경 요구사항, 단계별 환경 구성, 소스 구조, 빌드, 실행, 테스트, 기여 가이드라인, FAQ (7문항)</td>
+</tr>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/NousResearch_hermes-agent/.review/GUIDE4ImpMethod.md</code></td>
+<td>8개 섹션: 활용 목적, 아키텍처(Mermaid 다이어그램), 5개 실전 시나리오, 확장/커스터마이징, 프로덕션 배포, 성능/확장성, 보안 체크리스트, 참고자료 및 유사 프로젝트 비교</td>
+</tr>
+</tbody>
+</table>
+<p><strong>웹 검색 활용 섹션</strong>: Section 6 (성능/확장성), Section 7 (보안 체크리스트), Section 8 (유사 프로젝트 비교)의 일부 내용은 공식 문서 기반 권장 사항을 보완했습니다. 웹 검색은 수행하지 않았으며, 프로젝트 파일(README.md, CONTRIBUTING.md, pyproject.toml, Dockerfile, .env.example, .github/workflows/tests.yml)에서 직접 도출한 구체적 정보를 기반으로 작성되었습니다.</p>
+<p><strong>[English]</strong></p>
+<p>The following files should be produced:</p>
+<table>
+<thead>
+<tr>
+<th>Path</th>
+<th>Contents</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/NousResearch_hermes-agent/.review/GUIDE4Junior.md</code></td>
+<td>9 sections: project overview, prerequisites, step-by-step setup, source structure, build, running locally, tests, contribution guidelines, FAQ (7 items)</td>
+</tr>
+<tr>
+<td><code>/tmp/github-dashboard-analysis/NousResearch_hermes-agent/.review/GUIDE4ImpMethod.md</code></td>
+<td>8 sections: repository purpose, architecture (Mermaid diagram), 5 real-world scenarios, extension/customization, production deployment, performance/scalability, security checklist, references and project comparison</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Web search usage</strong>: Sections 6 (Performance/Scalability), 7 (Security Checklist), and 8 (References/Comparison) incorporated some best-practice notes annotated as "recommended based on official documentation." No live web searches were performed; all content is derived directly from project files (README.md, CONTRIBUTING.md, pyproject.toml, Dockerfile, .env.example, .github/workflows/tests.yml). No sections were skipped — all template sections are applicable to this project.</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>NousResearch/hermes-agent</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/NousResearch/hermes-agent" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

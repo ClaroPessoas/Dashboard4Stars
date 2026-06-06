@@ -1,0 +1,2989 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>chopratejas/headroom - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/chopratejas/headroom" target="_blank" rel="noopener">chopratejas/headroom</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Compress tool outputs, logs, files, and RAG chunks before they reach the LLM. 60-95% fewer tokens, same answers. Library, proxy, MCP server.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 14218</span>
+      <span class="badge badge-stars">+2,503 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-06
+대상 / Target: /tmp/github-dashboard-analysis/chopratejas_headroom
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<ul>
+<li><strong>해결하는 문제 / Problem solved</strong>: LLM 애플리케이션에서 컨텍스트 토큰 과다 소비로 인한 비용 문제. 도구 출력, 로그, RAG 청크, 코드 파일, 대화 내역을 LLM에 전달하기 전에 60–95% 압축하여 API 비용을 절감하고 성능을 유지함.</li>
+<li><strong>분류 / Classification</strong>: Platform (라이브러리 + 프록시 + MCP 서버의 복합 플랫폼)</li>
+<li><strong>현재 버전 / Current version</strong>: 0.23.0 (Beta — Development Status :: 4 - Beta)</li>
+<li><strong>최근 커밋 / Latest commit</strong>: <code>2170a1b</code> — 2026-06-04 "fix(proxy): fail-open on corrupt golden bytes"</li>
+</ul>
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Python 3.10–3.13 (97,972 LOC), Rust ≥1.80 (65,942 LOC), TypeScript/Node.js (docs/SDK)</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>FastAPI + Uvicorn (proxy), Axum (Rust proxy), PyO3 (Rust↔Python), Next.js (docs), Click (CLI)</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>SQLite (캐시/CCR 기본), sqlite-vec (벡터), Qdrant/Neo4j/mem0ai (옵션)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>HTTP/HTTPS REST, SSE(Server-Sent Events), OpenAI-compatible API, MCP(Model Context Protocol)</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>PyPI 패키지, npm 패키지, Docker (multi-stage, distroless), 자체 호스팅 프록시</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌────────────────────────────────────────────────────────────────┐
+│                 헤드룸 플랫폼 / Headroom Platform               │
+│                                                                │
+│  [Claude Code / Cursor / Codex / Aider / Copilot CLI]          │
+│          ↓ (headroom wrap / headroom mcp install)              │
+│  ┌───────────────────────────────────────────────────────┐     │
+│  │          Headroom Proxy (Rust / Axum)                 │     │
+│  │  ┌─────────────┐  ┌──────────────┐  ┌────────────┐   │     │
+│  │  │SmartCrusher │  │DiffCompressor│  │LogCompress │   │     │
+│  │  │  (Rust)     │  │   (Rust)     │  │  (Python)  │   │     │
+│  │  └─────────────┘  └──────────────┘  └────────────┘   │     │
+│  │  ┌─────────────┐  ┌──────────────┐  ┌────────────┐   │     │
+│  │  │CodeCompressor│ │SearchCompress│  │Kompress-base│  │     │
+│  │  │ (tree-sitter)│ │  (Python)    │  │(ONNX/Rust) │   │     │
+│  │  └─────────────┘  └──────────────┘  └────────────┘   │     │
+│  │       ↓ (CCR: Compress-Cache-Retrieve)                │     │
+│  │  ┌──────────────────────────────────────────────┐     │     │
+│  │  │     Cache Backend (SQLite / Qdrant / Neo4j)  │     │     │
+│  │  └──────────────────────────────────────────────┘     │     │
+│  └───────────────────────────────────────────────────────┘     │
+│          ↓ (압축된 컨텍스트 / Compressed context)               │
+│  [Anthropic / OpenAI / AWS Bedrock / Google Vertex / Any API]  │
+└────────────────────────────────────────────────────────────────┘
+</code></pre>
+<p><strong>배포 모드 / Deployment modes</strong>:
+- <strong>Library</strong> (<code>from headroom import compress</code>) — 인라인 코드 통합
+- <strong>Proxy</strong> (<code>headroom proxy --port 8787</code>) — 제로 코드 변경, 모든 언어 지원
+- <strong>MCP Server</strong> (<code>headroom mcp install</code>) — Claude Code 네이티브 통합
+- <strong>CLI Wrap</strong> (<code>headroom wrap claude|codex|cursor</code>) — 직접 CLI 래핑</p>
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>chopratejas_headroom/
+├── headroom/                    # Python 핵심 라이브러리 (97,972 LOC)
+│   ├── __init__.py              # 공개 API
+│   ├── client.py                # HeadroomClient 래퍼
+│   ├── compress.py              # 메인 compress() 함수
+│   ├── backends/                # LLM 제공자 어댑터
+│   ├── cache/                   # 캐싱 구현
+│   ├── ccr/                     # CCR(가역 압축) 시스템
+│   ├── cli/                     # Click CLI 도구
+│   ├── compression/             # 컨텐츠 유형별 압축기
+│   ├── dashboard/               # 대시보드 UI
+│   ├── evals/                   # 평가 프레임워크
+│   ├── graph/                   # 코드 그래프
+│   ├── image/                   # 이미지 압축
+│   ├── integrations/            # LangChain, Agno, Strands, MCP
+│   ├── learn/                   # 실패 마이닝 시스템
+│   ├── memory/                  # 계층적 메모리 + 벡터 검색
+│   └── providers/               # 제공자 래퍼
+├── crates/                      # Rust 워크스페이스 (65,942 LOC)
+│   ├── headroom-core/           # SmartCrusher, DiffCompressor
+│   ├── headroom-proxy/          # Axum 기반 HTTP 프록시
+│   ├── headroom-py/             # PyO3 Python 바인딩
+│   └── headroom-parity/         # Rust↔Python 패리티 테스트
+├── docs/                        # Next.js 문서 사이트 (40+ 페이지)
+├── REALIGNMENT/                 # 아키텍처 재정렬 계획 (9단계)
+│   ├── 00-overview.md           # 잘못된 멘탈 모델 → 올바른 설계
+│   ├── 01-bug-list.md           # 상위 버그 목록
+│   ├── 02-architecture.md       # 목표 Rust 전용 설계
+│   └── 03-12-phase-*.md         # Phase A–I 구현 로드맵
+├── benchmarks/                  # 성능 평가 스위트
+├── e2e/                         # E2E 테스트
+├── tests/                       # 테스트 스위트
+├── .github/workflows/           # 12개 CI/CD 워크플로
+├── Dockerfile                   # 멀티 스테이지 빌드 (distroless)
+├── pyproject.toml               # Python 패키지 메타데이터
+├── Cargo.toml                   # Rust 워크스페이스 정의
+├── LICENSE                      # Apache-2.0 ✅
+├── NOTICE                       # 서드파티 저작권 고지 ✅
+├── SECURITY.md                  # 취약점 보고 정책 ✅
+├── CONTRIBUTING.md              # 기여 가이드라인 ✅
+├── CODE_OF_CONDUCT.md           # Contributor Covenant 2.1 ✅
+├── CHANGELOG.md                 # 상세 버전 이력 ✅
+└── ENTERPRISE.md                # 기업 문의 연락처 ✅
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<ul>
+<li><strong>라이선스</strong>: Apache License 2.0</li>
+<li><strong>LICENSE 파일</strong>: 존재 (11 KB, 전문 포함)</li>
+<li><strong>NOTICE 파일</strong>: 존재 (1.2 KB, 서드파티 저작권 고지 포함)</li>
+<li><strong>주요 의무사항</strong>:</li>
+<li>저작권 고지 및 라이선스 사본 포함 필수</li>
+<li>변경 사항 명시 필요 (파일 변경 시)</li>
+<li>Apache 2.0 특허 허여(Patent Grant) 포함 → 기여자의 특허 소송 금지</li>
+<li>상표권은 별도 (프로젝트명 "Headroom" / 로고 사용 시 확인 필요)</li>
+</ul>
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p><strong>핵심(Core) 의존성:</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tiktoken</td>
+<td>≥0.7.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>pydantic</td>
+<td>≥2.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>litellm</td>
+<td>==1.82.3 (CI: 1.86.2)</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>click</td>
+<td>≥8.1.0</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>rich</td>
+<td>≥13.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+</tbody>
+</table>
+<p><strong>프록시(Proxy) 선택 의존성:</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>fastapi</td>
+<td>≥0.115.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>uvicorn</td>
+<td>≥0.32.0</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>httpx</td>
+<td>≥0.28.0</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>openai</td>
+<td>≥1.60.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>mcp</td>
+<td>≥1.9.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>magika</td>
+<td>≥0.6.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>zstandard</td>
+<td>≥0.23.0</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>websockets</td>
+<td>≥14.1</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>onnxruntime</td>
+<td>≥1.20.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>transformers</td>
+<td>≥4.47.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>watchdog</td>
+<td>≥6.0.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>sqlite-vec</td>
+<td>≥0.1.6</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+</tbody>
+</table>
+<p><strong>코드/ML/메모리 선택 의존성:</strong></p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>tree-sitter (+ lang packs)</td>
+<td>≥0.24.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>torch</td>
+<td>≥2.5.1</td>
+<td>BSD-3-Clause + 추가</td>
+<td>Permissive*</td>
+<td>🔵 Review</td>
+</tr>
+<tr>
+<td>huggingface-hub</td>
+<td>≥0.27.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>hnswlib</td>
+<td>≥0.8.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>sentence-transformers</td>
+<td>≥3.3.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>numpy</td>
+<td>≥2.2.0</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>fastembed</td>
+<td>≥0.5.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>mem0ai</td>
+<td>≥0.1.97</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>qdrant-client</td>
+<td>≥1.13.3</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>neo4j</td>
+<td>≥5.27.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>pillow</td>
+<td>≥11.1.0</td>
+<td>HPND (MIT-style)</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>datasets</td>
+<td>≥3.2.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>scikit-learn</td>
+<td>≥1.6.0</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>anthropic</td>
+<td>≥0.44.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Rust 크레이트(Crates) 핵심 의존성:</strong></p>
+<table>
+<thead>
+<tr>
+<th>크레이트 / Crate</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>axum</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>tokio</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>serde / serde_json</td>
+<td>MIT OR Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>pyo3</td>
+<td>MIT OR Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>reqwest</td>
+<td>MIT OR Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>blake3</td>
+<td>CC0-1.0 OR Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+<tr>
+<td>proptest</td>
+<td>MIT OR Apache-2.0</td>
+<td>Permissive</td>
+<td>🟢 Safe</td>
+</tr>
+</tbody>
+</table>
+<p>* torch는 PyTorch 자체 BSD-3-Clause이나 CUDA 런타임 등 추가 구성 요소 라이선스 확인 권장 (ML extra 선택 시에만 해당)</p>
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD-3, ISC, HPND</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td>GPL-2.0, GPL-3.0</td>
+<td>전파 위험 / Propagation risk</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지 / Commercialization prohibited</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Headroom 의존성 분포</strong>:
+- 🟢 Permissive: 핵심·선택 의존성 전체 (MIT, Apache 2.0, BSD-3-Clause, CC0)
+- 🟡 Weak Copyleft 이상: <strong>없음 / None detected</strong>
+- 🔴 Network/Commercial-incompatible: <strong>없음 / None detected</strong></p>
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>충돌 검출 / Conflict detection</strong>:
+- GPL ↔ Apache 2.0 혼합: <strong>없음</strong> (GPL 의존성 부재)
+- AGPL 존재: <strong>없음</strong>
+- BUSL/SSPLv1/Commons Clause: <strong>없음</strong></p>
+<p><strong>호환성 판정</strong>: 모든 의존성이 MIT, Apache 2.0, BSD-3-Clause, CC0으로 구성되어 있으며 프로젝트 자체 라이선스(Apache 2.0)와 완전 호환됨. 상용 배포에 법적 장벽 없음.</p>
+<p><strong>주의사항</strong>: <code>torch</code> (ML extra) 사용 시 CUDA/cuDNN 런타임은 별도 NVIDIA EULA가 적용되므로 GPU 기반 Kompress-base 모델 배포 시 별도 확인 필요. ONNX Runtime 기반 CPU 추론 사용 시 문제 없음.</p>
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[x] 저작권 고지 포함 방법: NOTICE 파일 존재, 배포 패키지에 LICENSE·NOTICE 포함됨</li>
+<li>[x] NOTICE/고지문 배포 위치: 루트 NOTICE 파일 → PyPI wheel 포함, Docker 이미지 내 포함</li>
+<li>[x] 소스 공개 의무: <strong>없음</strong> (Apache 2.0 — 소스 비공개 허용)</li>
+<li>[ ] 변경 사항 명시: Apache 2.0 §4(b) — 포크·파생물 배포 시 변경 내역 명시 필요 (포크 미진행 시 해당 없음)</li>
+<li>[ ] 상표 사용: "Headroom" 브랜드명 상업적 사용 전 <code>hello@headroomlabs.ai</code> 확인 권장</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<p><strong>SECURITY.md</strong>: 존재 (2.2 KB)
+- 보고 채널: <code>security@headroom.dev</code>
+- SLA: 48시간 접수 확인, 크리티컬 7일 해결
+- 지원 버전: 0.2.x (최신 마이너)
+- 취약점 공개 정책: 책임 있는 공개(Responsible Disclosure)</p>
+<p><strong>자동화 취약점 관리</strong>:
+- <strong>Dependabot</strong>: 활성화 (<code>.github/dependabot.yml</code>)
+  - Docker: 주 1회
+  - GitHub Actions: 주 1회
+  - pip: 주 1회 (보안 업데이트 우선)
+- <strong>CVE 대응 사례</strong>: v0.23.0에서 LiteLLM CVE-2026-42271 패치 (1.86.2 업그레이드), Next.js 보안 패치 2건 (GHSA-h64f-5h5j-jqjh, GHSA-jxxr-4gwj-5jf2) 확인됨</p>
+<p><strong>SBOM</strong>: 미확인 — CycloneDX/SPDX 형식의 공식 SBOM 파일 부재. pyproject.toml·Cargo.toml 기반 수동 생성 가능.</p>
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>EOL 의존성</strong>: <code>litellm</code> 버전 핀 (<code>==1.82.3</code>)이 CI에서는 1.86.2로 업그레이드되었으나 pyproject.toml 핵심 의존성은 1.82.3으로 고정됨 → 릴리스 시 버전 불일치 가능성. 단기 조치 필요.</p>
+<p><strong>하드코딩된 시크릿</strong>: REALIGNMENT 문서에 아키텍처 상 <code>X-Headroom-*</code> 헤더 업스트림 노출 문제 언급 — 핑거프린팅 리스크. Phase A에서 수정 예정.</p>
+<p><strong>주요 아키텍처 버그 (REALIGNMENT/01-bug-list.md 기반)</strong>:
+1. IntelligentContextManager(ICM)가 히스토리 메시지를 삭제 → Anthropic 프롬프트 캐시 파괴
+2. SSE 파서 미지원 이벤트 유형: <code>thinking_delta</code>, <code>signature_delta</code>, <code>citations_delta</code> — 스트리밍 손실
+3. Bedrock/Vertex에서 LiteLLM 변환 시 <code>thinking</code>, <code>redacted_thinking</code>, 이미지, MCP 도구 메시지 유실
+4. <code>X-Headroom-*</code> 헤더 업스트림 누출
+5. CCR 마커 Rust 경로에서 미주입</p>
+<p><strong>위험 평가</strong>: 현재 버전 0.23.0은 Beta이며, 위 버그들은 기능적 문제이나 치명적 보안 취약점은 아님. 상용 배포 전 Phase A–B 완료 강력 권장.</p>
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<p><strong>인증/권한 부여</strong>:
+- 프록시: 업스트림 LLM API 키를 헤더로 통과(pass-through) — 헤드룸 자체 인증 레이어 미구현
+- MCP 서버: stdio/SSE 기반, 로컬 프로세스 권한 모델
+- 기업용 멀티테넌트 인증 미구현 (로드맵에 있음)</p>
+<p><strong>시크릿 관리</strong>: <code>.env.example</code> 기반 환경 변수 주입. Vault/AWS SSM 통합 미구현 — 기업 배포 시 별도 구성 필요.</p>
+<p><strong>데이터 보안</strong>:
+- "데이터가 로컬에 유지됨 (No data leaves your machine)" 명시 — on-premise 배포의 강점
+- CCR 백엔드(SQLite)에 압축 전 원본 데이터 저장 → 암호화 at-rest 미구현 (장기 로드맵)</p>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06-04 (분석일 기준 2일 전)</td>
+</tr>
+<tr>
+<td>현재 버전 / Current version</td>
+<td>0.23.0 (Beta)</td>
+</tr>
+<tr>
+<td>커밋 빈도 / Commit frequency</td>
+<td>활발 (v0.23.0에만 수십 개 수정 항목, 주간 의존성 업데이트)</td>
+</tr>
+<tr>
+<td>기여자 수 / Contributors</td>
+<td>shallow clone으로 제한적 확인 — 주 관리자 1명(Patrick A) 확인됨</td>
+</tr>
+<tr>
+<td>마지막 릴리스 / Last release</td>
+<td>0.23.0 (2026-06-04)</td>
+</tr>
+<tr>
+<td>오픈 이슈 / Open issues</td>
+<td>확인 불가 — GitHub 직접 접근 필요</td>
+</tr>
+<tr>
+<td>커밋 #603</td>
+<td>번호로 보아 최소 600+ 커밋 이력 존재</td>
+</tr>
+</tbody>
+</table>
+<p><strong>평가</strong>: 커밋 번호(#603)와 CHANGELOG 분량(36 KB), 12개 워크플로, 9단계 재정렬 계획 존재로 보아 적극적으로 개발 중인 프로젝트. 단, 가시적인 기여자가 1인으로 확인되어 버스 팩터(Bus Factor) 위험 존재.</p>
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>존재 여부</th>
+<th>내용 요약</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재 (6 KB)</td>
+<td>Conventional commits, ruff·mypy·pytest 요구사항, PR 프로세스</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>✅ 존재 (5.5 KB)</td>
+<td>Contributor Covenant v2.1, 집행: conduct@headroom.dev</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>✅ 존재 (36 KB)</td>
+<td>상세 버전별 변경 내역</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재 (2.2 KB)</td>
+<td>취약점 보고 정책</td>
+</tr>
+<tr>
+<td>ENTERPRISE.md</td>
+<td>✅ 존재 (167 B)</td>
+<td>기업 문의: hello@headroomlabs.ai</td>
+</tr>
+<tr>
+<td>NOTICE</td>
+<td>✅ 존재 (1.2 KB)</td>
+<td>서드파티 저작권 고지</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>부분적 — REALIGNMENT/ 디렉터리가 ADR 역할</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p><strong>브랜치 전략</strong>: <code>main</code> 브랜치, release-please 자동화, PR 리뷰 프로세스 (GitHub PR #603 등)</p>
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>기업 스폰서</strong>: 미확인 — GitHub Sponsors 활성화됨 (<code>headroom-sdk</code> 저장소)</li>
+<li><strong>재단 소속</strong>: CNCF/ASF 미가입 (확인됨)</li>
+<li><strong>HuggingFace</strong>: <code>chopratejas/kompress-base</code> 전용 압축 모델 보유</li>
+<li><strong>Discord 커뮤니티</strong>: <code>discord.gg/yRmaUNpsPJ</code></li>
+<li><strong>LTS 버전</strong>: 미제공 — 0.2.x 최신 마이너만 지원</li>
+<li><strong>상용 지원</strong>: ENTERPRISE.md 통해 직접 문의 방식</li>
+</ul>
+<p><strong>전망</strong>: 초기 단계(Beta 0.x)이나 REALIGNMENT 계획의 체계성과 벤치마크 데이터의 품질이 높음. 기업 후원 또는 시리즈 A 투자 유치 여부가 장기 지속 가능성의 핵심 변수.</p>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<p><strong>컨테이너화</strong>:
+- <code>Dockerfile</code> 존재: 멀티 스테이지 빌드, Python 3.13, distroless 베이스 이미지
+- <code>docker build</code> + <code>docker run</code> 지원
+- <code>.github/workflows/docker.yml</code>: 태그 푸시 시 멀티아치 이미지 자동 빌드·푸시</p>
+<p><strong>멀티테넌시</strong>: 미구현. 현재 단일 프록시 인스턴스 모델. 기업 SaaS 전환 시 테넌트 격리 레이어 추가 필요.</p>
+<p><strong>수평 확장</strong>: 프록시는 Axum(비동기 Rust) 기반으로 수평 확장 가능한 구조이나, CCR 백엔드(SQLite)가 단일 노드 병목. Qdrant/Neo4j 선택 의존성으로 클러스터 확장 가능.</p>
+<p><strong>헬스체크</strong>: 확인 불가 — <code>/health</code> 또는 <code>/readiness</code> 엔드포인트 존재 여부 직접 소스 확인 필요. k8s readiness/liveness probe 미문서화.</p>
+<p><strong>모니터링</strong>:
+- REALIGNMENT Phase G: <code>tokens_saved_rtk</code> 필드 와이어링 + Prometheus 메트릭 예정
+- 현재: 구조화 로깅(<code>rich</code> 기반) 존재, Prometheus 미노출</p>
+<p><strong>12-Factor App 준수</strong>:
+- Config injection: 환경 변수 + <code>.env</code> 파일 지원 ✅
+- 상태 없는 프로세스: 프록시는 무상태, CCR 캐시는 외부화 가능 ✅
+- 로그를 stdout으로: 부분적 ✅</p>
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>테스트 유형</th>
+<th>존재 여부</th>
+<th>도구</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트 / Unit</td>
+<td>✅</td>
+<td>pytest (Python), cargo test (Rust)</td>
+</tr>
+<tr>
+<td>통합 테스트 / Integration</td>
+<td>✅</td>
+<td>pytest (proxy, cache, CCR)</td>
+</tr>
+<tr>
+<td>E2E 테스트 / E2E</td>
+<td>✅</td>
+<td>e2e/, init-e2e.yml, wrap-e2e.yml</td>
+</tr>
+<tr>
+<td>패리티 테스트 / Parity</td>
+<td>✅</td>
+<td>headroom-parity 크레이트 (Rust↔Python 바이트 동등성)</td>
+</tr>
+<tr>
+<td>프로퍼티 테스트 / Property</td>
+<td>✅</td>
+<td>proptest (no-panic parser, tokens-non-increasing)</td>
+</tr>
+<tr>
+<td>평가 테스트 / Eval</td>
+<td>✅</td>
+<td>GSM8K, TruthfulQA, SQuAD v2, BFCL</td>
+</tr>
+<tr>
+<td>커버리지</td>
+<td>&gt;80% 신규 코드 요구</td>
+<td>codecov 통합</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CI 자동화</strong>: <code>ci.yml</code>에서 4개 병렬 샤드로 전체 테스트 실행, 멀티버전(3.10–3.13) 커버리지. <code>make ci-precheck</code> git hook 강제.</p>
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><strong>해당 없음</strong>: 모든 의존성이 Permissive 라이선스. Strong Copyleft 모듈 분리 이슈 없음.</p>
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I. Codebase</td>
+<td>✅</td>
+<td>Git 단일 저장소, 태그 기반 릴리스</td>
+</tr>
+<tr>
+<td>II. Dependencies</td>
+<td>✅</td>
+<td>pyproject.toml + Cargo.toml 명시적 선언</td>
+</tr>
+<tr>
+<td>III. Config</td>
+<td>✅</td>
+<td>환경 변수, <code>.env</code> 지원</td>
+</tr>
+<tr>
+<td>IV. Backing services</td>
+<td>🔵</td>
+<td>SQLite 로컬 기본, Qdrant/Neo4j 외부화 가능</td>
+</tr>
+<tr>
+<td>V. Build, release, run</td>
+<td>✅</td>
+<td>maturin + release-please 자동화</td>
+</tr>
+<tr>
+<td>VI. Processes</td>
+<td>✅</td>
+<td>프록시 무상태 설계</td>
+</tr>
+<tr>
+<td>VII. Port binding</td>
+<td>✅</td>
+<td><code>--port</code> 옵션으로 포트 바인딩</td>
+</tr>
+<tr>
+<td>VIII. Concurrency</td>
+<td>✅</td>
+<td>Axum 비동기 + Python 멀티프로세스</td>
+</tr>
+<tr>
+<td>IX. Disposability</td>
+<td>🔵</td>
+<td>Graceful shutdown 미문서화</td>
+</tr>
+<tr>
+<td>X. Dev/prod parity</td>
+<td>✅</td>
+<td>Docker + devcontainer 지원</td>
+</tr>
+<tr>
+<td>XI. Logs</td>
+<td>🟡</td>
+<td>rich 기반 로깅, 구조화 로그 미완성</td>
+</tr>
+<tr>
+<td>XII. Admin processes</td>
+<td>🔵</td>
+<td>headroom learn, eval 등 일회성 태스크 존재</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🔵 부분 완료</td>
+<td>pyproject.toml, Cargo.toml 의존성 명시. SBOM 미생성.</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>🟡 미완</td>
+<td>공식 SPDX/CycloneDX SBOM 부재. NOTICE 파일 수동 관리.</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🟢 양호</td>
+<td>모든 의존성 Permissive, 충돌 없음. Dependabot 운영.</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🔵 부분</td>
+<td>내부 OSPO/법무 검토 프로세스 미문서화.</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🔵 부분</td>
+<td>NOTICE 파일 존재하나 PyPI 패키지·Docker 이미지 포함 여부 CI에서 미검증.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<p><strong>상표권</strong>:
+- "Headroom" 브랜드명은 <code>headroomlabs.ai</code> 도메인 운영 중
+- PyPI: <code>headroom-ai</code> (등록됨), npm: <code>headroom-ai</code>, <code>headroom-openclaw</code>
+- 상업적 포크·파생 제품에서 원 브랜드명 사용 시 별도 협의 필요</p>
+<p><strong>특허</strong>:
+- Apache 2.0 포함: <strong>명시적 특허 허여(Express Patent Grant)</strong> — 기여자들의 프로젝트 관련 특허에 대한 소송 불가 조항 포함 ✅
+- ML 모델(<code>kompress-base</code>): ModernBERT 기반 — HuggingFace/Hugging Face Inc.의 특허 확인 필요
+- 압축 알고리즘(SmartCrusher, DiffCompressor): 특허 주장 없음 (오픈소스 공개)</p>
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>위험 없음</strong>: 현재 의존성에 AGPL·GPL 클래스 라이선스 없음. 향후 의존성 추가 시 Dependabot + OSPO 검토 프로세스에서 사전 차단 필요.</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟢 Safe</td>
+<td>프로젝트·모든 의존성이 Apache 2.0·MIT·BSD-3으로 상용화에 최적</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🔵 Review</td>
+<td>SECURITY.md·Dependabot·CVE 대응 존재, SBOM 미생성·멀티테넌트 인증 미구현</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟡 Caution</td>
+<td>활발한 개발이나 단일 관리자 의존도 높음, CNCF/ASF 미소속</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟡 Caution</td>
+<td>Docker·CI/CD 완비, 헬스체크·Prometheus 미구현, REALIGNMENT 진행 중</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🔵 Review</td>
+<td>강력한 기술 기반, 핵심 아키텍처 버그 존재 — Phase A–B 완료 후 조건부 채택</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🔵 Review</td>
+<td>라이선스 충돌 없음, SBOM 자동 생성·OpenChain 프로세스 정비 필요</td>
+</tr>
+</tbody>
+</table>
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>완전 Permissive 라이선스 스택</strong>: Apache 2.0 프로젝트 + MIT/BSD/Apache 의존성 전체 → 상용 배포 시 법적 장벽 제로, 소스 공개 의무 없음</li>
+<li><strong>입증된 압축 성능</strong>: 실제 워크로드 기준 60–95% 토큰 절감, 정확도 97% 이상 유지 (GSM8K, TruthfulQA, SQuAD v2, BFCL 벤치마크)</li>
+<li><strong>다중 배포 모드</strong>: 라이브러리·프록시·CLI 래핑·MCP 서버 — 모든 언어/프레임워크에 적용 가능한 유연한 통합 아키텍처</li>
+<li><strong>체계적인 CI/CD 파이프라인</strong>: 12개 GitHub Actions 워크플로, release-please 자동 버전 관리, 멀티버전 테스트, Dependabot 자동 패치</li>
+<li><strong>Rust 고성능 코어</strong>: SmartCrusher·DiffCompressor Rust 구현 + Python 패리티 테스트 → 성능·안정성 동시 확보</li>
+</ol>
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>아키텍처 재정렬 진행 중</strong>: REALIGNMENT 문서에 명시된 5가지 핵심 설계 오류(캐시 파괴, SSE 파싱 누락, Bedrock/Vertex 손실 변환, 헤더 누출, CCR 마커 미주입)가 현재 버전에 존재 — 상용 배포 전 Phase A–B 완료 필수</li>
+<li><strong>단일 관리자 버스 팩터</strong>: 가시적인 주요 기여자가 1인(Patrick A) — 기업 지원 없이 유지보수 단절 시 위험. 기업 후원·추가 기여자 영입 필요</li>
+<li><strong>SBOM·OpenChain 프로세스 미완성</strong>: 공식 CycloneDX/SPDX SBOM 미생성, CI에서 라이선스 게이트 미구현 — 엔터프라이즈 조달 및 외부 감사 대비 보완 필요</li>
+<li><strong>기업용 기능 미구현</strong>: 멀티테넌트 격리, 인증/권한 관리, 감사 로그, Prometheus 메트릭 노출, SLA 보장 체계 부재</li>
+<li><strong>litellm 버전 불일치</strong>: pyproject.toml 핵심 의존성 고정값(1.82.3)과 CI 업그레이드(1.86.2) 간 불일치 — CVE-2026-42271 패치 미적용 릴리스 가능성</li>
+</ol>
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🔵 Review (조건부 채택 — Conditional Adoption)</p>
+<p><strong>근거 및 전제조건</strong>:</p>
+<p>기술적으로 Headroom은 LLM 컨텍스트 비용 절감이라는 명확한 문제를 해결하며, Apache 2.0 기반의 전체 Permissive 스택으로 라이선스 리스크는 매우 낮다. 그러나 현재 버전(0.23.0 Beta)은 팀 자체가 REALIGNMENT 문서를 통해 인정한 핵심 아키텍처 버그를 보유하고 있으며, 기업 운영 환경에 필요한 멀티테넌시·인증·메트릭·SBOM이 미완성 상태다.</p>
+<p><strong>채택 권고 시나리오별 판단</strong>:
+- <strong>내부 개발 도구 (개발팀 비용 절감)</strong>: 🟢 즉시 채택 가능. Phase A 완료 후 도입 시 프롬프트 캐시 파괴 위험 해소됨.
+- <strong>자체 AI 서비스 프록시 레이어</strong>: 🔵 Phase A–B 완료 후 채택. SSE 파싱·CCR 안정화 확인 후.
+- <strong>고객 대면 SaaS 솔루션</strong>: 🟡 Phase A–E 완료 + 멀티테넌시·인증 추가 후 채택. 6–12개월 검토.
+- <strong>의료·금융 규제 산업</strong>: 🟠 SBOM, SOC 2, HIPAA/FSS 대응 구현 완료 후 채택.</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>✅ Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>🟢 완료 — 전체 Permissive</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 소스 공개 의무 여부 확인</td>
+<td>🟢 완료 — 의무 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>✅ 라이선스 호환성 충돌 없음</td>
+<td>🟢 완료 — 충돌 없음</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>✅ 저작권 문구 포함</td>
+<td>🟢 LICENSE + NOTICE 존재</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 고지문 배포 위치 정의 (PyPI wheel, Docker 레이어 검증)</td>
+<td>🔵 검토 필요</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>N/A — Apache 2.0, 소스 공개 의무 없음</td>
+<td>🟢 해당 없음</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>⬜ CVE 모니터링 체계 수립</td>
+<td>🔵 Dependabot 존재, SBOM 미생성</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ litellm 버전 불일치 패치 계획</td>
+<td>🟡 즉시 조치 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ X-Headroom-* 헤더 누출 수정</td>
+<td>🟡 Phase A 조치 항목</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>⬜ 유지보수 활성도·커밋 주기 확인</td>
+<td>🔵 활발하나 단일 관리자</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 기업 스폰서/컨설팅 존재 확인</td>
+<td>🟡 현재 미확인</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>⬜ 라이선스 검사 자동화</td>
+<td>🟡 미구현 — 추가 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 오픈소스 BOM 자동 생성</td>
+<td>🟡 미구현 — CycloneDX 추가 필요</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 위반 라이선스 빌드 차단</td>
+<td>🟡 미구현</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>⬜ 고객 계약서에 라이선스 의무 명시</td>
+<td>🔵 ENTERPRISE.md 연락처만 존재</td>
+</tr>
+<tr>
+<td></td>
+<td>⬜ 외부 감사 대비 문서 구비</td>
+<td>🟡 NOTICE 존재, SBOM 필요</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li><strong>litellm 버전 불일치 수정</strong>: <code>pyproject.toml</code>의 <code>litellm==1.82.3</code>을 CI에서 검증된 <code>&gt;=1.86.2</code>로 업데이트하여 CVE-2026-42271 패치 적용 확보.</li>
+<li><strong>Phase A — 캐시 보호 조치</strong>: REALIGNMENT/03-12-phase-A 기준 — <code>/v1/messages</code> 압축 패스스루, <code>X-Headroom-*</code> 헤더 업스트림 노출 제거, SHA-256 라운드트립 테스트 추가. 현재 상용 배포 시 Anthropic 프롬프트 캐시 파괴가 발생하므로 이 조치 없이는 비용 절감 효과가 역전될 수 있음.</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li><strong>Phase B — 라이브존 엔진 구현</strong>: ICM 삭제 (~10K LOC), Rust 기반 라이브존 전용 압축 디스패처 구축. CCR 백엔드 하드닝(항상 켜짐 + 영구 백엔드).</li>
+<li><strong>SBOM 자동 생성 CI 통합</strong>: <code>cyclonedx-bom</code>(Python) + <code>cargo-cyclonedx</code>(Rust)를 release 워크플로에 추가하여 각 릴리스마다 CycloneDX SBOM 생성·첨부.</li>
+<li><strong>Docker 이미지 NOTICE 포함 검증</strong>: CI에서 <code>docker inspect</code> 또는 레이어 검사를 통해 LICENSE·NOTICE 파일 포함 여부 자동 확인.</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li><strong>Phase C–E — SSE 파서·Bedrock/Vertex 네이티브·캐시 안정화</strong>: 스트리밍 SSE 완전 지원, LiteLLM 손실 변환 제거, 캐시 프리픽스 결정론적 안정화.</li>
+<li><strong>Prometheus 메트릭 노출</strong>: <code>/metrics</code> 엔드포인트 구현 — <code>tokens_saved_total</code>, <code>compression_ratio_histogram</code>, <code>cache_hit_rate</code> 등. Grafana 대시보드 기본 제공.</li>
+<li><strong>라이선스 게이트 CI 추가</strong>: <code>pip-licenses</code> + <code>cargo-license</code> 출력을 CI에서 검증하여 새 Copyleft 의존성 추가 시 빌드 차단.</li>
+<li><strong>헬스체크·readiness probe 구현</strong>: Kubernetes 배포를 위한 <code>/health</code>·<code>/ready</code> 엔드포인트 추가.</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li><strong>거버넌스 강화</strong>: 추가 코어 기여자 영입 또는 기업 후원 확보 — 버스 팩터 위험 해소. CNCF Sandbox 신청 검토.</li>
+<li><strong>기업 기능 구현</strong>: 멀티테넌트 격리, OAuth/OIDC 인증, 감사 로그, 사용량 메터링 — SaaS 티어 런칭을 위한 전제조건.</li>
+<li><strong>OpenChain 인증 추진</strong>: ISO 5230 5단계 프로세스 정비 — 엔터프라이즈 조달·공공 기관 채택 요건 충족.</li>
+<li><strong>CCR 암호화 at-rest</strong>: SQLite CCR 백엔드 AES-256 암호화 — 의료·금융·법률 분야 규제 요건 대응.</li>
+<li><strong>분기별 의존성 감사</strong>: Dependabot 자동 업데이트 외 분기 1회 전체 의존성 라이선스·CVE 수동 검토 체계 수립.</li>
+</ol></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>Now I have enough context to produce the full guides. This is a single-project run, so the output paths would be <code>.review/GUIDE4Junior.md</code> and <code>.review/GUIDE4ImpMethod.md</code>.</p>
+<hr />
+<h1 id="final-generation-report">최종 생성 보고서 / Final Generation Report</h1>
+<p><strong>모드 / Mode:</strong> Single project<br />
+<strong>대상 경로 / Target path:</strong> <code>/tmp/github-dashboard-analysis/chopratejas_headroom</code><br />
+<strong>생성 파일 / Generated files:</strong>
+- <code>.review/GUIDE4Junior.md</code>
+- <code>.review/GUIDE4ImpMethod.md</code></p>
+<hr />
+<h2 id="1-file-1-reviewguide4juniormd">파일 1 / File 1: <code>.review/GUIDE4Junior.md</code></h2>
+<hr />
+<h1 id="junior-developer-guide">프로젝트 주니어 개발자 가이드 / Junior Developer Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>Headroom은 AI 에이전트와 LLM 애플리케이션을 위한 <strong>컨텍스트 압축 레이어</strong>입니다. 툴 출력, 로그, RAG 청크, 파일, 대화 기록 등 LLM으로 전달되는 모든 데이터를 압축하여 동일한 결과를 유지하면서도 토큰을 60~95% 절약합니다. 라이브러리(<code>compress()</code>), 프록시 서버(<code>headroom proxy</code>), 에이전트 래퍼(<code>headroom wrap</code>), MCP 서버, 크로스-에이전트 메모리 시스템 등 여러 사용 모드를 지원합니다.</p>
+<ul>
+<li><strong>주요 기술 스택:</strong></li>
+<li>언어: Python 3.10+ (메인 라이브러리/CLI), Rust 1.95 (고성능 핵심 컴포넌트)</li>
+<li>프레임워크: FastAPI (프록시 서버), Click (CLI), Pydantic v2 (설정 모델), Axum 0.7 (Rust 프록시)</li>
+<li>빌드 시스템: Maturin ≥1.5 (Rust↔Python 바인딩), uv (Python 패키지 관리)</li>
+<li>데이터베이스(선택): Qdrant (벡터 검색), Neo4j 5.x (그래프 DB)</li>
+<li>ML 모델: Kompress-base (HuggingFace), fastembed, ONNX Runtime</li>
+<li>주요 라이브러리: litellm 1.82.3, tiktoken, httpx, uvicorn, pyo3, tokio, reqwest</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>Headroom is a <strong>context compression layer</strong> for AI agents and LLM applications. It compresses everything an LLM reads — tool outputs, logs, RAG chunks, files, and conversation history — before it reaches the model, achieving 60–95% token savings while preserving answer quality. It supports multiple usage modes: a Python/TypeScript library (<code>compress()</code>), a proxy server (<code>headroom proxy</code>), an agent wrapper (<code>headroom wrap</code>), an MCP server, and a cross-agent shared memory system.</p>
+<ul>
+<li><strong>Key tech stack:</strong></li>
+<li>Languages: Python 3.10+ (main library/CLI), Rust 1.95 (performance-critical core)</li>
+<li>Frameworks: FastAPI (proxy server), Click (CLI), Pydantic v2 (config models), Axum 0.7 (Rust proxy)</li>
+<li>Build system: Maturin ≥1.5 (Rust↔Python bindings), uv (Python packaging)</li>
+<li>Databases (optional): Qdrant (vector search), Neo4j 5.x (graph database)</li>
+<li>ML: Kompress-base (HuggingFace), fastembed (BAAI/bge-small-en-v1.5), ONNX Runtime</li>
+<li>Major libraries: litellm 1.82.3, tiktoken, httpx, uvicorn, pyo3, tokio, reqwest</li>
+</ul>
+<hr />
+<h2 id="2-prerequisites">2. 개발 환경 요구사항 / Prerequisites</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>필수 도구:</strong></p>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>최소 버전</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>3.10+</td>
+<td>메인 런타임 및 라이브러리</td>
+</tr>
+<tr>
+<td>Rust (rustup)</td>
+<td>1.95.0 (고정)</td>
+<td>Rust 확장 모듈 빌드</td>
+</tr>
+<tr>
+<td>Maturin</td>
+<td>≥1.5, &lt;2.0</td>
+<td>Python-Rust 바인딩 빌드 도구</td>
+</tr>
+<tr>
+<td>uv</td>
+<td>≥0.11 (권장)</td>
+<td>Python 의존성 관리</td>
+</tr>
+<tr>
+<td>Node.js + npx</td>
+<td>18+</td>
+<td>commitlint, TypeScript SDK (선택사항)</td>
+</tr>
+<tr>
+<td>Docker + docker-compose</td>
+<td>최신 안정 버전</td>
+<td>컨테이너 실행, 메모리 스택</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>2.x</td>
+<td>버전 관리</td>
+</tr>
+<tr>
+<td>curl</td>
+<td>표준</td>
+<td>health check 확인, rustup 설치</td>
+</tr>
+</tbody>
+</table>
+<p><strong>권장 IDE 및 플러그인:</strong>
+- VS Code + <code>rust-analyzer</code> 확장 + <code>Python</code> 확장 + <code>Ruff</code> 확장
+- PyCharm Professional (Python 개발에 강력, Rust는 별도 IntelliJ IDEA 필요)
+- Dev Container 지원 (<code>.devcontainer/</code> 폴더 제공 — VS Code / GitHub Codespaces 사용 시 자동 환경 구성)</p>
+<p><strong>OS별 주의사항:</strong>
+- <strong>Linux:</strong> 별도 패키지 필요 없음 (Dockerfile 기준 <code>build-essential</code>, <code>g++</code>, <code>patchelf</code> 사용)
+- <strong>macOS:</strong> <code>brew install bash</code> 권장 (CI에서 bash 4+ 필요), Xcode Command Line Tools 필수
+- <strong>Windows:</strong> WSL2 강력 권장. Windows 네이티브 빌드는 CI에서 테스트되나 개발 환경으로는 WSL2가 간편</p>
+<p><strong>[English]</strong></p>
+<p><strong>Required tools:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Minimum version</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python</td>
+<td>3.10+</td>
+<td>Main runtime and library</td>
+</tr>
+<tr>
+<td>Rust (rustup)</td>
+<td>1.95.0 (pinned)</td>
+<td>Build the Rust extension module</td>
+</tr>
+<tr>
+<td>Maturin</td>
+<td>≥1.5, &lt;2.0</td>
+<td>Python-Rust binding build tool</td>
+</tr>
+<tr>
+<td>uv</td>
+<td>≥0.11 (recommended)</td>
+<td>Python dependency management</td>
+</tr>
+<tr>
+<td>Node.js + npx</td>
+<td>18+</td>
+<td>commitlint, TypeScript SDK (optional)</td>
+</tr>
+<tr>
+<td>Docker + docker-compose</td>
+<td>latest stable</td>
+<td>Container runs, memory stack</td>
+</tr>
+<tr>
+<td>Git</td>
+<td>2.x</td>
+<td>Version control</td>
+</tr>
+<tr>
+<td>curl</td>
+<td>standard</td>
+<td>health checks, rustup install</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Recommended IDE and plugins:</strong>
+- VS Code + <code>rust-analyzer</code> + <code>Python</code> + <code>Ruff</code> extensions
+- PyCharm Professional (strong for Python; use separate IntelliJ IDEA for Rust)
+- Dev Container support is provided via <code>.devcontainer/</code> — automatic setup in VS Code / GitHub Codespaces</p>
+<p><strong>OS-specific notes:</strong>
+- <strong>Linux:</strong> No extra setup beyond standard build tools (Dockerfile references <code>build-essential</code>, <code>g++</code>, <code>patchelf</code>)
+- <strong>macOS:</strong> <code>brew install bash</code> recommended (CI requires bash 4+); Xcode Command Line Tools required
+- <strong>Windows:</strong> WSL2 strongly recommended. Native Windows builds are CI-tested but WSL2 is far easier for local development</p>
+<hr />
+<h2 id="3-environment-setup-step-by-step">3. 개발 환경 구성 (단계별) / Environment Setup (Step-by-Step)</h2>
+<p><strong>[한국어]</strong></p>
+<ol>
+<li>
+<p><strong>저장소 클론</strong>
+   <code>bash
+   git clone https://github.com/chopratejas/headroom.git
+   cd headroom</code></p>
+</li>
+<li>
+<p><strong>Python 가상환경 생성 및 활성화</strong>
+   <code>bash
+   python -m venv .venv
+   source .venv/bin/activate          # Linux/macOS
+   # .venv\Scripts\activate           # Windows</code>
+   또는 <code>uv</code>를 사용하는 경우 (Dev Container 환경 표준):
+   <code>bash
+   uv sync --frozen --extra dev
+   # 이후 uv run pytest 등으로 실행</code></p>
+</li>
+<li>
+<p><strong>Rust 툴체인 설치</strong> (아직 없는 경우)
+   <code>bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   # 설치 후 셸 재시작 또는:
+   source "$HOME/.cargo/env"
+   # rust-toolchain.toml이 자동으로 1.95.0을 고정
+   rustup show   # 1.95.0 확인</code></p>
+</li>
+<li>
+<p><strong>Python 의존성 설치 (개발 모드)</strong>
+   <code>bash
+   pip install -e ".[dev,relevance,proxy]"</code></p>
+<blockquote>
+<p>이 명령은 Maturin을 통해 Rust 확장 모듈(<code>headroom._core.so</code>)을 빌드하고 Python 패키지를 편집 가능(editable) 모드로 설치합니다.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Rust 확장 모듈 검증</strong>
+   <code>bash
+   make verify-rust-core
+   # 또는 직접 확인:
+   python -c "from headroom._core import DiffCompressor, SmartCrusher; print('OK')"</code></p>
+</li>
+<li>
+<p><strong>환경 변수 설정</strong>
+   <code>bash
+   cp .env.example .env
+   # .env 파일을 열어 값을 채웁니다</code>
+   기본 <code>.env</code> 내용:
+   <code>ini
+   # Neo4j 인증 (메모리 스택 사용 시)
+   NEO4J_AUTH=neo4j/CHANGEME   # 반드시 변경 필요!</code>
+   메모리 스택(Qdrant + Neo4j) 없이 기본 프록시만 실행할 경우 <code>.env</code> 파일은 선택사항입니다.</p>
+</li>
+<li>
+<p><strong>설치 검증</strong>
+   <code>bash
+   headroom --help          # CLI 동작 확인
+   headroom perf            # 샘플 압축 성능 확인
+   pytest tests/ -q --tb=short   # 테스트 스위트 실행</code></p>
+</li>
+</ol>
+<p><strong>[English]</strong></p>
+<ol>
+<li>
+<p><strong>Clone the repository</strong>
+   <code>bash
+   git clone https://github.com/chopratejas/headroom.git
+   cd headroom</code></p>
+</li>
+<li>
+<p><strong>Create and activate a Python virtual environment</strong>
+   <code>bash
+   python -m venv .venv
+   source .venv/bin/activate          # Linux/macOS
+   # .venv\Scripts\activate           # Windows</code>
+   Or with <code>uv</code> (the Dev Container standard):
+   <code>bash
+   uv sync --frozen --extra dev
+   # Then use: uv run pytest, uv run ruff check ., etc.</code></p>
+</li>
+<li>
+<p><strong>Install the Rust toolchain</strong> (if not yet installed)
+   <code>bash
+   curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+   source "$HOME/.cargo/env"          # or restart shell
+   # rust-toolchain.toml automatically pins to 1.95.0
+   rustup show                        # verify 1.95.0</code></p>
+</li>
+<li>
+<p><strong>Install Python dependencies (development mode)</strong>
+   <code>bash
+   pip install -e ".[dev,relevance,proxy]"</code></p>
+<blockquote>
+<p>This triggers Maturin to compile the Rust extension (<code>headroom._core.so</code>) and installs the Python package in editable mode.</p>
+</blockquote>
+</li>
+<li>
+<p><strong>Verify the Rust extension</strong>
+   <code>bash
+   make verify-rust-core
+   # or directly:
+   python -c "from headroom._core import DiffCompressor, SmartCrusher; print('OK')"</code></p>
+</li>
+<li>
+<p><strong>Configure environment variables</strong>
+   <code>bash
+   cp .env.example .env
+   # Edit .env and fill in values</code>
+   Default <code>.env</code> content:
+   <code>ini
+   # Neo4j authentication (required for the memory stack)
+   NEO4J_AUTH=neo4j/CHANGEME   # MUST be changed before deploying</code>
+   The <code>.env</code> file is optional if you are only running the basic proxy without the Qdrant + Neo4j memory stack.</p>
+</li>
+<li>
+<p><strong>Verify the installation</strong>
+   <code>bash
+   headroom --help          # confirm CLI works
+   headroom perf            # run a sample compression benchmark
+   pytest tests/ -q --tb=short   # run the test suite</code></p>
+</li>
+</ol>
+<hr />
+<h2 id="4-source-structure">4. 소스 구조 설명 / Source Structure</h2>
+<p><strong>[한국어]</strong></p>
+<pre><code class="language-tree">headroom/                     # 메인 Python 패키지 (배포 단위)
+├── __init__.py               # 공개 API (HeadroomClient, compress 등)
+├── _version.py               # 패키지 버전
+├── cli/                      # CLI 진입점 (Click)
+│   ├── main.py               # 최상위 `headroom` 명령
+│   ├── proxy.py              # `headroom proxy` 서브커맨드
+│   ├── wrap.py               # `headroom wrap &lt;agent&gt;` 서브커맨드
+│   ├── mcp.py                # `headroom mcp install`
+│   ├── learn.py              # `headroom learn` (실패 세션 마이닝)
+│   └── perf.py               # `headroom perf` (성능 측정)
+├── compress.py               # 최상위 `compress()` 함수 (라이브러리 API)
+├── client.py                 # HeadroomClient (SDK 래퍼)
+├── config.py                 # 설정 데이터클래스 (HeadroomMode 등)
+├── pipeline.py               # 변환 파이프라인 오케스트레이터
+├── cache/                    # 캐시 정렬 최적화 (CacheAligner)
+├── ccr/                      # 가역 압축 (Contextual Compression &amp; Retrieval)
+├── compression/              # 콘텐츠 라우팅 + 범용 압축
+├── transforms/               # 핵심 변환 (SmartCrusher, CodeCompressor, RollingWindow)
+├── providers/                # LLM 공급자 어댑터 (claude, openai, bedrock, google 등)
+├── proxy/                    # FastAPI 프록시 서버
+├── memory/                   # 크로스-에이전트 메모리 시스템
+├── integrations/             # 외부 프레임워크 통합 (LangChain, Agno, MCP)
+├── evals/                    # 평가 프레임워크 (GSM8K, TruthfulQA, SQuAD 등)
+├── backends/                 # LiteLLM, any-llm 백엔드
+├── relevance/                # 관련성 점수 산정 (fastembed)
+├── image/                    # 이미지 압축 (ONNX, OCR)
+└── dashboard/                # 프록시 대시보드 (HTML 템플릿)
+
+crates/                       # Rust 워크스페이스
+├── headroom-core/            # 핵심 Rust 라이브러리 (SmartCrusher, DiffCompressor)
+├── headroom-proxy/           # 순수 Rust 프록시 바이너리 (Axum)
+├── headroom-py/              # pyo3 바인딩 → headroom._core.so
+└── headroom-parity/          # Rust-Python 출력 동등성 테스트
+
+tests/                        # Python 테스트 스위트
+sdk/                          # TypeScript SDK (npm: headroom-ai)
+e2e/                          # Docker 기반 E2E 테스트
+docs/                         # MkDocs 문서
+docker/                       # Docker 구성 파일 (docker-compose.native.yml 등)
+scripts/                      # 빌드/검증 스크립트
+</code></pre>
+<p><strong>핵심 모듈 간 의존 관계:</strong>
+- <code>compress()</code> (compress.py) → <code>pipeline.py</code> → transforms (SmartCrusher, CodeCompressor, CacheAligner, CCR)
+- <code>SmartCrusher</code> / <code>DiffCompressor</code> Python 클래스 → <code>headroom._core</code> (Rust, pyo3) — Rust 없이는 동작 안 함
+- <code>proxy/server.py</code> (FastAPI) → <code>pipeline.py</code> + <code>providers/</code> + <code>ccr/</code> 
+- CLI <code>wrap.py</code> → <code>proxy/server.py</code> 실행 후 외부 에이전트 프로세스를 프록시 앞에서 기동
+- <code>memory/</code> → Qdrant 또는 SQLite-vec (경량 옵션)</p>
+<p><strong>[English]</strong></p>
+<pre><code class="language-tree">headroom/                     # Main Python package (distribution unit)
+├── __init__.py               # Public API (HeadroomClient, compress, etc.)
+├── _version.py               # Package version
+├── cli/                      # CLI entry points (Click)
+│   ├── main.py               # Top-level `headroom` command
+│   ├── proxy.py              # `headroom proxy` subcommand
+│   ├── wrap.py               # `headroom wrap &lt;agent&gt;` subcommand
+│   ├── mcp.py                # `headroom mcp install`
+│   ├── learn.py              # `headroom learn` (failure-session mining)
+│   └── perf.py               # `headroom perf` (performance benchmarks)
+├── compress.py               # Top-level `compress()` function (library API)
+├── client.py                 # HeadroomClient (SDK wrapper)
+├── config.py                 # Configuration dataclasses (HeadroomMode, etc.)
+├── pipeline.py               # Transform pipeline orchestrator
+├── cache/                    # Cache alignment/optimization (CacheAligner)
+├── ccr/                      # Reversible compression (Contextual Compression &amp; Retrieval)
+├── compression/              # Content routing + universal compression
+├── transforms/               # Core transforms (SmartCrusher, CodeCompressor, RollingWindow)
+├── providers/                # LLM provider adapters (claude, openai, bedrock, google, etc.)
+├── proxy/                    # FastAPI proxy server
+├── memory/                   # Cross-agent memory system
+├── integrations/             # External framework integrations (LangChain, Agno, MCP)
+├── evals/                    # Evaluation framework (GSM8K, TruthfulQA, SQuAD, etc.)
+├── backends/                 # LiteLLM, any-llm backends
+├── relevance/                # Relevance scoring (fastembed)
+├── image/                    # Image compression (ONNX, OCR)
+└── dashboard/                # Proxy dashboard (HTML templates)
+
+crates/                       # Rust workspace
+├── headroom-core/            # Core Rust library (SmartCrusher, DiffCompressor)
+├── headroom-proxy/           # Pure Rust proxy binary (Axum)
+├── headroom-py/              # pyo3 bindings → headroom._core.so
+└── headroom-parity/          # Rust-Python output equivalence tests
+
+tests/                        # Python test suite
+sdk/                          # TypeScript SDK (npm: headroom-ai)
+e2e/                          # Docker-based end-to-end tests
+docs/                         # MkDocs documentation source
+docker/                       # Docker configuration files
+scripts/                      # Build/validation scripts
+</code></pre>
+<p><strong>Key module dependency relationships:</strong>
+- <code>compress()</code> (compress.py) → <code>pipeline.py</code> → transforms (SmartCrusher, CodeCompressor, CacheAligner, CCR)
+- <code>SmartCrusher</code> / <code>DiffCompressor</code> Python classes → <code>headroom._core</code> (Rust via pyo3) — will not work without the compiled Rust extension
+- <code>proxy/server.py</code> (FastAPI) → <code>pipeline.py</code> + <code>providers/</code> + <code>ccr/</code>
+- CLI <code>wrap.py</code> → starts <code>proxy/server.py</code>, then launches the external agent process with the proxy in front
+- <code>memory/</code> → Qdrant or SQLite-vec (lightweight alternative)</p>
+<hr />
+<h2 id="5-local-build">5. 로컬 빌드 방법 / Local Build</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>개발 모드 (editable install, 빠름):</strong></p>
+<pre><code class="language-bash">pip install -e &quot;.[dev,relevance,proxy]&quot;
+# Maturin이 자동으로 Rust 확장을 디버그 모드로 빌드
+</code></pre>
+<p><strong>프로덕션 Python 휠 빌드:</strong></p>
+<pre><code class="language-bash">maturin build --release -m crates/headroom-py/Cargo.toml
+# 결과: dist/headroom_ai-&lt;version&gt;-&lt;platform&gt;.whl
+# LTO + 심볼 스트리핑 적용 (Cargo.toml [profile.release] 참고)
+</code></pre>
+<p><strong>CI용 빠른 휠 빌드 (LTO 없음):</strong></p>
+<pre><code class="language-bash">maturin build --profile ci -m crates/headroom-py/Cargo.toml --out dist
+</code></pre>
+<p><strong>순수 Rust 바이너리 빌드 (headroom-proxy):</strong></p>
+<pre><code class="language-bash">make build-proxy
+# 결과: target/release/headroom-proxy (바이너리)
+</code></pre>
+<p><strong>Rust 테스트 포함 전체 CI 사전 검사:</strong></p>
+<pre><code class="language-bash">make ci-precheck
+</code></pre>
+<p><strong>빌드 결과물 위치:</strong>
+- Python 휠: <code>dist/headroom_ai-*.whl</code>
+- Rust 확장: <code>headroom/_core.cpython-&lt;ver&gt;-&lt;platform&gt;.so</code> (editable install 시 자동 배치)
+- Rust 프록시 바이너리: <code>target/release/headroom-proxy</code></p>
+<p><strong>자주 발생하는 빌드 오류와 해결 방법:</strong></p>
+<table>
+<thead>
+<tr>
+<th>오류</th>
+<th>원인</th>
+<th>해결 방법</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ImportError: cannot import headroom._core</code></td>
+<td>Rust 확장 미빌드</td>
+<td><code>make verify-rust-core</code> 또는 <code>pip install -e ".[dev]"</code> 재실행</td>
+</tr>
+<tr>
+<td><code>error[E0XXX]</code> Rust 컴파일 오류</td>
+<td><code>rust-toolchain.toml</code> 버전과 설치된 Rust 불일치</td>
+<td><code>rustup update 1.95.0 &amp;&amp; rustup default 1.95.0</code></td>
+</tr>
+<tr>
+<td><code>maturin: command not found</code></td>
+<td>maturin 미설치</td>
+<td><code>pip install "maturin&gt;=1.5,&lt;2.0"</code></td>
+</tr>
+<tr>
+<td><code>patchelf not found</code> (Linux)</td>
+<td>maturin 휠 링크 수정 도구 부재</td>
+<td><code>apt-get install patchelf</code></td>
+</tr>
+<tr>
+<td>Clippy 오류 <code>unnecessary_sort_by</code></td>
+<td>Rust 버전 불일치</td>
+<td><code>rust-toolchain.toml</code>이 1.95.0인지 확인 후 <code>rustup show</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>[English]</strong></p>
+<p><strong>Development mode (editable install, fast):</strong></p>
+<pre><code class="language-bash">pip install -e &quot;.[dev,relevance,proxy]&quot;
+# Maturin automatically builds the Rust extension in debug mode
+</code></pre>
+<p><strong>Production Python wheel:</strong></p>
+<pre><code class="language-bash">maturin build --release -m crates/headroom-py/Cargo.toml
+# Output: dist/headroom_ai-&lt;version&gt;-&lt;platform&gt;.whl
+# LTO + symbol stripping applied (see Cargo.toml [profile.release])
+</code></pre>
+<p><strong>Fast CI wheel (no LTO):</strong></p>
+<pre><code class="language-bash">maturin build --profile ci -m crates/headroom-py/Cargo.toml --out dist
+</code></pre>
+<p><strong>Pure Rust binary (headroom-proxy):</strong></p>
+<pre><code class="language-bash">make build-proxy
+# Output: target/release/headroom-proxy
+</code></pre>
+<p><strong>Full CI pre-check (including Rust tests):</strong></p>
+<pre><code class="language-bash">make ci-precheck
+</code></pre>
+<p><strong>Build output locations:</strong>
+- Python wheel: <code>dist/headroom_ai-*.whl</code>
+- Rust extension: <code>headroom/_core.cpython-&lt;ver&gt;-&lt;platform&gt;.so</code> (auto-placed on editable install)
+- Rust proxy binary: <code>target/release/headroom-proxy</code></p>
+<p><strong>Common build errors and fixes:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Error</th>
+<th>Cause</th>
+<th>Fix</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ImportError: cannot import headroom._core</code></td>
+<td>Rust extension not built</td>
+<td>Run <code>make verify-rust-core</code> or re-run <code>pip install -e ".[dev]"</code></td>
+</tr>
+<tr>
+<td><code>error[E0XXX]</code> Rust compile error</td>
+<td>Installed Rust version differs from <code>rust-toolchain.toml</code></td>
+<td><code>rustup update 1.95.0 &amp;&amp; rustup default 1.95.0</code></td>
+</tr>
+<tr>
+<td><code>maturin: command not found</code></td>
+<td>maturin not installed</td>
+<td><code>pip install "maturin&gt;=1.5,&lt;2.0"</code></td>
+</tr>
+<tr>
+<td><code>patchelf not found</code> (Linux)</td>
+<td>missing maturin wheel-link repair tool</td>
+<td><code>apt-get install patchelf</code></td>
+</tr>
+<tr>
+<td>Clippy <code>unnecessary_sort_by</code></td>
+<td>Rust version mismatch</td>
+<td>Confirm <code>rust-toolchain.toml</code> pins 1.95.0, then check <code>rustup show</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-running-locally">6. 로컬 실행 방법 / Running Locally</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>방법 1: 에이전트 래퍼 (가장 빠른 시작)</strong></p>
+<pre><code class="language-bash">headroom wrap claude          # Claude Code 앞에 프록시 삽입
+headroom wrap codex           # Codex 앞에 프록시 삽입
+headroom wrap cursor          # Cursor 설정 출력 (붙여넣기 필요)
+headroom wrap aider           # Aider 앞에 프록시 시작
+</code></pre>
+<p><strong>방법 2: 독립 프록시 서버</strong></p>
+<pre><code class="language-bash">headroom proxy --port 8787
+# 기본 접속: http://localhost:8787
+# health check: http://localhost:8787/readyz
+# 대시보드: http://localhost:8787/dashboard
+</code></pre>
+<p><strong>방법 3: Docker (단독)</strong></p>
+<pre><code class="language-bash">docker pull ghcr.io/chopratejas/headroom:latest
+docker run -p 8787:8787 ghcr.io/chopratejas/headroom:latest
+</code></pre>
+<p><strong>방법 4: Docker Compose (전체 메모리 스택 — Qdrant + Neo4j 포함)</strong></p>
+<pre><code class="language-bash">cp .env.example .env
+# .env에서 NEO4J_AUTH 변경 필수
+docker-compose up -d
+# 서비스:
+#   headroom-proxy: http://localhost:8787
+#   qdrant:         http://localhost:6333  (벡터 DB)
+#   neo4j:          http://localhost:7474  (그래프 DB 브라우저)
+</code></pre>
+<p><strong>방법 5: Python 라이브러리 (인라인 사용)</strong></p>
+<pre><code class="language-python">from headroom import compress
+
+messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;...대량 툴 출력...&quot;}]
+compressed = compress(messages, model=&quot;claude-opus-4-5&quot;)
+print(f&quot;토큰 절약: {compressed.tokens_saved}&quot;)
+</code></pre>
+<p><strong>실행 확인:</strong></p>
+<pre><code class="language-bash">curl http://localhost:8787/readyz      # {&quot;status&quot;:&quot;ok&quot;} 반환 확인
+headroom perf                          # 압축률 통계 출력
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Method 1: Agent wrapper (fastest start)</strong></p>
+<pre><code class="language-bash">headroom wrap claude          # insert proxy in front of Claude Code
+headroom wrap codex           # insert proxy in front of Codex
+headroom wrap cursor          # print config to paste into Cursor
+headroom wrap aider           # start proxy + launch Aider
+</code></pre>
+<p><strong>Method 2: Standalone proxy server</strong></p>
+<pre><code class="language-bash">headroom proxy --port 8787
+# Default access: http://localhost:8787
+# Health check:   http://localhost:8787/readyz
+# Dashboard:      http://localhost:8787/dashboard
+</code></pre>
+<p><strong>Method 3: Docker (standalone)</strong></p>
+<pre><code class="language-bash">docker pull ghcr.io/chopratejas/headroom:latest
+docker run -p 8787:8787 ghcr.io/chopratejas/headroom:latest
+</code></pre>
+<p><strong>Method 4: Docker Compose (full memory stack — Qdrant + Neo4j included)</strong></p>
+<pre><code class="language-bash">cp .env.example .env
+# Edit .env: change NEO4J_AUTH (required!)
+docker-compose up -d
+# Services:
+#   headroom-proxy: http://localhost:8787
+#   qdrant:         http://localhost:6333  (vector DB)
+#   neo4j:          http://localhost:7474  (graph DB browser)
+</code></pre>
+<p><strong>Method 5: Python library (inline usage)</strong></p>
+<pre><code class="language-python">from headroom import compress
+
+messages = [{&quot;role&quot;: &quot;user&quot;, &quot;content&quot;: &quot;...large tool output...&quot;}]
+compressed = compress(messages, model=&quot;claude-opus-4-5&quot;)
+print(f&quot;Tokens saved: {compressed.tokens_saved}&quot;)
+</code></pre>
+<p><strong>Verify the app is running:</strong></p>
+<pre><code class="language-bash">curl http://localhost:8787/readyz      # should return {&quot;status&quot;:&quot;ok&quot;}
+headroom perf                          # print compression statistics
+</code></pre>
+<hr />
+<h2 id="7-running-tests">7. 테스트 실행 / Running Tests</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>기본 테스트 실행:</strong></p>
+<pre><code class="language-bash">pytest tests/ -v --tb=short
+</code></pre>
+<p><strong>특정 테스트 파일 실행:</strong></p>
+<pre><code class="language-bash">pytest tests/test_acceptance.py -v
+pytest tests/test_ccr.py -v
+pytest tests/test_transforms/test_smart_crusher_bugs.py -v
+</code></pre>
+<p><strong>Rust 관련 테스트 (parity):</strong></p>
+<pre><code class="language-bash">make test-parity
+# 또는
+cargo test --workspace
+</code></pre>
+<p><strong>커버리지 확인:</strong></p>
+<pre><code class="language-bash">pytest --cov=headroom --cov-report=html
+# 결과: htmlcov/index.html — 브라우저에서 확인
+pytest --cov=headroom --cov-report=term-missing   # 터미널 출력
+</code></pre>
+<p><strong>CI 사전 검사 (Python 부분만):</strong></p>
+<pre><code class="language-bash">make ci-precheck-python
+# smart_crusher, diff_compressor, relevance, CCR, acceptance, critical_fixes 포함
+</code></pre>
+<p><strong>테스트 마커:</strong></p>
+<pre><code class="language-bash">pytest -m slow         # 느린 테스트만 (ML 모델 로드 등)
+pytest -m &quot;not slow&quot;   # 느린 테스트 제외 (일상적 개발)
+pytest -m real_llm     # 실제 LLM API 호출 테스트 (API 키 필요)
+pytest -m live         # 다중 턴 실제 API 테스트
+</code></pre>
+<p><strong>HuggingFace 모델 오프라인 테스트:</strong></p>
+<pre><code class="language-bash">HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 pytest tests/ -q
+# CI 환경과 동일하게 캐시된 모델만 사용
+</code></pre>
+<p><strong>테스트 데이터/픽스처:</strong>
+- <code>tests/fixtures/</code> — 압축 입력/출력 샘플 JSON
+- <code>tests/parity/fixtures/</code> — Rust-Python 동등성 검증용 고정 데이터
+- <code>conftest.py</code> — pytest 픽스처 (공통 설정)</p>
+<p><strong>[English]</strong></p>
+<p><strong>Run the full test suite:</strong></p>
+<pre><code class="language-bash">pytest tests/ -v --tb=short
+</code></pre>
+<p><strong>Run specific test files:</strong></p>
+<pre><code class="language-bash">pytest tests/test_acceptance.py -v
+pytest tests/test_ccr.py -v
+pytest tests/test_transforms/test_smart_crusher_bugs.py -v
+</code></pre>
+<p><strong>Rust parity tests:</strong></p>
+<pre><code class="language-bash">make test-parity
+# or:
+cargo test --workspace
+</code></pre>
+<p><strong>Check coverage:</strong></p>
+<pre><code class="language-bash">pytest --cov=headroom --cov-report=html
+# Output: htmlcov/index.html — open in browser
+pytest --cov=headroom --cov-report=term-missing   # terminal output
+</code></pre>
+<p><strong>Python CI pre-check:</strong></p>
+<pre><code class="language-bash">make ci-precheck-python
+# Covers smart_crusher, diff_compressor, relevance, CCR, acceptance, critical_fixes
+</code></pre>
+<p><strong>Test markers:</strong></p>
+<pre><code class="language-bash">pytest -m slow         # only slow tests (ML model loads, etc.)
+pytest -m &quot;not slow&quot;   # exclude slow tests (recommended for daily dev)
+pytest -m real_llm     # real LLM API call tests (requires API keys)
+pytest -m live         # multi-turn real API tests
+</code></pre>
+<p><strong>Offline model testing (mirrors CI):</strong></p>
+<pre><code class="language-bash">HF_HUB_OFFLINE=1 TRANSFORMERS_OFFLINE=1 pytest tests/ -q
+</code></pre>
+<p><strong>Test data / fixtures:</strong>
+- <code>tests/fixtures/</code> — sample JSON for compression input/output
+- <code>tests/parity/fixtures/</code> — fixed data for Rust-Python equivalence verification
+- <code>conftest.py</code> — pytest fixtures (shared setup)</p>
+<hr />
+<h2 id="8-contribution-guidelines">8. 코드 기여 가이드라인 / Contribution Guidelines</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>브랜치 전략:</strong>
+- <code>main</code> 브랜치가 배포 기준
+- feature 브랜치: <code>feat/describe-feature</code>
+- bugfix 브랜치: <code>fix/describe-bug</code>
+- PR은 <code>main</code>을 타깃으로</p>
+<p><strong>커밋 메시지 컨벤션 (Conventional Commits):</strong></p>
+<pre><code>feat: Add semantic caching to proxy
+fix: Handle empty tool outputs correctly
+docs: Update proxy documentation
+test: Add tests for CacheAligner
+refactor: Simplify rolling window logic
+</code></pre>
+<ul>
+<li><code>commitlint</code>로 자동 검증 (<code>npx</code> 필요)</li>
+<li>검증 실행: <code>make ci-precheck-commitlint</code></li>
+<li>pre-push hook 설치: <code>make install-git-hooks</code></li>
+</ul>
+<p><strong>PR / 코드 리뷰 절차:</strong>
+1. fork → branch → 변경 → <code>make ci-precheck</code> 통과 → PR 제출
+2. PR에 포함: 변경 내용(What), 필요 이유(Why), 테스트 방법(How), 브레이킹 체인지(있는 경우)
+3. 최소 1명의 리뷰 필요
+4. CI (테스트, 린트, 타입 검사) 통과 필수
+5. 주목할 만한 변경은 <code>CHANGELOG.md</code> 업데이트</p>
+<p><strong>코딩 스타일 / 린트:</strong></p>
+<pre><code class="language-bash">ruff check .              # 린팅 (PEP8, import 정렬, bugbear 등)
+ruff format .             # 자동 포맷 (라인 길이 100자)
+mypy headroom --ignore-missing-imports   # 타입 검사
+</code></pre>
+<ul>
+<li>공개 함수에 타입 힌트 필수</li>
+<li>Google 스타일 docstring 사용</li>
+<li>핵심 원칙: <strong>안전 우선</strong> — 사용자/어시스턴트 콘텐츠는 절대 누락시키지 않음</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p><strong>Branching strategy:</strong>
+- <code>main</code> is the deployment baseline
+- Feature branches: <code>feat/describe-feature</code>
+- Bugfix branches: <code>fix/describe-bug</code>
+- PRs target <code>main</code></p>
+<p><strong>Commit message conventions (Conventional Commits):</strong></p>
+<pre><code>feat: Add semantic caching to proxy
+fix: Handle empty tool outputs correctly
+docs: Update proxy documentation
+test: Add tests for CacheAligner
+refactor: Simplify rolling window logic
+</code></pre>
+<ul>
+<li>Validated automatically by <code>commitlint</code> (requires <code>npx</code>)</li>
+<li>Run check: <code>make ci-precheck-commitlint</code></li>
+<li>Install pre-push hook: <code>make install-git-hooks</code></li>
+</ul>
+<p><strong>PR / code review process:</strong>
+1. Fork → branch → change → pass <code>make ci-precheck</code> → open PR
+2. PR must describe: What changed, Why it was needed, How to test, any Breaking changes
+3. At least one review required
+4. CI must pass (tests, lint, type check)
+5. Update <code>CHANGELOG.md</code> for notable changes</p>
+<p><strong>Coding style / lint:</strong></p>
+<pre><code class="language-bash">ruff check .              # linting (PEP8, import sorting, bugbear, etc.)
+ruff format .             # auto-format (line length: 100)
+mypy headroom --ignore-missing-imports   # type checking
+</code></pre>
+<ul>
+<li>Type hints required on all public functions</li>
+<li>Google-style docstrings</li>
+<li>Core principle: <strong>safety first</strong> — never drop user/assistant content</li>
+</ul>
+<hr />
+<h2 id="9-faq">9. 자주 묻는 질문 / FAQ</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>Q1. <code>ImportError: cannot import name '_core' from 'headroom'</code> 오류가 발생합니다.</strong></p>
+<p>Rust 확장 모듈이 컴파일되지 않았거나 현재 Python 환경에 연결되지 않은 상태입니다. 해결 방법:</p>
+<pre><code class="language-bash"># venv가 활성화된 상태에서:
+bash scripts/build_rust_extension.sh
+# 또는:
+pip install -e &quot;.[dev]&quot;   # editable install이 자동으로 .so를 배치
+python -c &quot;from headroom._core import SmartCrusher; print('OK')&quot;
+</code></pre>
+<p><strong>Q2. <code>headroom proxy</code> 실행 시 포트 8787이 이미 사용 중이라는 오류가 납니다.</strong></p>
+<pre><code class="language-bash"># 다른 포트 사용:
+headroom proxy --port 9090
+# 기존 프로세스 확인:
+lsof -ti:8787 | xargs kill -9   # Linux/macOS
+</code></pre>
+<p><strong>Q3. <code>make ci-precheck-python</code> 실행 시 "activate a venv first" 오류가 납니다.</strong></p>
+<p>스크립트가 <code>$VIRTUAL_ENV</code> 변수로 venv 활성화 여부를 확인합니다:</p>
+<pre><code class="language-bash">source .venv/bin/activate
+make ci-precheck-python   # 다시 실행
+</code></pre>
+<p><strong>Q4. Docker Compose 실행 시 Neo4j가 시작되지 않거나 인증 오류가 발생합니다.</strong></p>
+<p><code>.env</code> 파일에서 <code>NEO4J_AUTH</code> 값을 변경하지 않았을 가능성이 높습니다:</p>
+<pre><code class="language-bash"># .env 파일 편집:
+NEO4J_AUTH=neo4j/MySecurePassword123!
+docker-compose down -v &amp;&amp; docker-compose up -d   # 볼륨 포함 재시작
+</code></pre>
+<p><strong>Q5. HuggingFace 모델 다운로드가 실패하거나 너무 느립니다.</strong></p>
+<pre><code class="language-bash"># HF_TOKEN 환경 변수 설정:
+export HF_TOKEN=hf_your_token_here
+# 프록시 환경인 경우:
+export HTTPS_PROXY=http://your.proxy:port
+# 오프라인 캐시만 사용 (이미 다운로드된 경우):
+export HF_HUB_OFFLINE=1
+</code></pre>
+<p><strong>Q6. <code>ruff check</code> 통과 후 <code>mypy</code>에서 타입 오류가 많이 나옵니다.</strong></p>
+<p>일부 모듈은 <code>pyproject.toml</code>의 <code>[[tool.mypy.overrides]]</code>에서 타입 검사가 완화되어 있습니다(proxy 핸들러, 일부 통합 모듈). 새 코드를 작성할 때는 공개 API에 타입 힌트를 반드시 추가하고, <code>ignore_missing_imports = true</code>로 서드파티 스텁 오류를 무시할 수 있습니다.</p>
+<p><strong>Q7. Rust 빌드가 느립니다. 개발 중에 빠르게 빌드하는 방법이 있나요?</strong></p>
+<p>editable install (<code>pip install -e ".[dev]"</code>)은 debug 프로파일을 사용하므로 release 빌드보다 빠릅니다. CI 환경과 같은 속도가 필요하면:</p>
+<pre><code class="language-bash">maturin build --profile ci   # LTO 없음, 256 codegen-units
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Q1. I get <code>ImportError: cannot import name '_core' from 'headroom'</code>.</strong></p>
+<p>The Rust extension has not been compiled or is not linked into the current Python environment. Fix:</p>
+<pre><code class="language-bash"># With venv activated:
+bash scripts/build_rust_extension.sh
+# or:
+pip install -e &quot;.[dev]&quot;   # editable install auto-places the .so
+python -c &quot;from headroom._core import SmartCrusher; print('OK')&quot;
+</code></pre>
+<p><strong>Q2. <code>headroom proxy</code> complains that port 8787 is already in use.</strong></p>
+<pre><code class="language-bash"># Use a different port:
+headroom proxy --port 9090
+# Find and kill the existing process:
+lsof -ti:8787 | xargs kill -9   # Linux/macOS
+</code></pre>
+<p><strong>Q3. <code>make ci-precheck-python</code> says "activate a venv first".</strong></p>
+<p>The script checks <code>$VIRTUAL_ENV</code> to confirm a venv is active:</p>
+<pre><code class="language-bash">source .venv/bin/activate
+make ci-precheck-python   # re-run
+</code></pre>
+<p><strong>Q4. Docker Compose Neo4j won't start / authentication error.</strong></p>
+<p>Most likely the <code>.env</code> file still has the default <code>NEO4J_AUTH</code>:</p>
+<pre><code class="language-bash"># Edit .env:
+NEO4J_AUTH=neo4j/MySecurePassword123!
+docker-compose down -v &amp;&amp; docker-compose up -d   # restart with clean volumes
+</code></pre>
+<p><strong>Q5. HuggingFace model download fails or is very slow.</strong></p>
+<pre><code class="language-bash">export HF_TOKEN=hf_your_token_here        # authenticate
+export HTTPS_PROXY=http://your.proxy:port # if behind a proxy
+export HF_HUB_OFFLINE=1                   # use local cache only (if already downloaded)
+</code></pre>
+<p><strong>Q6. <code>mypy</code> reports many type errors after <code>ruff check</code> passes.</strong></p>
+<p>Several modules have relaxed mypy settings in <code>pyproject.toml</code> <code>[[tool.mypy.overrides]]</code> (proxy handlers, some integration modules). For new code, always add type hints to public APIs. Use <code>ignore_missing_imports = true</code> for missing third-party stubs.</p>
+<p><strong>Q7. Rust builds are slow. Is there a faster option for development?</strong></p>
+<p>The editable install (<code>pip install -e ".[dev]"</code>) uses the debug profile, which is faster than release. For a CI-speed build without full LTO:</p>
+<pre><code class="language-bash">maturin build --profile ci   # no LTO, 256 codegen-units
+</code></pre>
+<h2 id="-">---</h2>
+<h2 id="2-file-2-reviewguide4impmethodmd">파일 2 / File 2: <code>.review/GUIDE4ImpMethod.md</code></h2>
+<hr />
+<h1 id="implementation-method-guide">실전 프로젝트 활용 가이드 / Implementation Method Guide</h1>
+<blockquote>
+<p>이 문서는 한국어와 영어로 작성되었습니다.<br />
+This document is written in both Korean and English.</p>
+</blockquote>
+<hr />
+<h2 id="1-purpose-of-this-repository">1. 이 저장소의 활용 목적 / Purpose of This Repository</h2>
+<p><strong>[한국어]</strong></p>
+<p>Headroom은 <strong>멀티모달 컨텍스트 압축 라이브러리 + 드롭인 프록시 + MCP 서버</strong>의 복합 역할을 하는 실용적인 AI 인프라 도구입니다.</p>
+<ul>
+<li><strong>분류:</strong> 라이브러리 + 프레임워크 미들웨어 + 역방향 프록시 + MCP 서버 (하이브리드)</li>
+<li><strong>해결하는 문제:</strong></li>
+<li><strong>토큰 비용 과다:</strong> AI 에이전트가 대용량 툴 출력, 로그, 파일을 반복적으로 전달하면 토큰 비용이 급증. Headroom이 LLM 도달 전에 60–95% 압축.</li>
+<li><strong>프로바이더 캐시 미스:</strong> 프롬프트 접두사가 미묘하게 달라질 때마다 프로바이더 KV 캐시가 무효화됨. CacheAligner가 prefix를 안정화하여 캐시 히트율 향상.</li>
+<li><strong>컨텍스트 윈도우 초과:</strong> 긴 대화나 대규모 RAG 결과가 컨텍스트 한도를 초과. RollingWindow/IntelligentContext가 중요 정보를 유지하며 자동 트리밍.</li>
+<li><strong>멀티-에이전트 컨텍스트 공유:</strong> Claude, Codex, Gemini 등 여러 에이전트가 같은 세션 정보를 공유하지 못함. SharedContext와 Memory 시스템이 크로스-에이전트 상태를 관리.</li>
+<li><strong>압축 불가역성:</strong> 기존 압축 도구는 원본을 복구할 수 없음. CCR(Contextual Compression &amp; Retrieval)이 원본을 로컬 저장 후 LLM이 요청 시 복원.</li>
+</ul>
+<p><strong>[English]</strong></p>
+<p>Headroom is a practical AI infrastructure tool that serves as a <strong>multi-modal context compression library + drop-in proxy + MCP server</strong>.</p>
+<ul>
+<li><strong>Classification:</strong> Library + framework middleware + reverse proxy + MCP server (hybrid)</li>
+<li><strong>Real-world problems it solves:</strong></li>
+<li><strong>Token cost explosion:</strong> AI agents repeatedly sending large tool outputs, logs, and files inflate token costs. Headroom compresses by 60–95% before they reach the LLM.</li>
+<li><strong>Provider cache misses:</strong> Subtle changes in prompt prefixes invalidate provider KV caches. CacheAligner stabilizes prefixes to maximize cache hit rates.</li>
+<li><strong>Context window overflow:</strong> Long conversations or large RAG results exceed context limits. RollingWindow/IntelligentContext auto-trim while preserving critical information.</li>
+<li><strong>Cross-agent context sharing:</strong> Claude, Codex, Gemini cannot share the same session state. SharedContext and Memory systems manage cross-agent state.</li>
+<li><strong>Irreversible compression:</strong> Existing compression tools cannot recover originals. CCR (Contextual Compression &amp; Retrieval) stores originals locally and restores them on LLM demand.</li>
+</ul>
+<hr />
+<h2 id="2-architecture-overview">2. 아키텍처 이해 / Architecture Overview</h2>
+<p><strong>[한국어]</strong></p>
+<p>Headroom은 세 가지 통합 경로를 통해 동일한 압축 파이프라인을 노출합니다: <strong>라이브러리 API</strong>, <strong>프록시 서버</strong>, <strong>MCP 서버</strong>. 모든 경로는 동일한 핵심 파이프라인(<code>pipeline.py</code>)을 통과합니다.</p>
+<p><strong>[English]</strong></p>
+<p>Headroom exposes the same compression pipeline through three integration paths: <strong>library API</strong>, <strong>proxy server</strong>, and <strong>MCP server</strong>. All paths flow through the same core pipeline (<code>pipeline.py</code>).</p>
+<pre><code class="language-mermaid">graph TB
+    subgraph Clients[&quot;클라이언트 / Clients&quot;]
+        PY[&quot;Python app&lt;br/&gt;compress(messages)&quot;]
+        TS[&quot;TypeScript app&lt;br/&gt;await compress(messages)&quot;]
+        AGENT[&quot;AI Agent&lt;br/&gt;(Claude Code / Codex / Cursor)&quot;]
+        MCP_CLIENT[&quot;MCP Client&lt;br/&gt;(Claude Desktop)&quot;]
+    end
+
+    subgraph Proxy[&quot;headroom proxy (FastAPI / Axum)&quot;]
+        direction TB
+        AUTH[&quot;classify_auth_mode()&quot;]
+        PIPELINE[&quot;pipeline.py&lt;br/&gt;Transform Orchestrator&quot;]
+        subgraph Transforms[&quot;핵심 변환 / Core Transforms&quot;]
+            CA[&quot;CacheAligner&lt;br/&gt;(prefix stability)&quot;]
+            CR[&quot;ContentRouter&lt;br/&gt;(type detection)&quot;]
+            SC[&quot;SmartCrusher&lt;br/&gt;(JSON arrays)&quot;]
+            CC[&quot;CodeCompressor&lt;br/&gt;(AST-aware)&quot;]
+            KB[&quot;Kompress-base&lt;br/&gt;(prose, HuggingFace)&quot;]
+            IC[&quot;IntelligentContext&lt;br/&gt;(score-based fit)&quot;]
+            CCR[&quot;CCR&lt;br/&gt;(reversible storage)&quot;]
+        end
+    end
+
+    subgraph MCP_Server[&quot;MCP Server&quot;]
+        MC1[&quot;headroom_compress&quot;]
+        MC2[&quot;headroom_retrieve&quot;]
+        MC3[&quot;headroom_stats&quot;]
+    end
+
+    subgraph Storage[&quot;로컬 저장소 / Local Storage&quot;]
+        QDRANT[&quot;Qdrant&lt;br/&gt;(vector memory)&quot;]
+        NEO4J[&quot;Neo4j&lt;br/&gt;(graph memory)&quot;]
+        SQLITE[&quot;SQLite-vec&lt;br/&gt;(lightweight)&quot;]
+        CCR_STORE[&quot;CCR store&lt;br/&gt;(originals)&quot;]
+    end
+
+    subgraph Providers[&quot;LLM Providers&quot;]
+        ANT[&quot;Anthropic&quot;]
+        OAI[&quot;OpenAI&quot;]
+        BED[&quot;AWS Bedrock&quot;]
+        VTX[&quot;Google Vertex&quot;]
+    end
+
+    PY --&gt; PIPELINE
+    TS --&gt; PIPELINE
+    AGENT --&gt; Proxy
+    MCP_CLIENT --&gt; MCP_Server
+    MCP_Server --&gt; PIPELINE
+
+    AUTH --&gt; PIPELINE
+    PIPELINE --&gt; CA --&gt; CR --&gt; SC
+    CR --&gt; CC
+    CR --&gt; KB
+    PIPELINE --&gt; IC
+    PIPELINE --&gt; CCR --&gt; CCR_STORE
+
+    PIPELINE --&gt; ANT
+    PIPELINE --&gt; OAI
+    PIPELINE --&gt; BED
+    PIPELINE --&gt; VTX
+
+    CCR --&gt; QDRANT
+    SC --&gt; SQLITE
+    KB --&gt; SQLITE
+</code></pre>
+<p><strong>핵심 컴포넌트 역할 (한국어):</strong></p>
+<table>
+<thead>
+<tr>
+<th>컴포넌트</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ContentRouter</code></td>
+<td>입력 블록의 타입(JSON/코드/텍스트/이미지)을 감지하여 최적 압축기로 라우팅</td>
+</tr>
+<tr>
+<td><code>SmartCrusher</code></td>
+<td>JSON 배열 압축 (통계적 샘플링, 오류/이상값 보존) — Rust 구현</td>
+</tr>
+<tr>
+<td><code>CodeCompressor</code></td>
+<td>AST 기반 코드 압축 (Python/JS/Go/Rust/Java/C++) — ast-grep + tree-sitter</td>
+</tr>
+<tr>
+<td><code>Kompress-base</code></td>
+<td>산문/로그 텍스트 압축 — HuggingFace ModernBERT 모델</td>
+</tr>
+<tr>
+<td><code>CacheAligner</code></td>
+<td>동적 콘텐츠(날짜, UUID, 토큰) 감지 후 prefix 안정화</td>
+</tr>
+<tr>
+<td><code>CCR</code></td>
+<td>압축된 블록의 원본을 로컬 저장; LLM이 <code>headroom_retrieve</code> 호출 시 복원</td>
+</tr>
+<tr>
+<td><code>IntelligentContext</code></td>
+<td>중요도 점수 기반 컨텍스트 적재 (토큰 한도 내 최대 정보 유지)</td>
+</tr>
+<tr>
+<td><code>SharedContext</code></td>
+<td>멀티-에이전트 간 압축된 컨텍스트 전달</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Core component roles (English):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ContentRouter</code></td>
+<td>Detects input block type (JSON/code/text/image) and routes to the optimal compressor</td>
+</tr>
+<tr>
+<td><code>SmartCrusher</code></td>
+<td>Compresses JSON arrays via statistical sampling, preserving errors/anomalies — Rust implementation</td>
+</tr>
+<tr>
+<td><code>CodeCompressor</code></td>
+<td>AST-aware code compression (Python/JS/Go/Rust/Java/C++) using ast-grep + tree-sitter</td>
+</tr>
+<tr>
+<td><code>Kompress-base</code></td>
+<td>Prose/log text compression — HuggingFace ModernBERT model</td>
+</tr>
+<tr>
+<td><code>CacheAligner</code></td>
+<td>Detects dynamic content (dates, UUIDs, tokens), stabilizes prompt prefixes</td>
+</tr>
+<tr>
+<td><code>CCR</code></td>
+<td>Stores originals of compressed blocks locally; restores them when LLM calls <code>headroom_retrieve</code></td>
+</tr>
+<tr>
+<td><code>IntelligentContext</code></td>
+<td>Score-based context fitting (maximizes information within token limits)</td>
+</tr>
+<tr>
+<td><code>SharedContext</code></td>
+<td>Passes compressed context across multi-agent workflows</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3-real-world-scenarios">3. 실전 프로젝트 적용 시나리오 / Real-World Scenarios</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>시나리오 1: 기존 Python LLM 앱에 라이브러리로 통합 (코드 변경 최소화)</strong></p>
+<pre><code class="language-python"># Before (비용 높음)
+from anthropic import Anthropic
+client = Anthropic()
+response = client.messages.create(
+    model=&quot;claude-opus-4-5&quot;,
+    messages=large_tool_output_messages,  # ~50,000 토큰
+    max_tokens=4096
+)
+
+# After (Headroom SDK 래퍼 방식)
+from headroom import HeadroomClient
+from headroom.providers import AnthropicProvider
+from anthropic import Anthropic
+
+client = HeadroomClient(
+    original_client=Anthropic(),
+    provider=AnthropicProvider(),
+    default_mode=&quot;optimize&quot;,
+)
+# 기존 코드와 동일하게 사용 — 내부적으로 압축 자동 처리
+response = client.messages.create(
+    model=&quot;claude-opus-4-5&quot;,
+    messages=large_tool_output_messages,  # ~5,000 토큰으로 압축
+    max_tokens=4096
+)
+stats = client.get_stats()
+print(f&quot;토큰 절약: {stats['session']['tokens_saved_total']}&quot;)
+</code></pre>
+<p><strong>단계:</strong>
+1. <code>pip install "headroom-ai[proxy]"</code> 설치
+2. 기존 <code>Anthropic()</code> 클라이언트를 <code>HeadroomClient</code>로 래핑
+3. API 호출은 기존과 동일 — 내부적으로 압축 파이프라인 자동 실행
+4. <code>client.get_stats()</code>로 절약량 확인</p>
+<hr />
+<p><strong>시나리오 2: 코드 변경 없이 프록시로 에이전트 감싸기</strong></p>
+<pre><code class="language-bash"># 1단계: 프록시 시작 + 에이전트 실행 (한 명령)
+headroom wrap claude
+
+# 또는 수동으로:
+headroom proxy --port 8787 &amp;
+
+# Claude Code는 이제 http://localhost:8787 경유 (자동 설정)
+# 압축 결과는 http://localhost:8787/dashboard 에서 확인
+</code></pre>
+<p>Headroom은 Claude Code의 <code>ANTHROPIC_API_URL</code> 환경 변수를 자동으로 설정하여 모든 요청이 프록시를 통과하도록 합니다. 에이전트 코드는 전혀 수정하지 않아도 됩니다.</p>
+<hr />
+<p><strong>시나리오 3: MCP 서버로 Claude Desktop / 다른 MCP 클라이언트에 통합</strong></p>
+<pre><code class="language-bash"># 1단계: MCP 서버 설치 (Claude Code 설정에 자동 등록)
+headroom mcp install
+
+# 이후 Claude Desktop에서 다음 MCP 툴 사용 가능:
+# - headroom_compress: 메시지 목록 압축
+# - headroom_retrieve: CCR 저장소에서 원본 복원
+# - headroom_stats: 현재 세션 압축 통계 조회
+</code></pre>
+<p>MCP 설정 예시 (<code>~/.config/claude/claude_desktop_config.json</code>):</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;headroom&quot;: {
+      &quot;command&quot;: &quot;headroom&quot;,
+      &quot;args&quot;: [&quot;mcp&quot;, &quot;serve&quot;]
+    }
+  }
+}
+</code></pre>
+<hr />
+<p><strong>시나리오 4: LangChain / Agno / Strands 프레임워크와 통합</strong></p>
+<pre><code class="language-python"># LangChain 통합
+from headroom.integrations.langchain import HeadroomChatModel
+from langchain_openai import ChatOpenAI
+
+llm = HeadroomChatModel(ChatOpenAI(model=&quot;gpt-4o&quot;))
+# 기존 LangChain 체인에 그대로 사용 가능
+
+# Agno 통합
+from headroom.integrations.agno import HeadroomAgnoModel
+model = HeadroomAgnoModel(your_agno_model)
+
+# Vercel AI SDK (TypeScript)
+import { wrapLanguageModel } from &quot;ai&quot;
+import { headroomMiddleware } from &quot;headroom-ai&quot;
+const model = wrapLanguageModel({
+  model: yourModel,
+  middleware: headroomMiddleware()
+})
+</code></pre>
+<hr />
+<p><strong>시나리오 5: 크로스-에이전트 메모리 공유 (멀티-에이전트 파이프라인)</strong></p>
+<pre><code class="language-python">from headroom.shared_context import SharedContext
+
+# 에이전트 A (예: 코드 분석 에이전트)
+ctx = SharedContext()
+ctx.put(&quot;analysis_result&quot;, large_analysis_data, agent_id=&quot;claude-analyzer&quot;)
+
+# 에이전트 B (예: 리뷰 에이전트) — 자동 중복 제거 + 압축 상태로 수신
+result = ctx.get(&quot;analysis_result&quot;, agent_id=&quot;codex-reviewer&quot;)
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Scenario 1: Integrate as a library into an existing Python LLM app (minimal code change)</strong></p>
+<pre><code class="language-python"># Before (high cost)
+from anthropic import Anthropic
+client = Anthropic()
+response = client.messages.create(
+    model=&quot;claude-opus-4-5&quot;,
+    messages=large_tool_output_messages,  # ~50,000 tokens
+    max_tokens=4096
+)
+
+# After (HeadroomClient SDK wrapper)
+from headroom import HeadroomClient
+from headroom.providers import AnthropicProvider
+from anthropic import Anthropic
+
+client = HeadroomClient(
+    original_client=Anthropic(),
+    provider=AnthropicProvider(),
+    default_mode=&quot;optimize&quot;,
+)
+# Identical call signature — compression runs automatically inside
+response = client.messages.create(
+    model=&quot;claude-opus-4-5&quot;,
+    messages=large_tool_output_messages,  # compressed to ~5,000 tokens
+    max_tokens=4096
+)
+stats = client.get_stats()
+print(f&quot;Tokens saved: {stats['session']['tokens_saved_total']}&quot;)
+</code></pre>
+<p><strong>Steps:</strong>
+1. <code>pip install "headroom-ai[proxy]"</code>
+2. Wrap your existing <code>Anthropic()</code> client with <code>HeadroomClient</code>
+3. API calls stay identical — compression pipeline runs automatically
+4. Check savings with <code>client.get_stats()</code></p>
+<hr />
+<p><strong>Scenario 2: Wrap an agent with the proxy (zero code changes)</strong></p>
+<pre><code class="language-bash"># Step 1: start proxy + launch agent in one command
+headroom wrap claude
+
+# Or manually:
+headroom proxy --port 8787 &amp;
+
+# Claude Code now routes through http://localhost:8787 (auto-configured)
+# Check compression results at http://localhost:8787/dashboard
+</code></pre>
+<p>Headroom automatically sets Claude Code's <code>ANTHROPIC_API_URL</code> environment variable so all requests pass through the proxy — no changes to agent code needed.</p>
+<hr />
+<p><strong>Scenario 3: Integrate with Claude Desktop / other MCP clients as an MCP server</strong></p>
+<pre><code class="language-bash"># Step 1: install MCP server (auto-registers in Claude Code config)
+headroom mcp install
+
+# MCP tools now available in Claude Desktop:
+# - headroom_compress: compress a list of messages
+# - headroom_retrieve: restore originals from CCR store
+# - headroom_stats: query current session compression statistics
+</code></pre>
+<p>MCP config example (<code>~/.config/claude/claude_desktop_config.json</code>):</p>
+<pre><code class="language-json">{
+  &quot;mcpServers&quot;: {
+    &quot;headroom&quot;: {
+      &quot;command&quot;: &quot;headroom&quot;,
+      &quot;args&quot;: [&quot;mcp&quot;, &quot;serve&quot;]
+    }
+  }
+}
+</code></pre>
+<hr />
+<p><strong>Scenario 4: Integrate with LangChain / Agno / Strands frameworks</strong></p>
+<pre><code class="language-python"># LangChain
+from headroom.integrations.langchain import HeadroomChatModel
+from langchain_openai import ChatOpenAI
+llm = HeadroomChatModel(ChatOpenAI(model=&quot;gpt-4o&quot;))
+
+# Agno
+from headroom.integrations.agno import HeadroomAgnoModel
+model = HeadroomAgnoModel(your_agno_model)
+
+# Vercel AI SDK (TypeScript)
+import { wrapLanguageModel } from &quot;ai&quot;
+import { headroomMiddleware } from &quot;headroom-ai&quot;
+const model = wrapLanguageModel({ model: yourModel, middleware: headroomMiddleware() })
+</code></pre>
+<hr />
+<p><strong>Scenario 5: Cross-agent shared memory (multi-agent pipeline)</strong></p>
+<pre><code class="language-python">from headroom.shared_context import SharedContext
+
+# Agent A (e.g., code analysis agent)
+ctx = SharedContext()
+ctx.put(&quot;analysis_result&quot;, large_analysis_data, agent_id=&quot;claude-analyzer&quot;)
+
+# Agent B (e.g., review agent) — receives auto-deduplicated + compressed
+result = ctx.get(&quot;analysis_result&quot;, agent_id=&quot;codex-reviewer&quot;)
+</code></pre>
+<hr />
+<h2 id="4-extension-customization">4. 확장 및 커스터마이징 / Extension &amp; Customization</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>설정 변경 포인트:</strong></p>
+<p>주요 환경 변수:</p>
+<pre><code class="language-bash"># 프록시 바인딩
+HEADROOM_HOST=0.0.0.0          # 수신 IP (기본: 127.0.0.1)
+HEADROOM_PORT=8787             # 수신 포트 (기본: 8787)
+
+# LLM 공급자 오버라이드
+OPENAI_TARGET_API_URL=https://api.openai.com   # OpenAI 호환 엔드포인트 변경
+ANTHROPIC_API_URL=http://localhost:8787        # Claude Code 프록시 설정
+
+# AWS Bedrock (Phase D)
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+
+# Google Vertex (Phase D)
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+
+# Copilot CLI 구독 모드
+GITHUB_COPILOT_TOKEN=...
+# 또는
+GITHUB_COPILOT_GITHUB_TOKEN=...
+
+# HuggingFace (Kompress-base 모델)
+HF_TOKEN=hf_...
+HF_HUB_OFFLINE=1    # 오프라인 캐시 모드
+
+# 메모리 스택
+NEO4J_AUTH=neo4j/password
+FASTEMBED_CACHE_PATH=/path/to/.fastembed-cache
+
+# 컨텍스트 도구 선택
+HEADROOM_CONTEXT_TOOL=lean-ctx    # RTK 대신 lean-ctx 사용
+</code></pre>
+<p><strong>기능 추가 시 수정해야 할 주요 파일/모듈:</strong></p>
+<table>
+<thead>
+<tr>
+<th>추가 기능</th>
+<th>수정 대상</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>새 압축 알고리즘</td>
+<td><code>headroom/transforms/</code> 신규 파일 + <code>headroom/compression/universal.py</code> 라우팅 추가</td>
+</tr>
+<tr>
+<td>새 LLM 공급자 어댑터</td>
+<td><code>headroom/providers/</code> 신규 파일 + <code>headroom/providers/registry.py</code> 등록</td>
+</tr>
+<tr>
+<td>새 CLI 서브커맨드</td>
+<td><code>headroom/cli/</code> 신규 파일 + <code>headroom/cli/main.py</code>에 Click 그룹 등록</td>
+</tr>
+<tr>
+<td>새 프레임워크 통합</td>
+<td><code>headroom/integrations/</code> 신규 파일 + <code>pyproject.toml</code>에 optional extra 추가</td>
+</tr>
+<tr>
+<td>CCR 저장소 백엔드 변경</td>
+<td><code>headroom/ccr/batch_store.py</code> + <code>headroom/ccr/context_tracker.py</code></td>
+</tr>
+<tr>
+<td>메모리 백엔드 변경</td>
+<td><code>headroom/memory/</code> + docker-compose의 memory-stack 서비스</td>
+</tr>
+</tbody>
+</table>
+<p><strong>파이프라인 확장 / Pipeline Extensions:</strong></p>
+<p>Headroom은 세 가지 확장 시점을 노출합니다:</p>
+<ol>
+<li><strong>Transforms</strong> — 파이프라인 내 변환 단계 추가 (<code>headroom/transforms/</code>)</li>
+<li><strong>Pipeline extensions</strong> — <code>on_pipeline_event(...)</code> 콜백으로 lifecycle 이벤트 관찰/수정</li>
+<li><strong>Compression hooks</strong> — 압축 전후 커스텀 로직 삽입</li>
+<li><strong>Proxy extensions</strong> — ASGI 미들웨어, 커스텀 라우트, 시작 정책</li>
+</ol>
+<p><strong>[English]</strong></p>
+<p><strong>Configuration touch points:</strong></p>
+<p>Key environment variables:</p>
+<pre><code class="language-bash"># Proxy binding
+HEADROOM_HOST=0.0.0.0          # listening IP (default: 127.0.0.1)
+HEADROOM_PORT=8787             # listening port (default: 8787)
+
+# LLM provider overrides
+OPENAI_TARGET_API_URL=https://api.openai.com   # change OpenAI-compatible endpoint
+ANTHROPIC_API_URL=http://localhost:8787        # Claude Code proxy config
+
+# AWS Bedrock
+AWS_REGION=us-east-1
+AWS_ACCESS_KEY_ID=...
+AWS_SECRET_ACCESS_KEY=...
+
+# Google Vertex
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/service-account.json
+
+# GitHub Copilot CLI subscription mode
+GITHUB_COPILOT_TOKEN=...
+
+# HuggingFace (Kompress-base model)
+HF_TOKEN=hf_...
+HF_HUB_OFFLINE=1   # offline cache mode
+
+# Memory stack
+NEO4J_AUTH=neo4j/password
+FASTEMBED_CACHE_PATH=/path/to/.fastembed-cache
+
+# Context tool selection
+HEADROOM_CONTEXT_TOOL=lean-ctx    # use lean-ctx instead of RTK
+</code></pre>
+<p><strong>Key files/modules to modify when adding features:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Feature to add</th>
+<th>Target file(s)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>New compression algorithm</td>
+<td>New file in <code>headroom/transforms/</code> + routing in <code>headroom/compression/universal.py</code></td>
+</tr>
+<tr>
+<td>New LLM provider adapter</td>
+<td>New file in <code>headroom/providers/</code> + register in <code>headroom/providers/registry.py</code></td>
+</tr>
+<tr>
+<td>New CLI subcommand</td>
+<td>New file in <code>headroom/cli/</code> + Click group in <code>headroom/cli/main.py</code></td>
+</tr>
+<tr>
+<td>New framework integration</td>
+<td>New file in <code>headroom/integrations/</code> + new optional extra in <code>pyproject.toml</code></td>
+</tr>
+<tr>
+<td>Change CCR storage backend</td>
+<td><code>headroom/ccr/batch_store.py</code> + <code>headroom/ccr/context_tracker.py</code></td>
+</tr>
+<tr>
+<td>Change memory backend</td>
+<td><code>headroom/memory/</code> + memory-stack service in <code>docker-compose.yml</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Pipeline extension seams:</strong>
+1. <strong>Transforms</strong> — add transform stages inside the pipeline (<code>headroom/transforms/</code>)
+2. <strong>Pipeline extensions</strong> — observe/modify lifecycle events via <code>on_pipeline_event(...)</code>
+3. <strong>Compression hooks</strong> — inject custom logic before/after compression
+4. <strong>Proxy extensions</strong> — ASGI middleware, custom routes, startup policy</p>
+<hr />
+<h2 id="5-production-deployment">5. 운영 환경 배포 / Production Deployment</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>프로덕션 빌드:</strong></p>
+<pre><code class="language-bash"># Python 휠 (PyPI 배포 또는 사내 배포)
+maturin build --release -m crates/headroom-py/Cargo.toml
+# → dist/headroom_ai-&lt;version&gt;-&lt;platform&gt;.whl
+
+# Docker 이미지
+docker build -t headroom:prod .
+# 또는 공식 이미지 사용:
+docker pull ghcr.io/chopratejas/headroom:latest
+</code></pre>
+<p><strong>환경별 설정 분리:</strong></p>
+<pre><code class="language-bash"># 환경 변수를 통한 설정 오버라이드 (12-factor app 패턴)
+# 프로덕션 Docker 실행 예시:
+docker run -d \
+  -p 8787:8787 \
+  -e NEO4J_AUTH=neo4j/PROD_STRONG_PASSWORD \
+  -e HEADROOM_HOST=0.0.0.0 \
+  -e AWS_REGION=us-east-1 \
+  --name headroom-prod \
+  ghcr.io/chopratejas/headroom:latest
+</code></pre>
+<p><strong>Docker Bake를 이용한 멀티-플랫폼 빌드:</strong></p>
+<pre><code class="language-bash">docker buildx bake -f docker-bake.hcl
+# linux/amd64, linux/arm64 등 멀티-플랫폼 이미지 동시 빌드
+</code></pre>
+<p><strong>CI/CD 파이프라인 (GitHub Actions):</strong></p>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>파일</th>
+<th>트리거</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CI</td>
+<td><code>.github/workflows/ci.yml</code></td>
+<td>push/PR to main</td>
+<td>테스트, 린트, 빌드</td>
+</tr>
+<tr>
+<td>Release</td>
+<td><code>.github/workflows/release.yml</code></td>
+<td>release 태그</td>
+<td>PyPI, npm 배포</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td><code>.github/workflows/docker.yml</code></td>
+<td>push to main</td>
+<td>GHCR 이미지 빌드/배포</td>
+</tr>
+<tr>
+<td>Docs</td>
+<td><code>.github/workflows/docs.yml</code></td>
+<td>push to main</td>
+<td>MkDocs 문서 배포</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Kubernetes 배포 (권장 사항):</strong></p>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<pre><code class="language-yaml"># headroom-deployment.yaml 예시
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: headroom-proxy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: headroom-proxy
+  template:
+    spec:
+      containers:
+      - name: headroom
+        image: ghcr.io/chopratejas/headroom:latest
+        ports:
+        - containerPort: 8787
+        env:
+        - name: HEADROOM_HOST
+          value: &quot;0.0.0.0&quot;
+        - name: NEO4J_AUTH
+          valueFrom:
+            secretKeyRef:
+              name: headroom-secrets
+              key: neo4j-auth
+        livenessProbe:
+          httpGet:
+            path: /readyz
+            port: 8787
+          initialDelaySeconds: 20
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8787
+          initialDelaySeconds: 10
+          periodSeconds: 10
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Production build:</strong></p>
+<pre><code class="language-bash"># Python wheel (for PyPI or internal distribution)
+maturin build --release -m crates/headroom-py/Cargo.toml
+# → dist/headroom_ai-&lt;version&gt;-&lt;platform&gt;.whl
+
+# Docker image
+docker build -t headroom:prod .
+# Or use the official image:
+docker pull ghcr.io/chopratejas/headroom:latest
+</code></pre>
+<p><strong>Environment-specific configuration separation:</strong></p>
+<pre><code class="language-bash"># Environment variable overrides (12-factor app pattern)
+# Production Docker run example:
+docker run -d \
+  -p 8787:8787 \
+  -e NEO4J_AUTH=neo4j/PROD_STRONG_PASSWORD \
+  -e HEADROOM_HOST=0.0.0.0 \
+  -e AWS_REGION=us-east-1 \
+  --name headroom-prod \
+  ghcr.io/chopratejas/headroom:latest
+</code></pre>
+<p><strong>Multi-platform build with Docker Bake:</strong></p>
+<pre><code class="language-bash">docker buildx bake -f docker-bake.hcl
+# Builds linux/amd64, linux/arm64, etc. simultaneously
+</code></pre>
+<p><strong>CI/CD pipeline (GitHub Actions):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Workflow</th>
+<th>File</th>
+<th>Trigger</th>
+<th>Role</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CI</td>
+<td><code>.github/workflows/ci.yml</code></td>
+<td>push/PR to main</td>
+<td>Tests, lint, build</td>
+</tr>
+<tr>
+<td>Release</td>
+<td><code>.github/workflows/release.yml</code></td>
+<td>release tag</td>
+<td>PyPI + npm publish</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td><code>.github/workflows/docker.yml</code></td>
+<td>push to main</td>
+<td>GHCR image build/push</td>
+</tr>
+<tr>
+<td>Docs</td>
+<td><code>.github/workflows/docs.yml</code></td>
+<td>push to main</td>
+<td>MkDocs deployment</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Kubernetes deployment (recommended):</strong></p>
+<blockquote>
+<p>참고: 공식 문서 기반 권장 사항 / Note: Recommended based on official documentation</p>
+</blockquote>
+<pre><code class="language-yaml"># headroom-deployment.yaml example
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: headroom-proxy
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: headroom-proxy
+  template:
+    spec:
+      containers:
+      - name: headroom
+        image: ghcr.io/chopratejas/headroom:latest
+        ports:
+        - containerPort: 8787
+        env:
+        - name: HEADROOM_HOST
+          value: &quot;0.0.0.0&quot;
+        - name: NEO4J_AUTH
+          valueFrom:
+            secretKeyRef:
+              name: headroom-secrets
+              key: neo4j-auth
+        livenessProbe:
+          httpGet:
+            path: /readyz
+            port: 8787
+          initialDelaySeconds: 20
+          periodSeconds: 30
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8787
+          initialDelaySeconds: 10
+          periodSeconds: 10
+</code></pre>
+<hr />
+<h2 id="6-performance-scalability">6. 성능 및 확장성 고려사항 / Performance &amp; Scalability</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>알려진 성능 병목 지점:</strong></p>
+<ol>
+<li><strong>Kompress-base 모델 초기 로드:</strong> 첫 번째 압축 요청 시 HuggingFace 모델을 로드하며 수 초의 워밍업이 필요합니다. 프로덕션에서는 <code>TRANSFORMERS_OFFLINE=1</code>과 미리 캐시된 모델을 사용하십시오.</li>
+<li><strong>AST 파싱 (CodeCompressor):</strong> 대형 코드 파일 처리 시 <code>ast-grep</code> 파싱이 일부 지연을 유발할 수 있습니다. transforms 기준 P99 &lt; 50ms 목표.</li>
+<li><strong>Neo4j 그래프 쿼리:</strong> 멀티-에이전트 메모리 시스템의 다중 홉 쿼리는 데이터 증가 시 느려질 수 있습니다. 프로덕션에서는 APOC 플러그인과 인덱스를 활용하십시오.</li>
+<li><strong>PyPI 휠 크기:</strong> 릴리스 프로파일(<code>strip + lto + codegen-units=1</code>)로 휠 크기를 ~18MB → ~10MB로 최적화됨.</li>
+</ol>
+<p><strong>수평/수직 확장 전략:</strong>
+- <strong>수평 확장:</strong> Headroom 프록시는 stateless로 설계되어 여러 인스턴스를 부하 분산 뒤에 실행 가능. CCR 저장소와 메모리 시스템은 외부 공유 스토리지(Qdrant 클러스터, Neo4j 클러스터)로 분리.
+- <strong>수직 확장:</strong> ML 압축(Kompress-base)은 CPU 집약적. 인스턴스당 vCPU 증가가 가장 직접적인 효과.
+- <strong>라이브러리 모드:</strong> 프록시 없이 인라인 사용 시 네트워크 오버헤드 없음 — 레이턴시 민감 앱에 적합.</p>
+<p><strong>캐싱 전략:</strong>
+- <strong>프로바이더 KV 캐시:</strong> CacheAligner가 prefix 안정화로 캐시 히트율 극대화 (Anthropic <code>cache_control</code>, OpenAI <code>prompt_cache_key</code> 자동 삽입)
+- <strong>압축 결과 캐시:</strong> <code>headroom/cache/compression_cache.py</code>가 동일 입력에 대한 재압축 방지
+- <strong>HuggingFace 모델 캐시:</strong> <code>~/.cache/huggingface/</code> (로컬), CI는 GitHub Actions Cache 활용</p>
+<p><strong>모니터링 및 로깅:</strong></p>
+<pre><code class="language-bash"># OpenTelemetry 메트릭 내보내기 (환경 변수로 설정)
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+# 또는 Prometheus 메트릭 (proxy 내장)
+# http://localhost:8787/metrics
+
+# 로그 레벨
+HEADROOM_LOG_LEVEL=INFO   # DEBUG, INFO, WARNING, ERROR
+</code></pre>
+<p><strong>[English]</strong></p>
+<p><strong>Known performance bottlenecks:</strong></p>
+<ol>
+<li><strong>Kompress-base model initial load:</strong> On the first compression request, the HuggingFace model must load — expect a warm-up delay of several seconds. In production, use <code>TRANSFORMERS_OFFLINE=1</code> with a pre-cached model.</li>
+<li><strong>AST parsing (CodeCompressor):</strong> Processing large code files via <code>ast-grep</code> can introduce latency. Target: P99 &lt; 50ms per transform.</li>
+<li><strong>Neo4j graph queries:</strong> Multi-hop queries in the multi-agent memory system slow down as data grows. Use APOC plugins and indexes in production.</li>
+<li><strong>PyPI wheel size:</strong> Release profile (<code>strip + lto + codegen-units=1</code>) reduces wheel size from ~18MB to ~10MB.</li>
+</ol>
+<p><strong>Horizontal / vertical scaling strategies:</strong>
+- <strong>Horizontal scaling:</strong> The Headroom proxy is stateless by design — run multiple instances behind a load balancer. Separate the CCR store and memory system into external shared storage (Qdrant cluster, Neo4j cluster).
+- <strong>Vertical scaling:</strong> ML compression (Kompress-base) is CPU-intensive — increasing vCPUs per instance is the most direct improvement.
+- <strong>Library mode:</strong> Inline use without the proxy has zero network overhead — ideal for latency-sensitive applications.</p>
+<p><strong>Caching strategies:</strong>
+- <strong>Provider KV cache:</strong> CacheAligner maximizes cache hit rates by stabilizing prefixes (auto-inserts Anthropic <code>cache_control</code> and OpenAI <code>prompt_cache_key</code>)
+- <strong>Compression result cache:</strong> <code>headroom/cache/compression_cache.py</code> prevents re-compressing identical inputs
+- <strong>HuggingFace model cache:</strong> <code>~/.cache/huggingface/</code> (local), CI uses GitHub Actions Cache</p>
+<p><strong>Monitoring and logging:</strong></p>
+<pre><code class="language-bash"># OpenTelemetry metrics export (set via env vars)
+OTEL_EXPORTER_OTLP_ENDPOINT=http://otel-collector:4318
+# Or Prometheus metrics (built into proxy)
+# http://localhost:8787/metrics
+
+# Log level
+HEADROOM_LOG_LEVEL=INFO   # DEBUG, INFO, WARNING, ERROR
+</code></pre>
+<hr />
+<h2 id="7-security-checklist">7. 보안 체크리스트 / Security Checklist</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>환경 변수 및 시크릿 관리:</strong>
+- [x] <code>.env</code> 파일은 <code>.gitignore</code>에 등록됨 — <code>.env.example</code>만 커밋
+- [x] <code>NEO4J_AUTH</code> 기본값(<code>neo4j/devpassword</code>)은 <strong>반드시</strong> 프로덕션에서 변경
+- [x] <code>GITHUB_COPILOT_TOKEN</code>, <code>HF_TOKEN</code>, AWS/GCP 자격증명은 환경 변수 또는 시크릿 매니저(Vault, AWS Secrets Manager)로 관리
+- [x] <code>.env.act.example</code>의 <code>NPM_TOKEN</code>은 테스트 토큰만 사용
+- [x] GitGuardian 설정(<code>.gitguardian.yaml</code>)으로 시크릿 커밋 방지 활성화됨
+- [x] Docker 이미지는 nonroot 사용자(UID 1000)로 실행</p>
+<p><strong>인증/인가 구현 포인트:</strong>
+- <code>headroom/proxy/server.py</code> — <code>classify_auth_mode()</code>: <code>payg</code> / <code>oauth</code> / <code>subscription</code> 모드 분류
+- <code>headroom/copilot_auth.py</code> — Copilot CLI 인증 (macOS Keychain, Linux Secret Service, Windows Credential Manager)
+- AWS SigV4 서명: <code>crates/headroom-proxy/</code> — <code>aws-sigv4</code> crate 사용
+- GCP ADC 토큰: <code>crates/headroom-proxy/</code> — <code>gcp_auth</code> crate 사용</p>
+<p><strong>의존성 취약점 점검:</strong></p>
+<pre><code class="language-bash"># Python 의존성
+pip install pip-audit &amp;&amp; pip-audit
+# 또는
+uv run safety check
+
+# Rust 의존성
+cargo install cargo-deny &amp;&amp; cargo deny check
+# deny.toml 파일로 라이선스 + 취약점 정책 설정됨
+</code></pre>
+<p><strong>알려진 보안 고려사항:</strong>
+- Copilot Windows Credential Manager, Linux Secret Service, Docker/CI 토큰 인젝션 경로는 구현되었으나 실제 OS 검증이 완전하지 않음 → 프로덕션에서는 <code>GITHUB_COPILOT_TOKEN</code> 환경 변수 명시적 전달 권장
+- 프록시는 원본 압축 전 <code>x-headroom-*</code> 헤더를 상류 요청에서 제거함 (PR-A5 구현)
+- CCR 저장소(원본 데이터 보관)는 로컬 파일시스템에 위치 — 접근 권한 관리 필요</p>
+<p><strong>[English]</strong></p>
+<p><strong>Environment variable and secret management:</strong>
+- [x] <code>.env</code> is in <code>.gitignore</code> — only <code>.env.example</code> is committed
+- [x] The default <code>NEO4J_AUTH</code> (<code>neo4j/devpassword</code>) <strong>must</strong> be changed in production
+- [x] <code>GITHUB_COPILOT_TOKEN</code>, <code>HF_TOKEN</code>, AWS/GCP credentials must use environment variables or a secrets manager (Vault, AWS Secrets Manager)
+- [x] <code>.env.act.example</code>'s <code>NPM_TOKEN</code> uses test tokens only
+- [x] GitGuardian configuration (<code>.gitguardian.yaml</code>) is active to prevent secret commits
+- [x] Docker image runs as nonroot user (UID 1000)</p>
+<p><strong>Authentication / authorization implementation points:</strong>
+- <code>headroom/proxy/server.py</code> — <code>classify_auth_mode()</code>: classifies <code>payg</code> / <code>oauth</code> / <code>subscription</code> modes
+- <code>headroom/copilot_auth.py</code> — Copilot CLI authentication (macOS Keychain, Linux Secret Service, Windows Credential Manager)
+- AWS SigV4 signing: <code>crates/headroom-proxy/</code> using the <code>aws-sigv4</code> crate
+- GCP ADC tokens: <code>crates/headroom-proxy/</code> using the <code>gcp_auth</code> crate</p>
+<p><strong>Dependency vulnerability scanning:</strong></p>
+<pre><code class="language-bash"># Python dependencies
+pip install pip-audit &amp;&amp; pip-audit
+# or:
+uv run safety check
+
+# Rust dependencies
+cargo install cargo-deny &amp;&amp; cargo deny check
+# deny.toml configures license and vulnerability policy
+</code></pre>
+<p><strong>Known security considerations:</strong>
+- Copilot Windows Credential Manager, Linux Secret Service, and Docker/CI token injection paths are implemented but not fully OS-validated — in production, prefer passing <code>GITHUB_COPILOT_TOKEN</code> explicitly as an environment variable
+- The proxy strips <code>x-headroom-*</code> headers from upstream-bound requests (PR-A5 implementation)
+- The CCR store (holds original data) is on the local filesystem — file system permission management is required</p>
+<hr />
+<h2 id="8-references">8. 관련 참고 자료 / References</h2>
+<p><strong>[한국어]</strong></p>
+<p><strong>공식 문서:</strong>
+- <a href="https://headroom-docs.vercel.app/docs">Headroom 공식 문서</a> — 아키텍처, 설치, 프록시, MCP, CCR 등
+- <a href="https://headroom-docs.vercel.app/docs/quickstart">Quickstart</a>
+- <a href="https://headroom-docs.vercel.app/docs/architecture">Architecture</a>
+- <a href="https://headroom-docs.vercel.app/docs/ccr">CCR 가역 압축</a>
+- <a href="https://headroom-docs.vercel.app/docs/cache-optimization">캐시 최적화</a>
+- <a href="https://headroom-docs.vercel.app/docs/benchmarks">Benchmarks</a>
+- <a href="https://huggingface.co/chopratejas/kompress-base">Kompress-base 모델 카드 (HuggingFace)</a>
+- <a href="https://headroom-docs.vercel.app/llms.txt">AI/LLM 인덱스 (llms.txt)</a></p>
+<p><strong>관련 기술 공식 문서:</strong>
+- <a href="https://www.maturin.rs/">Maturin 문서</a> — Rust-Python 바인딩 빌드
+- <a href="https://pyo3.rs/">pyo3 사용자 가이드</a> — Rust Python 확장 개발
+- <a href="https://docs.astral.sh/uv/">uv 문서</a> — Python 패키지 및 환경 관리
+- <a href="https://docs.astral.sh/ruff/">Ruff 문서</a> — Python 린터/포매터
+- <a href="https://fastapi.tiangolo.com/">FastAPI 문서</a> — 프록시 서버 프레임워크
+- <a href="https://github.com/qdrant/fastembed">fastembed</a> — 경량 임베딩 모델</p>
+<p><strong>커뮤니티:</strong>
+- <a href="https://discord.gg/yRmaUNpsPJ">Discord (Headroom)</a>
+- <a href="https://github.com/chopratejas/headroom/issues">GitHub Issues</a>
+- <a href="CHANGELOG.md">CHANGELOG.md</a></p>
+<p><strong>유사 프로젝트 비교 (장단점):</strong></p>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>장점</th>
+<th>단점</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Headroom</strong></td>
+<td>로컬 실행, 모든 콘텐츠 타입, 모든 프레임워크, 가역 압축</td>
+<td>Rust 빌드 툴체인 필요, 초기 설정 복잡도</td>
+</tr>
+<tr>
+<td><a href="https://github.com/rtk-ai/rtk">RTK</a></td>
+<td>CLI 출력 특화, 경량</td>
+<td>CLI 명령 출력만 지원, 비가역</td>
+</tr>
+<tr>
+<td><a href="https://github.com/yvgude/lean-ctx">lean-ctx</a></td>
+<td>CLI + MCP, 경량</td>
+<td>콘텐츠 타입 제한적, 비가역</td>
+</tr>
+<tr>
+<td><a href="https://compresr.ai">Compresr</a></td>
+<td>설정 불필요</td>
+<td>호스팅 API, 데이터 외부 전송, 비가역</td>
+</tr>
+<tr>
+<td>OpenAI Compaction</td>
+<td>공급자 네이티브, 설정 불필요</td>
+<td>대화 기록만 지원, 공급자 종속, 비가역</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>참고: Headroom은 RTK를 내부적으로 포함하여 셸 출력 재작성에 사용하며, lean-ctx도 <code>HEADROOM_CONTEXT_TOOL=lean-ctx</code>로 선택적으로 사용 가능합니다.</p>
+</blockquote>
+<p><strong>[English]</strong></p>
+<p><strong>Official documentation:</strong>
+- <a href="https://headroom-docs.vercel.app/docs">Headroom official docs</a> — architecture, install, proxy, MCP, CCR, and more
+- <a href="https://headroom-docs.vercel.app/docs/quickstart">Quickstart</a>
+- <a href="https://headroom-docs.vercel.app/docs/architecture">Architecture</a>
+- <a href="https://headroom-docs.vercel.app/docs/ccr">CCR reversible compression</a>
+- <a href="https://headroom-docs.vercel.app/docs/cache-optimization">Cache optimization</a>
+- <a href="https://headroom-docs.vercel.app/docs/benchmarks">Benchmarks</a>
+- <a href="https://huggingface.co/chopratejas/kompress-base">Kompress-base model card (HuggingFace)</a>
+- <a href="https://headroom-docs.vercel.app/llms.txt">AI/LLM index (llms.txt)</a></p>
+<p><strong>Related technology official docs:</strong>
+- <a href="https://www.maturin.rs/">Maturin documentation</a> — Rust-Python binding builds
+- <a href="https://pyo3.rs/">pyo3 user guide</a> — Rust Python extension development
+- <a href="https://docs.astral.sh/uv/">uv documentation</a> — Python package and environment management
+- <a href="https://docs.astral.sh/ruff/">Ruff documentation</a> — Python linter/formatter
+- <a href="https://fastapi.tiangolo.com/">FastAPI documentation</a> — proxy server framework
+- <a href="https://github.com/qdrant/fastembed">fastembed</a> — lightweight embedding model</p>
+<p><strong>Community:</strong>
+- <a href="https://discord.gg/yRmaUNpsPJ">Discord (Headroom)</a>
+- <a href="https://github.com/chopratejas/headroom/issues">GitHub Issues</a>
+- <a href="CHANGELOG.md">CHANGELOG.md</a></p>
+<p><strong>Comparison with similar projects (pros and cons):</strong></p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Pros</th>
+<th>Cons</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Headroom</strong></td>
+<td>Local execution, all content types, all frameworks, reversible</td>
+<td>Requires Rust toolchain, initial setup complexity</td>
+</tr>
+<tr>
+<td><a href="https://github.com/rtk-ai/rtk">RTK</a></td>
+<td>Specialized for CLI output, lightweight</td>
+<td>Only CLI command output, irreversible</td>
+</tr>
+<tr>
+<td><a href="https://github.com/yvgude/lean-ctx">lean-ctx</a></td>
+<td>CLI + MCP, lightweight</td>
+<td>Limited content types, irreversible</td>
+</tr>
+<tr>
+<td><a href="https://compresr.ai">Compresr</a></td>
+<td>No setup required</td>
+<td>Hosted API, data leaves local machine, irreversible</td>
+</tr>
+<tr>
+<td>OpenAI Compaction</td>
+<td>Provider-native, no setup required</td>
+<td>Conversation history only, provider lock-in, irreversible</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p>Note: Headroom bundles RTK internally for shell output rewriting, and lean-ctx can also be selected via <code>HEADROOM_CONTEXT_TOOL=lean-ctx</code>.</p>
+</blockquote>
+<hr />
+<h2 id="final-report-summary">최종 보고서 요약 / Final Report Summary</h2>
+<p><strong>[한국어]</strong></p>
+<ul>
+<li><strong>모드:</strong> 단일 프로젝트 (Single project)</li>
+<li><strong>생성 파일:</strong></li>
+<li><code>.review/GUIDE4Junior.md</code> — 9개 섹션 완성</li>
+<li><code>.review/GUIDE4ImpMethod.md</code> — 8개 섹션 완성</li>
+<li><strong>웹 검색 활용 섹션:</strong> 이 가이드는 프로젝트의 실제 소스 코드, <code>pyproject.toml</code>, <code>Cargo.toml</code>, <code>Makefile</code>, <code>Dockerfile</code>, <code>CONTRIBUTING.md</code>, GitHub Actions 워크플로우 파일들을 직접 분석하여 작성되었습니다. Section 5 (배포), Section 6 (성능), Section 8 (참고 자료) 일부는 공식 문서 링크 기반 권장 사항으로 보완되었으나 별도 실시간 웹 검색은 수행하지 않았습니다.</li>
+<li><strong>해당 없음으로 처리된 섹션:</strong> 없음. 모든 섹션이 프로젝트에 해당됩니다.</li>
+</ul>
+<p><strong>[English]</strong></p>
+<ul>
+<li><strong>Mode:</strong> Single project</li>
+<li><strong>Generated files:</strong></li>
+<li><code>.review/GUIDE4Junior.md</code> — 9 sections completed</li>
+<li><code>.review/GUIDE4ImpMethod.md</code> — 8 sections completed</li>
+<li><strong>Sections relying on web search:</strong> The guides were produced by direct analysis of the project's source code, <code>pyproject.toml</code>, <code>Cargo.toml</code>, <code>Makefile</code>, <code>Dockerfile</code>, <code>CONTRIBUTING.md</code>, and GitHub Actions workflow files. Sections 5 (Deployment), 6 (Performance), and 8 (References) were supplemented with official documentation link-based recommendations, but no live web searches were performed.</li>
+<li><strong>Sections marked not applicable:</strong> None. All sections apply to this project.</li>
+</ul></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>chopratejas/headroom</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/chopratejas/headroom" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

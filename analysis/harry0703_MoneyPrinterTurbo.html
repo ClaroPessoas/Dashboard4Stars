@@ -1,0 +1,1170 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>harry0703/MoneyPrinterTurbo - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/harry0703/MoneyPrinterTurbo" target="_blank" rel="noopener">harry0703/MoneyPrinterTurbo</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">利用AI大模型，一键生成高清短视频 Generate short videos with one click using AI LLM.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">weekly trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 79870</span>
+      <span class="badge badge-stars">+14,566 stars this week</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-indepth">
+    
+    <div class="md-body"><p>Now I have enough information to write the comprehensive report. Let me compile it.</p>
+<hr />
+<h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
+<blockquote>
+<p>분석일 / Analysis Date: 2026-06-06
+대상 / Target: <code>/tmp/github-dashboard-analysis/harry0703_MoneyPrinterTurbo</code>
+분석 / Analyst: Claude (Anthropic)</p>
+</blockquote>
+<hr />
+<h2 id="1-project-overview">1. 프로젝트 개요 / Project Overview</h2>
+<h3 id="11-purpose-and-classification">1.1 목적 및 분류 / Purpose and Classification</h3>
+<ul>
+<li><strong>해결하는 문제 / Problem solved</strong>: 텍스트 주제나 프롬프트를 입력하면 AI가 스크립트 생성, 소재 수집, 자막·TTS 합성, 동영상 편집까지 전 과정을 자동화하여 숏폼(짧은) 동영상을 생성하는 도구. 특히 TikTok·Instagram 등 소셜 미디어용 세로형 영상 제작 자동화에 최적화되어 있다.</li>
+<li><strong>분류 / Classification</strong>: Application (Desktop / Self-hosted SaaS)</li>
+</ul>
+<hr />
+<h3 id="12-software-stack">1.2 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분 / Category</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어/런타임 / Language &amp; Runtime</td>
+<td>Python 3.11–3.12</td>
+</tr>
+<tr>
+<td>프레임워크 / Framework</td>
+<td>FastAPI 0.136.3 (REST API), Streamlit 1.58.0 (WebUI)</td>
+</tr>
+<tr>
+<td>비디오 엔진 / Video Engine</td>
+<td>MoviePy 2.2.1, FFmpeg (system), ImageMagick (system)</td>
+</tr>
+<tr>
+<td>TTS</td>
+<td>edge-tts 7.2.7 (EdgeTTS), azure-cognitiveservices-speech 1.41.1 (Azure TTS), Xiaomi MiMo TTS</td>
+</tr>
+<tr>
+<td>LLM 통합 / LLM Integration</td>
+<td>LiteLLM 1.86.2 (100+ providers), OpenAI, Google Generative AI, DashScope (Qwen), DeepSeek, Ollama, Azure OpenAI 등 15+</td>
+</tr>
+<tr>
+<td>소재 제공 / Material Source</td>
+<td>Pexels API, Pixabay API</td>
+</tr>
+<tr>
+<td>데이터 저장소 / Data Store</td>
+<td>파일 시스템 (영상/태스크 결과), Redis 5.x (선택적 태스크 큐)</td>
+</tr>
+<tr>
+<td>통신 방식 / Communication</td>
+<td>REST (FastAPI), 웹소켓 없음</td>
+</tr>
+<tr>
+<td>배포 환경 / Deployment</td>
+<td>Docker + docker-compose, 직접 Python 실행, Google Colab, Windows 인스톨러</td>
+</tr>
+<tr>
+<td>빌드 도구 / Build Tool</td>
+<td>uv (패키지 매니저), hatchling (빌드 백엔드)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="13-architecture">1.3 아키텍처 구조 / Architecture</h3>
+<pre><code>┌─────────────────────────────────────────────────────────────┐
+│                 MoneyPrinterTurbo                            │
+│                                                             │
+│  ┌───────────────────┐    ┌──────────────────────────────┐  │
+│  │  WebUI (Streamlit)│    │   REST API (FastAPI/Uvicorn) │  │
+│  │  :8501            │    │   :8080                      │  │
+│  └─────────┬─────────┘    └─────────────┬────────────────┘  │
+│            │                            │                   │
+│            └────────────────┬───────────┘                   │
+│                             ▼                               │
+│              ┌──────────────────────────┐                   │
+│              │     Services Layer        │                   │
+│              │ task / video / voice /   │                   │
+│              │ material / llm / subtitle│                   │
+│              └──────┬───────────────────┘                   │
+│                     │                                       │
+│        ┌────────────┼──────────────────┐                    │
+│        ▼            ▼                  ▼                    │
+│  ┌──────────┐  ┌──────────┐  ┌──────────────────┐          │
+│  │ LLM APIs │  │ Pexels/  │  │ TTS / Whisper    │          │
+│  │(15+ prov)│  │ Pixabay  │  │ / FFmpeg         │          │
+│  └──────────┘  └──────────┘  └──────────────────┘          │
+│                                                             │
+│  State: Memory Manager ─── (opt) Redis Manager             │
+│  Storage: ./storage/ (file system)                          │
+└─────────────────────────────────────────────────────────────┘
+</code></pre>
+<p>아키텍처 패턴: 단순 계층형 MVC에 가까운 구조. 별도의 도메인 격리 없이 services 계층이 외부 API 직접 호출.</p>
+<hr />
+<h3 id="14-source-tree">1.4 소스 트리 구조 / Source Tree</h3>
+<pre><code>harry0703_MoneyPrinterTurbo/
+├── .github/
+│   ├── ISSUE_TEMPLATE/       # Bug report / feature request 템플릿
+│   └── SECURITY.md           # 취약점 보고 정책 (존재)
+├── app/
+│   ├── asgi.py               # FastAPI ASGI 앱 초기화
+│   ├── router.py             # API 라우터
+│   ├── config/config.py      # 설정 로더 (TOML)
+│   ├── controllers/v1/       # video.py, llm.py 엔드포인트
+│   ├── controllers/manager/  # memory_manager, redis_manager
+│   ├── models/               # schema.py, const.py, exception.py
+│   ├── services/             # llm, material, subtitle, task, video, voice, upload_post
+│   └── utils/                # file_security.py, utils.py
+├── webui/
+│   ├── Main.py               # Streamlit WebUI (~58,000 줄)
+│   └── i18n/                 # 7개 언어 로컬라이제이션
+├── resource/fonts/           # 내장 폰트 (TTF/TTC)
+├── resource/songs/           # 내장 BGM (30곡 MP3)
+├── test/services/            # 9개 서비스 테스트 모듈
+├── docs/                     # GPU Docker 배포 가이드, Jupyter Notebook
+├── config.example.toml       # 설정 예시 파일
+├── Dockerfile                # CPU 기본 Docker 이미지
+├── Dockerfile.gpu            # GPU 가속 Docker 이미지
+├── docker-compose.yml        # webui + api 서비스
+├── pyproject.toml            # 빌드 메타데이터 + 의존성
+├── requirements.txt          # pip 호환 의존성 목록
+├── uv.lock                   # 재현 가능 빌드 잠금 파일
+├── LICENSE                   # MIT License
+├── README.md (zh), README-en.md, README-ar.md
+└── main.py                   # Uvicorn 엔트리포인트
+</code></pre>
+<hr />
+<h2 id="2-license-analysis">2. 라이선스 분석 / License Analysis</h2>
+<h3 id="21-project-license">2.1 프로젝트 자체 라이선스 / Project License</h3>
+<p><code>LICENSE</code> 파일 직접 확인 완료.</p>
+<ul>
+<li><strong>라이선스명</strong>: MIT License</li>
+<li><strong>저작권자</strong>: Copyright (c) 2024 Harry</li>
+<li><strong>핵심 의무</strong>:</li>
+<li>소스 배포 시 저작권 표시 및 허가 문구 포함 필수</li>
+<li>소스 비공개 허용</li>
+<li>상업적 이용, 수정, 배포, 서브라이선스, 판매 허용</li>
+<li>보증 없음 (AS IS)</li>
+<li><strong>특이 사항</strong>: 특허 조항 없음. MIT는 특허 허여(patent grant)가 포함되지 않으므로 특허 분쟁 시 방어 수단 부재.</li>
+</ul>
+<hr />
+<h3 id="22-dependency-license-inventory">2.2 의존성 라이선스 목록 / Dependency License Inventory</h3>
+<p><code>pyproject.toml</code> 및 <code>requirements.txt</code> 기준 직접 의존성 분석. 100+ 라이브러리를 포함하는 <code>uv.lock</code> 전체 분석에서 Copyleft 클래스 우선 검토.</p>
+<table>
+<thead>
+<tr>
+<th>패키지 / Package</th>
+<th>버전 / Version</th>
+<th>라이선스 / License</th>
+<th>분류 / Class</th>
+<th>위험도 / Risk</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>edge-tts</strong></td>
+<td>7.2.7</td>
+<td><strong>GPL-3.0</strong></td>
+<td>Strong Copyleft</td>
+<td>🔴 <strong>High</strong></td>
+</tr>
+<tr>
+<td><strong>g4f</strong> (optional)</td>
+<td>0.5.2.2</td>
+<td><strong>GPL-3.0</strong></td>
+<td>Strong Copyleft</td>
+<td>🔴 High (opt-in only)</td>
+</tr>
+<tr>
+<td>moviepy</td>
+<td>2.2.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>streamlit</td>
+<td>1.58.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>fastapi</td>
+<td>0.136.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>uvicorn</td>
+<td>0.32.1</td>
+<td>BSD-3-Clause</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>openai</td>
+<td>2.24.0</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>faster-whisper</td>
+<td>1.1.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>loguru</td>
+<td>0.7.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>google-generativeai</td>
+<td>0.8.6</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>dashscope</td>
+<td>1.20.14</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>azure-cognitiveservices-speech</td>
+<td>1.41.1</td>
+<td><strong>Proprietary (Microsoft)</strong></td>
+<td>Commercial</td>
+<td>🟠 별도 계약 필요</td>
+</tr>
+<tr>
+<td>redis</td>
+<td>5.2.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>python-multipart</td>
+<td>0.0.27</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pyyaml</td>
+<td>6.0.3</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>requests</td>
+<td>2.33.1</td>
+<td>Apache 2.0</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>socksio</td>
+<td>1.0.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>pydub</td>
+<td>0.25.1</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>litellm</td>
+<td>1.86.2</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+<tr>
+<td>hatchling (build)</td>
+<td>≥1.27.0</td>
+<td>MIT</td>
+<td>Permissive</td>
+<td>🟢</td>
+</tr>
+</tbody>
+</table>
+<blockquote>
+<p><strong>핵심 경고</strong>: <code>edge-tts</code>(GPL-3.0)는 선택적 의존성이 아닌 <strong>기본(필수) 의존성</strong>으로 등록되어 있다 (<code>pyproject.toml</code> 15–34행). <code>subtitle_provider = "edge"</code> 설정이 기본값(<code>config.example.toml</code> 184행)이므로 대부분 사용자가 이 경로를 사용한다.</p>
+</blockquote>
+<hr />
+<h3 id="23-license-risk-classification">2.3 라이선스 위험도 분류표 / License Risk Classification</h3>
+<table>
+<thead>
+<tr>
+<th>등급 / Level</th>
+<th>라이선스 / Licenses</th>
+<th>상용화 영향 / Commercialization Impact</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🟢 Permissive</td>
+<td>MIT, Apache 2.0, BSD-3-Clause, ISC</td>
+<td>소스 비공개 허용 / Source closure allowed</td>
+</tr>
+<tr>
+<td>🟡 Weak Copyleft</td>
+<td>LGPL, MPL</td>
+<td>동적 링크 시 제한적 / Limited for dynamic linking</td>
+</tr>
+<tr>
+<td>🟠 Strong Copyleft</td>
+<td><strong>GPL-2.0, GPL-3.0</strong></td>
+<td>전파 위험 / Propagation risk — 배포 시 전체 소스 공개</td>
+</tr>
+<tr>
+<td>🔴 Network Copyleft</td>
+<td>AGPL-3.0</td>
+<td>SaaS 배포 시 소스 공개 의무 / Source disclosure on SaaS</td>
+</tr>
+<tr>
+<td>🔴 Commercial-incompatible</td>
+<td>BUSL, Commons Clause, SSPLv1</td>
+<td>상용화 금지 / Commercialization prohibited</td>
+</tr>
+</tbody>
+</table>
+<p>본 프로젝트 핵심 위험: <strong>GPL-3.0 (Strong Copyleft)</strong> — 배포(distribution) 시 소스 공개 의무 발생.</p>
+<hr />
+<h3 id="24-license-compatibility-analysis">2.4 라이선스 호환성 분석 / License Compatibility Analysis</h3>
+<p><strong>GPL-3.0 전파 위험 (edge-tts)</strong></p>
+<p><code>edge-tts</code>는 Python 라이브러리로서 <code>import edge_tts</code> 방식으로 프로세스 내부에서 동적 링크(import)된다. GPL-3.0의 "전파(propagation)" 조항에 따르면:</p>
+<ul>
+<li>소프트웨어를 <strong>배포(distribute)</strong>할 경우, GPL 라이브러리와 결합된 전체 작업물은 GPL-3.0 조건을 따라야 한다.</li>
+<li><strong>배포 시나리오</strong>: Docker 이미지 배포, 패키지 인스톨러, PyPI 배포 — 모두 GPL-3.0 의무 발생</li>
+<li><strong>SaaS(서비스만 제공) 시나리오</strong>: 사용자에게 소프트웨어를 배포하지 않고 내부에서만 실행할 경우, GPL-3.0은 소스 공개를 강제하지 않는다 (AGPL-3.0과의 차이점).</li>
+</ul>
+<p><strong>결론</strong>:
+- 자사 서버에서만 운영하는 순수 SaaS 모델 → GPL 소스 공개 의무 없음 (단, 내부 배포·고객 배포 시 발생)
+- Docker 이미지 또는 설치 패키지를 <strong>외부 고객에게 배포</strong>하는 경우 → 전체 소스(GPLv3 조건 적용)를 함께 제공해야 함
+- <strong>MIT와 GPL-3.0 혼재</strong>: 프로젝트 자체 MIT 라이선스와 edge-tts GPL-3.0은 배포 결합 시 비호환. 배포 형태라면 사실상 전체가 GPL-3.0으로 재라이선스되어야 한다.</p>
+<p><strong>Microsoft Azure TTS SDK (Proprietary)</strong></p>
+<p><code>azure-cognitiveservices-speech</code>는 Microsoft 상용 SDK. 사용을 위해 별도의 Azure 서비스 이용 계약 및 사용료가 필요하다. 재배포에 관한 Microsoft 라이선스 조건 별도 검토 필수.</p>
+<hr />
+<h3 id="25-compliance-obligations">2.5 상용화 시 의무 이행 사항 / Compliance Obligations</h3>
+<ul>
+<li>[ ] <strong>저작권 고지 포함 방법</strong>: MIT 라이선스 원문 및 "Copyright (c) 2024 Harry" 고지 필수 (배포 시 LICENSE 파일 동봉)</li>
+<li>[ ] <strong>NOTICE/고지문 배포 위치</strong>: NOTICE 파일 미존재. Apache 2.0 의존성(streamlit, openai 등)의 NOTICE 요건을 별도 취합 필요</li>
+<li>[ ] <strong>소스 공개 의무 여부 및 방식</strong>: edge-tts(GPL-3.0) 배포 시 전체 소스 공개 또는 edge-tts 의존성 제거/대체 필요</li>
+</ul>
+<hr />
+<h2 id="3-security-analysis">3. 보안 분석 / Security Analysis</h2>
+<h3 id="31-security-policy-and-vulnerability-management">3.1 보안 정책 및 취약점 관리 체계 / Security Policy and Vulnerability Management</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재 — 비공개 취약점 보고 프로세스 정의</td>
+</tr>
+<tr>
+<td>Dependabot</td>
+<td>❌ 확인 불가 — <code>.github/dependabot.yml</code> 파일 부재</td>
+</tr>
+<tr>
+<td>Renovate</td>
+<td>❌ 확인 불가 — <code>renovate.json</code> 파일 부재</td>
+</tr>
+<tr>
+<td>Snyk</td>
+<td>❌ 확인 불가 — <code>.snyk</code> 파일 부재</td>
+</tr>
+<tr>
+<td>CI/CD 보안 스캔</td>
+<td>❌ <code>.github/workflows/</code> 디렉토리 부재 — 자동화 파이프라인 없음</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>❌ CycloneDX / SPDX 파일 부재</td>
+</tr>
+</tbody>
+</table>
+<p>보안 취약점 자동 모니터링 체계가 전혀 구비되어 있지 않다. 의존성 버전은 <code>uv.lock</code>으로 고정되어 있으나, CVE 신규 발생 시 자동 감지·패치 메커니즘이 없다.</p>
+<hr />
+<h3 id="32-known-risk-factors">3.2 알려진 위험 요소 / Known Risk Factors</h3>
+<p><strong>1. CORS 와일드카드 기본 설정</strong> (<code>app/asgi.py</code> 57행)</p>
+<pre><code class="language-python">origins = cors_allowed_origins_str.split(&quot;,&quot;) if cors_allowed_origins_str else [&quot;*&quot;]
+</code></pre>
+<p><code>CORS_ALLOWED_ORIGINS</code> 환경 변수를 지정하지 않으면 모든 출처에서 API 접근 허용. <code>allow_credentials=True</code>와 결합되어 CSRF/CORS 오용 위험 존재.</p>
+<p><strong>2. API 인증 없음</strong></p>
+<p>FastAPI 엔드포인트에 인증 미들웨어가 없다. API 서버(<code>:8080</code>)가 인터넷에 노출될 경우 누구나 영상 생성 태스크를 무제한 투입 가능. 기본 <code>listen_host = "0.0.0.0"</code> 설정(<code>config.py</code> 175행)은 모든 네트워크 인터페이스를 수신.</p>
+<p><strong>3. Dockerfile: ImageMagick 보안 정책 비활성화</strong> (<code>Dockerfile</code> 48행)</p>
+<pre><code class="language-dockerfile">RUN sed -i '/&lt;policy domain=&quot;path&quot; rights=&quot;none&quot; pattern=&quot;@\*&quot;/d' /etc/ImageMagick-6/policy.xml
+</code></pre>
+<p>경로 접근 보안 정책을 제거. MoviePy 연동을 위한 불가피한 조치이나, 컨테이너 내부에서 ImageMagick을 통한 파일 읽기/쓰기 제한이 완화됨.</p>
+<p><strong>4. Dockerfile: 777 권한 설정</strong> (<code>Dockerfile</code> 8행)</p>
+<pre><code class="language-dockerfile">RUN chmod 777 /MoneyPrinterTurbo
+</code></pre>
+<p>작업 디렉토리에 전 사용자 쓰기 권한 부여. 컨테이너 탈출 취약점과 결합 시 위험.</p>
+<p><strong>5. 하드코딩 비밀 없음 (양호)</strong></p>
+<p><code>config.example.toml</code>에 API 키가 빈 문자열로만 존재. <code>config.toml</code>은 <code>.gitignore</code>에 포함되어 있다고 추정 (직접 확인).</p>
+<p><strong>6. g4f 옵션 의존성 위험</strong></p>
+<p><code>g4f</code>는 제3자 서비스를 역공학(reverse-engineer)하여 API를 무단 호출하는 라이브러리. 법적 위험 + GPL-3.0 라이선스. 기본적으로 비활성화되어 있으나, 설명서에 명시적으로 위험을 경고하고 있음.</p>
+<hr />
+<h3 id="33-security-architecture-assessment">3.3 보안 아키텍처 평가 / Security Architecture Assessment</h3>
+<ul>
+<li><strong>인증/인가</strong>: API 레벨 인증 없음. 파일 경로 보안은 <code>file_security.py</code>에서 경로 탈출(path traversal) 방지 로직 구현 (양호).</li>
+<li><strong>비밀 관리</strong>: TOML 파일 기반. Vault, AWS SSM 등 전문 비밀 관리 도구 미사용. 환경 변수(<code>MPT_APP_REDIS_HOST</code>, <code>CORS_ALLOWED_ORIGINS</code>) 부분적 지원.</li>
+<li><strong>TLS</strong>: <code>tls_verify = true</code> 기본 설정으로 외부 API 통신 시 인증서 검증 강제 (양호).</li>
+<li><strong>SBOM</strong>: 없음.</li>
+</ul>
+<hr />
+<h2 id="4-community-and-maintenance-assessment">4. 커뮤니티·유지보수 평가 / Community and Maintenance Assessment</h2>
+<h3 id="41-project-activity">4.1 프로젝트 활성도 / Project Activity</h3>
+<table>
+<thead>
+<tr>
+<th>항목 / Item</th>
+<th>내용 / Details</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋 / Latest commit</td>
+<td>2026-06-05 (분석 시점 기준 전일)</td>
+</tr>
+<tr>
+<td>분석 저장소 커밋 수 / Commits in snapshot</td>
+<td>1개 (단일 스냅샷 클론)</td>
+</tr>
+<tr>
+<td>현재 버전 / Current version</td>
+<td>v1.2.9 (<code>pyproject.toml</code>)</td>
+</tr>
+<tr>
+<td>마지막 태그 / Last tag</td>
+<td>확인 불가 — 태그 없음 (스냅샷 클론)</td>
+</tr>
+<tr>
+<td>Windows 인스톨러 / Windows installer</td>
+<td>v1.2.6 (README 기준)</td>
+</tr>
+<tr>
+<td>다국어 지원 / i18n</td>
+<td>7개 언어 (zh, en, de, pt, ru, tr, vi)</td>
+</tr>
+<tr>
+<td>오픈 이슈 수 / Open issues</td>
+<td>확인 불가 (GitHub API 미접근)</td>
+</tr>
+<tr>
+<td>GitHub Stars</td>
+<td>README 기준 수만 개 이상 추정 (badges 포함)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="42-governance-documents">4.2 거버넌스 문서 / Governance Documents</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>❌ 확인 불가 — 파일 부재</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ 확인 불가 — 파일 부재</td>
+</tr>
+<tr>
+<td>CHANGELOG / RELEASES</td>
+<td>❌ 확인 불가 — 파일 부재 (버전 v1.2.9로 추정 활발 개발 중)</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>ISSUE_TEMPLATE</td>
+<td>✅ Bug report + Feature request 템플릿 구비</td>
+</tr>
+<tr>
+<td>PR 검토 프로세스</td>
+<td>❌ 정의 없음 (브랜치 전략 문서 없음)</td>
+</tr>
+<tr>
+<td>문서 <code>docs/PR_MERGE_RECORD_2026-04-02.md</code></td>
+<td>✅ PR 병합 기록 파일 존재 — 진행 중 개발 확인</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="43-corporate-sponsorship-and-long-term-outlook">4.3 기업 스폰서십 및 장기 지원 전망 / Corporate Sponsorship and Long-term Outlook</h3>
+<ul>
+<li><strong>스폰서</strong>: AIHubMix (700+ 모델 게이트웨이), PicWish (이미지 처리), RecCloud (AI 동영상 SaaS) — README 상단에 스폰서 배지 포함</li>
+<li><strong>CNCF / ASF 멤버십</strong>: 없음</li>
+<li><strong>단일 관리자 위험</strong>: 저장소 소유자 <code>harry0703</code> 1인 프로젝트로 보임. 버스 팩터(bus factor) = 1 위험</li>
+<li><strong>상용 서비스 연계</strong>: RecCloud(reccloud.cn/com)에서 상용 SaaS로 서비스 중 — 프로젝트의 상업적 지속성을 간접 보증</li>
+<li><strong>LTS 버전</strong>: 없음</li>
+</ul>
+<hr />
+<h2 id="5-commercialization-architecture-fitness">5. 상용화 아키텍처 적합성 / Commercialization Architecture Fitness</h2>
+<h3 id="51-scalability-and-operations-support">5.1 확장성 및 운영 지원 / Scalability and Operations Support</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>수평 확장</td>
+<td>🟡 제한적</td>
+<td>Redis 태스크 큐 선택적 지원. 파일 시스템 공유 스토리지 필요</td>
+</tr>
+<tr>
+<td>수직 확장</td>
+<td>🟢 지원</td>
+<td><code>max_concurrent_tasks</code> 조절 가능</td>
+</tr>
+<tr>
+<td>멀티테넌시</td>
+<td>🔴 없음</td>
+<td>사용자 격리, 계정 관리, 리소스 할당 등 전무</td>
+</tr>
+<tr>
+<td>Kubernetes</td>
+<td>🟡 없음</td>
+<td>k8s/helm 매니페스트 없음. Docker Compose만 제공</td>
+</tr>
+<tr>
+<td>헬스체크 엔드포인트</td>
+<td>🟡 미흡</td>
+<td><code>/ping</code> 라우터 존재하나 k8s liveness/readiness probe 표준 미적용</td>
+</tr>
+<tr>
+<td>메트릭 노출</td>
+<td>🔴 없음</td>
+<td>Prometheus, OpenTelemetry 미지원</td>
+</tr>
+<tr>
+<td>구조화 로깅</td>
+<td>🟡 부분</td>
+<td>loguru 사용. JSON 로그 포맷 미설정. 컨테이너 stdout 출력</td>
+</tr>
+<tr>
+<td>분산 추적</td>
+<td>🔴 없음</td>
+<td>OpenTelemetry 미통합</td>
+</tr>
+<tr>
+<td>설정 주입</td>
+<td>🟡 부분</td>
+<td>TOML 파일 기반 + 일부 환경 변수. 12-Factor 완전 준수 미달</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="52-test-and-quality-system">5.2 테스트 및 품질 체계 / Test and Quality System</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>테스트 프레임워크</td>
+<td>pytest (추정)</td>
+</tr>
+<tr>
+<td>단위 테스트</td>
+<td>9개 모듈 (<code>test_llm</code>, <code>test_material</code>, <code>test_subtitle</code>, <code>test_task</code>, <code>test_video</code>, <code>test_voice</code> 등)</td>
+</tr>
+<tr>
+<td>통합 테스트</td>
+<td>제한적 (실제 API 연동 필요한 서비스 테스트 포함)</td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>테스트 커버리지 측정</td>
+<td>❌ 설정 없음</td>
+</tr>
+<tr>
+<td>CI 자동 테스트</td>
+<td>❌ <code>.github/workflows/</code> 없음 — 자동 실행 안 됨</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="53-strong-copyleft-strong-copyleft-module-isolation">5.3 Strong Copyleft 모듈 분리 가능성 / Strong Copyleft Module Isolation</h3>
+<p><code>edge-tts</code>(GPL-3.0)의 분리 가능성 평가:</p>
+<ul>
+<li><code>voice.py</code>에서 <code>import edge_tts</code>로 직접 사용</li>
+<li><code>subtitle.py</code>에서도 edge-tts 의존</li>
+<li><strong>대안 경로 존재</strong>: <code>subtitle_provider = "whisper"</code> + Azure TTS 또는 MiMo TTS 조합으로 edge-tts 완전 제거 가능</li>
+<li><strong>분리 비용</strong>: 중간 수준. 설정 파일에서 <code>subtitle_provider = "whisper"</code> 및 TTS 제공자를 Azure/MiMo로 변경하고 <code>pyproject.toml</code>에서 edge-tts 의존성을 optional로 전환하면 분리 가능</li>
+<li><strong>권고</strong>: edge-tts를 optional 의존성으로 격리하고, Azure TTS 또는 다른 Permissive 라이선스 TTS를 기본값으로 변경</li>
+</ul>
+<hr />
+<h3 id="54-12-factor-app-12-factor-app-compliance">5.4 12-Factor App 준수도 / 12-Factor App Compliance</h3>
+<table>
+<thead>
+<tr>
+<th>Factor</th>
+<th>준수 여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>I. Codebase</td>
+<td>✅ 단일 저장소</td>
+</tr>
+<tr>
+<td>II. Dependencies</td>
+<td>✅ pyproject.toml + uv.lock 명시적 선언</td>
+</tr>
+<tr>
+<td>III. Config</td>
+<td>🟡 부분 — TOML 파일 의존도 높음. 일부 환경 변수 지원</td>
+</tr>
+<tr>
+<td>IV. Backing Services</td>
+<td>🟢 Redis, 외부 API를 설정 가능한 backing service로 처리</td>
+</tr>
+<tr>
+<td>V. Build/Release/Run</td>
+<td>🟢 Docker 분리 빌드 지원</td>
+</tr>
+<tr>
+<td>VI. Processes</td>
+<td>🟡 stateless 지향이나 파일 시스템 상태 의존</td>
+</tr>
+<tr>
+<td>VII. Port Binding</td>
+<td>✅ uvicorn/streamlit 직접 포트 바인딩</td>
+</tr>
+<tr>
+<td>VIII. Concurrency</td>
+<td>🟡 태스크 큐로 동시성 제어, 단 제한적 수평 확장</td>
+</tr>
+<tr>
+<td>IX. Disposability</td>
+<td>🟢 컨테이너 재시작 지원 (<code>restart: always</code>)</td>
+</tr>
+<tr>
+<td>X. Dev/Prod Parity</td>
+<td>🟡 config.example.toml → config.toml 복사 방식</td>
+</tr>
+<tr>
+<td>XI. Logs</td>
+<td>🟡 stdout 로그 있으나 구조화 포맷 미적용</td>
+</tr>
+<tr>
+<td>XII. Admin Processes</td>
+<td>❌ 별도 관리 태스크 메커니즘 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="6-legal-and-compliance-risk">6. 법적·컴플라이언스 리스크 / Legal and Compliance Risk</h2>
+<h3 id="61-iso-5230openchain-openchain-compliance-status">6.1 ISO 5230/OpenChain 컴플라이언스 현황 / OpenChain Compliance Status</h3>
+<table>
+<thead>
+<tr>
+<th>단계 / Stage</th>
+<th>상태 / Status</th>
+<th>비고 / Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1. 오픈소스 식별 / Identify</td>
+<td>🟡 부분</td>
+<td>pyproject.toml + uv.lock으로 의존성 식별 가능. SBOM 부재</td>
+</tr>
+<tr>
+<td>2. 소스 코드 검사 / Source scan</td>
+<td>🔴 미흡</td>
+<td>자동 라이선스 스캔 CI 없음. Dependabot/Snyk 미구성</td>
+</tr>
+<tr>
+<td>3. 문제 해결·대체 / Remediate</td>
+<td>🔴 미진행</td>
+<td>edge-tts GPL-3.0 미해결 상태</td>
+</tr>
+<tr>
+<td>4. 검토·승인 / Review &amp; approve</td>
+<td>🔴 없음</td>
+<td>OSPO/법무 검토 체계 없음</td>
+</tr>
+<tr>
+<td>5. 등록·고지·배포 / Register, notify, distribute</td>
+<td>🔴 없음</td>
+<td>NOTICE 파일 없음. 저작권 고지 배포 메커니즘 없음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="62-trademark-and-patent-risk">6.2 상표권·특허 위험 / Trademark and Patent Risk</h3>
+<ul>
+<li><strong>상표권</strong>: "MoneyPrinterTurbo" 명칭은 현재 상표 등록 여부 미확인. 상용 제품명으로 사용 시 별도 상표 검색 필요.</li>
+<li><strong>특허</strong>:</li>
+<li>MIT 라이선스는 특허 허여(patent grant) 미포함 → 특허 분쟁 시 방어 수단 없음</li>
+<li>Apache 2.0 의존성(streamlit, openai SDK 등)은 명시적 특허 허여 포함 → 해당 기여자로부터 특허 공격 방어 가능</li>
+<li>edge-tts(GPL-3.0)는 특허 조항 포함 — 그러나 Microsoft Edge의 TTS 서비스를 역공학한 비공식 클라이언트로서 Microsoft의 서비스 약관(ToS) 위반 가능성 별도 존재</li>
+<li><strong>Microsoft Azure Speech SDK</strong>: 공식 Microsoft 상용 SDK. 재배포 가능 여부는 Microsoft 라이선스 약관 확인 필수.</li>
+</ul>
+<hr />
+<h3 id="63-agplgpl-agplgpl-propagation-risk-scenarios">6.3 AGPL·GPL 전파 위험 시나리오 / AGPL/GPL Propagation Risk Scenarios</h3>
+<p><strong>시나리오 A: SaaS 전용 운영 (내부 서버)</strong>
+- edge-tts를 소프트웨어로 <strong>배포하지 않고</strong> 내부 서버에서만 실행
+- GPL-3.0 소스 공개 의무 <strong>없음</strong> (GPL-3.0은 AGPL과 달리 네트워크 제공만으로 의무 발생 안 함)
+- 위험 수준: 🟡 낮음 (단, 대외 배포 전환 시 즉시 위험 상승)</p>
+<p><strong>시나리오 B: 소프트웨어 패키지 배포 (Docker 이미지, 인스톨러, PyPI)</strong>
+- edge-tts 포함 Docker 이미지를 고객에게 제공하거나 PyPI에 패키지로 배포
+- GPL-3.0 소스 공개 의무 <strong>발생</strong>. 전체 소프트웨어를 GPL-3.0 조건으로 배포해야 함
+- 프로젝트의 MIT 라이선스와 <strong>정면 충돌</strong> — 현재 상태로는 합법적 바이너리 배포 불가
+- 위험 수준: 🔴 즉각적 법적 위험</p>
+<p><strong>시나리오 C: OEM/화이트라벨 배포</strong>
+- 고객사 환경에 설치해 주는 온프레미스 납품 모델
+- 시나리오 B와 동일한 배포 위험 발생
+- 위험 수준: 🔴 즉각적 법적 위험</p>
+<p><strong>시나리오 D: g4f 옵션 의존성 활성화</strong>
+- <code>uv sync --extra g4f</code> 실행 시 GPL-3.0 + Microsoft 서비스 ToS 위반 위험
+- 프로덕션 사용 불가. 현재 README에서 명시적 경고 중
+- 위험 수준: 🔴 운영 및 법적 위험</p>
+<hr />
+<h2 id="7-overall-assessment">7. 종합 평가 / Overall Assessment</h2>
+<h3 id="71-dimension-ratings">7.1 항목별 등급 / Dimension Ratings</h3>
+<table>
+<thead>
+<tr>
+<th>평가 항목 / Dimension</th>
+<th>등급 / Rating</th>
+<th>근거 / Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 위험 / License risk</td>
+<td>🟠 Risk</td>
+<td>edge-tts GPL-3.0이 필수 의존성. 배포 시나리오에서 법적 위험. SaaS 전용이면 🟡로 완화 가능</td>
+</tr>
+<tr>
+<td>보안 체계 / Security system</td>
+<td>🟠 Risk</td>
+<td>CI 없음, Dependabot/Snyk 없음, SBOM 없음, API 인증 없음, CORS 와일드카드 기본값</td>
+</tr>
+<tr>
+<td>커뮤니티 건강도 / Community health</td>
+<td>🟡 Caution</td>
+<td>활발한 개발(v1.2.9), 다국어 지원, 스폰서 보유. 단 단일 관리자, CONTRIBUTING/CoC 없음</td>
+</tr>
+<tr>
+<td>운영 성숙도 / Operational maturity</td>
+<td>🟡 Caution</td>
+<td>Docker 지원, Redis 큐, 파일 보안. 단 메트릭/추적/헬스체크/멀티테넌시 부재</td>
+</tr>
+<tr>
+<td>상용화 아키텍처 / Commercialization fit</td>
+<td>🟡 Caution</td>
+<td>개인/소규모 팀용 설계. 엔터프라이즈 멀티테넌시/인증/관측성 개선 필요</td>
+</tr>
+<tr>
+<td>법적 컴플라이언스 / Legal compliance</td>
+<td>🟠 Risk</td>
+<td>NOTICE 없음, SBOM 없음, OpenChain 미준수, edge-tts 라이선스 미해결</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="72-strengths">7.2 강점 / Strengths</h3>
+<ol>
+<li><strong>기능 완성도</strong>: 스크립트 생성 → 소재 수집 → TTS → 자막 → 편집 → SNS 포스팅까지 엔드투엔드 자동화 파이프라인 구현. 실제 프로덕션 급 활용 사례(RecCloud) 존재.</li>
+<li><strong>광범위한 LLM/TTS 통합</strong>: LiteLLM을 통한 100+ LLM 공급자 지원 및 15+ 직접 통합. 특정 AI 서비스에 대한 벤더 종속 위험 최소화.</li>
+<li><strong>재현 가능 빌드</strong>: <code>uv.lock</code>으로 의존성 완전 고정. 빌드 환경 재현 보장.</li>
+<li><strong>부분적 보안 배려</strong>: <code>file_security.py</code>의 경로 탈출 방지, <code>tls_verify = true</code> 기본값, g4f 위험 명시적 경고 등 의도적 보안 설계 흔적.</li>
+<li><strong>Docker + GPU 지원</strong>: CPU/GPU 이중 Docker 이미지 제공. Colab 배포 노트북 포함. 다양한 배포 환경 커버.</li>
+</ol>
+<hr />
+<h3 id="73-risks-and-improvement-areas">7.3 위험·개선 필요 사항 / Risks and Improvement Areas</h3>
+<ol>
+<li><strong>[최우선] edge-tts GPL-3.0 라이선스</strong>: 필수 의존성이 GPL-3.0. 소프트웨어 배포(Docker 이미지, 패키지) 시 전체가 GPL-3.0으로 전환 필요. 상용 MIT 제품으로 배포 불가 상태. → edge-tts를 optional 전환 후 Azure TTS / MiMo를 기본값으로 변경, 또는 Permissive 라이선스 TTS 라이브러리(Microsoft Cognitive Services Python SDK 직접 사용 또는 <code>pyttsx3</code>, <code>Coqui-TTS</code> 등 MIT 대안) 교체 필요.</li>
+<li><strong>API 인증 없음</strong>: FastAPI 엔드포인트에 인증이 없어 퍼블릭 노출 시 무제한 태스크 생성 가능. JWT, API Key, OAuth2 등 인증 레이어 추가 필수.</li>
+<li><strong>CI/CD 및 보안 스캔 없음</strong>: GitHub Actions 없음. 코드 품질, 테스트 자동화, 의존성 취약점 스캔 파이프라인 구축 필요.</li>
+<li><strong>멀티테넌시 부재</strong>: 사용자 격리, 리소스 할당, 청구 연동 등 SaaS 상용화에 필수적인 멀티테넌시 아키텍처 없음. 엔터프라이즈 배포 시 상당한 추가 개발 필요.</li>
+<li><strong>NOTICE/SBOM 부재</strong>: 배포 패키지에 저작권 고지문 및 소프트웨어 BOM(Bill of Materials) 미포함. 법적 컴플라이언스 감사 시 취약점.</li>
+</ol>
+<hr />
+<h3 id="74-commercialization-recommendation">7.4 상용화 도입 권고 / Commercialization Recommendation</h3>
+<p><strong>종합 판정 / Overall Verdict</strong>: 🟡 Caution (조건부 도입 가능)</p>
+<p><strong>상세 판정 근거:</strong></p>
+<p>MoneyPrinterTurbo는 AI 동영상 자동 생성 분야에서 기술적으로 완성도가 높고 실제 상용 서비스(RecCloud)에 의해 검증된 프로젝트이다. MIT 라이선스로 오픈소스 공개되어 있으며 핵심 기능은 즉시 활용 가능한 수준이다.</p>
+<p><strong>그러나 다음 전제 조건이 충족될 때에만 상용 도입을 권고한다:</strong></p>
+<table>
+<thead>
+<tr>
+<th>조건</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>필수 선행 조건 1</td>
+<td>edge-tts(GPL-3.0) 의존성 제거 또는 optional 격리 완료 후 배포</td>
+</tr>
+<tr>
+<td>필수 선행 조건 2</td>
+<td>소프트웨어 패키지 배포가 아닌 <strong>SaaS 전용 운영 모델</strong> 선택 시 즉시 적용 가능</td>
+</tr>
+<tr>
+<td>필수 선행 조건 3</td>
+<td>API 인증(API Key 또는 OAuth2) 레이어 추가</td>
+</tr>
+<tr>
+<td>권고 조건 4</td>
+<td>CI/CD + 의존성 취약점 스캔(Dependabot 또는 pip-audit) 구축</td>
+</tr>
+<tr>
+<td>권고 조건 5</td>
+<td>멀티테넌시 기능 자체 개발 또는 프록시 계층 추가</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SaaS 전용 내부 운영 시</strong>: 🔵 Review (라이선스 위험 낮음, 운영 개선 후 도입 가능)
+<strong>소프트웨어 패키지 배포 시</strong>: 🟠 Risk (edge-tts 라이선스 미해결 시 배포 불가)</p>
+<hr />
+<h2 id="8-practical-commercialization-checklist">8. 실무 상용화 체크리스트 / Practical Commercialization Checklist</h2>
+<table>
+<thead>
+<tr>
+<th>항목 / Category</th>
+<th>체크 포인트 / Check Point</th>
+<th>판정 / Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스 / License</td>
+<td>- [x] Permissive/Weak/Strong Copyleft 분류 확인</td>
+<td>✅ 완료</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 소스 공개 의무 여부 확인 (edge-tts GPL-3.0 해소)</td>
+<td>❌ 미해결</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 라이선스 호환성 충돌 없음</td>
+<td>❌ MIT + GPL-3.0 충돌</td>
+</tr>
+<tr>
+<td>저작권·고지 / Copyright &amp; Notice</td>
+<td>- [ ] 저작권 문구 포함</td>
+<td>⚠️ 부분 (LICENSE 존재, NOTICE 없음)</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 고지문 배포 위치 정의</td>
+<td>❌ 미정의</td>
+</tr>
+<tr>
+<td>소스 공개 / Source Disclosure</td>
+<td>- [ ] Strong Copyleft 사용 시 공개 범위·방식 정의</td>
+<td>❌ 미정의</td>
+</tr>
+<tr>
+<td>보안 / Security</td>
+<td>- [ ] CVE 모니터링 체계 수립</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 중고위험 취약점 패치 계획</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>커뮤니티 / Community</td>
+<td>- [x] 유지보수 활성도·커밋 주기 확인</td>
+<td>✅ 활성 개발 중</td>
+</tr>
+<tr>
+<td></td>
+<td>- [x] 기업 스폰서/컨설팅 존재 확인</td>
+<td>✅ 스폰서 존재</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>- [ ] 라이선스 검사 자동화</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 오픈소스 BOM 자동 생성</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 위반 라이선스 빌드 차단</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>법적·계약 / Legal</td>
+<td>- [ ] 고객 계약서에 라이선스 의무 명시</td>
+<td>❌ 미정의</td>
+</tr>
+<tr>
+<td></td>
+<td>- [ ] 외부 감사 대비 문서 구비 (NOTICE, BOM, report)</td>
+<td>❌ 미구비</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="9-recommended-actions">9. 권고 조치 사항 / Recommended Actions</h2>
+<h3 id="critical-immediate">즉시 조치 / Critical (immediate)</h3>
+<ol>
+<li>
+<p><strong>edge-tts GPL-3.0 해결</strong>: <code>pyproject.toml</code>에서 <code>edge-tts</code>를 <code>optional-dependencies</code>의 <code>[edge-tts]</code> 그룹으로 이동. 기본 <code>subtitle_provider</code>를 <code>"whisper"</code> 또는 Azure TTS로 변경. 배포 패키지(Docker 이미지 포함)에서 edge-tts 제외 옵션 제공. 단기적으로는 SaaS 전용 운영 모델로 고정하여 GPL 배포 의무를 회피.</p>
+</li>
+<li>
+<p><strong>API 인증 추가</strong>: <code>app/asgi.py</code>에 API Key 기반 미들웨어 또는 <code>app/controllers/</code>에 Bearer 토큰 인증 의존성 주입(FastAPI <code>Depends</code>) 추가. 퍼블릭 엔드포인트(<code>/docs</code>, <code>/ping</code>)와 보호 엔드포인트를 분리.</p>
+</li>
+<li>
+<p><strong>CORS 설정 강화</strong>: <code>CORS_ALLOWED_ORIGINS</code> 환경 변수를 기본값으로 명시 요구하도록 변경. 와일드카드 <code>*</code> 기본값 제거.</p>
+</li>
+</ol>
+<h3 id="high-within-30-days">단기 조치 / High (within 30 days)</h3>
+<ol>
+<li>
+<p><strong>GitHub Actions CI 구축</strong>: pytest 자동 실행, pip-audit 또는 Safety 취약점 스캔, 라이선스 검사(<code>pip-licenses</code>, <code>scancode-toolkit</code>) 파이프라인 추가.</p>
+</li>
+<li>
+<p><strong>Dependabot 활성화</strong>: <code>.github/dependabot.yml</code> 생성하여 주간 의존성 업데이트 PR 자동 생성.</p>
+</li>
+<li>
+<p><strong>Dockerfile 보안 강화</strong>:</p>
+</li>
+<li><code>chmod 777</code> → <code>chmod 755</code>로 변경</li>
+<li>ImageMagick 정책 비활성화 범위를 최소화 (필요한 정책만 선택적 수정)</li>
+<li>
+<p>비루트 사용자(<code>USER app</code>)로 실행</p>
+</li>
+<li>
+<p><strong>NOTICE 파일 생성</strong>: Apache 2.0 의존성(streamlit, openai, requests 등)의 저작권 및 NOTICE 내용을 취합하여 배포 패키지에 포함.</p>
+</li>
+</ol>
+<h3 id="medium-within-90-days">중기 조치 / Medium (within 90 days)</h3>
+<ol>
+<li>
+<p><strong>SBOM 자동 생성</strong>: CI에 <code>cyclonedx-bom</code> 또는 <code>syft</code> 통합하여 빌드마다 SBOM(CycloneDX/SPDX) 자동 생성 및 릴리스에 첨부.</p>
+</li>
+<li>
+<p><strong>멀티테넌시 기반 설계</strong>: 사용자 인증 + 프로젝트 격리 + 리소스 할당 제한(사용자별 <code>max_concurrent_tasks</code>) 기능 설계 및 구현 착수.</p>
+</li>
+<li>
+<p><strong>관측성 스택 추가</strong>: <code>/metrics</code> Prometheus 엔드포인트(<code>prometheus-fastapi-instrumentator</code>) 및 <code>/health</code>, <code>/ready</code> 엔드포인트 추가. 구조화 JSON 로깅 설정.</p>
+</li>
+<li>
+<p><strong>CONTRIBUTING.md 및 CODE_OF_CONDUCT.md 작성</strong>: 외부 기여자 유입 채널 정식화 및 거버넌스 문서 정비.</p>
+</li>
+</ol>
+<h3 id="low-quarterly-review">장기 권고 / Low (quarterly review)</h3>
+<ol>
+<li>
+<p><strong>정기 컴플라이언스 감사</strong>: 분기별 라이선스 변경 사항 모니터링(uv.lock 의존성 트리 변경 추적). 새 Copyleft 의존성 진입 시 자동 CI 빌드 차단 규칙 유지.</p>
+</li>
+<li>
+<p><strong>특허 리스크 평가</strong>: AI 동영상 생성 특허 맵 검토. MIT 라이선스의 특허 허여 부재를 보완하기 위해 기여자 라이선스 동의서(CLA) 또는 DCO 도입 검토.</p>
+</li>
+<li>
+<p><strong>edge-tts 영구 대체</strong>: Permissive 라이선스 TTS 엔진(예: Microsoft Cognitive Services 공식 SDK, ElevenLabs, OpenAI TTS)으로 완전 교체하여 GPL 의존성 근본 해소.</p>
+</li>
+<li>
+<p><strong>RecCloud 파트너십 법적 계약 검토</strong>: RecCloud가 MoneyPrinterTurbo를 상용 서비스 기반으로 사용한다면 라이선스 준수 여부(edge-tts 포함) 및 상호 협력 계약 조건 재검토.</p>
+</li>
+</ol>
+<hr />
+<p><em>본 보고서는 2026-06-06 기준 <code>/tmp/github-dashboard-analysis/harry0703_MoneyPrinterTurbo</code> 저장소 스냅샷을 직접 파일 읽기를 통해 분석한 결과입니다. 라이선스 조항 해석은 법률 자문을 대체하지 않으며, 최종 상용화 결정 전 전문 법무 검토를 권고합니다.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>harry0703/MoneyPrinterTurbo</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/harry0703/MoneyPrinterTurbo" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
