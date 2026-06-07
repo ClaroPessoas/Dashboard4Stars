@@ -97,7 +97,7 @@
     <div class="repo-meta">
       <span class="badge badge-period">top100 trending</span>
       <span class="badge badge-lang">TypeScript</span>
-      <span class="badge badge-stars">★ 446088</span>
+      <span class="badge badge-stars">★ 446374</span>
       
     </div>
   </div>
@@ -107,23 +107,18 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="analysis">📊 소스 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
   <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-analysis">
+  <div class="panel active" id="panel-source">
     
-    <div class="md-body"><p>보고서가 <code>/tmp/github-dashboard-analysis/freeCodeCamp_freeCodeCamp/.review/REVIEW.md</code>에 저장되었습니다.</p>
+    <div class="md-body"><p>보고서가 <code>.review/REVIEW-Source.md</code>에 저장되었습니다. 아래는 분석 결과 요약입니다.</p>
 <hr />
-<h1 id="freecodecamp">freeCodeCamp 오픈소스 리포지토리 종합 분석 보고서</h1>
-<h1 id="comprehensive-analysis-report-freecodecamp-open-source-repository">Comprehensive Analysis Report — freeCodeCamp Open-Source Repository</h1>
-<p><strong>분석일 / Analysis Date:</strong> 2026-06-05<br />
-<strong>분석 대상 / Target Path:</strong> <code>/tmp/github-dashboard-analysis/freeCodeCamp_freeCodeCamp</code><br />
-<strong>원본 리포지토리 / Source Repository:</strong> https://github.com/freeCodeCamp/freeCodeCamp</p>
-<hr />
-<h2 id="analysis-summary-table">분석 요약표 / Analysis Summary Table</h2>
+<h1 id="freecodecamp">freeCodeCamp 분석 보고서 요약</h1>
+<h2 id="_1">종합 분석표</h2>
 <table>
 <thead>
 <tr>
@@ -135,318 +130,73 @@
 <tbody>
 <tr>
 <td><strong>목적</strong></td>
-<td>무료 코딩 교육 플랫폼 — 인터랙티브 커리큘럼, 챌린지, 자격증 제공 / Free coding education platform with interactive curriculum, challenges, and certifications</td>
+<td>무료 풀스택/ML 코딩 교육 플랫폼 (비영리 501c3)</td>
 <td>★★★★★</td>
 </tr>
 <tr>
 <td><strong>구조</strong></td>
-<td>pnpm + Turborepo 기반 모노레포 (api, client, curriculum, e2e, shared, tools) / pnpm + Turborepo monorepo with well-defined workspace packages</td>
-<td>★★★★★</td>
-</tr>
-<tr>
-<td><strong>스택</strong></td>
-<td>Node.js 24, TypeScript 5.9, Fastify 5, Gatsby 5, React 18, MongoDB (Prisma), Redux/Redux-Saga</td>
+<td>pnpm 워크스페이스 모노레포 (<code>api/</code>, <code>client/</code>, <code>curriculum/</code>, <code>e2e/</code>, <code>packages/</code>, <code>tools/</code>)</td>
 <td>★★★★☆</td>
 </tr>
 <tr>
+<td><strong>스택</strong></td>
+<td>Node.js ≥24 / TypeScript / Fastify / Gatsby+React / MongoDB+Prisma / pnpm+Turborepo</td>
+<td>★★★★★</td>
+</tr>
+<tr>
 <td><strong>진입점</strong></td>
-<td>API: <code>api/src/app.ts</code> + <code>server.ts</code> (Fastify), Client: <code>client/gatsby-*.ts</code> (Gatsby SSR/SSG)</td>
+<td><code>api/src/server.ts</code> (Fastify), <code>client/gatsby-config.ts</code> (SSG)</td>
 <td>★★★★☆</td>
 </tr>
 <tr>
 <td><strong>아키텍처</strong></td>
-<td>분리된 API/클라이언트 서비스, 플러그인 기반 Fastify, 커리큘럼 데이터 파이프라인 / Decoupled API+client, plugin-based Fastify, curriculum data pipeline</td>
+<td>Fastify 플러그인 패턴(API) + Gatsby SSG + Redux-Saga(클라이언트)</td>
 <td>★★★★☆</td>
 </tr>
 <tr>
 <td><strong>데이터</strong></td>
-<td>MongoDB (primary, via Prisma ODM), Stripe (payment), Auth0 (OAuth), Algolia (search)</td>
+<td>MongoDB 8.2 (레플리카셋) + Prisma ORM (15+ 모델)</td>
 <td>★★★★☆</td>
 </tr>
 <tr>
 <td><strong>배포</strong></td>
-<td>Docker + DigitalOcean Container Registry (DOCR), 멀티 언어 클라이언트 빌드, GitHub Actions CD</td>
+<td>GitHub Actions → Docker → DigitalOcean Container Registry → DO App Platform</td>
 <td>★★★★☆</td>
 </tr>
 <tr>
 <td><strong>테스트</strong></td>
-<td>Vitest (unit/integration), Playwright 120+ E2E spec 파일, lint-staged 사전 커밋 검증</td>
-<td>★★★★☆</td>
+<td>Vitest (단위/통합) + Supertest (HTTP) + Playwright E2E (~100개 스펙)</td>
+<td>★★★★★</td>
 </tr>
 <tr>
 <td><strong>보안</strong></td>
-<td>CSRF 보호, JWT/쿠키 인증, OWASP 헤더, Renovate 자동 의존성 업데이트, pinned GitHub Actions SHA</td>
+<td>Auth0 OAuth2 + JWT httpOnly쿠키 + CSRF + OWASP 헤더 + Renovate</td>
 <td>★★★★☆</td>
 </tr>
 <tr>
 <td><strong>성숙도</strong></td>
-<td>100,000+ 졸업생, 활발한 커뮤니티, 구조화된 이슈/PR 템플릿, Copilot 리뷰 가이드라인 포함</td>
+<td>10년+ 운영, 11개 언어(Crowdin), 활발한 커뮤니티, 완비된 기여 인프라</td>
 <td>★★★★★</td>
 </tr>
 </tbody>
 </table>
-<hr />
-<h2 id="1-purpose-and-scope">1. 목적 및 범위 / Purpose and Scope</h2>
-<p><strong>한국어:</strong> freeCodeCamp는 501(c)(3) 비영리 단체가 운영하는 무료 풀스택 웹 개발 및 머신러닝 교육 플랫폼이다. 수천 개의 인터랙티브 코딩 챌린지, 프로젝트 기반 자격증 과정(Responsive Web Design, JavaScript, Python, Back-End Development &amp; APIs 등), 언어 교육 모듈(A2/B1 영어, A1 스페인어·중국어)을 포함한다. 이 리포지토리는 플랫폼 코드와 커리큘럼 콘텐츠를 함께 관리하는 단일 오픈소스 저장소이다.</p>
-<p><strong>English:</strong> freeCodeCamp is a free full-stack and machine-learning educational platform operated by a 501(c)(3) nonprofit charity. The repository contains the live production platform code alongside thousands of interactive coding challenges and language certification modules. Its target users are self-paced adult learners transitioning into tech. This repo is simultaneously a <strong>platform</strong> (API server + client frontend) and an <strong>educational content system</strong> (curriculum in Markdown/YAML).</p>
-<hr />
-<h2 id="2-repository-structure">2. 리포지토리 구조 / Repository Structure</h2>
-<pre><code>freeCodeCamp/
-├── api/                  # Fastify REST API 서버 (백엔드)
-│   ├── src/
-│   │   ├── plugins/      # auth, csrf, cors, mailer, security, growthbook
-│   │   ├── routes/
-│   │   │   ├── protected/ # 인증 필요 라우트 (challenge, settings, user, donate, certificate)
-│   │   │   └── public/    # 공개 라우트 (auth, status, signout, deprecated-endpoints)
-│   │   ├── db/           # Prisma 클라이언트 플러그인
-│   │   ├── exam-environment/
-│   │   └── daily-coding-challenge/
-│   └── prisma/           # MongoDB 스키마 정의
-│
-├── client/               # Gatsby 5 기반 React SPA/SSG
-│   ├── src/
-│   │   ├── components/   # UI 컴포넌트
-│   │   ├── redux/        # Redux + Redux-Saga 상태 관리
-│   │   ├── templates/    # Gatsby 페이지 템플릿
-│   │   └── services/     # API 통신 서비스
-│   └── gatsby-config.ts
-│
-├── curriculum/           # 교육 콘텐츠 (Markdown)
-│   ├── challenges/english/blocks/  # 16,521개 .md 챌린지 파일
-│   └── schema/           # 챌린지 유효성 검사 스키마
-│
-├── e2e/                  # Playwright E2E 테스트 (120+ 스펙)
-│
-├── packages/
-│   └── shared/           # API/Client 공유 타입·설정·유틸리티
-│
-├── tools/
-│   ├── challenge-helper-scripts/
-│   ├── challenge-parser/
-│   ├── challenge-builder/
-│   ├── challenge-linter/
-│   ├── client-plugins/   # Gatsby 소스 플러그인
-│   ├── crowdin/          # 번역 동기화
-│   └── daily-challenges/
-│
-├── docker/               # docker-compose (MongoDB 복제셋 + Mailpit)
-├── .github/
-│   ├── workflows/        # 18개 CI/CD 워크플로우
-│   └── ISSUE_TEMPLATE/   # 4종 이슈 템플릿
-├── turbo.json            # Turborepo 태스크 그래프
-└── pnpm-workspace.yaml   # 워크스페이스 패키지 정의
-</code></pre>
-<p><strong>구조 평가:</strong> 기능 영역별(API, 클라이언트, 커리큘럼, 도구)로 명확히 분리된 도메인 지향 모노레포. 코드와 운영 자산(docker, .github)이 잘 분리되어 있다. <code>shared</code> 패키지를 통한 타입 공유가 명시적이다.</p>
-<hr />
-<h2 id="3-software-stack">3. 소프트웨어 스택 / Software Stack</h2>
-<h3 id="_1">언어 및 런타임</h3>
-<table>
-<thead>
-<tr>
-<th>항목</th>
-<th>버전</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Node.js</td>
-<td>≥ 24</td>
-</tr>
-<tr>
-<td>TypeScript</td>
-<td>5.9.3</td>
-</tr>
-<tr>
-<td>pnpm</td>
-<td>≥ 10</td>
-</tr>
-</tbody>
-</table>
-<h3 id="api-api">API 서버 (<code>api/</code>)</h3>
-<table>
-<thead>
-<tr>
-<th>항목</th>
-<th>내용</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>프레임워크</td>
-<td>Fastify 5.8.5</td>
-</tr>
-<tr>
-<td>ORM/ODM</td>
-<td>Prisma 6.19.3 (MongoDB)</td>
-</tr>
-<tr>
-<td>DB</td>
-<td>MongoDB 8.2 (replica set)</td>
-</tr>
-<tr>
-<td>인증</td>
-<td>JWT + Auth0 OAuth2</td>
-</tr>
-<tr>
-<td>결제</td>
-<td>Stripe 16.12</td>
-</tr>
-<tr>
-<td>로깅</td>
-<td>Pino 9</td>
-</tr>
-<tr>
-<td>모니터링</td>
-<td>Sentry Node 9</td>
-</tr>
-<tr>
-<td>피처 플래그</td>
-<td>GrowthBook 1.6</td>
-</tr>
-</tbody>
-</table>
-<h3 id="client">클라이언트 (<code>client/</code>)</h3>
-<table>
-<thead>
-<tr>
-<th>항목</th>
-<th>내용</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>프레임워크</td>
-<td>Gatsby 5 (SSG/SSR)</td>
-</tr>
-<tr>
-<td>UI</td>
-<td>React 18 + Tailwind CSS</td>
-</tr>
-<tr>
-<td>상태 관리</td>
-<td>Redux + Redux-Saga + RxJS Epics</td>
-</tr>
-<tr>
-<td>코드 에디터</td>
-<td>Monaco Editor, CodeSandbox Sandpack</td>
-</tr>
-<tr>
-<td>번역</td>
-<td>i18next (12개 언어)</td>
-</tr>
-<tr>
-<td>검색</td>
-<td>Algolia InstantSearch</td>
-</tr>
-</tbody>
-</table>
-<hr />
-<h2 id="4-architecture-analysis">4. 아키텍처 분석 / Architecture Analysis</h2>
-<h3 id="api-fastify-plugin">API 아키텍처 (Fastify Plugin 패턴)</h3>
-<pre><code>app.ts
-├── Infrastructure Plugins
-│   ├── prismaPlugin (DB 연결)
-│   ├── cookies, cors, csrf
-│   ├── security (OWASP 헤더)
-│   ├── auth (JWT 검증 데코레이터)
-│   └── mailer, growthBook, sentry
-│
-└── Route Namespaces
-    ├── /public/*    → auth, status, signout, deprecated
-    └── /protected/* → challenge, certificate, user, settings, donate
-                       (fastify.authorize 훅으로 접근 제어)
-</code></pre>
-<p>TypeBox + <code>@fastify/type-provider-typebox</code>로 요청·응답 스키마를 컴파일 타임과 런타임 양쪽에서 동일하게 검증한다.</p>
-<h3 id="_2">클라이언트 아키텍처</h3>
-<p>Gatsby가 빌드 시 커리큘럼 Markdown을 파싱하여 GraphQL 데이터 레이어에 적재하고, 런타임에 React 컴포넌트로 렌더링한다. 상태 관리는 Redux + Redux-Saga + RxJS Epics의 복합 구조다.</p>
-<h3 id="_3">커리큘럼 파이프라인</h3>
-<pre><code>Markdown (.md) → challenge-parser → curriculum JSON 번들
-    ↓
-gatsby-source-challenges (Gatsby 소스 플러그인)
-    ↓
-GraphQL 데이터 레이어 → React 템플릿 → 정적 HTML/JS
-</code></pre>
-<p>16,521개 챌린지 파일이 모두 Markdown이며 JSON 스키마로 유효성이 강제된다.</p>
-<hr />
-<h2 id="5-quality-and-test-system">5. 품질 및 테스트 시스템 / Quality and Test System</h2>
-<table>
-<thead>
-<tr>
-<th>종류</th>
-<th>도구</th>
-<th>수량</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>단위/통합</td>
-<td>Vitest</td>
-<td>217개 파일</td>
-</tr>
-<tr>
-<td>E2E</td>
-<td>Playwright</td>
-<td>120개 스펙 파일</td>
-</tr>
-<tr>
-<td>커리큘럼 콘텐츠</td>
-<td>커스텀 Vitest</td>
-<td>별도 태스크</td>
-</tr>
-</tbody>
-</table>
-<p><strong>CI/CD:</strong> 18개 GitHub Actions 워크플로우 (린트, 단위테스트, E2E, 다국어 클라이언트 빌드, Docker 이미지, Crowdin 번역 동기화). Turborepo 원격 캐시(서명 포함) 활용.</p>
-<p><strong>정적 분석:</strong> ESLint 9 (Flat Config), Prettier, Stylelint, TypeScript strict, lint-staged + Husky, knip(미사용 코드 탐지).</p>
-<p><strong>미비점:</strong> 코드 커버리지 수치 측정 설정 미확인.</p>
-<hr />
-<h2 id="6-security-and-supply-chain">6. 보안 및 공급망 / Security and Supply Chain</h2>
-<ul>
-<li><strong>인증:</strong> JWT httpOnly/Secure 쿠키 (30일) + CSRF 헤더 토큰 (<code>sameSite: strict</code>)</li>
-<li><strong>OWASP 헤더:</strong> <code>Cache-Control: no-store</code>, <code>X-Frame-Options: DENY</code>, <code>X-Content-Type-Options: nosniff</code>, <code>CSP: frame-ancestors 'none'</code></li>
-<li><strong>HSTS:</strong> <code>max-age=300</code> (TODO 주석: 2년으로 점진 강화 예정)</li>
-<li><strong>공급망:</strong> GitHub Actions 모든 third-party 액션 SHA 핀닝, Renovate 40+ 패키지 그룹 자동 업데이트</li>
-<li><strong>시크릿:</strong> 환경 변수 전용, <code>sample.env</code>는 키 목록만 포함</li>
-<li><strong>라이선스:</strong> 코드 BSD-3-Clause, 커리큘럼 콘텐츠 별도 저작권</li>
-<li><strong>미비:</strong> SBOM 생성, 아티팩트 Sigstore 서명 워크플로우 없음</li>
-</ul>
-<hr />
-<h2 id="7-documentation-and-operational-maturity">7. 문서화 및 운영 성숙도 / Documentation and Operational Maturity</h2>
-<ul>
-<li>README: 목적·자격증·커뮤니티·버그 보고·기여 링크 완비</li>
-<li><code>.github/PULL_REQUEST_TEMPLATE.md</code>: 체크리스트 형식 PR 가이드</li>
-<li>이슈 템플릿 4종: 챌린지 버그, 플랫폼 버그, 콘텐츠 버그, 기능 요청</li>
-<li><code>.github/copilot-instructions.md</code>: AI 리뷰 가이드라인 명시</li>
-<li>커뮤니티 자동화: 스팸 차단, 비활성 이슈 닫기, i18n PR 직접 수정 금지, 레이블 자동화</li>
-<li>멀티 환경(staging/production) + 멀티 언어(12개) 배포 파이프라인</li>
-<li>별도 <code>CHANGELOG.md</code> 미확인; 배포는 <code>prod-current</code>/<code>prod-staging</code> 브랜치 기반 CD</li>
-</ul>
-<hr />
-<h2 id="strengths">강점 / Strengths</h2>
+<h2 id="5">주요 강점 5가지</h2>
 <ol>
-<li><strong>엄격한 공급망 보안</strong>: 모든 GitHub Actions third-party 액션 SHA 핀닝 + Renovate 세분화 그룹으로 의존성 업데이트 일관성 확보.</li>
-<li><strong>통합된 모노레포 DX</strong>: Turborepo + pnpm workspace + 원격 캐시로 대규모 저장소에서 빠른 피드백 루프 달성.</li>
-<li><strong>포괄적인 E2E 테스트</strong>: 120개 Playwright 스펙으로 챌린지 편집기, 시험, 기증, 모바일 레이아웃 등 핵심 흐름 전체 커버.</li>
-<li><strong>타입 안전 API 계층</strong>: TypeBox로 런타임·컴파일 타임 동일 스키마 검증, Prisma ODM으로 데이터 계층 타입 안전성 확보.</li>
-<li><strong>대규모 커뮤니티 자동화</strong>: 스팸 차단, 레이블링, i18n PR 제한 등 GitHub Actions 기반 운영 자동화로 수천 건/월 PR을 효율적으로 관리.</li>
+<li><strong>Fastify 플러그인 패턴</strong> — 인증·CSRF·CORS·보안헤더·메일·GrowthBook 등 각 관심사가 독립 캡슐화</li>
+<li><strong>3계층 테스트 피라미드</strong> — 단위→통합(실제 Fastify 인스턴스)→E2E (커리큘럼 콘텐츠 검증 포함)</li>
+<li><strong>정교한 CI/CD</strong> — Turborepo 원격 캐시·언어별 독립 클라이언트 배포·Actions 버전 고정</li>
+<li><strong>보안 다층 방어</strong> — Auth0+JWT+CSRF+OWASP+AJV(<code>allErrors:false</code>·<code>removeAdditional:all</code>)</li>
+<li><strong>완전 자동화 i18n</strong> — Crowdin 스케줄 파이프라인으로 11개 언어 동시 지원</li>
 </ol>
-<hr />
-<h2 id="risks-and-areas-for-improvement">위험/개선 필요 사항 / Risks and Areas for Improvement</h2>
+<h2 id="5_1">주요 위험 5가지</h2>
 <ol>
-<li><strong>코드 커버리지 측정 부재</strong>: Vitest 커버리지 미설정으로 테스트 사각지대를 수치화하기 어려움.</li>
-<li><strong>클라이언트 상태 관리 복잡도</strong>: Redux + Redux-Saga + RxJS Epics 혼합 구조 + JS/TS 혼재로 신규 기여자 진입 장벽이 높음.</li>
-<li><strong>HSTS max-age 과소 설정</strong>: 현재 300초 설정은 <code>TODO</code> 주석으로 방치; HSTS preload 요건(≥1년) 미충족.</li>
-<li><strong>SBOM/아티팩트 서명 부재</strong>: SLSA 공급망 보안 프레임워크 관점에서 빌드 산출물 무결성 증명 수단이 없음.</li>
-<li><strong>커리큘럼 콘텐츠 라이선스 불명확</strong>: <code>/curriculum</code> 디렉터리의 재사용 조건이 불명확하여 외부 파생 사용 시 법적 모호성 존재.</li>
+<li>CI 커버리지 임계값 미설정 (codecov 연동 부재)</li>
+<li><code>SECURITY.md</code> 저장소 루트 부재 (GitHub 취약점 신고 UI 미연동)</li>
+<li>Redux-Saga와 RTK Query 혼재 (클라이언트 상태관리 이중화)</li>
+<li>SBOM 및 컨테이너 이미지 서명 워크플로 부재 (공급망 보안)</li>
+<li>MongoDB Prisma 스키마의 <code>Json?</code> 타입 남용 (타입 안전성 약화)</li>
 </ol>
-<hr />
-<h2 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h2>
-<p><strong>종합 평가: 도입 적극 권장</strong> ★★★★☆</p>
-<ul>
-<li><strong>기술 벤치마킹</strong>: Fastify 5 + TypeBox + Turborepo 모노레포 구성의 현대적 참조 구현체로 높은 학습 가치.</li>
-<li><strong>보안 참조</strong>: OWASP 헤더, CSRF, JWT 쿠키, SHA 핀닝 등 기본 보안 관행의 실전 사례. HSTS 강화·SBOM 보완 시 SLSA Level 2 달성 가능.</li>
-<li><strong>기여 준비도</strong>: <code>first-timers-only</code> 배지에 걸맞은 이슈 템플릿, PR 체크리스트, 커뮤니티 자동화 완비.</li>
-<li><strong>운영 성숙도</strong>: 멀티 환경·멀티 언어 CD 파이프라인, Sentry 모니터링, GrowthBook 피처 플래그를 갖춘 프로덕션 수준 운영.</li>
-</ul></div>
+<p><strong>종합 판정:</strong> 교육 플랫폼 아키텍처 벤치마킹 및 오픈소스 운영 관행 학습에 있어 <strong>최우선 연구 대상</strong>으로 강력 권고.</p></div>
     
   </div>
 

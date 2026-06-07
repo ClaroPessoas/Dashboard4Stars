@@ -97,7 +97,7 @@
     <div class="repo-meta">
       <span class="badge badge-period">top100 trending</span>
       <span class="badge badge-lang">Python</span>
-      <span class="badge badge-stars">★ 301444</span>
+      <span class="badge badge-stars">★ 301765</span>
       
     </div>
   </div>
@@ -107,12 +107,154 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-indepth">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-08
+분석 대상: /tmp/github-dashboard-analysis/vinta_awesome-python
+출력 파일: .review/REVIEW-Source.md</p>
+<hr />
+<h1 id="awesome-python">awesome-python 소스 분석 보고서</h1>
+<p><strong>Repository:</strong> vinta/awesome-python<br />
+<strong>Remote:</strong> https://github.com/vinta/awesome-python<br />
+<strong>Branch:</strong> master (Latest: <code>6dd7b2a</code> — "Add kubesdk (#3166)")<br />
+<strong>License:</strong> CC BY 4.0</p>
+<hr />
+<h2 id="8-a">8-A. 프로젝트 분석 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>엄선된 Python 프레임워크·라이브러리·도구·리소스 큐레이션 목록. GitHub #10위 스타 저장소이며 awesome-python.com으로 정적 사이트 배포. 대상: 시니어~중급 Python 개발자가 라이브러리를 빠르게 탐색·비교하는 용도</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 저장소(모노레포). <code>README.md</code>(콘텐츠 단일 진실 소스), <code>website/</code>(정적 사이트 생성기), <code>CONTRIBUTING.md</code>, <code>SPONSORSHIP.md</code>. 코드(website/)와 콘텐츠(README.md)가 명확히 분리</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.13+, uv(패키지 관리), Jinja2(템플릿), markdown-it-py(파서), httpx(GitHub API), Pytest(테스트), Ruff(린터), ty(타입 체커), GitHub Actions(CI/CD), GitHub Pages(호스팅)</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>website/build.py:build()</code> — README.md 파싱 → HTML 렌더링 → 정적 파일 출력. <code>make build</code>로 호출. <code>make preview</code>로 :8000 개발 서버 실행. <code>website/fetch_github_stars.py:main()</code>으로 GitHub 스타 수 캐시 갱신</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>파이프라인 아키텍처: README.md(마크다운) → <code>readme_parser.py</code>(AST 파싱·TypedDict 구조화) → <code>build.py</code>(데이터 집계·Jinja2 렌더링) → <code>website/output/</code>(HTML 결과물). 레이어 분리: 파싱·비즈니스 로직·표현 계층이 파일 단위로 분리</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>런타임 DB 없음. <code>website/data/github_stars.json</code> 파일 캐시(12시간 TTL). GraphQL API로 50개 배치 처리. 캐시 파일과 출력 디렉터리는 .gitignore 처리</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>GitHub Actions(<code>deploy-website.yml</code>): master push 또는 매일 00:00 UTC cron. 테스트 → 스타 수 fetch(daily 캐시) → 빌드 → GitHub Pages 배포. 별도 인프라 불필요</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Pytest 기반 3개 모듈: <code>test_build.py</code>(40KB), <code>test_readme_parser.py</code>(17KB), <code>test_fetch_github_stars.py</code>(10KB). 빌드 파이프라인 통합 테스트, JSON-LD 스키마 검증, GraphQL 인젝션 방지 테스트 포함. CI에서 모든 PR·push에 자동 실행</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 부재. <code>.gitignore</code>에 <code>.env*</code> 포함. GitHub owner/repo 이름 정규식 검증으로 GraphQL 인젝션 방지. HTML 이스케이핑(XSS 방지). GITHUB_TOKEN은 Secrets 사용. <code>robots.txt</code>에 AI 학습 허용 신호(<code>ai-train=yes</code>) 명시. dependabot/renovate 설정 없음</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>GitHub #10위(수십만 스타), 수천 명의 기여자, 지속적 업데이트. 엄격한 편집 기준(<code>CONTRIBUTING.md</code>), 명확한 스폰서 독립성 정책, Claude AI 통합 PR 자동 리뷰. <code>DESIGN.md</code>로 디자인 철학 문서화. llms.txt 프로토콜 지원</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>단일 진실 소스 아키텍처 (Single Source of Truth)</strong><br />
+<code>README.md</code> 하나가 큐레이션 목록, 정적 사이트 콘텐츠, AI 컨텍스트(llms.txt) 등 모든 산출물의 원천. 파싱 계층(<code>readme_parser.py</code>)이 TypedDict 기반으로 타입 안전하게 구조화하여 데이터 불일치 가능성을 구조적으로 제거.</p>
+</li>
+<li>
+<p><strong>엄격하고 문서화된 편집 기준</strong><br />
+<code>CONTRIBUTING.md</code>에 자동 거부 조건(12개월 미활성, 100스타 미만, 다중 프로젝트 PR 등)을 명시. Claude AI 통합 PR 리뷰 커맨드(<code>.claude/commands/review-pending-prs.md</code>)로 기준 적용을 자동화. 스폰서십과 편집 독립성 정책이 <code>SPONSORSHIP.md</code>에 별도로 문서화.</p>
+</li>
+<li>
+<p><strong>경량 고품질 빌드 파이프라인</strong><br />
+   외부 의존성 최소화(httpx, jinja2, markdown-it-py만 사용). GraphQL 배치 처리(50개 단위)와 12시간 TTL 캐시로 GitHub API 사용 최적화. 증분 저장으로 부분 장애 복원력 확보.</p>
+</li>
+<li>
+<p><strong>포괄적 테스트 커버리지</strong><br />
+   빌드·파서·API 패처 모듈 전체를 별도 테스트 모듈로 커버. JSON-LD 스키마 유효성, sitemap 생성, 슬러그 충돌 감지, GraphQL 인젝션 방지까지 통합 테스트로 검증. CI에서 모든 PR에 자동 실행.</p>
+</li>
+<li>
+<p><strong>현대적 Python 개발 스택</strong><br />
+   Python 3.13+, <code>uv</code> 잠금 파일, <code>ty</code> 타입 체커(error-on-warning 모드), <code>ruff</code> 린터. 최신 도구를 적극 채택하여 개발 환경 재현성과 코드 품질 기준이 높음.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험 / 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>SECURITY.md 부재</strong><br />
+   GitHub 권장 보안 정책 파일이 없음. 취약점 신고 경로가 공식적으로 정의되지 않아 보안 이슈 접수·처리 프로세스가 불명확. 오픈소스 프로젝트 성숙도 측면에서 누락 항목.</p>
+</li>
+<li>
+<p><strong>의존성 자동화 관리 부재</strong><br />
+<code>dependabot</code> 또는 <code>renovate</code> 설정이 없음. <code>pyproject.toml</code>의 의존성 버전이 수동으로만 관리되며, 특히 <code>uv.lock</code>의 전이 의존성 보안 취약점 탐지가 자동화되지 않음. <code>exclude-newer = "3 days"</code> 설정이 최신성은 보장하나 취약 버전 고정 위험도 존재.</p>
+</li>
+<li>
+<p><strong><code>robots.txt</code> AI 학습 허용 정책의 커뮤니티 소통 부재</strong><br />
+<code>build.py</code>에서 <code>Content-Signal: ai-train=yes</code>를 명시적으로 삽입하나, 기여자 및 큐레이션 대상 프로젝트 저자에게 이 정책을 공지하는 문서가 없음. 큐레이션된 프로젝트의 메타데이터가 AI 학습에 사용되는 것에 대한 명시적 동의 절차 없음.</p>
+</li>
+<li>
+<p><strong>콘텐츠 규모 확장에 따른 파서 취약성</strong><br />
+<code>readme_parser.py</code>가 마크다운 구조에 강하게 결합(헤딩 레벨, 볼드 그룹 마커, 중첩 목록 패턴). README.md 구조 변경 시 파서 전체를 수정해야 하며, 현재 463줄에 별도 스키마 유효성 검사 없음. 카테고리 수가 늘어날수록 유지보수 부담 증가 예상.</p>
+</li>
+<li>
+<p><strong>단일 관리자 버스 팩터 (Bus Factor)</strong><br />
+<code>pyproject.toml</code>에 단일 저자(vinta.chen@gmail.com) 표기. GitHub 최상위 저장소임에도 공식 공동 관리자가 문서화되지 않음. 장기 지속 가능성 위험 요인.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<h3 id="_1">기술 참조 및 벤치마킹 관점</h3>
+<p><strong>강력 권고.</strong> <code>vinta/awesome-python</code>은 단순 큐레이션 목록을 넘어, 소규모 정적 사이트 생성기의 모범 사례를 보여주는 참조 구현체다.</p>
+<ul>
+<li><strong>README.md 단일 진실 소스 패턴</strong>: 콘텐츠와 코드가 분리된 파이프라인 아키텍처는 문서 기반 정적 사이트나 큐레이션 플랫폼을 구축할 때 직접 차용 가능한 설계 패턴.</li>
+<li><strong>AI 통합 편집 워크플로</strong>: Claude AI 기반 PR 자동 리뷰는 오픈소스 큐레이션 프로젝트의 유지보수 부담 경감 방법으로 도입 검토 가치 있음.</li>
+<li><strong>Python 현대화 스택 레퍼런스</strong>: <code>uv</code> + <code>ty</code> + <code>ruff</code> + Python 3.13 조합은 2025-2026년 Python 프로젝트 표준 스택의 실용적 구현 예로 활용 가능.</li>
+</ul>
+<h3 id="_2">보안 검토 관점</h3>
+<p>SECURITY.md 부재와 dependabot 미설정은 오픈소스 채택 체크리스트에서 감점 요인이나, 프로젝트 성격(콘텐츠 큐레이션)상 공격 표면이 제한적이므로 실질적 위험도는 낮음.</p>
+<h3 id="_3">기여 준비도</h3>
+<p>명확한 기여 가이드라인, 자동화된 CI, 엄격한 편집 기준으로 <strong>기여 진입 장벽이 낮고 리뷰 기준이 일관됨</strong>. Python 라이브러리를 추가하려는 기여자에게 적합.</p>
+<hr />
+<p><em>분석 도구: Claude Code (claude-sonnet-4-6) / 분석일: 2026-06-08</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
     
     <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 분석 보고서를 작성합니다.</p>
 <hr />

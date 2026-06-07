@@ -97,8 +97,8 @@
     <div class="repo-meta">
       <span class="badge badge-period">weekly trending</span>
       <span class="badge badge-lang">Python</span>
-      <span class="badge badge-stars">★ 145122</span>
-      <span class="badge badge-stars">+17,165 stars this week</span>
+      <span class="badge badge-stars">★ 147123</span>
+      <span class="badge badge-stars">+15,015 stars this week</span>
     </div>
   </div>
   <div class="header-right">
@@ -107,12 +107,480 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-indepth">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 보고서를 작성하겠습니다.</p>
+<hr />
+<p>분석일: 2026-06-08
+분석 대상: <code>/tmp/github-dashboard-analysis/microsoft_markitdown</code></p>
+<hr />
+<h1 id="markitdown-review-sourcemd">MarkItDown — 소스 분석 보고서 (REVIEW-Source.md)</h1>
+<blockquote>
+<p><strong>microsoft/markitdown</strong> · v0.1.6 (Beta) · MIT License · Python 3.10+</p>
+</blockquote>
+<hr />
+<h2 id="_1">종합 분석표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>다양한 파일 포맷(PDF·DOCX·PPTX·XLSX·HTML·이미지·오디오·EPUB 등)을 LLM 파이프라인용 Markdown으로 변환하는 경량 Python 유틸리티. LLM이 Markdown을 native하게 이해하는 특성을 활용</td>
+<td>★★★★★ 명확하고 집중된 단일 책임</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>packages/</code> 하위 4개 독립 패키지 (markitdown, markitdown-mcp, markitdown-ocr, markitdown-sample-plugin). 각 패키지 <code>src/</code> 레이아웃, hatch 빌드. 모노레포 형태</td>
+<td>★★★★☆ 구조는 명확하나 패키지 간 의존성 최소화 필요</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.10–3.13, hatchling, beautifulsoup4, requests, markdownify, magika(파일 타입 감지), charset-normalizer, defusedxml. 선택적: pdfminer/pdfplumber, mammoth, python-pptx, pandas, azure-ai-*</td>
+<td>★★★★☆ 핵심 의존성 최소화, 선택적 의존성 잘 분리</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>CLI: <code>markitdown.__main__:main</code>, Python API: <code>MarkItDown</code> 클래스, MCP 서버: <code>markitdown_mcp.__main__:main</code>. <code>convert()</code>, <code>convert_local()</code>, <code>convert_stream()</code>, <code>convert_uri()</code>, <code>convert_response()</code> 5종 API</td>
+<td>★★★★★ 다양한 진입점과 세분화된 API 설계 우수</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>Chain of Responsibility 패턴 기반 컨버터 레지스트리. 우선순위(float) 정렬 기반 컨버터 선택. entry_points 기반 플러그인 시스템. StreamInfo frozen dataclass로 메타데이터 전파. DocumentConverter 추상 기반클래스</td>
+<td>★★★★★ 확장성 높은 플러그인 우선 설계</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>영구 저장소 없음. 순수 스트림 처리(BinaryIO 기반). Azure Document Intelligence·Content Understanding은 클라우드 API를 통한 외부 데이터 처리</td>
+<td>★★★★★ 무상태 설계, 데이터 잔류 위험 없음</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI 게시 (<code>pip install markitdown[all]</code>), Docker 이미지(python:3.13-slim-bullseye, nobody 사용자로 실행), MCP 패키지별 별도 Docker 이미지</td>
+<td>★★★★☆ Docker 보안 설정 양호, CI에서 PyPI 자동 게시는 확인 불가</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest + hatch test. FileTestVector 기반 파라미터화 테스트. 단위(StreamInfo, URI 파싱), 통합(파일 변환), 보안(CVE-2025-11849 rlink), LLM mock 테스트. CI: PR 트리거, Python 3.10/11/12 매트릭스</td>
+<td>★★★☆☆ 커버리지 측정 CI 통합 부재, 원격·LLM 테스트 CI 제외</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md(MSRC 경로), defusedxml(XML 주입 방지), ExifTool CVE-2021-22204 버전 검증, JavaScript URL 필터링, rlink 포함 공격(CVE-2025-11849) 방어 테스트, MCP localhost 기본 바인딩</td>
+<td>★★★☆☆ 의존성 자동 스캔(pip-audit/snyk) CI 미통합, Python deps dependabot 부재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v0.1.6 Beta, AutoGen 팀 빌드, Microsoft 공식 오픈소스 정책 준수(CLA, CoC). README 품질 높음. ThirdPartyNotices(dwml/Apache-2.0) 존재. 별도 CHANGELOG·CONTRIBUTING.md 부재</td>
+<td>★★★★☆ 빠른 성장 단계, 운영 문서 일부 보완 필요</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="step-1">Step 1. 목적 및 범위</h3>
+<p>MarkItDown은 <strong>LLM 텍스트 분석 파이프라인</strong>을 위한 파일→Markdown 변환 유틸리티다. README의 핵심 철학은 명확하다: 주류 LLM은 Markdown을 native하게 이해하며, Markdown은 문서 구조(제목·목록·표·링크)를 유지하면서도 토큰 효율이 높다. 유사 도구인 textract와 달리, 사람이 읽는 고품질 변환보다 <strong>AI 소비 최적화</strong>에 집중한다.</p>
+<p>대상 사용자: LLM 애플리케이션 개발자, RAG 파이프라인 구축자, 문서 분석 자동화 엔지니어.</p>
+<p>지원 포맷 (20+ 종):
+- 문서: PDF, DOCX, PPTX, XLSX, XLS, EPUB, MSG (Outlook)
+- 웹: HTML, RSS, Wikipedia, Bing SERP, YouTube (자막)
+- 미디어: 이미지(EXIF+LLM), 오디오(EXIF+STT)
+- 구조: CSV, JSON, XML, ZIP (재귀)
+- 코드: Jupyter Notebook (.ipynb)
+- 클라우드: Azure Document Intelligence, Azure Content Understanding</p>
+<hr />
+<h3 id="step-2">Step 2. 리포지토리 구조</h3>
+<pre><code>microsoft_markitdown/
+├── packages/
+│   ├── markitdown/                  # 핵심 라이브러리
+│   │   ├── src/markitdown/
+│   │   │   ├── _markitdown.py       # MarkItDown 클래스 (806줄, 핵심 오케스트레이터)
+│   │   │   ├── _base_converter.py   # DocumentConverter 추상기반클래스
+│   │   │   ├── _stream_info.py      # 스트림 메타데이터 dataclass
+│   │   │   ├── _exceptions.py       # 예외 계층
+│   │   │   ├── _uri_utils.py        # URI 파싱 유틸리티
+│   │   │   ├── converters/          # 20+ 포맷별 컨버터
+│   │   │   └── converter_utils/     # DOCX 수식(OMML→LaTeX) 등 공유 유틸
+│   │   └── tests/                   # pytest 테스트 + test_files/
+│   ├── markitdown-mcp/              # MCP 서버 패키지
+│   ├── markitdown-ocr/              # OCR 플러그인 (LLM Vision 기반)
+│   └── markitdown-sample-plugin/    # 플러그인 개발 참조 구현 (RTF 변환)
+├── .github/workflows/               # CI: tests.yml, pre-commit.yml
+├── .devcontainer/                   # 개발컨테이너 설정
+├── Dockerfile                       # 루트 Docker 빌드 (markitdown+sample-plugin)
+├── SECURITY.md, CODE_OF_CONDUCT.md, SUPPORT.md
+└── LICENSE (MIT)
+</code></pre>
+<p><strong>특징:</strong>
+- 모노레포, 기능별 패키지 분리
+- <code>src/</code> 레이아웃으로 로컬 import 오염 방지
+- 코드와 운영 에셋 명확히 분리</p>
+<hr />
+<h3 id="step-3">Step 3. 소프트웨어 스택</h3>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Python 3.10, 3.11, 3.12, 3.13 (CPython, PyPy 모두 지원)</td>
+</tr>
+<tr>
+<td><strong>빌드/패키지 관리</strong></td>
+<td>hatchling (build), hatch (테스트/환경 관리), pip</td>
+</tr>
+<tr>
+<td><strong>핵심 의존성</strong></td>
+<td>beautifulsoup4, requests, markdownify, magika~=0.6.1, charset-normalizer, defusedxml</td>
+</tr>
+<tr>
+<td><strong>선택적 의존성</strong></td>
+<td>python-pptx, mammoth~=1.11.0, pandas, openpyxl, xlrd, lxml, pdfminer.six≥20251230, pdfplumber≥0.11.9, olefile, pydub, SpeechRecognition, youtube-transcript-api~=1.0.0</td>
+</tr>
+<tr>
+<td><strong>클라우드</strong></td>
+<td>azure-ai-documentintelligence, azure-ai-contentunderstanding≥1.2.0b1, azure-identity</td>
+</tr>
+<tr>
+<td><strong>OCR 플러그인 추가 deps</strong></td>
+<td>PyMuPDF≥1.24.0, python-docx, Pillow≥9.0.0</td>
+</tr>
+<tr>
+<td><strong>MCP 패키지 deps</strong></td>
+<td>mcp~=1.8.0, markitdown[all]≥0.1.1, uvicorn, starlette</td>
+</tr>
+<tr>
+<td><strong>런타임 외부 도구</strong></td>
+<td>exiftool (이미지 메타데이터, 선택적), ffmpeg (오디오)</td>
+</tr>
+<tr>
+<td><strong>포맷 검출</strong></td>
+<td>magika (Google ML 기반 파일 타입 감지)</td>
+</tr>
+<tr>
+<td><strong>DB/캐시</strong></td>
+<td>없음 (완전 무상태)</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker, PyPI</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="step-4">Step 4. 아키텍처 분석</h3>
+<h4 id="chain-of-responsibility">핵심 패턴: 우선순위 기반 Chain of Responsibility</h4>
+<pre><code>MarkItDown.convert(source)
+  └─ convert_local() / convert_uri() / convert_stream() / convert_response()
+       └─ _get_stream_info_guesses()    # magika + charset-normalizer로 StreamInfo 확충
+            └─ _convert(stream_info_guesses=[...])
+                 └─ sorted(converters, key=priority)
+                      ├─ converter.accepts(stream, info) → bool
+                      └─ converter.convert(stream, info) → DocumentConverterResult
+</code></pre>
+<p><strong>우선순위 체계:</strong>
+- <code>PRIORITY_SPECIFIC_FILE_FORMAT = 0.0</code> (기본, 포맷 특화 컨버터)
+- <code>PRIORITY_GENERIC_FILE_FORMAT = 10.0</code> (catch-all: PlainText, HTML, Zip)
+- OCR 플러그인: <code>-1.0</code> (내장보다 먼저 시도)
+- 낮은 값 = 높은 우선순위</p>
+<p><strong>플러그인 시스템:</strong></p>
+<pre><code class="language-toml">[project.entry-points.&quot;markitdown.plugin&quot;]
+ocr = &quot;markitdown_ocr&quot;
+</code></pre>
+<p><code>importlib.metadata.entry_points()</code>로 lazy 로드. <code>register_converters(markitdown, **kwargs)</code> 인터페이스.</p>
+<p><strong>StreamInfo (frozen dataclass):</strong>
+mimetype, extension, charset, filename, local_path, url — 불변 값 객체, <code>copy_and_update()</code>로 체인 전파.</p>
+<p><strong>모듈 경계:</strong>
+- <code>_markitdown.py</code>: 오케스트레이터, 컨버터 레지스트리, URI 라우팅
+- <code>converters/</code>: 각 포맷별 단일 파일 컨버터 (총 4,695줄, 20개+ 파일)
+- <code>converter_utils/docx/math/</code>: OMML→LaTeX 변환 (dwml 기반)</p>
+<p><strong>아키텍처 패턴 평가:</strong>
+- 플러그인 우선 개방/폐쇄 원칙 준수 ✓
+- 순수 함수형 스트림 처리, 부작용 없음 ✓
+- LLM 클라이언트 의존성은 kwargs 주입, 직접 결합 없음 ✓
+- <code>**kwargs</code> 남용으로 타입 안전성 부분 희생 (TODO 주석 존재)</p>
+<hr />
+<h3 id="step-5">Step 5. 품질 및 테스트 시스템</h3>
+<h4 id="_3">테스트 구조</h4>
+<pre><code>packages/markitdown/tests/
+├── _test_vectors.py          # FileTestVector dataclass + GENERAL_TEST_VECTORS
+├── test_module_vectors.py    # 파라미터화 변환 테스트 (must_include/must_not_include)
+├── test_module_misc.py       # StreamInfo, URI, 예외, LLM mock, exiftool, CVE 테스트
+├── test_cli_vectors.py       # CLI 통합 테스트
+├── test_cli_misc.py          # CLI 옵션 테스트
+├── test_cu_converter.py      # Azure CU 컨버터
+├── test_docintel_html.py     # Azure Doc Intel
+├── test_pdf_*.py             # PDF 특화: masterformat, memory, tables
+└── test_files/               # 실제 바이너리 테스트 파일들
+</code></pre>
+<p><strong>테스트 품질:</strong>
+- <code>FileTestVector</code> 기반 선언적 테스트로 새 포맷 추가 용이
+- <code>must_include</code> / <code>must_not_include</code> 문자열로 변환 품질 검증
+- CVE-2025-11849 (DOCX rlink 파일 포함) 보안 회귀 테스트 존재
+- LLM 테스트: MagicMock으로 외부 API 격리
+- 원격·음성인식 테스트: <code>GITHUB_ACTIONS</code> 환경변수로 CI 제외</p>
+<p><strong>CI/CD:</strong></p>
+<table>
+<thead>
+<tr>
+<th>워크플로</th>
+<th>트리거</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tests.yml</code></td>
+<td>PR</td>
+<td>Python 3.10/11/12 매트릭스, <code>hatch test</code></td>
+</tr>
+<tr>
+<td><code>pre-commit.yml</code></td>
+<td>PR</td>
+<td>black 포맷터</td>
+</tr>
+<tr>
+<td>dependabot</td>
+<td>주간</td>
+<td>GitHub Actions만 (Python 패키지 제외)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>미비 사항:</strong>
+- 커버리지 측정 CI 통합 없음 (pyproject.toml에 설정만 있음)
+- push/main 브랜치 대상 테스트 없음, PR only
+- Python 3.13 매트릭스 미포함 (지원 선언하나 CI 제외)</p>
+<hr />
+<h3 id="step-6">Step 6. 보안 및 공급망</h3>
+<h4 id="_4">보안 정책</h4>
+<ul>
+<li><code>SECURITY.md</code>: Microsoft MSRC(msrc.microsoft.com/create-report) 취약점 신고 경로, PGP 키 제공, 24시간 응답 약속, Coordinated Vulnerability Disclosure</li>
+</ul>
+<h4 id="_5">구현 레벨 보안 조치</h4>
+<table>
+<thead>
+<tr>
+<th>위협</th>
+<th>대응</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>XML 주입 (XXE)</td>
+<td><code>defusedxml</code> 의존성 (필수 deps에 포함)</td>
+</tr>
+<tr>
+<td>ExifTool RCE (CVE-2021-22204)</td>
+<td>버전 12.24 이상 강제 검증 후 실행</td>
+</tr>
+<tr>
+<td>JavaScript URL 실행</td>
+<td><code>_CustomMarkdownify.convert_a()</code>에서 http/https/file 외 스킴 제거</td>
+</tr>
+<tr>
+<td>DOCX rlink 파일 포함 (CVE-2025-11849)</td>
+<td><code>pre_process_docx()</code> 전처리 + 회귀 테스트</td>
+</tr>
+<tr>
+<td>대용량 data URI</td>
+<td>기본 100자 이상 base64 data URI 잘라내기 (keep_data_uris 옵션)</td>
+</tr>
+<tr>
+<td>MCP 서버 노출</td>
+<td>localhost 기본 바인딩, 비localhost 경고 메시지 출력</td>
+</tr>
+<tr>
+<td>무제한 파일 접근</td>
+<td>README 보안 섹션에서 <code>convert_local()</code> 사용 권장</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_6">공급망</h4>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python 의존성 dependabot</td>
+<td>❌ 없음 (GitHub Actions만)</td>
+</tr>
+<tr>
+<td>pip-audit / snyk CI 통합</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>아티팩트 서명</td>
+<td>❌ 미확인</td>
+</tr>
+<tr>
+<td>ThirdPartyNotices</td>
+<td>✅ dwml (Apache 2.0) 포함</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td>✅ MIT (주 패키지), Apache-2.0 (dwml 컴포넌트)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>라이선스 호환성:</strong> MIT + Apache-2.0 조합은 호환 가능. 주요 의존성(beautifulsoup4/MIT, requests/Apache-2.0, pandas/BSD-3) 모두 허용적 라이선스.</p>
+<hr />
+<h3 id="step-7">Step 7. 문서화 및 운영 성숙도</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>✅ 우수 — 빠른 시작, API 예제, 보안 고려사항, Docker</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ Microsoft 표준 MSRC 경로</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>✅ Microsoft 오픈소스 CoC</td>
+</tr>
+<tr>
+<td>SUPPORT.md</td>
+<td>✅ 지원 경로 안내</td>
+</tr>
+<tr>
+<td>ThirdPartyNotices.md</td>
+<td>✅ dwml 라이선스 전문 포함</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>❌ 없음 (README 내 간략 안내만)</td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td>❌ 별도 파일 없음 (Git 히스토리/PR 의존)</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>API 레퍼런스</td>
+<td>⚠️ docstring 기반, 자동 생성 문서 미구축</td>
+</tr>
+</tbody>
+</table>
+<p><strong>커뮤니티:</strong>
+- GitHub 이슈/PR 레이블: "open for contribution", "open for reviewing" 태그 운영
+- CLA 봇 자동화
+- AutoGen Team 빌드 배지 (Microsoft 공식 팀 연계)
+- 플러그인 생태계 시작 (markitdown-ocr, markitdown-sample-plugin)</p>
+<hr />
+<h2 id="_7">강점</h2>
+<ol>
+<li>
+<p><strong>명확한 단일 책임 원칙</strong>: "모든 것을 Markdown으로" — 범위가 명확하고 목적이 일관됨. LLM 파이프라인의 전처리 단계로서 독보적 포지셔닝.</p>
+</li>
+<li>
+<p><strong>확장 가능한 플러그인 아키텍처</strong>: <code>entry_points</code> + 우선순위 레지스트리 조합으로 코어 코드 수정 없이 새 포맷 추가 가능. OCR 플러그인이 이를 실증.</p>
+</li>
+<li>
+<p><strong>보안 인식 설계</strong>: defusedxml 강제 사용, ExifTool CVE 버전 검증, JavaScript URL 필터링, rlink 공격 방어 등 실제 취약점을 코드 레벨에서 명시적으로 대응.</p>
+</li>
+<li>
+<p><strong>무상태 스트림 처리</strong>: 영구 저장소 없이 순수 BinaryIO 기반 처리. 서버리스·컨테이너 환경에 자연스럽게 적합.</p>
+</li>
+<li>
+<p><strong>MCP 프로토콜 지원</strong>: LLM 에이전트와의 통합을 위한 MCP 서버 패키지 포함. AI 에이전트 생태계와의 연결성이 우수.</p>
+</li>
+</ol>
+<hr />
+<h2 id="_8">위험 / 개선 필요 사항</h2>
+<ol>
+<li>
+<p><strong>Python 의존성 자동 취약점 스캔 부재</strong>: dependabot이 GitHub Actions만 모니터링. pdfminer, mammoth, magika 등 핵심 의존성의 CVE는 수동 점검에 의존. pip-audit 또는 safety를 CI에 추가해야 함.</p>
+</li>
+<li>
+<p><strong>커버리지 측정 미통합</strong>: <code>pyproject.toml</code>에 coverage 설정은 있으나 CI에서 측정·리포트하지 않음. 복잡한 컨버터 분기 코드의 테스트 사각지대 파악 불가.</p>
+</li>
+<li>
+<p><strong><code>**kwargs</code> 타입 희석</strong>: <code>MarkItDown.__init__()</code> 및 모든 컨버터가 <code>**kwargs</code>를 통해 옵션을 전달. 런타임까지 타입 오류 미발견, IDE 지원 부족. TODO 주석도 인지하고 있으나 미해결.</p>
+</li>
+<li>
+<p><strong>MCP 서버 인증 부재</strong>: <code>markitdown-mcp</code>는 인증 메커니즘이 전혀 없음. HTTP 모드에서 비localhost 바인딩 시 경고만 출력. 프로덕션 배포 시 보안 프록시 없이는 위험.</p>
+</li>
+<li>
+<p><strong>CONTRIBUTING.md 및 CHANGELOG 부재</strong>: 신규 기여자 온보딩이 README 내 짧은 섹션에 의존. 버전별 변경 이력이 GitHub Release/PR에만 분산되어 있어 도입 결정 시 변경 이력 추적이 어려움.</p>
+</li>
+</ol>
+<hr />
+<h2 id="_9">도입 권고</h2>
+<h3 id="_10">기술 도입 판단</h3>
+<p><strong>강력 권고</strong> — LLM 기반 문서 처리 파이프라인의 전처리 레이어로 적합.</p>
+<ul>
+<li><strong>RAG/LLM 파이프라인</strong>: PDF·Office 문서를 청크 전에 Markdown으로 정규화하는 용도로 즉시 활용 가능.</li>
+<li><strong>에이전트 시스템</strong>: MCP 패키지를 통해 Claude Desktop 등 MCP 호환 에이전트에 바로 통합 가능.</li>
+<li><strong>자체 포맷 확장</strong>: 플러그인 인터페이스가 명확하여 사내 독자 포맷 컨버터 추가 공수가 낮음.</li>
+</ul>
+<h3 id="_11">도입 시 주의사항</h3>
+<table>
+<thead>
+<tr>
+<th>시나리오</th>
+<th>권고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>신뢰할 수 없는 입력 처리</td>
+<td><code>convert()</code> 대신 <code>convert_local()</code> 또는 <code>convert_stream()</code>으로 범위 제한 필수</td>
+</tr>
+<tr>
+<td>서버사이드 파일 변환 서비스</td>
+<td>파일 경로·URI 화이트리스트 + 프로세스 격리(컨테이너) 필수</td>
+</tr>
+<tr>
+<td>MCP HTTP 서버 공개 노출</td>
+<td>인증 프록시(nginx/traefik) 앞에 배치 필수</td>
+</tr>
+<tr>
+<td>엔터프라이즈 컴플라이언스</td>
+<td>Python 의존성 SBOM 생성 및 pip-audit 주기 스캔 추가 권장</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">아키텍처 벤치마킹 관점</h3>
+<p>MarkItDown의 우선순위 기반 Chain of Responsibility + entry_points 플러그인 패턴은 <strong>다른 파일 처리 파이프라인 시스템에서 참고할 수 있는 모범 설계</strong>다. StreamInfo frozen dataclass를 통한 메타데이터 전파 방식도 유사한 시스템 설계 시 참조 가치가 높다.</p>
+<hr />
+<p><em>분석 완료: 2026-06-08 | 대상: microsoft/markitdown v0.1.6 | 분석도구: 직접 코드 열람 (파일 읽기 기반)</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
     
     <div class="md-body"><p>Now I have all the information needed. Let me compile the comprehensive report.</p>
 <hr />

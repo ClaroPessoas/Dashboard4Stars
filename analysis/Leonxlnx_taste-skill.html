@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Leonxlnx/taste-skill - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/Leonxlnx/taste-skill" target="_blank" rel="noopener">Leonxlnx/taste-skill</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Taste-Skill - gives your AI good taste. stops the AI from generating boring, generic slop</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Shell</span>
+      <span class="badge badge-stars">★ 36219</span>
+      <span class="badge badge-stars">+1,104 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>분석 보고서가 <code>.review/REVIEW-Source.md</code>에 저장되었습니다. 아래는 최종 보고서 내용입니다.</p>
+<hr />
+<h1 id="taste-skill">Taste Skill — 오픈소스 분석 보고서</h1>
+<p><strong>분석일:</strong> 2026-06-08<br />
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/Leonxlnx_taste-skill</code><br />
+<strong>원본 저장소:</strong> <code>https://github.com/Leonxlnx/taste-skill</code><br />
+<strong>출력 파일:</strong> <code>.review/REVIEW-Source.md</code></p>
+<hr />
+<h2 id="_1">종합 평가표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 코딩 에이전트(Codex, Cursor, Claude Code)용 "Anti-Slop" 프론트엔드 스킬 컬렉션. LLM이 생성하는 획일적이고 낮은 퀄리티의 UI를 방지하는 프롬프트 규칙 파일(SKILL.md) 모음</td>
+<td>★★★★☆ — 목적이 명확하고 독창적인 니치</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 저장소. <code>skills/</code>(13개 스킬), <code>research/</code>(LLM 동작 연구), <code>assets/</code>, <code>examples/</code>, <code>.github/</code>. 코드 없이 마크다운 SKILL.md 파일만으로 구성. <code>skill.sh</code>는 로컬 조회용 셸 스크립트</td>
+<td>★★★★☆ — 단순·명료하나 블록 라이브러리 미구현</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>기술 스택 없음(소프트웨어가 아님). 배포 도구: <code>npx skills add</code>(agent-skills CLI). 스킬이 지향하는 구현 스택: React/Next.js, Tailwind v4, Motion(<code>motion/react</code>), GSAP/ScrollTrigger</td>
+<td>★★★★☆ — 스킬 자체는 프레임워크 무관</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>skills/</code> 디렉토리(agent-skills CLI가 자동 스캔). YAML 프런트매터 <code>name:</code> 필드가 설치 식별자. <code>skill.sh</code>가 로컬 레지스트리 역할. <code>skills/llms.txt</code>가 LLM용 요약 색인</td>
+<td>★★★★☆ — 배포 메커니즘 잘 설계됨</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>스킬 파일 기반 프롬프트 엔지니어링 아키텍처. "3 Dials" 설정 모델(DESIGN_VARIANCE / MOTION_INTENSITY / VISUAL_DENSITY). v2에서 14개 섹션 구조로 확장. 블록 라이브러리(§12) 스키마 정의됨, 구현 미착수</td>
+<td>★★★☆☆ — 철학 견고, 블록 라이브러리 공백</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>데이터베이스·캐시·메시지 큐 없음. 순수 정적 콘텐츠 저장소</td>
+<td>N/A</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>GitHub 저장소 직접 배포. <code>npx skills add &lt;repo-url&gt;</code> 또는 SKILL.md 직접 복사. 패키지 레지스트리 없음. Docker/Kubernetes 불필요</td>
+<td>★★★★★ — 설치 마찰 최소화</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>공식 테스트 스위트 없음. CI/CD 파이프라인 없음. "프로덕션 테스트"는 직접 에이전트 실행으로 수행(CHANGELOG에 round-5 언급). 린트·정적 분석 도구 부재</td>
+<td>★★☆☆☆ — 자동화 테스트 전무</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 없음. 비밀 키·환경변수 없음(순수 텍스트 파일). Dependabot·Renovate 미설정. SBOM 없음. GitHub Sponsors를 통한 재정 공개</td>
+<td>★★★☆☆ — 소프트웨어 보안 위험 낮으나 정책 문서 부재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>MIT 라이선스. CHANGELOG 존재. README 고품질. CONTRIBUTING·CODE_OF_CONDUCT·이슈 템플릿 없음. 스폰서 12명 이상. v2 experimental 활성 반복 중</td>
+<td>★★★☆☆ — 커뮤니티 성장 중, 거버넌스 문서 부족</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="1">1. 목적 및 범위</h3>
+<p><strong>한국어</strong><br />
+Taste Skill은 AI 코딩 에이전트가 프론트엔드 UI를 생성할 때 발생하는 "슬롭(slop)" — 즉, 획일적이고 예측 가능하며 낮은 퀄리티의 디자인 — 을 방지하기 위한 포터블 에이전트 스킬 파일 컬렉션이다. 사용자는 Codex, Cursor, Claude Code 등 AI 코딩 도구에 SKILL.md 파일을 주입함으로써 에이전트의 UI 생성 방향을 "Anti-Slop"으로 조정한다. 랜딩 페이지·포트폴리오·리디자인을 주 대상으로 하며, 대시보드·데이터 테이블·멀티스텝 폼은 명시적으로 범위 외(Out of Scope)로 선언되어 있다.</p>
+<p><strong>English</strong><br />
+Taste Skill is a collection of portable agent "skill" files designed to override AI agents' default tendency to produce templated, low-quality frontend UIs. By injecting a <code>SKILL.md</code> file into a coding agent session, developers constrain the agent's design output to follow high-agency, anti-generic rules. Target use cases: landing pages, portfolios, redesigns. Explicitly excluded: dashboards, data tables, native mobile, realtime collaboration UIs.</p>
+<hr />
+<h3 id="2">2. 저장소 구조 분석</h3>
+<pre><code>taste-skill/
+├── .github/
+│   ├── FUNDING.yml               # GitHub Sponsors
+│   └── copilot-instructions.md   # GitHub Copilot 전역 동작 설정
+├── assets/                       # 로고·배너 이미지
+├── examples/                     # 생성 결과물 예시
+├── research/
+│   └── laziness/                 # LLM 출력 절단 원인·해결 연구
+├── skills/
+│   ├── llms.txt                  # LLM용 스킬 요약 색인
+│   ├── taste-skill/              # 기본 스킬 v2 (1,206줄)
+│   ├── taste-skill-v1/           # v1 보존본
+│   ├── gpt-tasteskill/           # GPT/Codex 전용 강화 변형
+│   ├── redesign-skill/           # 기존 프로젝트 리디자인
+│   ├── soft-skill/               # 고급 에이전시 스타일
+│   ├── output-skill/             # 출력 절단 방지
+│   ├── minimalist-skill/         # Notion/Linear 스타일
+│   ├── brutalist-skill/          # 산업적 브루탈리즘
+│   ├── stitch-skill/             # Google Stitch 호환
+│   ├── imagegen-frontend-web/    # 웹 컴프 이미지 생성 전용
+│   ├── imagegen-frontend-mobile/ # 모바일 이미지 생성 전용
+│   └── brandkit/                 # 브랜드 키트 이미지 생성 전용
+├── skill.sh                      # 로컬 스킬 조회 유틸리티
+├── CHANGELOG.md
+├── LICENSE (MIT)
+└── README.md
+</code></pre>
+<hr />
+<h3 id="3">3. 소프트웨어 스택</h3>
+<p>이 프로젝트는 실행 가능한 소프트웨어가 아닌 <strong>프롬프트 엔지니어링 콘텐츠 저장소</strong>다. 배포 매체: <code>npx skills add</code>(agent-skills CLI). 스킬이 지향하는 구현 대상 스택: React/Next.js (RSC), Tailwind v4, Motion(<code>motion/react</code>), GSAP+ScrollTrigger, Phosphor/HugeIcons 아이콘.</p>
+<hr />
+<h3 id="4">4. 아키텍처 분석</h3>
+<p><strong>핵심 추상화: 3 Dials 모델</strong></p>
+<ul>
+<li><code>DESIGN_VARIANCE</code> (1=완전 대칭 ~ 10=예술적 혼돈)  </li>
+<li><code>MOTION_INTENSITY</code> (1=정적 ~ 10=시네마틱)  </li>
+<li><code>VISUAL_DENSITY</code> (1=갤러리/공기감 ~ 10=조종석/데이터 밀집)</li>
+</ul>
+<p>에이전트는 사용자의 브리프를 읽어 다이얼 값을 추론하고, 이를 기반으로 레이아웃·모션·타이포그래피 결정을 내린다. v1 대비 v2는 섹션 수 10→15, 브리프 추론(§0) 추가, 금지 패턴 대폭 강화, Pre-Flight Check 7→60+개 항목으로 대폭 확장되었다.</p>
+<p><strong>gpt-tasteskill의 "Python RNG" 패턴</strong>: 프롬프트 문자 수를 시드로 <code>random.choice()</code>를 시뮬레이션하여 에이전트가 매번 다른 레이아웃을 선택하도록 강제하는 독창적 접근.</p>
+<hr />
+<h3 id="5">5. 품질 및 테스트</h3>
+<p>공식 자동화 테스트 없음. CI/CD 없음. "프로덕션 테스트"는 실제 AI 에이전트로 수동 실행 후 결과물 검토 방식. CHANGELOG의 "round-5 hardening from test-13/14/15"가 이를 반영. §9의 금지 패턴 목록은 이러한 반복 테스트에서 실증적으로 도출된 AI Tell 목록이다.</p>
+<hr />
+<h3 id="6">6. 보안 및 공급망</h3>
+<p>SECURITY.md 없음. 실행 가능한 코드·외부 의존성 없어 보안 위험 극히 낮음. MIT 라이선스로 상업적 사용·재배포·수정 모두 허용. <code>.github/copilot-instructions.md</code>는 저장소 포함 시 팀 전체 Copilot 동작에 영향을 주므로 인지 필요.</p>
+<hr />
+<h3 id="7">7. 문서 및 운영 성숙도</h3>
+<p>README: 고품질 (설치·스킬 테이블·설정·FAQ·예시). CHANGELOG: 상세. 단, CONTRIBUTING.md, CODE_OF_CONDUCT.md, 이슈/PR 템플릿 부재. 스폰서 12명+, 전용 웹사이트(tasteskill.dev) 운영, X(Twitter) DM 채널 제공.</p>
+<hr />
+<h2 id="_3">강점</h2>
+<ol>
+<li><strong>실증적 접근</strong>: v2의 금지 패턴 목록(§9)은 실제 LLM 생성물 반복 분석에서 도출된 실증적 근거를 가진다. em-dash 완전 금지, 프리미엄 소비재 팔레트 금지 등은 이론이 아닌 관측된 패턴이다.</li>
+<li><strong>다이얼 기반 설정 추상화</strong>: 3-Dials 모델은 단순하면서도 표현력이 높으며, 대화 중 재설정 가능하도록 에이전트 친화적으로 설계되었다.</li>
+<li><strong>범위 경계의 명시적 선언</strong>: §13 Out of Scope 섹션으로 스킬의 한계를 솔직하게 선언한다.</li>
+<li><strong>에이전트 간 이식성</strong>: npx CLI, 직접 파일 복사, 대화 붙여넣기 등 다양한 설치 경로를 지원하며 특정 에이전트에 종속되지 않는다.</li>
+<li><strong>연구 기반 개발</strong>: <code>research/laziness/</code>에 LLM 출력 절단의 근본 원인과 해결책을 체계적으로 문서화했다.</li>
+</ol>
+<hr />
+<h2 id="_4">위험 및 개선 필요 사항</h2>
+<ol>
+<li><strong>블록 라이브러리(§12) 미구현</strong>: <code>skills/taste-skill/blocks/</code> 스키마만 선언, 실제 파일 없음. v2.0.0 stable의 핵심 미완성 작업.</li>
+<li><strong>자동화 테스트·CI 부재</strong>: 수동 에이전트 실행에 전적으로 의존. 최소한 Markdown 린터와 YAML 프런트매터 검증 자동화 필요.</li>
+<li><strong>거버넌스 문서 부재</strong>: CONTRIBUTING.md, CODE_OF_CONDUCT.md, 이슈/PR 템플릿 없어 커뮤니티 기여 진입 장벽.</li>
+<li><strong>v2 안정성 불확실</strong>: 기본값이 된 v2 experimental이 여전히 활발히 변경 중.</li>
+<li><strong>스킬 간 규칙 중복</strong>: 13개 SKILL.md가 유사 규칙을 개별 정의, 공통 규칙 중앙화 메커니즘 없어 일관성 유지 어려움.</li>
+</ol>
+<hr />
+<h2 id="_5">도입 권고</h2>
+<p><strong>도입 권고 등급: ★★★★☆ (조건부 적극 권고)</strong></p>
+<p>AI 코딩 에이전트로 랜딩 페이지·포트폴리오·마케팅 사이트를 개발하는 개발자와 에이전시에게 적극 권장한다. 핵심 프로덕션 워크플로우에 버전 고정이 필요한 경우 <code>design-taste-frontend-v1</code> 사용 권장. 대시보드·데이터 테이블 등 명시적 범위 외 사용 사례에는 적용 금지. 3-Dials 모델과 Pre-Flight Checklist 패턴은 AI 에이전트 제어를 위한 체계적 프롬프트 엔지니어링의 좋은 아키텍처 참조 사례다.</p>
+<hr />
+<p><em>보고서 저장 위치: <code>/tmp/github-dashboard-analysis/Leonxlnx_taste-skill/.review/REVIEW-Source.md</code></em><br />
+<em>분석 방법: 저장소 파일 직접 열람 및 내용 검증</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>Leonxlnx/taste-skill</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/Leonxlnx/taste-skill" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
