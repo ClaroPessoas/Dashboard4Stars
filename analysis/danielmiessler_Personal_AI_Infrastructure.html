@@ -107,12 +107,188 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-indepth">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>Now I have enough information to produce the comprehensive analysis report. Let me write it.</p>
+<hr />
+<p>분석일: 2026-06-07
+분석 대상: <code>/tmp/github-dashboard-analysis/danielmiessler_Personal_AI_Infrastructure</code></p>
+<hr />
+<h1 id="pai-personal-ai-infrastructure-source-analysis-report">PAI (Personal AI Infrastructure) — 소스 분석 보고서 / Source Analysis Report</h1>
+<hr />
+<h2 id="8-a">8-A. 단일 프로젝트 분석 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>개인용 "Life Operating System(생활 운영체제)". Claude Code 위에서 동작하는 AI 인프라로, 사용자 목표(TELOS), 기억(Memory), 실행 알고리즘(Algorithm), 스킬(Skills), 훅(Hooks), 대시보드(Pulse)를 통합해 AI 조수(DA)가 사용자의 현재 상태 → 이상 상태 전환을 지속적으로 지원</td>
+<td>★★★★★ 비전은 뚜렷하고 독창적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>루트: <code>README.md</code>, <code>SECURITY.md</code>, <code>PLATFORM.md</code>, <code>Releases/</code>, <code>Packs/</code>, <code>Tools/</code>, <code>images/</code>. 실제 설치 아티팩트는 <code>Releases/v5.0.0/.claude/</code> 아래 집중. 모노레포, 도메인 지향 구조. <code>PAI/DOCUMENTATION/</code>에 서브시스템별 문서</td>
+<td>★★★★☆ 명확하나 Releases와 Packs 간 경계가 일부 중복</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>언어: TypeScript(우선), Bash. 런타임: <strong>Bun</strong> (npm/npx 금지). AI 플랫폼: <strong>Claude Code (Anthropic)</strong>. TTS: ElevenLabs. 메시징: Telegram, iMessage. 설정: TOML(PULSE.toml), JSON(settings.json). OS: macOS 기본, Linux 지원, Windows 미지원</td>
+<td>★★★★☆ Bun+TS 조합은 빠르지만 Bun 생태계 의존도 주의</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>Releases/v5.0.0/.claude/install.sh</code> → Bun TypeScript 인스톨러. 이후 <code>PAI/PULSE/pulse.ts</code>를 launchd/systemd 데몬으로 실행, 포트 31337 단일 HTTP 서버 제공. 세션은 <code>CLAUDE.md</code> @-import로 <code>PRINCIPAL_IDENTITY</code>, <code>DA_IDENTITY</code>, <code>TELOS</code>, <code>PROJECTS</code> 자동 로드</td>
+<td>★★★★☆ 진입점이 명확하나 <code>curl | bash</code> 설치 방식은 보안 검토 필요</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>3-레이어: PAI(OS) → Pulse(대시보드 + 데몬) → DA(디지털 조수). 핵심: <strong>7단계 Algorithm</strong> (OBSERVE→THINK→PLAN→BUILD→EXECUTE→VERIFY→LEARN), <strong>ISA</strong>(Ideal State Artifact) 단일 진실 원천. <strong>46개 공개 스킬</strong> (TitleCase), <strong>37개 훅</strong>(PreToolUse/PostToolUse/SessionStart 등), <strong>19개 명명된 에이전트</strong>. 보안: 4-인스펙터 파이프라인(Pattern/Egress/Rules/Prompt). 메모리: WORK/KNOWLEDGE/LEARNING/OBSERVABILITY 티어. Containment Zone으로 공개/사적 데이터 경계 구조적 강제</td>
+<td>★★★★★ 개인 AI 인프라로서 혁신적이고 체계적</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>파일시스템 = 인덱스. RAG 없음(2025-06 이후 폐기). 마크다운 + ripgrep으로 검색. <code>~/.claude/PAI/MEMORY/</code>에 계층형 디렉터리로 세션간 지식 축적. <code>.jsonl</code>로 관찰성 이벤트 저장. SQLite는 iMessage 폴링에만 한정 사용</td>
+<td>★★★★☆ 투명성 높으나 대용량 확장성 한계 존재</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>사용자 로컬 설치: <code>curl -sSL https://ourpai.ai/install.sh | bash</code> 또는 수동 클론. Pulse 데몬은 launchd(macOS)/systemd(Linux) 서비스 등록. 도커/쿠버네티스 미지원. 버전 관리는 <code>Releases/</code> 디렉터리로 스냅샷 보관</td>
+<td>★★★☆☆ 개인 설치에 최적화, 팀/기업 배포 경로 미비</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>전통적 단위/통합 테스트 없음. ISC(Ideal State Criteria)가 사실상 검증 기준. <code>validate-protected.ts</code>로 민감 데이터 패턴 체크. <code>test-results/</code> 디렉터리 존재. CI: Claude Code 기반 PR 리뷰 워크플로 2개(자동 코드리뷰, <code>@claude</code> 인터랙티브). Evals 스킬(코드/모델/휴먼 채점기)로 AI 컴포넌트 평가</td>
+<td>★★☆☆☆ 자동화 테스트 부재, ISC 기반 수동 검증에 의존</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code>에 공개/비공개 분리 정책, 프롬프트 인젝션 방어, 커맨드 인젝션 예방, SSRF 차단 코드 예시 수록. 4-레이어 SecurityPipeline(PreToolUse 차단). ContainmentGuard가 개인 식별자 유출을 구조적으로 차단. <code>.pai-protected.json</code>으로 API키/개인정보 패턴 검증. ANTHROPIC_API_KEY를 Pulse 데몬 환경에서 의도적으로 삭제(실제 청구 사고 방지)</td>
+<td>★★★★☆ 방어 설계가 탁월, 단 <code>curl|bash</code> 설치와 단일 기여자 서명 부재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v5.0.0(2026-04-30), 이전 v4.0.3 → v2.0.0(2025-12)까지 빠른 릴리스 이력. 기여자 다수(커뮤니티 PR #1259 등), GitHub Discussions 활성. "Alpha — rough edges expected" 경고 유지. CONTRIBUTING 문서 없음, ADR 없음. 로드맵 존재(로컬 모델, 원격 접근, 외부 알림 예정)</td>
+<td>★★★☆☆ 활발한 개발, 거버넌스 문서화 미흡</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-strengths">1. 강점 (Strengths)</h2>
+<p><strong>1. ISA(Ideal State Artifact) 원시 개념의 독창성</strong>
+단일 12섹션 문서(Problem → Vision → Out of Scope → Principles → Constraints → Goal → Criteria → Test Strategy → Features → Decisions → Changelog → Verification)가 PRD, 테스트 명세, 검증 기록, 완료 조건을 동시에 대체한다. Deutsch의 "hard-to-vary explanation" 철학에 기반해 AI 작업의 "완료"를 정의하는 새로운 접근이다.</p>
+<p><strong>2. 구조적 개인정보 보호(Containment Architecture)</strong>
+<code>containment-zones.ts</code>가 공개/비공개 데이터 경계를 코드 레벨에서 강제한다. <code>ContainmentGuard.hook.ts</code>가 PreToolUse 시점에 개인 식별자(이메일, 도메인, API키, CF 계정 ID 등)가 공개 존에 작성되는 것을 차단한다. Privacy-as-Code의 모범 사례.</p>
+<p><strong>3. 4-레이어 보안 파이프라인</strong>
+SecurityPipeline(PreToolUse 차단) → ContentScanner(PostToolUse 경고) → SmartApprover(퍼미션 자동화) → PromptGuard(사용자 입력 스캔)의 심층 방어 구조. 각 인스펙터는 독립 인터페이스를 구현해 합성 가능하다. 프롬프트 인젝션, SSRF, 커맨드 인젝션에 대한 실용적 방어 예시를 <code>SECURITY.md</code>에 수록.</p>
+<p><strong>4. 7단계 Algorithm의 엄밀성과 버전 관리</strong>
+v2.4.0(2026-01)부터 v6.3.0(2026-04)까지 마이너 버전마다 changelog 관리. 폐쇄 열거형(closed enumeration) 사고 능력 목록(IterativeDepth, ApertureOscillation, RedTeam 등 19개)으로 팬텀 능력 선언을 CRITICAL FAILURE로 처리하는 엄격한 규율. E1–E5 티어로 작업 복잡도에 따라 사고 깊이를 자동 조정.</p>
+<p><strong>5. 파일시스템-as-인덱스 철학과 RAG 제거</strong>
+임베딩, 벡터 DB, 검색 인프라 없이 구조화된 마크다운 + ripgrep으로 동등한 검색 기능 달성. 복잡성 없이 투명성을 유지하는 "Bitter-pilled Engineering" 원칙의 실천. 2025-06 이후 RAG를 완전히 폐기하고도 시스템이 더 단순해졌다는 점이 증명.</p>
+<hr />
+<h2 id="2-risks-areas-for-improvement">2. 위험 / 개선 필요 사항 (Risks / Areas for Improvement)</h2>
+<p><strong>1. 자동화 테스트 부재 — 최대 위험</strong>
+단위 테스트, 통합 테스트, E2E 테스트가 전혀 없다. 검증은 ISC 기반 수동 체크에 의존한다. 46개 스킬과 37개 훅, 72개 TypeScript 도구 파일이 테스트 없이 릴리스된다. 향후 리팩터링이나 Bun 버전 업그레이드 시 회귀를 감지하기 어렵다. <code>Spec / Test / Evals First</code>를 원칙으로 선언하지만 코드베이스 자체는 이를 따르지 않는다.</p>
+<p><strong>2. <code>curl | bash</code> 설치 방식의 보안 위험</strong>
+권장 설치 방법이 <code>curl -sSL https://ourpai.ai/install.sh | bash</code>다. 제3자 도메인(<code>ourpai.ai</code>)에서 코드를 받아 루트 없이 사용자 홈 디렉터리에 직접 설치한다. 이 도메인이 침해되면 전체 PAI 생태계 사용자가 공급망 공격에 노출된다. SBOM 없음, 아티팩트 서명 없음, 체크섬 검증 없음.</p>
+<p><strong>3. 단일 플랫폼 의존(Claude Code 전용)</strong>
+"PAI is Claude Code native"를 명시적으로 선언한다. Claude Code의 훅 시스템, 컨텍스트 관리, <code>Skill()</code> 인터페이스에 깊이 결합되어 있어 다른 AI 런타임으로의 이식이 사실상 불가능하다. Claude Code의 정책 변경이나 API 폐기가 전체 시스템을 무력화할 수 있다. Windows 미지원도 동일 맥락.</p>
+<p><strong>4. 거버넌스 문서 부재 — 커뮤니티 확장 한계</strong>
+<code>CONTRIBUTING.md</code> 없음, <code>CODE_OF_CONDUCT.md</code> 없음, ADR(Architecture Decision Records) 없음. PR 프로세스나 코드 리뷰 기준이 명문화되지 않았다. 기여자가 증가할수록 일관성 유지가 어렵다. <code>FUNDING.yml</code>의 모든 스폰서십 필드가 비어 있어 지속 가능성 신호도 미약하다.</p>
+<p><strong>5. 실제 청구 사고(Billing Incident)와 내부 개인정보 잔류</strong>
+<code>pulse.ts</code>의 코드 주석에 2026년 4월 실제 청구 사고($498 청구서)가 노출되어 있다. <code>ContainmentGuard</code>에도 실제 Cloudflare 계정 ID 패턴(889c0252..., 0baeb281...)이 하드코딩되어 있어 공개 저장소에서 특정 인프라를 역추적할 가능성이 있다. 또한 여러 문서에 <code>example.com</code> 대신 <code>danielmiessler.com</code>, <code>unsupervised-learning.com</code> 등 실제 도메인이 혼재한다.</p>
+<hr />
+<h2 id="3-adoption-recommendation">3. 도입 권고 (Adoption Recommendation)</h2>
+<h3 id="technology-adoption">기술 도입 관점 (Technology Adoption)</h3>
+<p><strong>대상:</strong> 개인 개발자, AI 연구자, Claude Code 헤비 유저, "Life OS" 개념에 공감하는 테크니컬 사용자.</p>
+<p><strong>권고 수준: 조건부 채택 (Conditional Adoption)</strong></p>
+<p>PAI v5.0.0은 개인용 AI 인프라의 새로운 패러다임을 제시하는 혁신적 프로젝트다. ISA 원시 개념, Containment 아키텍처, 7단계 Algorithm의 설계는 독창적이고 실용적이다. 그러나 다음 조건을 확인 후 도입을 결정해야 한다:</p>
+<table>
+<thead>
+<tr>
+<th>도입 적합 대상</th>
+<th>도입 부적합 대상</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Claude Code를 기본 IDE로 사용하는 개인 개발자</td>
+<td>팀/기업 단위 배포가 필요한 조직</td>
+</tr>
+<tr>
+<td>macOS/Linux 사용자</td>
+<td>Windows 사용자</td>
+</tr>
+<tr>
+<td>빠른 변화를 감수할 수 있는 early adopter</td>
+<td>프로덕션 안정성이 필수인 환경</td>
+</tr>
+<tr>
+<td>PAI의 철학(Ideal State, TELOS)에 공감하는 사람</td>
+<td>벤더 중립적 AI 인프라가 필요한 조직</td>
+</tr>
+<tr>
+<td>직접 코드를 수정하고 기여할 의향이 있는 사용자</td>
+<td>공식 지원, SLA, 엔터프라이즈 기능이 필요한 환경</td>
+</tr>
+</tbody>
+</table>
+<h3 id="architectural-benchmarking">아키텍처 참조 관점 (Architectural Benchmarking)</h3>
+<p>다음 설계 패턴은 다른 AI 인프라 프로젝트에서 참조할 가치가 높다:</p>
+<ul>
+<li><strong>ISA(Ideal State Artifact)</strong>: AI 작업의 "완료 정의"를 구조화하는 방법론</li>
+<li><strong>Containment Zone</strong>: 공개/사적 데이터를 코드 레벨에서 구조적으로 분리하는 패턴</li>
+<li><strong>Inspector Pipeline</strong>: PreToolUse 보안 검사를 합성 가능한 인스펙터 체인으로 구성하는 방법</li>
+<li><strong>파일시스템-as-인덱스</strong>: RAG 없이 구조화된 마크다운으로 지식 검색 구현</li>
+<li><strong>Skill 공개/비공개 경계</strong>: 디렉터리 명명 규칙(<code>TitleCase</code> vs <code>_ALLCAPS</code>)으로 릴리스 경계 강제</li>
+</ul>
+<h3 id="security-review">보안 검토 관점 (Security Review)</h3>
+<p>도입 전 필수 점검 항목:</p>
+<ol>
+<li><code>ourpai.ai</code> 설치 스크립트를 직접 검토하고 체크섬을 독립 검증할 것</li>
+<li><code>ContainmentGuard.hook.ts</code>의 하드코딩된 패턴이 실제 인프라 정보를 노출하는지 확인</li>
+<li>Pulse 데몬 포트 31337이 로컬호스트에만 바인딩되는지 네트워크 레벨에서 검증</li>
+<li>ElevenLabs, Telegram API 키 관리 방식 확인 (<code>.env</code> 파일 권한 0600 설정 권장)</li>
+</ol>
+<h3 id="_1">종합 판정</h3>
+<p>PAI는 "개인 AI 인프라"라는 카테고리를 새롭게 정의하는 선구적 프로젝트다. 현재(v5.0.0)는 Alpha 수준이지만, 설계 철학과 핵심 아키텍처는 프로덕션 수준의 정교함을 보여준다. <strong>자동화 테스트 부재와 공급망 보안(설치 스크립트)이 가장 큰 미해결 위험</strong>이다. 개인 사용 목적으로는 지금 바로 실험 가능하며, 조직 도입은 테스트 인프라 구축과 거버넌스 문서화 완료 후를 권장한다.</p>
+<hr />
+<h2 id="tech-stack-summary">부록: 기술 스택 요약 (Tech Stack Summary)</h2>
+<pre><code>Language:      TypeScript (primary), Bash
+Runtime:       Bun (mandatory, npm/npx banned)
+AI Platform:   Claude Code (Anthropic) — native, exclusive
+Voice TTS:     ElevenLabs API
+Messaging:     Telegram (grammY), iMessage (SQLite polling)
+Config:        TOML (PULSE.toml), JSON (settings.json)
+Storage:       Filesystem (Markdown + .jsonl), no DB except iMessage
+Daemon:        Bun HTTP server, port 31337, launchd/systemd
+Security:      4-inspector pipeline, ContainmentGuard, PromptGuard
+CI/CD:         GitHub Actions (Claude Code PR review, @claude bot)
+License:       MIT
+Platform:      macOS (primary), Linux (supported), Windows (unsupported)
+Version:       PAI 5.0.0 | Algorithm v6.3.0 | Memory v7.6
+Skills:        46 public (TitleCase), private via _ALLCAPS convention
+Hooks:         37+ (SessionStart → SessionEnd lifecycle)
+Agents:        19 named (Forge, Cato, Anvil, Engineer, Architect, etc.)
+</code></pre>
+<hr />
+<p><em>분석 도구: 직접 파일 검사 (Read, Bash, grep). 외부 데이터 없음.</em>
+<em>Analyzed by: Direct file inspection. No external data sources used.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
     
     <div class="md-body"><h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
 <blockquote>

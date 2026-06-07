@@ -107,12 +107,438 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-indepth">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 분석 보고서를 작성합니다.</p>
+<hr />
+<p>분석일: 2026-06-07
+분석 대상: <code>/tmp/github-dashboard-analysis/mvanhorn_last30days-skill</code></p>
+<hr />
+<h1 id="mvanhornlast30days-skill">소스코드 분석 보고서: <code>mvanhorn/last30days-skill</code></h1>
+<p><strong>Analysis Date:</strong> 2026-06-07
+<strong>Target Path:</strong> <code>/tmp/github-dashboard-analysis/mvanhorn_last30days-skill</code>
+<strong>Report File:</strong> <code>.review/REVIEW-Source.md</code></p>
+<hr />
+<h2 id="summary-table">종합 평가표 (Summary Table)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 에이전트가 Reddit, X(Twitter), YouTube, TikTok, HN, Polymarket, GitHub 등 다중 플랫폼을 병렬로 검색·통합하여 최근 30일간의 사회적 반응을 제공하는 슬래시커맨드 스킬. 편집자 큐레이션 대신 실제 사용자 참여도(좋아요, 업보트, 실거래금)로 콘텐츠를 순위화함</td>
+<td>★★★★★ 명확하고 차별화된 목적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>skills/last30days/</code> 하위에 <code>SKILL.md</code>(에이전트 계약) + <code>scripts/</code> (실행 엔진)로 분리된 모노레포 구조. <code>lib/</code> 내 소스별 모듈 분리, <code>vendor/</code>에 bird-search 클라이언트 번들, <code>tests/</code>(95개 파일), <code>docs/solutions/</code>로 운영 지식 캡처</td>
+<td>★★★★☆ 체계적 분리, 단일 레포</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.12+, <code>uv</code> 패키지 매니저, pytest 9+, ThreadPoolExecutor(병렬 I/O), SQLite(트렌드 저장소), Node.js(bird-search 벤더), 런타임 의존성 없음(zero runtime deps in pyproject.toml)</td>
+<td>★★★★★ 의존성 극소화</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>skills/last30days/scripts/last30days.py</code> (CLI), SKILL.md가 에이전트 런타임 계약의 진입점. <code>argparse</code> 기반 CLI, Python 버전 가드(3.12+) 선행 실행</td>
+<td>★★★★☆ 명확한 이중 진입점</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td><code>planner</code> → <code>pipeline</code> → <code>fusion(RRF)</code> → <code>cluster</code> → <code>render</code> 순의 파이프라인 패턴. 소스별 모듈(reddit, xai_x, youtube 등) 평탄한 lib/ 구조. <code>providers.py</code>로 LLM 추상화(Gemini/OpenAI/xAI). 에이전트 계약(SKILL.md)과 엔진 구현 명확히 분리</td>
+<td>★★★★★ 파이프라인 아키텍처, 관심사 분리 우수</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>외부 REST API(Reddit public JSON, HN API, Polymarket, GitHub, ScrapeCreators, xAI, Gemini, Brave Search 등). 선택적 SQLite 스토어(<code>store.py</code>) for 트렌드 축적. 환경 변수 계층(프로젝트 <code>.env</code> &gt; 사용자 <code>~/.config</code> &gt; macOS Keychain)</td>
+<td>★★★★☆ 다계층 자격증명, 외부 의존 높음</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>GitHub Actions(validate.yml: pytest on PR/push, release.yml: <code>.skill</code> 아티팩트 생성 및 GitHub Release, security.yml: pip-audit + TruffleHog). Claude Code marketplace, npx skills, clawhub, claude.ai 직접 업로드 등 다수 배포 채널</td>
+<td>★★★★☆ 자동화된 멀티채널 배포</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>95개 테스트 파일, pytest 기반, <code>uv run pytest --cov</code> 브랜치 커버리지. 단위/통합/e2e 혼합(<code>e2e_comparison.py</code> 별도). CI에서 전체 스위트 실행(v3.3.0에서 복원). 벤더 디렉토리는 커버리지 제외</td>
+<td>★★★★☆ 광범위한 테스트, 1012 tests passing 주장</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>TruffleHog 시크릿 스캔(advisory, <code>continue-on-error: true</code>), pip-audit 의존성 감사(advisory), macOS Keychain 통합, 환경 변수 기반 인증(<code>env.py</code>), SSH 호스트명 정규식 검증, <code>.gitignore</code>로 <code>.env</code> 제외. advisory-first 정책(베이스라인 미확립)</td>
+<td>★★★☆☆ 구조 양호, 강제화 미완료</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v3.3.2(SemVer 준수), Keep a Changelog 형식, GitHub #1 Trending 배지, CONTRIBUTORS.md, CONCEPTS.md, CONFIGURATION.md, AGENTS.md, <code>docs/solutions/</code> 운영 지식, Issue/PR 템플릿, 커뮤니티 기여자 문서화. 단일 저장소 커밋 이력 희박(표시 커밋 1개)</td>
+<td>★★★★☆ 문서 성숙, 커뮤니티 초기</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h2>
+<p><strong>한국어:</strong> <code>last30days</code>는 Reddit, X/Twitter, YouTube, TikTok, Instagram, Hacker News, Polymarket, GitHub, Bluesky, Digg 등 15개 이상의 플랫폼을 AI 에이전트가 병렬 검색하여 임의 주제에 대한 최근 30일간의 소셜 신호를 집계하는 <strong>에이전트 스킬</strong>이다. Claude Code, Codex, Cursor, Gemini CLI, GitHub Copilot 등 50개 이상의 AI 에이전트 하네스에 <code>/last30days &lt;topic&gt;</code> 슬래시커맨드로 배포된다. 편집자 큐레이션이 아닌 업보트·좋아요·실거래금(Polymarket)으로 콘텐츠를 스코어링하는 것이 핵심 차별점이다.</p>
+<p><strong>English:</strong> <code>last30days</code> is an <strong>agent skill</strong> that fans out AI-driven searches across 15+ platforms (Reddit, X, YouTube, TikTok, HN, Polymarket, GitHub, Bluesky, Digg, etc.) in parallel, aggregating social signals from the past 30 days on any topic. Deployed as a <code>/last30days &lt;topic&gt;</code> slash-command across 50+ AI agent harnesses (Claude Code, Codex, Cursor, Gemini CLI, Copilot). Core differentiator: scoring by real engagement (upvotes, likes, real-money Polymarket odds) rather than editorial curation.</p>
+<hr />
+<h2 id="2-repository-structure">2. 저장소 구조 분석 (Repository Structure)</h2>
+<pre><code>mvanhorn_last30days-skill/
+├── skills/last30days/          # 스킬 패키지 (배포 단위)
+│   ├── SKILL.md                # 에이전트 런타임 계약 (source of truth)
+│   ├── scripts/
+│   │   ├── last30days.py       # 메인 CLI 엔진 (1036줄)
+│   │   ├── store.py            # SQLite 트렌드 저장소
+│   │   ├── watchlist.py        # 스케줄 모니터링
+│   │   ├── briefing.py         # 일/주간 요약
+│   │   └── lib/                # 소스별 모듈 (30+ 파일)
+│   │       ├── pipeline.py     # 파이프라인 오케스트레이터 (1138줄)
+│   │       ├── render.py       # 마크다운/HTML 렌더러 (1779줄)
+│   │       ├── schema.py       # 데이터 모델(dataclass)
+│   │       ├── providers.py    # LLM 클라이언트 추상화
+│   │       ├── planner.py      # LLM 기반 쿼리 플래너
+│   │       ├── fusion.py       # Weighted RRF 스코어링
+│   │       ├── cluster.py      # 크로스소스 클러스터 병합
+│   │       ├── env.py          # 자격증명 관리
+│   │       ├── [source].py     # 소스별 어댑터 (reddit, xai_x, youtube, …)
+│   │       └── vendor/bird-search/  # 벤더드 X 검색 Node.js 클라이언트
+│   ├── agents/openai.yaml      # OpenAI 에이전트 정의
+│   └── references/             # 기능별 참조 문서
+├── tests/                      # 95개 pytest 테스트 파일
+├── fixtures/                   # 테스트 픽스처 (HTML, JSON, XML)
+├── docs/
+│   ├── solutions/              # 운영 지식 캡처 (아키텍처·워크플로우)
+│   └── releases/               # 릴리스 노트
+├── .github/workflows/          # CI: validate, release, security
+├── pyproject.toml              # Python 프로젝트 메타데이터 (uv)
+├── SKILL.md                    # → skills/last30days/SKILL.md 참조
+├── CHANGELOG.md                # Keep a Changelog 형식
+├── CONFIGURATION.md            # 사용자 구성 레퍼런스
+├── CONCEPTS.md                 # 도메인 용어 사전
+├── AGENTS.md                   # 에이전트 협업 가이드
+└── CONTRIBUTORS.md             # 커뮤니티 기여자 목록
+</code></pre>
+<p><strong>구조 특징:</strong> 기능 지향(function-oriented) 플랫 <code>lib/</code> 구조. 코드와 운영 자산(docs, fixtures) 분리 명확. 단일 레포(mono-repo). SKILL.md ↔ 엔진 분리가 핵심 아키텍처 결정.</p>
+<hr />
+<h2 id="3-software-stack">3. 소프트웨어 스택 (Software Stack)</h2>
+<table>
+<thead>
+<tr>
+<th>계층</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Python 3.12+ (<code>requires-python = "&gt;=3.12"</code>)</td>
+</tr>
+<tr>
+<td><strong>패키지 매니저</strong></td>
+<td><code>uv</code> (현대적 Python 패키지 관리자, Rust 기반)</td>
+</tr>
+<tr>
+<td><strong>런타임 의존성</strong></td>
+<td><strong>없음</strong> — <code>pyproject.toml</code>의 <code>dependencies = []</code> (표준 라이브러리만 사용)</td>
+</tr>
+<tr>
+<td><strong>개발 의존성</strong></td>
+<td><code>pytest&gt;=9.0.3</code>, <code>pytest-cov&gt;=7</code></td>
+</tr>
+<tr>
+<td><strong>병렬 처리</strong></td>
+<td><code>concurrent.futures.ThreadPoolExecutor</code> (표준 라이브러리)</td>
+</tr>
+<tr>
+<td><strong>데이터 저장</strong></td>
+<td>SQLite (선택적, <code>store.py</code>), <code>.env</code> 파일 + macOS Keychain</td>
+</tr>
+<tr>
+<td><strong>LLM 프로바이더</strong></td>
+<td>Gemini 3.1 Flash Lite/Pro, OpenAI GPT-5.4-nano, xAI Grok-4-1-fast (런타임 선택)</td>
+</tr>
+<tr>
+<td><strong>외부 검색 API</strong></td>
+<td>Brave Search, Exa, Serper (웹), ScrapeCreators (TikTok/Instagram), bird-search (X)</td>
+</tr>
+<tr>
+<td><strong>벤더 의존</strong></td>
+<td><code>lib/vendor/bird-search/</code> — Node.js/MJS X 검색 클라이언트</td>
+</tr>
+<tr>
+<td><strong>배포/빌드</strong></td>
+<td><code>build-skill.sh</code> → <code>.skill</code> 아티팩트, GitHub Actions</td>
+</tr>
+<tr>
+<td><strong>CI</strong></td>
+<td>GitHub Actions (ubuntu-latest, Python 3.12)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주목할 점:</strong> 런타임 외부 패키지 의존성 제로는 설치 마찰 최소화를 위한 의도적 설계로, Agent Skills 생태계의 다중 하네스 배포 환경에서 핵심 장점이다.</p>
+<hr />
+<h2 id="4-architecture">4. 아키텍처 분석 (Architecture)</h2>
+<h3 id="_1">진입점 및 데이터 흐름</h3>
+<pre><code>슬래시커맨드 /last30days &lt;topic&gt;
+       ↓
+  SKILL.md (에이전트 계약 — 모델이 읽는 사양서)
+       ↓
+  last30days.py (CLI argparse, Python 버전 가드)
+       ↓
+  [lib/planner.py] LLM 기반 쿼리 플랜 생성
+       → SubQuery 목록 (label, search_query, sources, weight)
+       ↓
+  [lib/pipeline.py] ThreadPoolExecutor로 소스별 병렬 검색
+       → reddit / xai_x / youtube_yt / hackernews / polymarket / github / …
+       ↓
+  [lib/normalize.py] 소스 결과 통합 → SourceItem 스키마
+       ↓
+  [lib/relevance.py + rerank.py] LLM 관련성·재미 스코어링
+       ↓
+  [lib/fusion.py] Weighted RRF (Reciprocal Rank Fusion) 병합
+       ↓
+  [lib/cluster.py] 엔티티 기반 크로스소스 클러스터 병합
+       ↓
+  [lib/dedupe.py] URL 정규화 기반 중복 제거
+       ↓
+  [lib/render.py] 마크다운 / HTML 렌더링 (1779줄)
+       ↓
+  표준 출력 (모델이 pass-through) + 파일 저장
+</code></pre>
+<h3 id="_2">핵심 아키텍처 패턴</h3>
+<ul>
+<li><strong>파이프라인 패턴 (Pipeline Pattern):</strong> planner → search fanout → normalize → score → fuse → cluster → render의 선형 단계</li>
+<li><strong>전략 패턴 (Strategy Pattern):</strong> <code>providers.py</code>의 <code>ReasoningClient</code> 인터페이스 → <code>GeminiClient</code>, <code>OpenAIClient</code>, <code>XAIClient</code> 구현체 런타임 선택</li>
+<li><strong>어댑터 패턴 (Adapter Pattern):</strong> 소스별 모듈(reddit.py, xai_x.py 등)이 각 외부 API를 <code>SourceItem</code> 공통 스키마로 변환</li>
+<li><strong>Weighted RRF:</strong> Cormack et al. 2009 방법론으로 이질적 소스 결과 통합, <code>RRF_K=60</code> 상수</li>
+<li><strong>에이전트 계약 (Agent Contract):</strong> SKILL.md가 에이전트(모델)와 엔진(Python)의 인터페이스를 문서화 — 기능 추가 시 양쪽을 동기화해야 함</li>
+</ul>
+<h3 id="_3">레이어 분리</h3>
+<table>
+<thead>
+<tr>
+<th>레이어</th>
+<th>구성요소</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>에이전트 인터페이스</td>
+<td><code>SKILL.md</code> (프롬프트 계약)</td>
+</tr>
+<tr>
+<td>비즈니스 로직</td>
+<td><code>pipeline.py</code>, <code>planner.py</code>, <code>fusion.py</code>, <code>cluster.py</code></td>
+</tr>
+<tr>
+<td>데이터 접근</td>
+<td>소스별 어댑터 (<code>reddit.py</code>, <code>xai_x.py</code>, <code>youtube_yt.py</code>, …)</td>
+</tr>
+<tr>
+<td>인프라/설정</td>
+<td><code>env.py</code>, <code>providers.py</code>, <code>http.py</code></td>
+</tr>
+<tr>
+<td>표현</td>
+<td><code>render.py</code>, <code>html_render.py</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-quality-testing">5. 품질 및 테스트 시스템 (Quality &amp; Testing)</h2>
+<h3 id="_4">테스트 구조</h3>
+<ul>
+<li><strong>총 테스트 파일:</strong> 95개 (<code>tests/</code> 디렉토리)</li>
+<li><strong>테스트 유형:</strong> 단위(파일별 모듈 테스트), 통합(<code>test_category_integration.py</code>, <code>test_competitors_resolve_integration.py</code>), E2E(<code>e2e_comparison.py</code> — CI 외부 실행)</li>
+<li><strong>주요 테스트 파일:</strong> <code>test_pipeline_v3.py</code>, <code>test_planner_v3.py</code>, <code>test_fusion_v3.py</code>, <code>test_cluster_v3.py</code>, <code>test_render_v3.py</code>, <code>test_dedupe_v3.py</code>, <code>test_security_workflow.py</code>, <code>test_version_consistency.py</code></li>
+<li><strong>커버리지:</strong> <code>pytest-cov</code> 브랜치 커버리지, <code>lib/vendor/</code> 및 <code>dist/</code> 제외</li>
+<li><strong>실행:</strong> <code>uv run pytest</code> (전체), <code>uv run pytest --cov</code> (커버리지)</li>
+</ul>
+<h3 id="cicd">CI/CD 워크플로우</h3>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>트리거</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>validate.yml</code></td>
+<td>PR, push to main</td>
+<td>pytest 전체 실행 (Python 3.12)</td>
+</tr>
+<tr>
+<td><code>release.yml</code></td>
+<td>tag push <code>v*</code></td>
+<td><code>.skill</code> 아티팩트 빌드 + GitHub Release 생성</td>
+</tr>
+<tr>
+<td><code>security.yml</code></td>
+<td>PR, push to main, manual</td>
+<td>pip-audit(의존성 CVE) + TruffleHog(시크릿 스캔)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">코드 품질 도구</h3>
+<ul>
+<li><strong>Ruff:</strong> <code># ruff: noqa: E402</code> 인라인 suppressions 사용</li>
+<li><strong>uv:</strong> 재현 가능한 <code>uv.lock</code> 기반 빌드</li>
+<li><strong>greptile.json:</strong> <code>triggerOnUpdates</code> + <code>statusCheck</code> 설정</li>
+</ul>
+<hr />
+<h2 id="6-security-supply-chain">6. 보안 및 공급망 (Security &amp; Supply Chain)</h2>
+<h3 id="_6">보안 정책</h3>
+<ul>
+<li><strong>시크릿 스캔:</strong> TruffleHog v3.95.2 — PR 및 main push에 <code>--only-verified</code> 옵션으로 실행. <strong>Advisory-first:</strong> <code>continue-on-error: true</code> (베이스라인 미확립)</li>
+<li><strong>의존성 감사:</strong> pip-audit — uv.lock 기준 CVE 스캔. 마찬가지로 <strong>advisory</strong> 모드(비차단)</li>
+<li><strong>자격증명 관리:</strong></li>
+<li>계층 우선순위: 프로세스 환경 &gt; 프로젝트 <code>.claude/last30days.env</code> &gt; <code>~/.config/last30days/.env</code> &gt; macOS Keychain</li>
+<li><code>env.py</code>의 <code>KEYCHAIN_KEYS</code> 튜플이 단일 소스 오브 트루스</li>
+<li>파일 권한 경고(POSIX 600 미만 시)</li>
+<li>SSH 호스트명 정규식 검증: <code>^[a-zA-Z0-9._-]+$</code> (인젝션 방지)</li>
+<li><strong>픽스처 보안:</strong> 테스트 픽스처에 더미 값만 사용, 실제 API 키/쿠키 금지 정책 명시</li>
+<li><strong>공급망:</strong> <code>uv.lock</code>으로 의존성 핀, 런타임 외부 패키지 없음(zero deps)</li>
+<li><strong>라이선스:</strong> MIT — 상업적 재배포 허용</li>
+</ul>
+<h3 id="_7">취약점/위험</h3>
+<ul>
+<li><code>continue-on-error: true</code>로 보안 검사가 차단하지 않음 (의도적이나 강제화 미완)</li>
+<li>Node.js 벤더(<code>lib/vendor/bird-search/</code>)는 Python 의존성 감사 범위 외</li>
+<li>쿠키 기반 X 인증(<code>AUTH_TOKEN</code>, <code>CT0</code>)의 주기적 만료 위험</li>
+</ul>
+<hr />
+<h2 id="7-documentation-operational-maturity">7. 문서 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h2>
+<h3 id="_8">문서 품질</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>README.md</code></td>
+<td>풍부한 사용 사례, 설치 매트릭스, API 키 가이드</td>
+<td>우수</td>
+</tr>
+<tr>
+<td><code>SKILL.md</code></td>
+<td>에이전트 런타임 계약, 플래그 스펙, 음성 규칙</td>
+<td>소스 오브 트루스</td>
+</tr>
+<tr>
+<td><code>CONFIGURATION.md</code></td>
+<td>모든 환경 변수, 우선순위 계층, 클라이언트별 패턴</td>
+<td>상세</td>
+</tr>
+<tr>
+<td><code>CONCEPTS.md</code></td>
+<td>도메인 용어(Skill, Engine, Harness, Beta)</td>
+<td>온보딩 유용</td>
+</tr>
+<tr>
+<td><code>AGENTS.md</code></td>
+<td>에이전트 협업 가이드, 구조 설명, 보안 규칙</td>
+<td>체계적</td>
+</tr>
+<tr>
+<td><code>CHANGELOG.md</code></td>
+<td>Keep a Changelog 형식, SemVer, PR 링크 포함</td>
+<td>우수</td>
+</tr>
+<tr>
+<td><code>CONTRIBUTORS.md</code></td>
+<td>커뮤니티 기여자 공로 인정, PR/Issue 링크</td>
+<td>커뮤니티 친화적</td>
+</tr>
+<tr>
+<td><code>docs/solutions/</code></td>
+<td>운영 지식 캡처(아키텍처 결정, 워크플로우 이슈)</td>
+<td>독보적</td>
+</tr>
+<tr>
+<td>PR 템플릿</td>
+<td>Summary/Changes/Testing 체크리스트</td>
+<td>표준적</td>
+</tr>
+<tr>
+<td>Issue 템플릿</td>
+<td>Bug/Feature 드롭다운, 설치 방법 포함</td>
+<td>실용적</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">커뮤니티 활동</h3>
+<ul>
+<li>GitHub Trending #1 배지, Trendshift 등록</li>
+<li>CONTRIBUTORS.md에 6명+ 커뮤니티 기여자 문서화</li>
+<li>v3.3.0 기준 ~75개 PR 병합(1주 스프린트)</li>
+<li>단일 공개 커밋(스냅샷 기준) — 전체 git 이력 불명확</li>
+<li>Beta 채널(private repo)로 실험적 기능 테스트 후 public 승격</li>
+</ul>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>의존성 제로 런타임 (Zero Runtime Dependencies):</strong> <code>pyproject.toml</code>의 <code>dependencies = []</code>로 표준 라이브러리만 사용. 50+ 에이전트 하네스에서 설치 마찰 없이 배포 가능한 핵심 설계 결정.</p>
+</li>
+<li>
+<p><strong>에이전트 계약과 구현의 명확한 분리:</strong> <code>SKILL.md</code>(에이전트가 읽는 사양)와 <code>last30days.py</code>(엔진 구현)의 분리가 명시적으로 문서화되어 있으며, <code>CONCEPTS.md</code>에서 Skill/Engine/Harness 용어를 정밀하게 정의함. 멀티하네스 배포에서 일관성 유지의 근간.</p>
+</li>
+<li>
+<p><strong>Weighted RRF 기반 이질적 소스 통합:</strong> Cormack et al. 2009의 Reciprocal Rank Fusion에 소스별 가중치와 다양성 임계값을 적용하여 업보트·좋아요·거래량 등 이질적 신호를 단일 랭킹으로 통합. 학술적으로 검증된 방법론을 실용적으로 적용.</p>
+</li>
+<li>
+<p><strong>광범위한 테스트 커버리지와 운영 지식 캡처:</strong> 95개 테스트 파일과 1000개 이상의 테스트, <code>docs/solutions/</code> 디렉토리의 아키텍처 결정 기록. 특히 <code>test_security_workflow.py</code>와 <code>test_version_consistency.py</code>로 보안 워크플로우와 버전 일관성을 자동 검증.</p>
+</li>
+<li>
+<p><strong>다계층 자격증명 관리:</strong> 프로젝트 <code>.env</code> &gt; 사용자 <code>~/.config</code> &gt; macOS Keychain의 우선순위 계층, SSH 호스트명 정규식 검증, 파일 권한 경고 등 실용적이면서 보안 인식적인 설계.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험 및 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>Advisory-only 보안 강제화:</strong> TruffleHog 시크릿 스캔과 pip-audit 모두 <code>continue-on-error: true</code>로 비차단 상태. "베이스라인 확립 후 강제화"로 명시되어 있으나 실현되지 않았으며, 실제 시크릿이 main에 도달해도 CI가 차단하지 않음. 즉시 <code>continue-on-error: false</code>로 전환 필요.</p>
+</li>
+<li>
+<p><strong>Node.js 벤더 의존성 감사 사각지대:</strong> <code>lib/vendor/bird-search/</code> (Node.js/MJS)는 Python의 pip-audit 범위 밖. <code>package.json</code> npm audit나 별도 Node.js 보안 검사가 없어 CVE 노출 가능성 있음.</p>
+</li>
+<li>
+<p><strong>공개 git 이력 희박:</strong> 분석 시점 기준 공개 커밋이 1개(<code>v3.3.2 release</code>). 기여 이력, 설계 결정 컨텍스트, blame 추적이 불가능하여 외부 기여자 온보딩과 버그 역추적이 어려움.</p>
+</li>
+<li>
+<p><strong>render.py 단일 파일 비대화:</strong> 렌더링 레이어가 단일 파일 1779줄로 마크다운, HTML, 리포트 구조, 템플릿 로직을 모두 담고 있음. 테스트 격리와 유지보수성 저하 위험.</p>
+</li>
+<li>
+<p><strong>외부 플랫폼 API 의존성 고위험:</strong> 15개 이상 외부 플랫폼 API(쿠키 기반 X 인증, ScrapeCreators, yt-dlp 등)에 대한 통합 실패 테스트나 캐싱 전략 부재. 플랫폼 정책 변경 시 광범위한 기능 저하 가능.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 채택 관점:</strong> <code>last30days</code>는 멀티플랫폼 소셜 신호 집계 분야에서 기술적으로 견고한 오픈소스 에이전트 스킬이다. 런타임 의존성 제로 설계, RRF 기반 스코어링, SKILL.md ↔ 엔진 계약 분리는 벤치마킹 가치가 높다.</p>
+<p><strong>보안 리뷰 관점:</strong> Advisory-only 보안 게이트는 즉시 강화 권장. 시크릿 스캔과 의존성 감사를 차단 모드로 전환하고, Node.js 벤더 감사를 추가해야 프로덕션 환경에서 안전하게 사용 가능.</p>
+<p><strong>아키텍처 벤치마킹:</strong> 에이전트 계약(Skill/Engine/Harness) 분리 패턴, Weighted RRF 멀티소스 통합, <code>docs/solutions/</code> 운영 지식 캡처 패턴은 유사한 멀티소스 에이전트 스킬 설계 시 참조할 만한 우수 사례다.</p>
+<p><strong>기여 준비도:</strong> PR 템플릿, Issue 템플릿, CONTRIBUTORS.md, AGENTS.md, CONCEPTS.md 등 기여자 온보딩 인프라가 잘 갖춰져 있다. 단, 공개 git 이력 희박과 단독 메인테이너 구조는 기여 진입 장벽.</p>
+<p><strong>종합 권고:</strong> 개인/팀 AI 연구 워크플로우 도입은 즉시 권장. 엔터프라이즈 프로덕션 환경에서는 보안 게이트 강화 및 Node.js 의존성 감사 추가 후 채택 권장.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
     
     <div class="md-body"><h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
 <blockquote>

@@ -107,12 +107,285 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-indepth">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<h1 id="supermemory-source-code-analysis-report">Supermemory — 소스 코드 분석 보고서 (Source Code Analysis Report)</h1>
+<p>분석일: 2026-06-07
+분석 대상: <code>/tmp/github-dashboard-analysis/supermemoryai_supermemory</code></p>
+<hr />
+<h2 id="comprehensive-analysis-table">종합 분석표 (Comprehensive Analysis Table)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 시스템을 위한 지속적 메모리 및 컨텍스트 엔진. LongMemEval, LoCoMo, ConvoMem 벤치마크 1위. 대화 학습, 사용자 프로파일링, 하이브리드 검색, 멀티모달 파일 처리, 외부 서비스 커넥터 제공.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>Turbo 모노레포. <code>apps/</code> (web, mcp, browser-extension, raycast-extension, docs, memory-graph-playground), <code>packages/</code> (ui, lib, hooks, validation, ai-sdk, memory-graph, Python SDK 4종). 도메인 경계 명확히 분리.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>TypeScript + Bun, Next.js 16, React 19, Hono, Cloudflare Workers/Durable Objects, Drizzle ORM, Better Auth, TanStack Query v5, Tailwind CSS 4, Biome, Turbo</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>Web: <code>apps/web/app/layout.tsx</code> → <code>middleware.ts</code> / MCP: <code>apps/mcp/src/index.ts</code> → <code>src/server.ts</code> (Durable Object) / API: Cloudflare Workers + Hyperdrive</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>서버리스 우선. 이벤트 기반. MCP 서버는 Durable Objects로 세션 상태 관리(SQLite). Web은 OpenNextJS로 Cloudflare 배포. 계층 분리(프레젠테이션-비즈니스-데이터)가 명확.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>Cloudflare Hyperdrive(PostgreSQL), Durable Objects(SQLite), Cloudflare KV, Cloudflare AI. Drizzle ORM으로 스키마 공유.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Cloudflare Workers(서버리스). OpenNextJS(Web), Wrangler(MCP). 크론 트리거(4시간 주기). Sentry 소스맵 자동 업로드. 스테이징/프로덕션 환경 분리.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest(@supermemory/memory-graph, @supermemory/ai-sdk). CI에서 TypeScript 타입 체크 + Biome 검사. Claude Code 자동 코드리뷰 워크플로우. CI 실패 시 Claude Code 자동 수정 워크플로우. 단, 통합/E2E 테스트 구조 불명확.</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>Better Auth + API 키(sm_*) + OAuth 이중 인증. 세션 쿠키 도메인 스코핑. 속도 제한(429) 처리. Sentry 보안 모니터링. 자동 코드 리뷰에서 보안 이슈 탐지. SECURITY.md 파일은 미확인.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>프로덕션 운영 중(mcp.supermemory.ai, app.supermemory.ai). GitHub Sponsors 지원. MIT 라이선스. CONTRIBUTING.md 완비. Discord 커뮤니티. Claude Code 자동화 적극 활용. Python SDK 다수 보유.</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<h3 id="1-ai-state-of-the-art-ai-memory-engine">1. 최첨단 AI 메모리 엔진 (State-of-the-Art AI Memory Engine)</h3>
+<ul>
+<li><strong>LongMemEval, LoCoMo, ConvoMem</strong> 세 개 주요 벤치마크에서 1위를 기록한 연구 기반 프로젝트</li>
+<li>시간적 인식(temporal awareness), 자동 망각(automatic forgetting), 지식 모순 처리 등 고급 메모리 기능 제공</li>
+<li><code>MemoryBench</code> 오픈소스 벤치마킹 프레임워크로 경쟁 솔루션 비교 가능</li>
+</ul>
+<h3 id="2-mature-monorepo-dev-toolchain">2. 성숙한 모노레포 구조 및 개발 도구 (Mature Monorepo &amp; Dev Toolchain)</h3>
+<ul>
+<li><strong>Turbo + Bun</strong> 조합으로 빌드 캐싱과 빠른 병렬 실행 최적화</li>
+<li><strong>Biome</strong> 단일 도구로 포매팅과 린팅 통합 (ESLint + Prettier 대체)</li>
+<li>엄격한 TypeScript(<code>@total-typescript/tsconfig</code>), Zod 스키마 공유, Drizzle ORM 타입 자동 생성</li>
+<li><code>portless.json</code>으로 로컬 HTTPS 라우팅 지원 (팀 내부)</li>
+</ul>
+<h3 id="3-claude-code-ai-cicd-ai-powered-cicd-via-claude-code">3. Claude Code 기반 AI 자동화 CI/CD (AI-Powered CI/CD via Claude Code)</h3>
+<ul>
+<li><code>claude-code-review.yml</code>: PR마다 Claude Opus가 버그·보안 이슈 자동 탐지, 인라인 코멘트 최대 5개</li>
+<li><code>claude-auto-fix-ci.yml</code>: CI 실패 시 Claude Code가 자동으로 수정 커밋 생성</li>
+<li><code>claude.yml</code>: 이슈/PR에서 <code>@claude</code> 멘션으로 대화형 Claude Code 호출</li>
+<li>Supermemory MCP를 CI 워크플로우에 연결해 수정 패턴 저장·재활용</li>
+</ul>
+<h3 id="4-serverless-first-scalability">4. 서버리스 우선 확장성 (Serverless-First Scalability)</h3>
+<ul>
+<li><strong>Cloudflare Workers + Durable Objects</strong>: 전역 분산, 낮은 레이턴시, 자동 스케일링</li>
+<li>MCP 서버가 Durable Objects SQLite로 세션 상태를 영속화 — 콜드스타트 없이 세션 복구</li>
+<li>OpenNextJS로 Next.js 앱을 Cloudflare Edge에 배포</li>
+</ul>
+<h3 id="5-rich-integration-ecosystem">5. 풍부한 통합 생태계 (Rich Integration Ecosystem)</h3>
+<ul>
+<li><strong>MCP 프로토콜</strong>: Claude, Cursor 등 주요 AI 클라이언트에 즉시 연결</li>
+<li><strong>프레임워크 통합</strong>: Vercel AI SDK, LangChain, LangGraph, OpenAI Agents SDK, Mastra, Agno, n8n</li>
+<li><strong>커넥터</strong>: Google Drive, Gmail, Notion, OneDrive, GitHub 실시간 동기화</li>
+<li><strong>멀티플랫폼</strong>: 웹 대시보드, 브라우저 확장, Raycast 확장, Python SDK 4종</li>
+</ul>
+<hr />
+<h2 id="risks-areas-for-improvement">위험 및 개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<h3 id="1-insufficient-test-coverage">1. 테스트 커버리지 부족 (Insufficient Test Coverage)</h3>
+<ul>
+<li>단위 테스트가 <code>@supermemory/memory-graph</code>와 <code>@supermemory/ai-sdk</code> 패키지에만 집중</li>
+<li><code>apps/web</code>, <code>apps/mcp</code> 핵심 애플리케이션의 통합 테스트·E2E 테스트 구조가 불명확</li>
+<li>CI가 TypeScript 타입 체크 + Biome 검사 위주로, 런타임 로직 검증 미흡</li>
+<li><strong>권고</strong>: Playwright(E2E), Vitest with MSW(통합) 도입 및 커버리지 목표 설정</li>
+</ul>
+<h3 id="2-securitymd-missing-securitymd-supply-chain-controls">2. SECURITY.md 및 공급망 관리 부재 (Missing SECURITY.md &amp; Supply Chain Controls)</h3>
+<ul>
+<li><code>SECURITY.md</code>(취약점 신고 정책) 파일이 확인되지 않음</li>
+<li>Dependabot/Renovate 자동 의존성 업데이트 설정 미확인</li>
+<li>SBOM(소프트웨어 자재 명세서) 및 아티팩트 서명 부재</li>
+<li><strong>권고</strong>: <code>SECURITY.md</code> 추가, Dependabot 활성화, GitHub Actions 아티팩트 서명</li>
+</ul>
+<h3 id="3-api-api-backend-not-in-repository">3. API 백엔드 코드 미포함 (API Backend Not in Repository)</h3>
+<ul>
+<li><code>CLAUDE.md</code>가 언급하는 핵심 API(<code>/v3/documents</code>, <code>/v3/search</code>, <code>/v3/connections</code> 등)가 이 모노레포에 없음</li>
+<li>MCP 서버가 <code>api.supermemory.ai</code>를 외부 서비스로 호출 — 핵심 비즈니스 로직이 비공개 레포에 존재할 가능성</li>
+<li>OSS 기여자가 전체 아키텍처를 이해하거나 재현하기 어려움</li>
+<li><strong>권고</strong>: 공개 API 스펙(OpenAPI) 제공, 로컬 개발용 mock API 환경 제공</li>
+</ul>
+<h3 id="4-environment-configuration-complexity">4. 환경 설정 복잡성 (Environment Configuration Complexity)</h3>
+<ul>
+<li>Cloudflare 바인딩(Hyperdrive, AI, KV, Workflows), Sentry, PostHog, 다수 AI 제공자 API 키 필요</li>
+<li><code>.env.example</code>이 존재하나 Cloudflare 리소스 프로비저닝 가이드 부재</li>
+<li>OSS 기여자가 <code>portless</code> 없이 <code>bun run dev:local</code>로 실행하지만 실제 Cloudflare 서비스 없이 동작 범위 불명확</li>
+<li><strong>권고</strong>: Docker Compose 기반 로컬 개발 환경 또는 상세한 로컬 설정 가이드 제공</li>
+</ul>
+<h3 id="5-python-sdk-fragmented-python-sdk-management">5. Python SDK 관리 산발화 (Fragmented Python SDK Management)</h3>
+<ul>
+<li>4개의 Python SDK(<code>openai</code>, <code>agent-framework</code>, <code>cartesia</code>, <code>pipecat</code>)가 <code>packages/</code> 안에 혼재</li>
+<li>각 SDK 독립 버전 관리 및 별도 CI 파이프라인(4개 publish 워크플로우)</li>
+<li>Python 생태계 표준(pytest, mypy, ruff) 사용 여부 및 테스트 구조 미확인</li>
+<li><strong>권고</strong>: Python SDKs를 별도 레포 또는 <code>packages/python/</code> 하위 단일 구조로 정리</li>
+</ul>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<h3 id="technology-adoption-strongly-recommended">기술 도입 (Technology Adoption) — <strong>적극 권고 (Strongly Recommended)</strong></h3>
+<p>Supermemory는 AI 시스템에 장기 메모리·컨텍스트 관리를 추가하려는 팀에게 가장 성숙한 오픈소스 솔루션 중 하나다. MCP 프로토콜 표준 준수로 Claude, Cursor 등 주요 AI 클라이언트와 즉시 연동되며, 세 개 주요 벤치마크 1위 성능이 연구적으로 검증됐다.</p>
+<h3 id="architectural-benchmarking-recommended-for-reference">아키텍처 벤치마킹 (Architectural Benchmarking) — <strong>참고 권고 (Recommended for Reference)</strong></h3>
+<ul>
+<li><strong>Cloudflare Workers + Durable Objects</strong> 패턴: 서버리스 환경에서 상태 있는 세션 관리의 모범 사례</li>
+<li><strong>Turbo 모노레포 + Bun</strong>: 대규모 TypeScript 프로젝트 빌드 최적화 참고 모델</li>
+<li><strong>Claude Code 자동화 CI/CD</strong>: AI 기반 코드 리뷰·자동 수정 워크플로우의 실제 구현 사례</li>
+</ul>
+<h3 id="security-review-conditional">보안 리뷰 (Security Review) — <strong>조건부 권고 (Conditional)</strong></h3>
+<p>핵심 API 백엔드가 이 레포에 없어 전체 보안 표면을 평가하기 어렵다. 현재 코드 범위 내에서는 Better Auth + API 키 이중 인증, 세션 쿠키 도메인 스코핑, 자동 보안 코드리뷰 등 양호한 보안 관행을 보인다. 단, SECURITY.md 및 의존성 자동 업데이트 부재를 수용할 수 있는 팀에 한해 권고.</p>
+<h3 id="contribution-readiness-recommended">기여 준비도 (Contribution Readiness) — <strong>권고 (Recommended)</strong></h3>
+<p>CONTRIBUTING.md가 상세하고, "good first issue" 레이블이 있으며, Claude Code 자동 리뷰로 기여자 경험이 개선되어 있다. 단, 로컬 개발 환경 설정이 Cloudflare 서비스 의존성으로 인해 복잡할 수 있어, 첫 기여 전 환경 세팅에 시간 투자가 필요하다.</p>
+<h3 id="operational-maturity-high">운영 성숙도 (Operational Maturity) — <strong>높음 (High)</strong></h3>
+<p>프로덕션 서비스 운영 중, Sentry/PostHog 모니터링, 자동화된 배포 파이프라인, 멀티환경(스테이징/프로덕션) 지원으로 운영 성숙도가 높다.</p>
+<hr />
+<h2 id="tech-stack-summary">기술 스택 요약 (Tech Stack Summary)</h2>
+<table>
+<thead>
+<tr>
+<th>카테고리</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>TypeScript (strict), Python (SDKs)</td>
+</tr>
+<tr>
+<td><strong>런타임</strong></td>
+<td>Cloudflare Workers, Bun ≥1.2.17, Node.js ≥20</td>
+</tr>
+<tr>
+<td><strong>웹 프레임워크</strong></td>
+<td>Next.js 16 (web), Hono (mcp/api)</td>
+</tr>
+<tr>
+<td><strong>UI</strong></td>
+<td>React 19, Tailwind CSS 4, Radix UI, TipTap, Recharts</td>
+</tr>
+<tr>
+<td><strong>상태 관리</strong></td>
+<td>Zustand, TanStack Query v5</td>
+</tr>
+<tr>
+<td><strong>인증</strong></td>
+<td>Better Auth (조직 지원, OAuth, API 키)</td>
+</tr>
+<tr>
+<td><strong>데이터베이스</strong></td>
+<td>PostgreSQL via Cloudflare Hyperdrive, Durable Objects SQLite</td>
+</tr>
+<tr>
+<td><strong>ORM</strong></td>
+<td>Drizzle ORM</td>
+</tr>
+<tr>
+<td><strong>AI/ML</strong></td>
+<td>Vercel AI SDK, Claude (Anthropic), OpenAI, Google Generative AI, XAI</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>@modelcontextprotocol/sdk + Cloudflare Durable Objects</td>
+</tr>
+<tr>
+<td><strong>모노레포</strong></td>
+<td>Turbo + Bun Workspaces</td>
+</tr>
+<tr>
+<td><strong>빌드</strong></td>
+<td>OpenNextJS (web), Vite (MCP UI), tsdown (SDK)</td>
+</tr>
+<tr>
+<td><strong>린팅/포매팅</strong></td>
+<td>Biome</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest, Happy DOM</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>GitHub Actions (타입체크, 코드리뷰, 자동수정, 패키지배포)</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Cloudflare Workers, Wrangler</td>
+</tr>
+<tr>
+<td><strong>모니터링</strong></td>
+<td>Sentry, PostHog</td>
+</tr>
+<tr>
+<td><strong>라이선스</strong></td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="architecture-diagram">아키텍처 다이어그램 (Architecture Diagram)</h2>
+<pre><code>┌─────────────────────────────────────────────────────┐
+│                   클라이언트 계층                     │
+│  Web Dashboard  │  Browser Ext  │  Raycast  │  SDK  │
+└────────┬────────┴───────────────┴───────────┴───────┘
+         │
+┌────────▼────────────────────────────────────────────┐
+│                  MCP 서버 계층                        │
+│  mcp.supermemory.ai (Cloudflare Workers)             │
+│  ├── Hono Router (index.ts)                          │
+│  ├── OAuth Discovery &amp; Token Validation              │
+│  └── SupermemoryMCP Durable Object (server.ts)       │
+│       ├── SQLite Session State                       │
+│       ├── MCP Tools: memory, recall, whoAmI          │
+│       └── MCP Resources: profile, projects           │
+└────────┬────────────────────────────────────────────┘
+         │ API 호출 (api.supermemory.ai)
+┌────────▼────────────────────────────────────────────┐
+│              핵심 API (비공개 레포)                    │
+│  /v3/documents │ /v3/search │ /v3/connections        │
+│  Cloudflare Hyperdrive (PostgreSQL)                  │
+│  Cloudflare AI (임베딩) │ Cloudflare KV (캐시)        │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<p><em>분석 도구: Claude Code (claude-sonnet-4-6) | 분석일: 2026-06-07</em>
+<em>보고서 저장 위치: <code>.review/REVIEW-Source.md</code></em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
     
     <div class="md-body"><p>Now I have all the information needed. Let me generate the comprehensive report.</p>
 <hr />

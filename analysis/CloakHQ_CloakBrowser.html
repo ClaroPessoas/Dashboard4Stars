@@ -107,12 +107,174 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-indepth">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-07
+분석 대상: <code>/tmp/github-dashboard-analysis/CloakHQ_CloakBrowser</code></p>
+<hr />
+<h1 id="cloakbrowser-review-sourcemd">CloakBrowser — 소스 분석 보고서 (REVIEW-Source.md)</h1>
+<blockquote>
+<p><strong>CloakHQ / CloakBrowser</strong> · v0.3.31 · MIT (wrapper) + Proprietary (binary)</p>
+</blockquote>
+<hr />
+<h2 id="_1">종합 평가표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>소스 수준 C++ 패치가 적용된 커스텀 Chromium 바이너리를 사용해 봇 탐지를 우회하는 스텔스 브라우저 자동화 프레임워크. Playwright/Puppeteer의 Drop-in 교체제로 reCAPTCHA v3 0.9점, Cloudflare Turnstile, FingerprintJS 등 30+ 탐지 서비스 통과를 표방</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 저장소(monorepo). <code>cloakbrowser/</code>(Python 래퍼 ~2,700 LOC), <code>js/</code>(TypeScript 래퍼 ~2,200 LOC), <code>tests/</code>(15개 Python 파일), <code>examples/</code>(18개 예제), <code>bin/</code>(CLI), <code>Dockerfile</code>, <code>flake.nix</code> 로 구성. 코드·빌드·운영 자산이 명확히 분리되어 있으며 기능 지향적 구조 채택</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td><strong>Python ≥3.9</strong> + playwright ≥1.40 + httpx ≥0.24 / <strong>Node ≥20</strong> + TypeScript(ESM) + vitest / 빌드: hatchling(PyPI), tsc(npm) / 런타임: 자체 Chromium 146(58 C++ 패치, Linux/Win), 145(26 패치, macOS) / 선택 의존: geoip2, aiohttp, websockets, mmdb-lib, socks-proxy-agent</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>Python: <code>cloakbrowser/__init__.py</code> → <code>browser.py:launch()</code> / Node: <code>js/src/index.ts</code> → <code>playwright.ts:launch()</code> + <code>puppeteer.ts:launch()</code> / CLI: <code>cloakbrowser.__main__:main</code> / Docker: <code>bin/docker-entrypoint</code> + Xvfb 가상 디스플레이 / CDP 서버: <code>bin/cloakserve</code></td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td><strong>이중 언어 래퍼 + 독점 바이너리</strong> 구조. ① 58개 C++ 패치를 바이너리에 직접 컴파일(JS 인젝션 방식 아님), ② 랜덤 지문 시드 시스템, ③ Bézier 곡선 마우스·가우시안 키입력·가감속 스크롤의 인간 행동 레이어, ④ GeoIP→타임존/로케일 자동 매핑, ⑤ 지속 프로파일 + Widevine CDM 시딩. 레이어 분리(다운로드·설정·실행·인간화·GeoIP)가 명확. 패턴: 파사드(Playwright/Puppeteer API 호환) + 전략(stealthy args, human config 교체)</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>영구 저장소 없음(DB 미사용). 상태는 ① 로컬 바이너리 캐시(<code>~/.cloakbrowser/</code>), ② 지속 컨텍스트 프로파일 디렉터리, ③ GeoIP mmdb 파일(선택), ④ Widevine CDM 힌트 파일로 한정. 민감 자격 증명은 메모리 내 처리, 환경 변수로 주입</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI + npm + Docker Hub(멀티아치 amd64/arm64) + GitHub Releases. Dockerfile에 Python+Node+폰트 사전 설치, Xvfb 지원. flake.nix로 NixOS 재현 빌드. GitHub Actions: CI(PR 검증) + publish(OIDC 신뢰 게시, Cosign 서명, Sigstore 증명). GPG 태그 서명(key: C60C0DDC9D0DE2DD)</td>
+<td>⭐⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Python 15개 + JS 11개 = 26개 파일. 단위(설정·args·인간화), 통합(실행·프록시·GeoIP·확장), 보안(Lambda SSRF·경로 탐색), 라이브(탐지 사이트 검증, <code>@slow</code> 마킹). pytest-asyncio auto 모드. vitest. CI에서 <code>slow</code> 제외 실행. 별도 커버리지 수치 미공개</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>BINARY-LICENSE: 무단 접근·자격 증명 스터핑·사기 금지 명시. cloakserve: WebSocket Origin 검증(CSRF 방어), 127.0.0.1 바인딩 기본값, 경로 탐색 패치(v0.3.29). Lambda SSRF 방어, URL 스킴 검증. 공급망: SHA-256 체크섬, GPG 서명, Sigstore 증명, OIDC 신뢰 게시(정적 토큰 없음). Dependabot 활성화. 텔레메트리 없음(ungoogled-chromium 기반). SECURITY.md 미존재</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v0.3.31, 2~4주 주기 릴리즈, 100+ 릴리즈 이력. README 1,329줄(빠른 시작·API 문서·예제·통합 가이드 완비). CHANGELOG 태그 분류(<code>[wrapper]</code>/<code>[binary]</code>/<code>[docker]</code>/<code>[docs]</code>). Ko-fi 후원 링크. 2026년 2월 바이너리 라이선스 v1.0 제정. CONTRIBUTING.md·CODE_OF_CONDUCT 미존재. 커뮤니티 성장 단계</td>
+<td>⭐⭐⭐⭐</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>소스 수준 C++ 패치 아키텍처</strong> — JavaScript 런타임에서 사후 패치하는 기존 우회 도구와 달리, Canvas/WebGL/오디오/GPU/자동화 신호 등 58개 패치를 Chromium 바이너리에 직접 컴파일. 탐지 우회 내구성이 근본적으로 다른 접근 방식이며, CDP 노이즈·<code>navigator.webdriver</code> 제거도 런타임이 아닌 컴파일 타임에 처리.</p>
+</li>
+<li>
+<p><strong>이중 언어 완전 대칭 설계</strong> — Python과 TypeScript 래퍼가 동일 버전을 유지하며 API, 설정 구조, 테스트 범위까지 대칭. <code>build_args</code>/<code>buildLaunchOptions</code>, <code>ensure_binary</code>/<code>ensureBinary</code> 등 네이밍 패턴도 일치. 언어 간 전환 비용이 거의 없음.</p>
+</li>
+<li>
+<p><strong>엔터프라이즈급 공급망 보안</strong> — OIDC 신뢰 게시(정적 PyPI/npm 토큰 없음), GPG 태그 서명, Sigstore Cosign 이미지 서명, SBOM 포함, SHA-256 체크섬 자동 검증. 소규모 오픈소스 프로젝트 중 이 수준의 공급망 무결성 체인을 갖춘 사례는 드뭄.</p>
+</li>
+<li>
+<p><strong>인간 행동 레이어의 물리적 정확도</strong> — Bézier 곡선 마우스 경로(오버슈트·지터·홀드 시간), 가우시안 키입력 딜레이(오타 자기 수정 5%), 가감속 스크롤 미세 단계가 별도 <code>human/</code> 서브패키지로 격리. Playwright Locator API 위에 actionability 체크(visible/enabled/stable)까지 추가하여 프레임워크에 독립적.</p>
+</li>
+<li>
+<p><strong>운영 성숙도와 생태계 통합 폭</strong> — Docker Hub 멀티아치, flake.nix NixOS 지원, Lambda 콜드스타트 하드닝 예제, browser-use/Crawl4AI/Scrapling/Stagehand/LangChain/Selenium/undetected-chromedriver 등 8개 프레임워크 통합 예제. v0.3.29에서 보안 취약점(CSRF, SSRF, 경로 탐색)을 동시에 패치한 이력은 보안 대응력을 방증.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험 / 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>독점 바이너리 의존성 — 핵심 리스크</strong> — 58개 C++ 패치가 적용된 Chromium 바이너리는 비공개 소스. 바이너리 라이선스는 재배포·역공학·OEM/SaaS 사용을 금지하며 책임 한도를 $100로 제한. 프로젝트 단종 또는 라이선스 변경 시 대체 경로가 없음. 래퍼 코드(MIT)와 바이너리(독점)의 이중 라이선스 구조는 법무 검토 없이 엔터프라이즈 도입을 어렵게 함.</p>
+</li>
+<li>
+<p><strong>법적·윤리적 이중성</strong> — 봇 탐지 우회 자체가 이용약관 위반이 될 수 있으며, 자격 증명 스터핑·사기 등 악용 가능성이 명시되어 있음에도 실질적 기술 장벽은 없음. <code>SECURITY.md</code> 미존재, 책임 가능 사용 정책이 라이선스 텍스트에만 분산. 조직 내 허용 사용 범위를 별도 정책으로 정의하지 않으면 컴플라이언스 위험 존재.</p>
+</li>
+<li>
+<p><strong>테스트 커버리지 불투명성</strong> — pytest-cov 또는 coverage.py 설정이 <code>pyproject.toml</code>에 없고 CI 워크플로에도 커버리지 리포트 단계 부재. <code>slow</code> 마킹된 라이브 탐지 사이트 테스트는 CI에서 제외되어 실제 스텔스 효과가 자동화된 회귀 검증 밖에 있음. 핵심 가치 제안(탐지 우회)이 자동 검증되지 않는 구조적 취약점.</p>
+</li>
+<li>
+<p><strong>커뮤니티 인프라 미비</strong> — <code>CONTRIBUTING.md</code>, <code>CODE_OF_CONDUCT.md</code>, ADR(아키텍처 결정 기록) 없음. PR/이슈 템플릿 존재 여부 불명. 단일 유지관리자 의존 리스크. Ko-fi 후원 외 지속 가능한 수익/거버넌스 모델 불분명. 바이너리 OEM/SaaS 라이선스 요청 채널도 README에 명시되어 있지 않음.</p>
+</li>
+<li>
+<p><strong>macOS 패치 격차</strong> — Linux/Windows 58개 패치 대비 macOS는 26개에 그침. 플랫폼 간 탐지 우회 신뢰도 차이가 문서화되어 있지 않으며, Chromium 버전도 145(macOS) vs 146(Linux/Win)으로 갭 존재. macOS 환경에서의 스텔스 보증 수준이 불명확.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>조건부 도입 권고 — 사용 목적과 법무 검토가 선행되어야 함</strong></p>
+<h3 id="_2">기술 도입 관점</h3>
+<p>CloakBrowser는 <strong>스텔스 브라우저 자동화</strong> 분야에서 기술적으로 가장 앞선 접근 방식 중 하나다. C++ 수준 패치, 이중 언어 지원, 엔터프라이즈급 공급망 보안, 8개 이상의 AI/자동화 프레임워크 통합이 결합된 조합은 동급 오픈소스에서 찾기 어렵다. 기술 벤치마킹 대상으로는 <strong>강력히 권고</strong>.</p>
+<h3 id="_3">아키텍처 참조 관점</h3>
+<ul>
+<li><strong>인간 행동 시뮬레이션 레이어</strong> (<code>human/</code> 서브패키지) — 독립적으로 재사용 가능한 설계. 자체 자동화 프로젝트에 참조할 만한 패턴.</li>
+<li><strong>이중 언어 래퍼 + 단일 바이너리 모델</strong> — Python/Node SDK를 동시 제공하는 CLI 도구 설계의 좋은 참조 사례.</li>
+<li><strong>OIDC 신뢰 게시 + Cosign 서명 파이프라인</strong> — 소규모 프로젝트의 공급망 보안 기준선으로 채택 권장.</li>
+</ul>
+<h3 id="_4">프로덕션 도입 전 체크리스트</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>필요 조치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>법무 검토</td>
+<td>BINARY-LICENSE OEM/SaaS 조항, 이용 목적의 이용약관 적합성 확인</td>
+</tr>
+<tr>
+<td>보안 정책</td>
+<td>허용 사용 범위 내부 정책 수립, cloakserve 노출 범위 감사</td>
+</tr>
+<tr>
+<td>테스트 보강</td>
+<td>커버리지 측정 도입, 핵심 스텔스 회귀 테스트 자동화</td>
+</tr>
+<tr>
+<td>공급망 잠금</td>
+<td>SHA-256 핀닝, 사설 레지스트리 미러, 바이너리 라이선스 만료/변경 알림</td>
+</tr>
+<tr>
+<td>컨트리뷰션</td>
+<td>CONTRIBUTING.md 없으므로 직접 포크 시 거버넌스 규칙 자체 수립</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">최종 판단</h3>
+<p>웹 스크래핑·자동화 QA·가격 모니터링·OSINT 등 <strong>합법적 자동화 목적</strong>에서는 기술 완성도와 운영 성숙도 모두 우수. 단, <strong>독점 바이너리 의존과 이중 라이선스</strong>는 엔터프라이즈 환경에서 반드시 해결해야 할 구조적 제약이며, 무단 접근·사기 등 악용 용도는 라이선스 위반이자 법적 위험임을 명심해야 한다.</p>
+<hr />
+<p><em>본 보고서는 2026-06-07 기준 저장소 상태를 분석한 것이며, 이후 변경 사항은 반영되지 않습니다.</em>
+<em>This report reflects the repository state as of 2026-06-07 and does not account for subsequent changes.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
     
     <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 보고서를 작성합니다.</p>
 <hr />

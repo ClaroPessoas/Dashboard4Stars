@@ -107,12 +107,862 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-indepth">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-07
+분석 대상: <code>/tmp/github-dashboard-analysis/MemPalace_mempalace</code></p>
+<hr />
+<h1 id="mempalace-source-analysis-report">MemPalace — 소스 분석 리포트 (Source Analysis Report)</h1>
+<hr />
+<h2 id="overview">개요 / Overview</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>프로젝트명</td>
+<td>MemPalace</td>
+</tr>
+<tr>
+<td>버전</td>
+<td>3.4.0</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td>MIT</td>
+</tr>
+<tr>
+<td>언어</td>
+<td>Python ≥ 3.9</td>
+</tr>
+<tr>
+<td>메인테이너</td>
+<td>milla-jovovich (공동 창립자: bensig)</td>
+</tr>
+<tr>
+<td>분류</td>
+<td>로컬 우선 AI 메모리 시스템 (Local-First AI Memory System)</td>
+</tr>
+<tr>
+<td>배포 방식</td>
+<td>PyPI (<code>mempalace</code>), Docker (ghcr.io), MCP 플러그인</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="analysis-summary-table">종합 평가 테이블 / Analysis Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 에이전트가 대화 간 컨텍스트를 잃지 않도록 로컬 기기에 대화 내용을 원문 그대로 저장하고 의미 검색을 제공하는 메모리 시스템. API 키나 클라우드 의존 없이 96.6% R@5 리콜 달성.</td>
+<td>★★★★★ — 명확하고 측정 가능한 목적, 벤치마크 수치로 검증됨</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>mempalace/</code> (60개 Python 모듈), <code>tests/</code> (50+ 파일), <code>.github/workflows/</code> (6개 CI 파이프라인), <code>hooks/</code>, <code>backends/</code>, <code>website/</code>, <code>docs/rfcs/</code> 등으로 기능 중심 계층 구조 구성. Wing → Room → Drawer 3계층 팰리스 구조.</td>
+<td>★★★★★ — 명확한 관심사 분리, RFC 기반 플러그인 아키텍처</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.9–3.13, ChromaDB 1.5.4+ (기본 벡터 DB), SQLite (지식 그래프), ONNX Runtime (임베딩), ruff (린터/포매터), pytest + hypothesis (테스트), hatchling (빌드), uv (패키지 관리). 선택적: pgvector, Qdrant, onnxruntime-gpu/dml/coreml.</td>
+<td>★★★★☆ — 스택이 견고하나 ChromaDB 버전 상한이 있음 (<code>&lt;2</code>)</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>CLI: <code>mempalace.cli:main</code>, MCP 서버: <code>mempalace.mcp_server:main</code>. CLI는 <code>init / split / mine / search / wake-up / status</code> 서브커맨드 제공. MCP 서버는 29개 도구 노출 (읽기/쓰기/유지보수).</td>
+<td>★★★★★ — CLI + MCP 이중 진입점, 명확한 책임 분리</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>RFC 001 플러그인 인터페이스 (<code>BaseBackend</code> / <code>BaseCollection</code>), 4계층 메모리 웨이크업 스택 (L0-L3), AAAK 압축 방언 (인덱스 레이어), 하이브리드 검색 (BM25 + 벡터), 시간적 엔티티 관계 그래프 (SQLite). 헥사고날 아키텍처 패턴 근접.</td>
+<td>★★★★★ — 벤더 독립, 계층 분리, RFC 문서화</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>ChromaDB (HNSW 벡터 인덱스) 기본. SQLite (지식 그래프, FTS5). 선택적: pgvector (PostgreSQL), Qdrant (REST). 원문 보존(Verbatim) 정책. 모든 데이터 로컬 저장.</td>
+<td>★★★★★ — 다중 백엔드 지원, 로컬 우선, 무손실 보존</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI (OIDC Trusted Publishing), Docker (ghcr.io, amd64+arm64 멀티아키텍처), Claude Code 플러그인 (<code>.claude-plugin/</code>), Codex 플러그인 (<code>.codex-plugin/</code>). Dockerfile + Dockerfile.gpu + docker-compose.yml 제공.</td>
+<td>★★★★★ — 다채널 배포, 멀티아키텍처, OIDC 기반 무토큰 릴리스</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>50+ 테스트 파일, pytest + hypothesis. 리눅스 85% / 윈도우 80% 커버리지 임계값. 단위·통합·적합성·성능·속성 기반 테스트. CI: Linux 3.9/3.11/3.13, Windows 3.13, macOS 3.13.</td>
+<td>★★★★★ — 다플랫폼 매트릭스, 속성 기반 테스트, 명확한 커버리지 정책</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 존재 (GitHub Private Vulnerability Reporting, 48시간 응답 SLA). <code>config.py</code>에서 경로 순회, 널 바이트, UTF-16 서러게이트 방어. <code>query_sanitizer.py</code>로 프롬프트 오염 차단. 비밀 없음 (OIDC, no stored tokens).</td>
+<td>★★★★☆ — 입력 검증 견고하나 SBOM/서명 아티팩트 미확인</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>CHANGELOG 100+ 줄, ROADMAP, MISSION, CONTRIBUTING, 5개 RFC. VitePress 문서 사이트. 40+ 버그 수정 내역. 3.x 릴리스 트레인. 벤치마크 4종 (LongMemEval, LoCoMo, ConvoMem, MemBench). <code>version-guard.yml</code>로 5개 버전 매니페스트 동기화.</td>
+<td>★★★★★ — 프로덕션 수준 성숙도, 문서화 탁월</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-1-purpose-scope">Step 1. 목적 및 범위 / Purpose &amp; Scope</h2>
+<h3 id="problem-statement">해결하는 문제 (Problem Statement)</h3>
+<p>AI 에이전트(특히 Claude Code)는 대화 세션이 끝나면 모든 컨텍스트를 잃는다. MemPalace는 이 <strong>"대화 간 기억 상실"</strong> 문제를 해결하기 위해 설계된 <strong>로컬 우선 메모리 시스템</strong>이다.</p>
+<p>핵심 설계 요구사항:
+- <strong>원문 보존(Verbatim Always)</strong>: 사용자가 말한 내용을 단 한 글자도 요약하거나 의역하지 않고 저장
+- <strong>100% 리콜</strong>: 모든 검색 경로는 100% 리콜을 목표로 측정됨
+- <strong>API 키 불필요</strong>: 핵심 기능은 외부 서비스 없이 로컬에서 동작
+- <strong>프라이버시 by 아키텍처</strong>: 데이터가 물리적으로 사용자 기기를 벗어날 수 없음</p>
+<h3 id="target-users">대상 사용자 (Target Users)</h3>
+<ul>
+<li>AI 코딩 에이전트(Claude Code, OpenAI Codex CLI)를 사용하는 개발자</li>
+<li>대화 기록의 장기 보존이 필요한 파워 유저</li>
+<li>로컬 LLM(Ollama, LM Studio, llama.cpp) 사용자</li>
+</ul>
+<h3 id="classification">분류 (Classification)</h3>
+<blockquote>
+<p><strong>애플리케이션 + 라이브러리 + MCP 플러그인</strong> — 독립 실행형 CLI, Python 패키지, MCP 서버의 세 가지 인터페이스를 동시에 제공하는 복합 시스템.</p>
+</blockquote>
+<hr />
+<h2 id="step-2-repository-structure">Step 2. 저장소 구조 분석 / Repository Structure</h2>
+<pre><code>MemPalace_mempalace/
+├── mempalace/               # 핵심 패키지 (60개 Python 모듈)
+│   ├── backends/            # 플러그인 백엔드 (RFC 001)
+│   ├── i18n/                # 다국어 엔티티 감지 패턴
+│   ├── data/                # COCA 단어목록, 명령 템플릿
+│   ├── sources/             # 플러그인 소스 어댑터
+│   └── instructions/        # 프롬프트 템플릿
+├── tests/                   # 테스트 스위트 (50+ 파일)
+├── benchmarks/              # 성능 벤치마크 (LongMemEval, LoCoMo 등)
+├── hooks/                   # Claude Code 자동 저장 훅 (셸 스크립트)
+├── integrations/            # 서드파티 통합
+├── examples/                # 사용 예제
+├── docs/                    # RFC 문서 (5개), 가이드
+├── website/                 # VitePress 문서 사이트
+├── .github/workflows/       # CI/CD (6개 워크플로우)
+├── .claude-plugin/          # Claude Code 플러그인 매니페스트
+├── .codex-plugin/           # OpenAI Codex 플러그인 매니페스트
+└── .devcontainer/           # 개발 컨테이너 설정
+</code></pre>
+<p><strong>구조 평가:</strong>
+- <strong>기능 중심 계층 구조</strong>: 관심사가 명확히 분리됨
+- <strong>코드와 운영 자산 분리</strong>: <code>mempalace/</code> (로직), <code>hooks/</code> (자동화), <code>website/</code> (문서), <code>benchmarks/</code> (측정)
+- <strong>단일 저장소(Single-repo)</strong>: 모노레포는 아니지만 플러그인 매니페스트를 포함한 통합 구조
+- <strong>RFC 기반 설계</strong>: <code>docs/rfcs/</code>에 5개 RFC 존재, 아키텍처 결정 문서화</p>
+<hr />
+<h2 id="step-3-software-stack">Step 3. 소프트웨어 스택 / Software Stack</h2>
+<h3 id="_1">언어 및 런타임</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Python 3.9+</td>
+</tr>
+<tr>
+<td>지원 버전</td>
+<td>3.9, 3.11, 3.13 (CI 검증), 3.13 (Windows/macOS)</td>
+</tr>
+<tr>
+<td>빌드 도구</td>
+<td>hatchling</td>
+</tr>
+<tr>
+<td>패키지 관리</td>
+<td>uv (권장), pip (대안)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">핵심 의존성</h3>
+<table>
+<thead>
+<tr>
+<th>라이브러리</th>
+<th>버전</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>chromadb</code></td>
+<td>≥1.5.4, &lt;2</td>
+<td>기본 벡터 데이터베이스 (HNSW)</td>
+</tr>
+<tr>
+<td><code>pyyaml</code></td>
+<td>≥6.0, &lt;7</td>
+<td>설정 파일 파싱</td>
+</tr>
+<tr>
+<td><code>huggingface_hub</code></td>
+<td>≥0.20</td>
+<td>ONNX 임베딩 모델 다운로드</td>
+</tr>
+<tr>
+<td><code>tokenizers</code></td>
+<td>≥0.15</td>
+<td>임베딩 토크나이저</td>
+</tr>
+<tr>
+<td><code>numpy</code></td>
+<td>≥1.24</td>
+<td>수치 연산</td>
+</tr>
+<tr>
+<td><code>python-dateutil</code></td>
+<td>≥2.8</td>
+<td>날짜 파싱</td>
+</tr>
+<tr>
+<td><code>tomli</code></td>
+<td>≥2.0 (py&lt;3.11 only)</td>
+<td>TOML 파싱</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">선택적 의존성</h3>
+<table>
+<thead>
+<tr>
+<th>Extra</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>dev</code></td>
+<td>pytest, pytest-cov, ruff, hypothesis, mypy, pre-commit</td>
+</tr>
+<tr>
+<td><code>pgvector</code></td>
+<td>psycopg[binary] — PostgreSQL pgvector 백엔드</td>
+</tr>
+<tr>
+<td><code>gpu</code> / <code>dml</code> / <code>coreml</code></td>
+<td>onnxruntime 하드웨어 가속 변형</td>
+</tr>
+<tr>
+<td><code>extract</code></td>
+<td>markitdown (PDF, DOCX, PPTX, XLSX), striprtf (RTF)</td>
+</tr>
+<tr>
+<td><code>spellcheck</code></td>
+<td>autocorrect</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">데이터 저장소</h3>
+<table>
+<thead>
+<tr>
+<th>저장소</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ChromaDB (기본)</td>
+<td>벡터 인덱스, 드로어 컬렉션, 클로짓 컬렉션</td>
+</tr>
+<tr>
+<td>SQLite</td>
+<td>지식 그래프 (<code>~/.mempalace/knowledge_graph.sqlite3</code>), FTS5 전문 검색</td>
+</tr>
+<tr>
+<td>PostgreSQL + pgvector</td>
+<td>선택적 다중 테넌트 백엔드</td>
+</tr>
+<tr>
+<td>Qdrant (REST)</td>
+<td>선택적 외부 벡터 서비스 백엔드</td>
+</tr>
+<tr>
+<td>파일 시스템</td>
+<td>팰리스 디렉토리 (<code>~/.mempalace/</code>), 아이덴티티 파일, 훅 상태</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">배포 플랫폼</h3>
+<table>
+<thead>
+<tr>
+<th>플랫폼</th>
+<th>방식</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PyPI</td>
+<td>OIDC Trusted Publishing (토큰 저장 없음)</td>
+</tr>
+<tr>
+<td>Docker</td>
+<td>ghcr.io, amd64+arm64, CPU + GPU 변형</td>
+</tr>
+<tr>
+<td>Claude Code</td>
+<td><code>.claude-plugin/</code> 매니페스트</td>
+</tr>
+<tr>
+<td>OpenAI Codex</td>
+<td><code>.codex-plugin/</code> 매니페스트</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-4-architecture-analysis">Step 4. 아키텍처 분석 / Architecture Analysis</h2>
+<h3 id="entry-points">진입점 (Entry Points)</h3>
+<pre><code>CLI:     mempalace.cli:main
+         ├── init &lt;dir&gt;        — 폴더에서 룸 감지
+         ├── split &lt;dir&gt;       — 메가 파일 분할
+         ├── mine &lt;dir&gt;        — 프로젝트/대화 채굴
+         ├── search &quot;query&quot;    — 시맨틱 검색
+         ├── wake-up           — L0+L1 컨텍스트 표시
+         └── status            — 팰리스 인벤토리
+
+MCP:     mempalace.mcp_server:main
+         └── 29개 도구 (읽기, 쓰기, 유지보수)
+             ├── mempalace_status
+             ├── mempalace_search
+             ├── mempalace_add_drawer
+             ├── mempalace_delete_drawer
+             └── ...
+</code></pre>
+<h3 id="palace-hierarchy">팰리스 계층 구조 (Palace Hierarchy)</h3>
+<pre><code>WING (사람/프로젝트)
+  └── ROOM (날짜/주제)
+        └── DRAWER (원문 텍스트 청크)
+              ↑ 포인터
+        CLOSET (AAAK 압축 인덱스)
+</code></pre>
+<ul>
+<li><strong>Drawers</strong>: 원문 보존, 검색 결과로 반환되는 실제 내용</li>
+<li><strong>Closets</strong>: AAAK 형식의 손실 압축 인덱스, LLM이 스캔하여 어느 Drawer를 열지 결정</li>
+<li><strong>Wings</strong>: 사람 또는 프로젝트 기준 최상위 스코핑</li>
+<li><strong>Rooms</strong>: 날짜 또는 주제 기준 중간 스코핑</li>
+</ul>
+<h3 id="4-l0l3">4계층 메모리 웨이크업 스택 (L0–L3)</h3>
+<pre><code>L0: Identity (~100 tokens)      — 항상 로드. &quot;나는 누구인가?&quot;
+L1: Essential Story (~500–800)  — 항상 로드. 핵심 순간들.
+L2: On-Demand (~200–500 each)   — 주제/윙이 언급될 때 로드.
+L3: Deep Search (무제한)        — 전체 ChromaDB 시맨틱 검색.
+
+웨이크업 비용: ~600–900 토큰 (L0+L1), 컨텍스트 95%+ 자유 유지
+</code></pre>
+<h3 id="rfc-001">RFC 001 플러그인 백엔드 인터페이스</h3>
+<pre><code class="language-python">class BaseBackend(ABC):
+    name: ClassVar[str]
+    spec_version: ClassVar[str]
+    capabilities: ClassVar[frozenset[str]]
+
+    @abstractmethod
+    def get_collection(self, palace_ref: PalaceRef, ...) -&gt; BaseCollection: ...
+
+class BaseCollection(ABC):
+    @abstractmethod
+    def add(self, ids, documents, metadatas, embeddings) -&gt; None: ...
+    @abstractmethod
+    def query(self, query_embeddings, n_results, where, ...) -&gt; QueryResult: ...
+    @abstractmethod
+    def upsert(self, ...) -&gt; None: ...
+    @abstractmethod
+    def delete(self, ...) -&gt; None: ...
+    @abstractmethod
+    def count(self) -&gt; int: ...
+</code></pre>
+<p>구현체: ChromaDB (기본), SQLiteExact, Qdrant, pgvector</p>
+<h3 id="bm25">하이브리드 검색 (BM25 + 벡터)</h3>
+<pre><code>쿼리
+  ├── BM25 키워드 매칭 (k1=1.5, b=0.75)
+  ├── 벡터 시맨틱 유사도 (ChromaDB HNSW)
+  ├── FTS5 전문 검색 (폴백)
+  └── AAAK 클로짓 랭킹 부스트
+</code></pre>
+<h3 id="aaak">AAAK 압축 방언 (인덱스 레이어)</h3>
+<pre><code>헤더:   FILE_NUM|PRIMARY_ENTITY|DATE|TITLE
+제텔:   ZID:ENTITIES|topic_keywords|&quot;key_quote&quot;|WEIGHT|EMOTIONS|FLAGS
+터널:   T:ZID&lt;-&gt;ZID|label
+아크:   ARC:emotion-&gt;emotion-&gt;emotion
+</code></pre>
+<p><strong>중요 사항</strong>: AAAK는 손실 압축 — 원문 재구성 불가. 96.6% 벤치마크는 원문 모드(Drawers)에서 달성됨.</p>
+<h3 id="temporal-knowledge-graph">시간적 지식 그래프 (Temporal Knowledge Graph)</h3>
+<pre><code class="language-python">kg.add_triple(subject, predicate, object, valid_from, valid_to)
+kg.query_entity(name, as_of=date, direction=&quot;out|in|both&quot;)
+kg.invalidate(subject, predicate, object, ended=date)
+</code></pre>
+<p>SQLite 로컬 저장. 사실의 유효 기간(valid_from → valid_to) 추적.</p>
+<h3 id="_6">아키텍처 패턴</h3>
+<table>
+<thead>
+<tr>
+<th>패턴</th>
+<th>적용 여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>헥사고날 아키텍처</td>
+<td>근사 적용 — 포트(BaseBackend/BaseCollection)와 어댑터(Chroma, pgvector 등) 분리</td>
+</tr>
+<tr>
+<td>플러그인 아키텍처</td>
+<td>RFC 001, entry_points 기반 동적 백엔드 로딩</td>
+</tr>
+<tr>
+<td>레이어드 아키텍처</td>
+<td>L0-L3 메모리 스택, Wing→Room→Drawer 3계층</td>
+</tr>
+<tr>
+<td>이벤트 드리븐 (부분)</td>
+<td>Stop/PreCompact 훅 이벤트 기반 자동 저장</td>
+</tr>
+<tr>
+<td>인크리멘탈 프로세싱</td>
+<td>Append-only 수집, 증분 채굴</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-5-quality-test-system">Step 5. 품질 및 테스트 시스템 / Quality &amp; Test System</h2>
+<h3 id="_7">테스트 구조</h3>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>파일 수</th>
+<th>예시</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트</td>
+<td>20+</td>
+<td><code>test_config.py</code>, <code>test_dialect.py</code>, <code>test_normalize.py</code></td>
+</tr>
+<tr>
+<td>통합 테스트</td>
+<td>15+</td>
+<td><code>test_backends.py</code>, <code>test_palace_locks.py</code>, <code>test_miner.py</code></td>
+</tr>
+<tr>
+<td>적합성 테스트</td>
+<td>3</td>
+<td><code>test_backend_conformance.py</code>, <code>test_collection_metric_invariant.py</code></td>
+</tr>
+<tr>
+<td>속성 기반 테스트</td>
+<td>hypothesis</td>
+<td>경계 조건 자동 탐색</td>
+</tr>
+<tr>
+<td>벤치마크</td>
+<td>4종</td>
+<td><code>test_readme_claims.py</code>, <code>tests/benchmarks/</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_8">커버리지 정책</h3>
+<table>
+<thead>
+<tr>
+<th>플랫폼</th>
+<th>임계값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Linux</td>
+<td>85%</td>
+</tr>
+<tr>
+<td>Windows</td>
+<td>80% (ChromaDB 파일 잠금 정리 이슈)</td>
+</tr>
+<tr>
+<td>macOS</td>
+<td>측정 (임계값 무관)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cicd">CI/CD 워크플로우</h3>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ci.yml</code></td>
+<td>다플랫폼 테스트 매트릭스 (Linux 3.9/3.11/3.13, Win 3.13, macOS 3.13) + ruff 린트</td>
+</tr>
+<tr>
+<td><code>publish.yml</code></td>
+<td>PyPI OIDC 릴리스 (단일 잡, BlobNotFound 방지)</td>
+</tr>
+<tr>
+<td><code>docker-publish.yml</code></td>
+<td>ghcr.io 멀티아치 빌드 (amd64+arm64)</td>
+</tr>
+<tr>
+<td><code>version-guard.yml</code></td>
+<td>5개 버전 매니페스트 동기화 검사</td>
+</tr>
+<tr>
+<td><code>deploy-docs.yml</code></td>
+<td>VitePress 문서 사이트 배포</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">린트/포매팅</h3>
+<pre><code>ruff check .          # E/F/W 규칙
+ruff format .         # 더블 쿼트, 100자 줄 제한
+pre-commit            # 커밋 전 자동 실행
+mypy                  # 타입 검사 (dev extra)
+</code></pre>
+<h3 id="_10">버전 전략</h3>
+<ul>
+<li><strong>Conventional Commits</strong>: <code>fix:</code>, <code>feat:</code>, <code>test:</code>, <code>docs:</code>, <code>ci:</code></li>
+<li><strong>단일 소스</strong>: <code>mempalace/version.py</code> → pyproject.toml + 3개 플러그인 매니페스트</li>
+<li><strong><code>version-guard.yml</code></strong>: 5개 소스 불일치 시 CI 실패</li>
+</ul>
+<hr />
+<h2 id="step-6-security-supply-chain">Step 6. 보안 및 공급망 / Security &amp; Supply Chain</h2>
+<h3 id="_11">보안 정책</h3>
+<p><strong><code>SECURITY.md</code> 존재:</strong>
+- 지원 버전: 3.x (최신) 전용
+- 보고 채널: GitHub Private Vulnerability Reporting (공개 이슈 금지)
+- 응답 SLA: 48시간 내 확인, 패치 후 어드바이저리 발행 + 크레딧 옵션</p>
+<h3 id="configpy">코드 레벨 보안 (<code>config.py</code>)</h3>
+<table>
+<thead>
+<tr>
+<th>방어 기법</th>
+<th>구현</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>경로 순회 방지</td>
+<td><code>..</code>, <code>/</code>, <code>\</code> 문자 차단 (Wing/Room 이름 검증)</td>
+</tr>
+<tr>
+<td>널 바이트 제거</td>
+<td><code>sanitize_name()</code>, <code>sanitize_content()</code> 전처리</td>
+</tr>
+<tr>
+<td>UTF-16 서러게이트 처리</td>
+<td>U+D800–U+DFFF → U+FFFD 대체 (MCP 클라이언트 호환)</td>
+</tr>
+<tr>
+<td>입력 길이 제한</td>
+<td>Wing/Room 이름 128자 최대</td>
+</tr>
+<tr>
+<td>프롬프트 오염 방지</td>
+<td><code>query_sanitizer.py</code> — 시스템 태그, 훅 출력 제거</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">공급망 보안</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OIDC Trusted Publishing</td>
+<td>✅ 토큰 저장 없이 PyPI 릴리스</td>
+</tr>
+<tr>
+<td>Dependabot/Renovate</td>
+<td>미확인 (없는 것으로 판단)</td>
+</tr>
+<tr>
+<td>SBOM 생성</td>
+<td>미확인</td>
+</tr>
+<tr>
+<td>아티팩트 서명</td>
+<td>미확인</td>
+</tr>
+<tr>
+<td><code>uv.lock</code> 잠금 파일</td>
+<td>✅ 재현 가능한 빌드</td>
+</tr>
+<tr>
+<td>pre-commit 훅</td>
+<td>✅ 커밋 전 린트/포맷 강제</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">라이선스</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기본 라이선스</td>
+<td>MIT (Copyright 2026 MemPalace Contributors)</td>
+</tr>
+<tr>
+<td>핵심 의존성 라이선스</td>
+<td>ChromaDB (Apache 2.0), PyYAML (MIT), NumPy (BSD), HuggingFace Hub (Apache 2.0)</td>
+</tr>
+<tr>
+<td>호환성</td>
+<td>✅ 상업적 사용, 수정, 재배포 허용</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_14">비밀 관리</h3>
+<ul>
+<li>저장된 API 키 없음 (OIDC 기반 릴리스)</li>
+<li>외부 서비스 키는 사용자 설정 파일에만 존재</li>
+<li>훅 스크립트는 환경변수로 경로 설정 (하드코딩 없음)</li>
+</ul>
+<hr />
+<h2 id="step-7-documentation-operational-maturity">Step 7. 문서 및 운영 성숙도 / Documentation &amp; Operational Maturity</h2>
+<h3 id="_15">문서 품질</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>내용</th>
+<th>품질</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>퀵스타트, 벤치마크, MCP 도구 목록, Docker, 아키텍처 다이어그램 (289줄)</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>개발 환경 설정, PR 가이드라인, 코드 스타일, Good First Issues</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>CLAUDE.md</td>
+<td>설계 원칙, 구조 맵, 아키텍처 다이어그램, 컨벤션</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>의미론적 릴리스 노트, 40+ 버그 수정 추적</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>MISSION.md</td>
+<td>창립자 비전, 기술적 혁신 설명</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>취약점 보고 절차, SLA</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>ROADMAP.md</td>
+<td>미래 기능 계획</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td>docs/rfcs/</td>
+<td>5개 RFC (아키텍처 결정 문서)</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>website/</td>
+<td>VitePress 문서 사이트 (개념, 가이드, 레퍼런스)</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_16">커뮤니티 활동</h3>
+<table>
+<thead>
+<tr>
+<th>지표</th>
+<th>현황</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 릴리스</td>
+<td>3.4.0 (활성 개발)</td>
+</tr>
+<tr>
+<td>기여자</td>
+<td>milla-jovovich + bensig (공동창립자) + 커뮤니티</td>
+</tr>
+<tr>
+<td>이슈/PR 템플릿</td>
+<td>존재 여부 미확인</td>
+</tr>
+<tr>
+<td>커밋 빈도</td>
+<td>40+ 버그 수정 (3.3.6 단일 릴리스) → 매우 활발</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT</td>
+<td>미확인</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td>RFC 형태로 <code>docs/rfcs/</code>에 존재</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_17">벤치마크 성과</h3>
+<table>
+<thead>
+<tr>
+<th>벤치마크</th>
+<th>지표</th>
+<th>결과</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LongMemEval</td>
+<td>R@5 (raw)</td>
+<td>96.6%</td>
+</tr>
+<tr>
+<td>LongMemEval</td>
+<td>R@5 (hybrid v4)</td>
+<td>98.4%</td>
+</tr>
+<tr>
+<td>LongMemEval</td>
+<td>R@5 (LLM rerank)</td>
+<td>≥99%</td>
+</tr>
+<tr>
+<td>LoCoMo</td>
+<td>R@10 (session)</td>
+<td>60.3%</td>
+</tr>
+<tr>
+<td>LoCoMo</td>
+<td>R@10 (hybrid v5)</td>
+<td>88.9%</td>
+</tr>
+<tr>
+<td>ConvoMem</td>
+<td>평균 리콜 (250 items)</td>
+<td>92.9%</td>
+</tr>
+<tr>
+<td>MemBench</td>
+<td>R@5 (8,500 items)</td>
+<td>80.3%</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>원문 보존(Verbatim) 원칙의 철저한 구현</strong>
+   설계 원칙이 PR 수용 기준에 명시되어 있으며, <code>sanitize_content()</code>는 길이 제한을 두지 않고 원문을 그대로 저장한다. 요약/의역을 허용하는 PR은 아키텍처 레벨에서 거부된다. AAAK 클로짓이 손실 압축임을 명확히 구별하는 문서가 존재한다.</p>
+</li>
+<li>
+<p><strong>RFC 001 기반 플러그인 백엔드 — 벤더 독립성</strong>
+   <code>BaseBackend</code> / <code>BaseCollection</code> 추상 인터페이스가 명확히 정의되어 있고, ChromaDB·SQLite·Qdrant·pgvector 4개 구현체가 존재한다. 새 백엔드 추가는 두 클래스를 상속하고 <code>entry_points</code>에 등록하는 것으로 완성된다.</p>
+</li>
+<li>
+<p><strong>다계층 CI/CD — 릴리스 품질 보증</strong>
+   버전 동기화 검사(<code>version-guard.yml</code>)가 5개 소스를 검증하고, OIDC Trusted Publishing으로 토큰 없이 릴리스한다. 단일 잡 publish(BlobNotFound 방지), 멀티아키텍처 Docker 이미지, 다플랫폼 테스트 매트릭스가 함께 구성된다.</p>
+</li>
+<li>
+<p><strong>4계층 메모리 스택(L0–L3)의 토큰 경제성</strong>
+   웨이크업 비용 ~600–900 토큰으로 컨텍스트의 95%+를 자유롭게 유지한다. L0(항상), L1(항상), L2(온디맨드), L3(딥서치)의 계층적 설계가 비용과 리콜을 동시에 최적화한다.</p>
+</li>
+<li>
+<p><strong>로컬 우선 프라이버시 by 아키텍처</strong>
+   핵심 기능이 외부 API 없이 동작하며, ONNX 임베딩 모델이 로컬에서 실행된다. "물리적으로 데이터가 기기를 벗어날 수 없다"는 설계가 텔레메트리 부재와 결합하여 프라이버시를 아키텍처 레벨에서 보장한다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험/개선 필요 사항 / Risks &amp; Areas for Improvement</h2>
+<ol>
+<li>
+<p><strong>ChromaDB 버전 상한 제약 (<code>&lt;2</code>)</strong>
+   <code>chromadb&gt;=1.5.4,&lt;2</code> 제약은 ChromaDB 2.x가 출시될 경우 업그레이드 블로킹 리스크를 내포한다. HNSW 링크 비율 검사(<code>_hnsw_link_to_data_ratio</code>)처럼 내부 API에 의존하는 코드가 버전 업에 취약하다.</p>
+</li>
+<li>
+<p><strong>Dependabot/Renovate 자동 의존성 업데이트 부재</strong>
+   의존성 취약점 자동 감지 도구가 확인되지 않는다. 76MB 저장소에 1.1MB <code>uv.lock</code> 파일이 있지만, CVE 알림이나 자동 PR 생성 도구가 없으면 보안 패치가 지연될 수 있다.</p>
+</li>
+<li>
+<p><strong>SBOM 및 아티팩트 서명 미비</strong>
+   Docker 이미지와 PyPI 패키지에 대한 SBOM(Software Bill of Materials) 생성 및 Sigstore/cosign 아티팩트 서명이 확인되지 않는다. 공급망 보안 강화를 위해 필요하다.</p>
+</li>
+<li>
+<p><strong>훅 스크립트의 bash 의존성 — macOS/Windows 호환성 복잡성</strong>
+   <code>mempal_save_hook.sh</code>에 macOS bash 3.2 호환 우회코드(<code>mapfile → sed 파이프라인</code>)가 존재한다. 셸 스크립트 기반 훅은 크로스 플랫폼 배포 시 유지보수 부담이 증가한다. Python 기반 훅으로의 이전이 장기적으로 유리하다.</p>
+</li>
+<li>
+<p><strong>단일 메인테이너 리스크</strong>
+   활발한 개발이 주로 milla-jovovich 중심으로 이루어지고 있으며, 오픈소스 기여자 다양성이 제한적으로 관찰된다. 버스 팩터(bus factor)가 낮을 경우 프로젝트 지속성에 위험이 된다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h2>
+<h3 id="technology-adoption">기술 도입 (Technology Adoption)</h3>
+<p><strong>권고 등급: 강력 권장 (★★★★★)</strong></p>
+<p>MemPalace는 AI 에이전트의 장기 메모리 문제를 해결하는 <strong>유일한 로컬 우선, 원문 보존 솔루션</strong>이다. 유사 경쟁 제품(Zep: Neo4j 클라우드 $25+/월)과 달리 무료로 로컬에서 동작하며, 96.6% R@5 벤치마크로 기술적 우위를 입증했다. 상업적 사용, 수정, 재배포가 자유로운 MIT 라이선스와 결합하여 도입 리스크가 낮다.</p>
+<h3 id="architectural-benchmarking">아키텍처 벤치마킹 (Architectural Benchmarking)</h3>
+<p>RFC 001 플러그인 인터페이스, 4계층 메모리 스택, AAAK 인덱스/원문 분리 패턴은 다른 AI 메모리 시스템 설계 시 참조할 가치가 있는 아키텍처 패턴이다.</p>
+<h3 id="security-review">보안 검토 (Security Review)</h3>
+<p>핵심 입력 검증과 프롬프트 오염 방지는 견고하다. 단, 도입 전 Dependabot 활성화, SBOM 생성, 아티팩트 서명 추가를 권장한다.</p>
+<h3 id="contribution-readiness">기여 준비도 (Contribution Readiness)</h3>
+<p>CONTRIBUTING.md, RFC 문서, 명확한 코드 컨벤션, 85% 커버리지 요구사항이 신규 기여자 진입 장벽을 낮춘다. "Good First Issues" 목록이 존재하여 오픈소스 기여 시작점이 명확하다.</p>
+<h3 id="operational-maturity">운영 성숙도 (Operational Maturity)</h3>
+<p>버전 3.4.0, CHANGELOG 40+ 버그 수정, 다플랫폼 CI, Docker 멀티아키텍처 지원은 프로덕션 배포 준비가 완료된 수준임을 나타낸다.</p>
+<hr />
+<p><em>분석일: 2026-06-07</em>
+<em>분석 대상: <code>/tmp/github-dashboard-analysis/MemPalace_mempalace</code></em>
+<em>출력 파일: <code>.review/REVIEW-Source.md</code></em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
     
     <div class="md-body"><h1 id="in-depth-open-source-commercialization-review">오픈소스 상용화 심층 분석 보고서 / In-Depth Open Source Commercialization Review</h1>
 <blockquote>

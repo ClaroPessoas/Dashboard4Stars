@@ -107,12 +107,110 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-indepth">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>보고서가 <code>.review/REVIEW-Source.md</code>에 저장되었습니다. 아래는 최종 보고서 내용입니다.</p>
+<hr />
+<h1 id="agentmemory-source-analysis-report">agentmemory — 소스 분석 보고서 (Source Analysis Report)</h1>
+<blockquote>
+<p>분석일: 2026-06-07<br />
+분석 대상: <code>/tmp/github-dashboard-analysis/rohitg00_agentmemory</code><br />
+패키지: <code>@agentmemory/agentmemory</code> v0.9.26</p>
+</blockquote>
+<hr />
+<h2 id="analysis-summary">분석 요약표 (Analysis Summary)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>목적</td>
+<td>AI 코딩 에이전트(Claude Code, Copilot, Cursor, Codex, Gemini CLI 등)를 위한 영구 메모리 서버. MCP(Model Context Protocol), REST API, 훅(Hooks) 세 가지 접점을 통해 에이전트 세션 간 관찰·기억을 저장·검색한다.</td>
+<td>★★★★★ — 문제 정의가 명확하고 적용 범위가 넓음</td>
+</tr>
+<tr>
+<td>구조</td>
+<td>단일 npm 패키지(<code>@agentmemory/agentmemory</code>) + 하위 패키지(<code>packages/mcp</code>, <code>packages/filesystem-watcher</code>) + 통합(<code>integrations/</code>) + 벤치마크·평가(<code>benchmark/</code>, <code>eval/</code>) + 배포(<code>deploy/</code>, <code>docker-compose.yml</code>). 기능 중심(function-oriented) 플랫 구조.</td>
+<td>★★★★☆ — 명료하나 <code>src/functions/</code>가 100+파일로 비대해짐</td>
+</tr>
+<tr>
+<td>스택</td>
+<td>TypeScript 6, Node.js ≥20, tsdown(번들러), Vitest(테스트). 런타임 의존성 6개(<code>@anthropic-ai/sdk</code>, <code>@anthropic-ai/claude-agent-sdk</code>, <code>@clack/prompts</code>, <code>dotenv</code>, <code>iii-sdk</code>, <code>zod</code>). 옵션 임베딩: <code>@xenova/transformers</code>, <code>onnxruntime-*</code>. 스토리지: iii-engine KV(파일 기반).</td>
+<td>★★★★★ — 의존성 최소화, 외부 DB 불필요</td>
+</tr>
+<tr>
+<td>진입점</td>
+<td>CLI: <code>src/cli.ts</code> → <code>dist/cli.mjs</code>. 워커: <code>src/index.ts</code> → <code>dist/index.mjs</code>. MCP 스탠드얼론: <code>src/mcp/standalone.ts</code>. 훅 스크립트: <code>src/hooks/*.ts</code> → <code>dist/hooks/</code>.</td>
+<td>★★★★★ — 진입점 명확히 분리</td>
+</tr>
+<tr>
+<td>아키텍처</td>
+<td>iii-engine 위에 워커 프로세스를 등록하는 구조. 레이어: CLI/훅(프레젠테이션) → functions 레이어(비즈니스 로직) → StateKV(데이터 접근, iii-sdk 프록시). BM25+벡터+그래프 하이브리드 검색. MCP/REST API는 <code>registerWorker</code> 이후 sdk.registerFunction/registerTrigger로 노출.</td>
+<td>★★★★☆ — 명확한 레이어 분리, 단 iii-engine에 대한 강한 결합</td>
+</tr>
+<tr>
+<td>데이터</td>
+<td>iii-engine의 KV(파일 기반). 세션, 관찰(Observation), 메모리(Memory), 그래프(GraphNode/Edge), 타임라인, 체크포인트 등 6~8개 스코프. 벡터 인덱스(분산 샤드 저장, v0.9.25+). BM25 역인덱스(메모리).</td>
+<td>★★★★☆ — 외부 DB 불필요가 장점, iii-engine 버전 핀 관리가 취약점</td>
+</tr>
+<tr>
+<td>배포</td>
+<td>npm 글로벌 설치(<code>npx @agentmemory/agentmemory</code>), Docker Compose(<code>iii-engine</code> + 워커), Coolify·Fly·Railway·Render 가이드. CI는 ubuntu/macos × Node 20/22 매트릭스.</td>
+<td>★★★★☆ — 다양한 배포 경로, Docker는 버전 핀 의존성 주의</td>
+</tr>
+<tr>
+<td>테스트</td>
+<td>Vitest. 1,390+ 테스트, 약 115개 테스트 파일(30,241 LOC). 단위·통합 분리(<code>test/integration.test.ts</code> 별도). CI에서 단위 테스트만 실행(통합은 라이브 서버 필요). 커버리지 툴 미설정.</td>
+<td>★★★★☆ — 테스트 수 우수, 공식 커버리지 측정 부재</td>
+</tr>
+<tr>
+<td>보안</td>
+<td><code>SECURITY.md</code> 완비. GHSA 채널, 72시간 응답 SLA, CVSS 3.1 채용. 6개의 어드바이저리 문서화(XSS, RCE, 기본 바인드 0.0.0.0, mesh 인증 미흡, 경로 탐색, 프라이버시 리덱션). Dependabot 주간 갱신. <code>timingSafeCompare</code> 사용.</td>
+<td>★★★★☆ — 정책 성숙, 단 lockfile 미적용으로 재현성 리스크</td>
+</tr>
+<tr>
+<td>성숙도</td>
+<td>v0.9.26, Apache-2.0. CHANGELOG(Keep a Changelog 형식), CONTRIBUTING/GOVERNANCE/CODE_OF_CONDUCT. 로드맵 공개(Q2 2026~Q1 2027). 단독 메인테이너(Rohit Ghumare). 커뮤니티 성장 중. CodeRabbit 자동 리뷰.</td>
+<td>★★★☆☆ — 문서·프로세스 성숙, 단일 메인테이너 리스크</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li><strong>극도로 낮은 런타임 의존성 + 외부 DB 불필요</strong> — 프로덕션 의존성 6개만으로 동작하며 신규 사용자 온보딩 마찰이 매우 낮다.</li>
+<li><strong>하이브리드 트리플스트림 검색 설계</strong> — BM25 + 벡터 + 그래프 검색을 단일 <code>HybridSearch</code> 레이어에서 가중치 합산, 임베딩 없이도 폴백 동작.</li>
+<li><strong>에이전트·프로토콜 다중 지원</strong> — 10+ 에이전트, MCP/REST/훅 세 접점을 하나의 서버로 제공.</li>
+<li><strong>1,390+ 테스트와 철저한 회귀 방지</strong> — 115개 파일, 30k+ LOC, 릴리스마다 회귀 테스트 포함.</li>
+<li><strong>성숙한 보안 정책과 공개된 어드바이저리</strong> — 6건 취약점 이력 공개, <code>timingSafeCompare</code>, Dependabot 주간 갱신.</li>
+</ol>
+<hr />
+<h2 id="risks">위험 / 개선 필요 사항 (Risks)</h2>
+<ol>
+<li><strong>iii-engine 단일 결합 리스크</strong> — 코어 기능 전체가 <code>iii-sdk</code> v0.11.2에 하드 핀됨; 업스트림 변경이 전체 서비스를 중단시킬 수 있음.</li>
+<li><strong>단독 메인테이너 버스 팩터</strong> — Active 메인테이너 1인; Q3 2026 추가 온보딩 계획이 미실현 상태.</li>
+<li><strong>lockfile 미적용</strong> — 의도적 정책이나 보안-민감 파이프라인에서 의존성 드리프트 리스크.</li>
+<li><strong>테스트 커버리지 수치 미공개</strong> — Vitest 커버리지 미설정, 실제 라인 커버리지 불명.</li>
+<li><strong><code>src/functions/</code> 과부하</strong> — 90+ 모듈의 플랫 구조로 신규 기여자 탐색 비용 높음.</li>
+</ol>
+<hr />
+<h2 id="recommendation">도입 권고 (Recommendation)</h2>
+<p><strong>조건부 권고</strong> — 개인/소규모 팀 AI 코딩 워크플로에 즉시 가치를 제공한다. 엔터프라이즈 환경에서는 iii-engine 버전 고착·단독 메인테이너·lockfile 부재를 사전 검토해야 한다. BM25+벡터+그래프 하이브리드 검색 및 회로 차단기 패턴은 유사 메모리 레이어 설계의 아키텍처 참고 자료로 가치가 높다.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
     
     <div class="md-body"><p>Now I have all the information needed to write the comprehensive report.</p>
 <hr />
