@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Open-LLM-VTuber/Open-LLM-VTuber - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/Open-LLM-VTuber/Open-LLM-VTuber" target="_blank" rel="noopener">Open-LLM-VTuber/Open-LLM-VTuber</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Talk to any LLM with hands-free voice interaction, voice interruption, and Live2D taking face running locally across platforms</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">weekly trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 10492</span>
+      <span class="badge badge-stars">+2,388 stars this week</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 최종 분석 보고서를 작성하겠습니다.</p>
+<hr />
+<p>분석일: 2026-06-09
+분석 대상: <code>/tmp/github-dashboard-analysis/Open-LLM-VTuber_Open-LLM-VTuber</code></p>
+<hr />
+<h1 id="open-llm-vtuber-review-source">Open-LLM-VTuber 소스 분석 보고서 (REVIEW-Source)</h1>
+<h2 id="_1">프로젝트 개요 분석표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>오프라인 완전 구동 가능한 음성 대화형 AI 동반자. Live2D 아바타, 실시간 음성 대화, 영상 인식을 지원하며 로컬 LLM/ASR/TTS 스택을 통해 Windows/macOS/Linux에서 완전히 오프라인 운영 가능한 VTuber 플랫폼. neuro-sama와 같은 상용 AI VTuber를 오픈소스로 재현하는 것을 초기 목표로 삼음</td>
+<td>★★★★★ — 명확하고 구체적인 사용 사례, 광범위한 플랫폼·백엔드 지원</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>src/open_llm_vtuber/</code> 하위에 <code>agent/</code>, <code>asr/</code>, <code>tts/</code>, <code>vad/</code>, <code>conversations/</code>, <code>config_manager/</code>, <code>mcpp/</code>, <code>translate/</code> 등 기능별 서브패키지 분리. <code>config_templates/</code>, <code>characters/</code>, <code>live2d-models/</code>, <code>prompts/</code>, <code>upgrade_codes/</code> 등 운영 자산과 소스코드가 혼재하는 단일 저장소 구조. frontend는 Git 서브모듈로 별도 관리</td>
+<td>★★★★☆ — 기능별 분리는 명확하나, 단일 저장소에 assets·config·code가 혼재하여 관심사 분리 가능</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.10–3.12, FastAPI + Uvicorn(WebSocket 서버), Pydantic v2(설정 검증), Loguru(로깅), uv(패키지 관리), Ruff(lint/format). AI 엔진: anthropic/openai/groq/letta-client SDK, sherpa-onnx, torch(2.2.2/2.6.0), ONNX Runtime. 프론트엔드: Electron(별도 저장소). 배포: Docker(python:3.10-slim 기반)</td>
+<td>★★★★★ — 최신 Python 생태계 채택, uv·Ruff 등 모던 툴링 사용, 광범위한 선택지</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>run_server.py</code> → <code>WebSocketServer.__init__()</code> → <code>server.initialize()</code> → uvicorn 실행. CLI args: <code>--verbose</code>, <code>--hf_mirror</code>. 시작 시 버전 확인, config 동기화, 서브모듈 초기화, 서비스 컨텍스트 비동기 로드 수행</td>
+<td>★★★★☆ — 명확한 단일 진입점, 초기화 흐름이 잘 구조화됨</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>FastAPI 기반 WebSocket 서버 패턴. <code>ServiceContext</code>가 DI 컨테이너 역할(ASR·TTS·VAD·Agent·Live2D를 세션별 컨텍스트로 관리). Factory 패턴으로 모든 엔진 생성(<code>ASRFactory</code>, <code>TTSFactory</code>, <code>VADFactory</code>, <code>AgentFactory</code>). Agent 내부에서 <code>StatelessLLMInterface</code>를 통한 어댑터 패턴. <code>BasicMemoryAgent</code>가 인메모리 대화 이력 관리. MCP 통합은 <code>mcpp/</code> 서브패키지에서 ServerRegistry·ToolManager·ToolExecutor의 3-레이어로 구성</td>
+<td>★★★★☆ — 레이어 분리가 명확, 인터페이스-팩토리 패턴 일관 적용. 그룹 대화·프록시 처리 등 복잡한 시나리오도 별도 모듈로 분리</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>영구 저장소 없음(DB 미사용). 대화 이력은 <code>chat_history/&lt;conf_uid&gt;/&lt;history_uid&gt;.json</code> 파일로 저장. 오디오 캐시는 <code>cache/</code> 디렉토리. 모델 파일은 <code>models/</code> 디렉토리. 설정은 YAML(<code>conf.yaml</code>, <code>characters/*.yaml</code>). 인메모리 상태는 <code>ServiceContext</code> 및 <code>BasicMemoryAgent._memory</code> 리스트</td>
+<td>★★★☆☆ — 파일 기반 저장소는 단순하지만 동시 사용자나 다중 인스턴스 환경에서 확장성 제한</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker 단일 컨테이너(<code>python:3.10-slim</code>), 포트 12393 노출, <code>/app/conf</code>·<code>/app/models</code> 볼륨 마운트. multi-arch(amd64/arm64) 빌드는 Blacksmith CI로 자동화. DockerHub 및 GHCR 이중 푸시. 릴리즈 패키지는 zip 아카이브 + Cloudflare R2 배포. Electron 데스크탑 클라이언트 별도 릴리즈</td>
+<td>★★★★☆ — Docker 배포 잘 구성됨, multi-arch 지원. 단 K8s/compose 예시 없음</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>자동화된 테스트 코드 전혀 없음 (<code>test_*.py</code>, <code>*_test.py</code> 파일 0개). CI에서 Ruff lint·format 검사와 CodeQL 보안 분석만 수행. pre-commit hook으로 Ruff 적용. 사실상 테스트 커버리지 0%</td>
+<td>★☆☆☆☆ — 자동화 테스트 완전 부재는 v1 코드베이스의 가장 큰 기술 부채</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 없음. CodeQL로 Python 정적 분석(매 push/PR + 주간 스케줄). FOSSA 라이선스·취약점 스캔(main push 시). <code>chat_history_manager.py</code>에 경로 순회 방지 로직(<code>normpath</code> + <code>startswith</code>) 구현. <code>service_context.py</code>에도 동일 패턴 적용. CORS는 전체 허용(<code>allow_origins=["*"]</code>) — 로컬 사용 목적이나 원격 노출 시 위험. API 키는 conf.yaml에 평문 저장. dependabot/renovate 미설정</td>
+<td>★★★☆☆ — 핵심 취약점(경로 순회)은 방어하나 CORS 와일드카드, 보안 정책 부재, 의존성 자동 갱신 미설정이 우려</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v1.2.1, MIT 라이선스. README 4개 언어(EN/CN/KR/JP) 지원. README 품질 양호(기능 설명, 설치 안내, 스크린샷 포함). CONTRIBUTING.md는 외부 문서 링크만 있어 최소 수준. CODE_OF_CONDUCT 없음. Issue 템플릿 2종(버그/기능). v2.0 전면 재작성 진행 중 공지. Zulip·Discord·QQ 커뮤니티 활성. Trendshift 랭킹 등재, 기여자 다수</td>
+<td>★★★★☆ — 활성 커뮤니티와 다국어 지원은 강점. v2 전환 시점의 과도기적 상태로 v1 신규 기능 개발 동결</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="step-1">Step 1. 목적 및 범위</h3>
+<p><strong>Open-LLM-VTuber</strong>는 완전 오프라인으로 동작하는 음성 대화형 AI 동반자 플랫폼이다. 다음의 핵심 문제를 해결한다:</p>
+<ul>
+<li><strong>프라이버시 보장</strong>: 모든 처리가 로컬에서 수행되며, 클라우드 API는 선택사항</li>
+<li><strong>크로스 플랫폼</strong>: Windows, macOS, Linux 완전 지원</li>
+<li><strong>높은 모듈성</strong>: LLM(20+), ASR(7+), TTS(18+) 백엔드를 설정 파일 변경만으로 교체 가능</li>
+<li><strong>Live2D 아바타</strong>: 실시간 감정 표현 연동</li>
+<li><strong>음성 인터럽트</strong>: 헤드폰 없이도 AI 자체 음성 피드백 루프 없이 음성 중단 지원</li>
+</ul>
+<p>주요 사용자: 개인 사용자(AI 동반자/워이후), 개발자(커스텀 AI 에이전트 구축), VTuber 크리에이터</p>
+<p>프로젝트 유형: <strong>애플리케이션 플랫폼</strong> (서버 + 프론트엔드 + 플러그형 엔진 생태계)</p>
+<hr />
+<h3 id="step-2">Step 2. 저장소 구조</h3>
+<pre><code>Open-LLM-VTuber/
+├── src/open_llm_vtuber/       # 핵심 Python 패키지
+│   ├── agent/                 # LLM 에이전트 (factory + 구현체 + stateless LLM 어댑터)
+│   ├── asr/                   # 음성 인식 엔진 (7종)
+│   ├── tts/                   # 음성 합성 엔진 (18종)
+│   ├── vad/                   # 음성 활동 감지 (Silero VAD)
+│   ├── conversations/         # 대화 오케스트레이션 (단일/그룹/TTS 관리)
+│   ├── config_manager/        # Pydantic 기반 타입 안전 설정 관리
+│   ├── mcpp/                  # MCP(Model Context Protocol) 통합
+│   ├── translate/             # 번역 엔진
+│   ├── live/                  # 라이브 스트리밍 (Bilibili 통합)
+│   ├── server.py              # FastAPI 서버
+│   ├── routes.py              # WebSocket/HTTP 라우팅
+│   ├── service_context.py     # DI 컨테이너
+│   └── websocket_handler.py   # 메시지 라우팅
+├── frontend/                  # Git 서브모듈 (Open-LLM-VTuber-Web)
+├── config_templates/          # 기본 YAML 설정 템플릿 (EN/ZH)
+├── characters/                # 캐릭터 프리셋 YAML
+├── live2d-models/             # Live2D 모델 에셋
+├── prompts/                   # 시스템 프롬프트 로더 및 유틸리티
+├── upgrade_codes/             # 버전 마이그레이션 스크립트
+├── scripts/                   # Bilibili 라이브 실행 스크립트
+├── web_tool/                  # 내장 웹 도구
+├── run_server.py              # 진입점
+├── upgrade.py                 # 업그레이드 CLI
+├── pyproject.toml             # 패키지 정의 (uv 기반)
+├── dockerfile                 # Docker 배포
+└── .github/workflows/         # CI/CD (CodeQL, Ruff, Docker, FOSSA, Release)
+</code></pre>
+<p><strong>특징</strong>: 단일 저장소(monorepo 성격), 기능 지향 모듈 구조, 소스·에셋·설정이 동일 루트에 공존.</p>
+<hr />
+<h3 id="step-3">Step 3. 기술 스택</h3>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Python 3.10–3.12 (<code>requires-python = "&gt;=3.10,&lt;3.13"</code>)</td>
+</tr>
+<tr>
+<td>패키지 관리</td>
+<td>uv (pixi로 conda 통합도 지원)</td>
+</tr>
+<tr>
+<td>서버 프레임워크</td>
+<td>FastAPI 0.115+, Uvicorn 0.33+(ASGI)</td>
+</tr>
+<tr>
+<td>설정 검증</td>
+<td>Pydantic v2 (BaseModel 기반)</td>
+</tr>
+<tr>
+<td>로깅</td>
+<td>Loguru 0.7+</td>
+</tr>
+<tr>
+<td>Lint/Format</td>
+<td>Ruff 0.8+</td>
+</tr>
+<tr>
+<td>LLM SDK</td>
+<td>anthropic 0.40+, openai 1.57+, groq 0.13+, letta-client 0.1+</td>
+</tr>
+<tr>
+<td>음성 인식</td>
+<td>sherpa-onnx 1.10+, faster-whisper, FunASR, Azure Cognitive Services, Groq Whisper</td>
+</tr>
+<tr>
+<td>음성 합성</td>
+<td>sherpa-onnx, Edge TTS, Azure TTS, Bark, CosyVoice/2, GPT-SoVITS, MeloTTS, ElevenLabs, Cartesia, Fish Audio, Piper, Coqui, OpenAI TTS, SiliconFlow, Spark, minimax</td>
+</tr>
+<tr>
+<td>음성 활동 감지</td>
+<td>Silero VAD (via ONNX Runtime + torch)</td>
+</tr>
+<tr>
+<td>ML 런타임</td>
+<td>PyTorch 2.2.2(macOS x86) / 2.6+(arm64/Linux), ONNX Runtime 1.20+</td>
+</tr>
+<tr>
+<td>오디오 처리</td>
+<td>pydub, soundfile, scipy, numpy</td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>mcp[cli] 1.6+, duckduckgo-mcp-server</td>
+</tr>
+<tr>
+<td>번역</td>
+<td>DeepLX, Tencent Translate</td>
+</tr>
+<tr>
+<td>배포</td>
+<td>Docker(python:3.10-slim), Cloudflare R2, GitHub Container Registry</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>GitHub Actions (Blacksmith 러너로 멀티아치 Docker 빌드 가속)</td>
+</tr>
+<tr>
+<td>데스크탑 클라이언트</td>
+<td>Electron (별도 저장소, Open-LLM-VTuber-Web)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="step-4">Step 4. 아키텍처 분석</h3>
+<h4 id="_3">주요 설계 패턴</h4>
+<p><strong>1. 서비스 컨텍스트 DI 패턴</strong></p>
+<p><code>ServiceContext</code>가 핵심 의존성 주입 컨테이너다. 각 WebSocket 연결마다 독립적인 컨텍스트 인스턴스를 가지며, <code>default_context_cache</code>를 참조하여 초기화 비용을 절감한다.</p>
+<pre><code>WebSocketServer
+  └── WebSocketHandler (1개)
+        └── ServiceContext (연결당 1개)
+              ├── ASREngine
+              ├── TTSEngine
+              ├── VADEngine
+              ├── AgentEngine (→ StatelessLLM)
+              ├── Live2dModel
+              ├── TranslateEngine (optional)
+              └── MCPComponents (optional)
+</code></pre>
+<p><strong>2. 팩토리 패턴</strong></p>
+<p>모든 엔진은 문자열 키 기반 팩토리로 생성된다. 지연 임포트(lazy import)로 사용하지 않는 무거운 의존성을 로딩하지 않는다.</p>
+<p><strong>3. 인터페이스-구현체 분리</strong></p>
+<p><code>ASRInterface</code>, <code>TTSInterface</code>, <code>VADInterface</code>, <code>AgentInterface</code>, <code>StatelessLLMInterface</code> 추상 기반 클래스로 교체 가능성을 보장한다.</p>
+<p><strong>4. 대화 레이어</strong></p>
+<pre><code>conversation_handler.py     (대화 트리거 라우팅)
+  ├── single_conversation.py  (1:1 대화 파이프라인)
+  ├── group_conversation.py   (다중 클라이언트 그룹 대화)
+  └── tts_manager.py          (TTS 스트리밍 및 오디오 재생 관리)
+</code></pre>
+<p><strong>5. MCP 통합 아키텍처</strong></p>
+<pre><code>ServerRegistry (서버 목록 관리)
+  └── ToolAdapter (도구 포맷 변환: MCP→OpenAI/Claude 형식)
+        └── ToolManager (도구 메타데이터 저장)
+              └── ToolExecutor (실제 도구 실행)
+                    └── MCPClient (MCP 서버 통신)
+</code></pre>
+<p><strong>6. WebSocket 메시지 처리</strong></p>
+<p><code>MessageType</code> 열거형으로 메시지 분류, <code>_init_message_handlers()</code> 딕셔너리로 핸들러 등록, 이벤트 기반 라우팅 구현.</p>
+<hr />
+<h3 id="step-5">Step 5. 품질 및 테스트 시스템</h3>
+<h4 id="_4">테스트</h4>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>통합 테스트</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>테스트 커버리지</td>
+<td><strong>0%</strong></td>
+</tr>
+<tr>
+<td>pytest/unittest</td>
+<td><strong>미설치</strong></td>
+</tr>
+</tbody>
+</table>
+<p>이는 프로젝트의 가장 심각한 기술 부채다. 모든 검증은 수동 웹 인터페이스 테스트에 의존한다.</p>
+<h4 id="cicd">CI/CD</h4>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>트리거</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ruff.yml</code></td>
+<td>push/PR</td>
+<td>Ruff 린트·포맷 검사</td>
+</tr>
+<tr>
+<td><code>codeql.yml</code></td>
+<td>push/PR/주간</td>
+<td>GitHub CodeQL 정적 보안 분석</td>
+</tr>
+<tr>
+<td><code>docker-blacksmith.yml</code></td>
+<td>push main/태그/PR</td>
+<td>멀티아치(amd64+arm64) Docker 빌드·푸시</td>
+</tr>
+<tr>
+<td><code>fossa_scan.yml</code></td>
+<td>push main</td>
+<td>FOSSA 라이선스·취약점 스캔</td>
+</tr>
+<tr>
+<td><code>update-requirements.yml</code></td>
+<td>pyproject.toml 변경</td>
+<td>requirements.txt 자동 갱신</td>
+</tr>
+<tr>
+<td><code>create_release.yml</code></td>
+<td>수동</td>
+<td>릴리즈 패키지 생성 + R2 업로드</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_5">코드 품질 도구</h4>
+<ul>
+<li><strong>Ruff</strong>: lint + format, <code>target-version = "py310"</code>, pre-commit 훅으로 자동 수정</li>
+<li><strong>pre-commit</strong>: ruff + ruff-format</li>
+</ul>
+<hr />
+<h3 id="step-6">Step 6. 보안 및 공급망</h3>
+<h4 id="_6">보안 강점</h4>
+<ol>
+<li><strong>경로 순회 방어</strong>: <code>chat_history_manager.py</code>의 <code>_get_safe_history_path()</code>에서 <code>os.path.normpath</code> + <code>startswith(base_dir)</code> 검사, <code>service_context.py</code>의 <code>handle_config_switch()</code>에서도 동일 패턴 적용</li>
+<li><strong>파일 업로드 제한</strong>: <code>AvatarStaticFiles</code>가 <code>.jpg/.jpeg/.png/.gif/.svg</code> 확장자만 허용</li>
+<li><strong>CodeQL 분석</strong>: Python 코드 취약점 자동 스캔</li>
+<li><strong>FOSSA 스캔</strong>: 라이선스 컴플라이언스 및 취약성 모니터링</li>
+</ol>
+<h4 id="_7">보안 위험 요소</h4>
+<ol>
+<li><strong>CORS 전체 허용</strong> (<code>allow_origins=["*"]</code>): 로컬 사용 목적이나 인터넷에 노출 시 CSRF 공격 표면이 됨</li>
+<li><strong>API 키 평문 저장</strong>: <code>conf.yaml</code>에 모든 서드파티 API 키(Azure, OpenAI, Anthropic 등) 저장; <code>.gitignore</code>에 <code>conf.yaml</code>이 있어 커밋되진 않으나 환경변수·비밀 관리 체계 없음</li>
+<li><strong>SECURITY.md 부재</strong>: 취약점 보고 절차 없음</li>
+<li><strong>dependabot/renovate 미설정</strong>: 의존성 자동 보안 패치 없음</li>
+<li><strong>인증 없음</strong>: WebSocket 엔드포인트(<code>/client-ws</code>)에 인증 미적용 — 설계상 로컬 사용 전제이나 문서화 미흡</li>
+</ol>
+<h4 id="_8">라이선스</h4>
+<ul>
+<li>메인 코드: <strong>MIT License</strong> (2025 Yi-Ting Chiu)</li>
+<li>Live2D 모델: <strong>Live2D 무료 소재 라이선스</strong> (상업적 이용 제한 별도 적용)</li>
+<li>주요 의존성 라이선스 혼재(MIT, Apache-2.0, BSD 등): FOSSA로 추적 중</li>
+</ul>
+<hr />
+<h3 id="step-7">Step 7. 문서화 및 운영 성숙도</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README</td>
+<td>4개 언어(EN/CN/KR/JP), 기능·스크린샷·퀵스타트 링크 포함 — 양호</td>
+</tr>
+<tr>
+<td>기술 문서 사이트</td>
+<td>외부 사이트(open-llm-vtuber.github.io) 운영</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>외부 링크만 포함 — 최소 수준</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>ADR (아키텍처 결정 기록)</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td><strong>없음</strong> (GitHub Releases로 관리 추정)</td>
+</tr>
+<tr>
+<td>Issue 템플릿</td>
+<td>버그/기능 2종</td>
+</tr>
+<tr>
+<td>PR 템플릿</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>커뮤니티</td>
+<td>Discord, Zulip(개발자), QQ 그룹 운영 — 활성</td>
+</tr>
+<tr>
+<td>버전 전략</td>
+<td>SemVer (<code>1.2.1</code>), <code>v1-release</code> 브랜치 별도 관리</td>
+</tr>
+<tr>
+<td>v2 로드맵</td>
+<td>README에 v2.0 전면 재작성 공지, GitHub Projects 로드맵 링크 제공</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>탁월한 모듈 교체 가능성</strong>: Factory + Interface 패턴의 일관된 적용으로 LLM 20종+, TTS 18종+, ASR 7종+를 설정 한 줄 변경으로 교체 가능. 신규 백엔드 추가 시 필요한 최소 인터페이스가 명확하게 정의되어 있음</p>
+</li>
+<li>
+<p><strong>완전한 오프라인 동작 지원</strong>: <code>sherpa-onnx</code>(ASR+TTS) + 로컬 LLM(<code>llama.cpp</code>/Ollama)을 사용하면 인터넷 연결 없이 전체 파이프라인 동작 가능. 프라이버시 민감 사용 사례에 강점</p>
+</li>
+<li>
+<p><strong>MCP 통합으로 에이전트 확장성 확보</strong>: Model Context Protocol을 통해 외부 도구(DuckDuckGo 등)를 에이전트에 동적으로 연결하는 구조가 잘 설계됨. <code>ToolAdapter</code>가 OpenAI/Claude 포맷 간 변환을 처리하여 LLM 독립성 유지</p>
+</li>
+<li>
+<p><strong>현대적 Python 툴링 채택</strong>: uv(빠른 패키지 관리), Ruff(린팅+포맷), Pydantic v2(타입 안전 설정)를 조합하여 개발 경험과 설정 안전성을 동시에 확보. <code>pyproject.toml</code> 단일 파일로 의존성 관리 통합</p>
+</li>
+<li>
+<p><strong>실용적인 보안 방어 구현</strong>: 경로 순회, 파일 타입 제한 등 사용자 입력 검증이 실제로 구현되어 있음. CodeQL + FOSSA를 CI에 통합하여 정적 분석 및 라이선스 추적이 자동화됨</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험 및 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>자동화 테스트 완전 부재</strong>: 테스트 파일이 단 한 개도 없음. 핵심 대화 파이프라인(<code>single_conversation.py</code>, <code>conversations/</code>), 팩토리 패턴, 설정 로더에 대한 단위 테스트가 없어 리팩토링 시 회귀 감지 불가. <strong>v2 재작성 시 테스트 주도 개발(TDD) 도입이 최우선 과제</strong></p>
+</li>
+<li>
+<p><strong>파일 기반 데이터 저장의 확장성 한계</strong>: 대화 이력이 <code>chat_history/&lt;conf_uid&gt;/*.json</code>으로 저장됨. 다중 동시 클라이언트, 다중 서버 인스턴스, 대용량 이력 검색 등의 시나리오에서 병목이 발생할 수 있음. SQLite 또는 경량 DB 도입이 v2에서 권고됨</p>
+</li>
+<li>
+<p><strong>CORS 전체 허용 및 WebSocket 인증 부재</strong>: <code>allow_origins=["*"]</code>와 인증 없는 <code>/client-ws</code>는 로컬 단독 사용 전제로 설계되었지만, 문서에 원격 접근 방법이 안내되어 있어 보안 오해를 유발할 수 있음. 프로덕션 배포 가이드에 HTTPS + 역방향 프록시 + 인증 설정 필수 명시 필요</p>
+</li>
+<li>
+<p><strong>v2 전환 시점의 기여 불확실성</strong>: README에 v1 신규 기능 PR 거절을 명시하여 현재 기여 기회가 제한됨. v1-release 브랜치와 main 브랜치의 관리 정책이 명확하지 않아 코드 기반 혼란 가능성 존재</p>
+</li>
+<li>
+<p><strong>의존성 취약점 자동 관리 없음</strong>: dependabot 또는 renovate 미설정으로 인해 <code>anthropic</code>, <code>openai</code>, <code>fastapi</code> 등 핵심 의존성의 보안 패치가 수동 업데이트에 의존. 43개의 기본 의존성 대부분이 서드파티 API SDK로 공급망 리스크가 있음</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>도입 목적별 평가:</strong></p>
+<table>
+<thead>
+<tr>
+<th>목적</th>
+<th>권고</th>
+<th>근거</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>개인/소규모 AI 동반자 구축</td>
+<td><strong>적극 권고</strong></td>
+<td>모듈성·오프라인 지원·다양한 백엔드 최강점</td>
+</tr>
+<tr>
+<td>상업적 서비스 배포</td>
+<td><strong>조건부 권고</strong></td>
+<td>Live2D 라이선스 별도 검토, CORS·인증 강화 필수</td>
+</tr>
+<tr>
+<td>아키텍처 참조 (Factory+DI 패턴)</td>
+<td><strong>권고</strong></td>
+<td>인터페이스 분리 및 팩토리 패턴이 교과서적</td>
+</tr>
+<tr>
+<td>기여 참여 (v1)</td>
+<td><strong>주의</strong></td>
+<td>v1 신규 기능 개발 동결 상태, Zulip의 v2 논의 참여 권장</td>
+</tr>
+<tr>
+<td>엔터프라이즈 안정성 요구</td>
+<td><strong>비권고</strong></td>
+<td>테스트 부재, 파일 기반 저장, 인증 미적용으로 프로덕션 위험</td>
+</tr>
+</tbody>
+</table>
+<p><strong>종합 판단</strong>: Open-LLM-VTuber는 기술적 실험 가치가 높고 AI 모듈 생태계 설계에 있어 참조 아키텍처로 매우 우수하다. 특히 다양한 오픈소스 AI 백엔드를 통합하는 방식, Pydantic 기반 타입 안전 설정 관리, Factory 패턴의 일관된 적용은 유사 프로젝트에서 그대로 차용할 수 있는 수준이다. 다만 테스트 부재와 단일 파일 기반 데이터 저장은 중요한 기술 부채이며, 현재 v2 전면 재작성이 진행 중이므로 <strong>v1 도입보다 v2 로드맵을 주시하며 커뮤니티 참여를 통한 영향력 확보를 권장</strong>한다.</p>
+<hr />
+<p><em>분석일: 2026-06-09 | 분석 대상: <code>/tmp/github-dashboard-analysis/Open-LLM-VTuber_Open-LLM-VTuber</code> | 버전: v1.2.1</em></p>
+<hr />
+<h2 id="analysis-report-english-summary">Analysis Report (English Summary)</h2>
+<p><strong>Analysis Date:</strong> 2026-06-09
+<strong>Target:</strong> Open-LLM-VTuber v1.2.1</p>
+<h3 id="overview-table">Overview Table</h3>
+<table>
+<thead>
+<tr>
+<th>Item</th>
+<th>Finding</th>
+<th>Rating</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Purpose</strong></td>
+<td>Offline-capable voice-interactive AI companion with Live2D avatar, real-time voice conversation, visual perception. Cross-platform (Win/Mac/Linux). Originally aimed to recreate neuro-sama using open-source local inference.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>Structure</strong></td>
+<td>Function-oriented sub-packages under <code>src/open_llm_vtuber/</code>. Frontend as Git submodule. Assets (Live2D models, configs, prompts) co-located with source. Single repo.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>Stack</strong></td>
+<td>Python 3.10–3.12, FastAPI+Uvicorn, Pydantic v2, uv, Ruff. AI: anthropic/openai/groq SDKs, sherpa-onnx, PyTorch, ONNX Runtime. 18+ TTS engines, 7+ ASR backends, 20+ LLM providers. Docker deployment.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>Entry Point</strong></td>
+<td><code>run_server.py</code> → <code>WebSocketServer</code> → <code>server.initialize()</code> → uvicorn. Clean startup with config sync and submodule check.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>Architecture</strong></td>
+<td>FastAPI WebSocket server. <code>ServiceContext</code> as per-connection DI container. Factory pattern for all engines. Interface-Adapter pattern for LLM. 3-layer MCP integration (Registry→ToolAdapter→Executor).</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>Data</strong></td>
+<td>No database. Chat history in <code>chat_history/*.json</code>. Audio cache in <code>cache/</code>. Config in YAML. In-memory conversation state in <code>BasicMemoryAgent._memory</code>.</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>Deployment</strong></td>
+<td>Docker single container (python:3.10-slim). Multi-arch (amd64/arm64) via Blacksmith CI. DockerHub + GHCR. Cloudflare R2 for release packages. Electron desktop client (separate repo).</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>Testing</strong></td>
+<td><strong>Zero automated tests.</strong> No pytest, no unit/integration/e2e tests. CI only runs Ruff lint and CodeQL scan.</td>
+<td>★☆☆☆☆</td>
+</tr>
+<tr>
+<td><strong>Security</strong></td>
+<td>No SECURITY.md. CodeQL + FOSSA in CI. Path traversal protection implemented. CORS wildcard (<code>allow_origins=["*"]</code>). No WebSocket auth. API keys in plain-text YAML (gitignored). No dependabot.</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>Maturity</strong></td>
+<td>v1.2.1, MIT license. 4-language README. Active community (Discord/Zulip/QQ). v2.0 full rewrite announced. v1 feature freeze.</td>
+<td>★★★★☆</td>
+</tr>
+</tbody>
+</table>
+<h3 id="key-strengths">Key Strengths</h3>
+<ol>
+<li><strong>Exceptional module swappability</strong> via Factory + Interface pattern — 20+ LLMs, 18+ TTS, 7+ ASR backends switchable via config</li>
+<li><strong>Full offline operation</strong> with sherpa-onnx + local LLM — strongest privacy guarantee</li>
+<li><strong>Well-designed MCP integration</strong> for tool-calling extensibility across LLM providers</li>
+<li><strong>Modern Python tooling</strong> — uv, Ruff, Pydantic v2, pyproject.toml</li>
+<li><strong>Practical security defenses</strong> — path traversal prevention actually implemented in critical paths</li>
+</ol>
+<h3 id="key-risks">Key Risks</h3>
+<ol>
+<li><strong>Zero test coverage</strong> — biggest technical debt; no regression detection possible</li>
+<li><strong>File-based storage</strong> limits multi-user and multi-instance scalability</li>
+<li><strong>CORS wildcard + no WS auth</strong> — dangerous when exposed beyond localhost without documentation warning</li>
+<li><strong>v1/v2 transition ambiguity</strong> — v1 feature-frozen, contributing requires joining v2 Zulip discussions</li>
+<li><strong>No dependabot</strong> — security patches for 43+ dependencies require manual attention</li>
+</ol>
+<h3 id="recommendation">Recommendation</h3>
+<p>Excellent reference architecture for modular AI pipeline design. Ideal for personal/hobby use or as a learning resource for Factory+DI patterns in Python. <strong>Not production-ready</strong> due to absent tests, file-based storage, and authentication gaps. For serious adoption, monitor the v2 rewrite roadmap and engage via the Zulip developer community.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>Open-LLM-VTuber/Open-LLM-VTuber</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/Open-LLM-VTuber/Open-LLM-VTuber" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

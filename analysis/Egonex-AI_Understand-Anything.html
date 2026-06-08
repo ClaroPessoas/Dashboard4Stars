@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Egonex-AI/Understand-Anything - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/Egonex-AI/Understand-Anything" target="_blank" rel="noopener">Egonex-AI/Understand-Anything</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Graphs that teach > graphs that impress. Turn any code into an interactive knowledge graph you can explore, search, and ask questions about. Works with Claude Code, Codex, Cursor, Copilot, Gemini CLI, and more.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">monthly trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 55083</span>
+      <span class="badge badge-stars">+41,326 stars this month</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-09
+분석 대상: /tmp/github-dashboard-analysis/Egonex-AI_Understand-Anything
+출력 파일: .review/REVIEW-Source.md</p>
+<hr />
+<h1 id="understand-anything">Understand Anything — 소스 코드 분석 리포트</h1>
+<blockquote>
+<p><strong>English summary available after each Korean section.</strong></p>
+</blockquote>
+<hr />
+<h2 id="analysis-summary-table">프로젝트 분석표 (Analysis Summary Table)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>LLM 지능 + 정적 분석을 결합하여 코드베이스를 인터랙티브 지식 그래프로 시각화하는 오픈소스 Claude Code 플러그인. 신규 입사자 온보딩, 도메인 이해, 변경 영향 분석, 가이드 투어 생성 등을 지원. 클로드 코드, Cursor, VS Code Copilot, Codex, Gemini CLI 등 멀티 플랫폼 지원.</td>
+<td>⭐⭐⭐⭐⭐ — 명확하고 차별화된 가치 제안</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>pnpm 워크스페이스 기반 모노레포. <code>understand-anything-plugin/packages/core</code> (분석 엔진), <code>packages/dashboard</code> (React 대시보드), <code>src/</code> (스킬 TS 소스), <code>skills/</code> (8개 스킬 정의), <code>agents/</code> (9개 LLM 에이전트). 루트에 <code>tests/</code>, <code>scripts/</code>, <code>homepage/</code>(Astro), <code>docs/</code>, 8개 언어 README.</td>
+<td>⭐⭐⭐⭐⭐ — 명확한 관심사 분리, 기능 지향적 구조</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Node.js ≥22 / TypeScript 5.7+ strict / pnpm 10.6.2(핀) / Vite 6.4+ / React 19 / React Flow / TailwindCSS v4 / Zustand 5.0 / ELK.js / Fuse.js / web-tree-sitter(WASM) / Zod / Vitest 3.1+ / ESLint 9.0+(flat config) / ESM 전용</td>
+<td>⭐⭐⭐⭐⭐ — 최신 툴체인, 미래 지향적 선택</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>/understand</code> 스킬 → 7단계 파이프라인 (pre-flight → scanner → file-analyzer → architecture → tour-builder → reviewer → dashboard launch). <code>understand-anything-plugin/packages/core/src/index.ts</code>(Node.js 엔트리), <code>packages/dashboard/src/App.tsx</code>(대시보드 SPA 루트), <code>understand-anything-plugin/src/index.ts</code>(스킬 소스 집합체)</td>
+<td>⭐⭐⭐⭐⭐ — 명확한 진입점 체계</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>하이브리드 정적+LLM 파이프라인. tree-sitter가 결정론적 구조 추출, LLM이 의미론적 판단. 멀티 에이전트 오케스트레이션(6개 에이전트 순차 실행, 파일 분석은 5개 병렬 처리). 핵심은 도메인 분리(core/dashboard/skill), 서브패스 익스포트로 브라우저 안전성 보장. 레이어 탐지, 지식 그래프 스키마(21개 노드 타입, 35개 엣지 타입), 지문 기반 증분 업데이트.</td>
+<td>⭐⭐⭐⭐⭐ — 정교한 하이브리드 아키텍처</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>지식 그래프 JSON → <code>.understand-anything/knowledge-graph.json</code> (로컬 파일시스템). 중간 결과물 → <code>.understand-anything/intermediate/</code>(에이전트 실행 후 정리). DB/캐시/메시지 큐 없음. Zod 스키마 검증. 지문(fingerprint) 해시로 증분 변경 감지.</td>
+<td>⭐⭐⭐⭐ — 외부 인프라 불필요 (로컬 파일 기반), 영속성 단순</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker/Kubernetes 없음. Claude Code 마켓플레이스 배포(플러그인 설치). Cursor/Copilot 자동 탐지(plugin.json). 마케팅 홈페이지는 Astro + GitHub Pages(Actions 자동 배포). 대시보드는 Vite 로컬 dev 서버(127.0.0.1:5173 전용).</td>
+<td>⭐⭐⭐⭐ — IDE 플러그인 특성상 적절, CI/CD 자동화 있음</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest 3.1+. core 패키지 단위 테스트(tour-generator, graph-builder, llm-analyzer, tree-sitter-plugin, persistence, types). 대시보드 utils 단위 테스트. 스킬 통합 테스트(tests/skill/). CI에서 lint + build + test 전 단계 검증. @vitest/coverage-v8 포함.</td>
+<td>⭐⭐⭐ — 커버리지 설정은 있으나 E2E 없음, LLM 에이전트 동작 테스트 한계</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>일회용 액세스 토큰(crypto.randomBytes) 게이트. 경로 화이트리스트(그래프 노드 filePath만 서빙). 127.0.0.1 전용 바인딩. 절대 경로 상대화(홈 디렉토리 노출 방지). 1MB 파일 크기 제한 + 바이너리 감지. SECURITY.md 완비. 책임 공개 프로세스(GitHub private vulnerability reporting).</td>
+<td>⭐⭐⭐⭐⭐ — 로컬 도구로서 모범적 보안 설계</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 2.7.6. 8개 언어 README, CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md 완비. GitHub 이슈/PR 템플릿 3종. CI 워크플로우 2개(테스트, 홈페이지 배포). 5개 플랫폼 동시 지원. 40+ 언어 지원. 커뮤니티 증거: 주간 PR 병합, 다수 기여자.</td>
+<td>⭐⭐⭐⭐⭐ — 오픈소스 운영 성숙도 최상위</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="detailed-analysis">상세 분석 (Detailed Analysis)</h2>
+<h3 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h3>
+<p><strong>Understand Anything</strong>은 코드베이스를 정적 분석과 LLM 추론을 결합하여 인터랙티브 지식 그래프로 변환하는 개발자 도구입니다.</p>
+<p><strong>핵심 기능:</strong>
+- <strong>구조 그래프</strong>: 파일·함수·클래스·모듈·설정 간 의존성 시각화
+- <strong>비즈니스 도메인 뷰</strong>: 코드베이스에서 도메인·플로우·스텝 자동 추출
+- <strong>지식 베이스 분석</strong>: Karpathy-pattern LLM 위키 분석 (엔티티, 주장, 관계)
+- <strong>가이드 투어</strong>: 의존성 순서 기반 학습 경로 자동 생성
+- <strong>의미론적 검색</strong>: Fuse.js + 코사인 유사도 벡터 검색
+- <strong>변경 영향 분석</strong>: Git diff → 영향 범위 시각화
+- <strong>40+ 언어·프레임워크 지원</strong>: TypeScript, Python, Go, Java, Rust 등 + Rails, Django, Spring, React 등</p>
+<p><strong>대상 사용자</strong>: 코드베이스를 빠르게 이해해야 하는 시니어 개발자, 신규 팀원, 아키텍처 리뷰어.</p>
+<p><strong>English:</strong> Understand Anything converts any codebase into an interactive knowledge graph using tree-sitter static analysis combined with LLM semantic reasoning. Target users are developers who need rapid codebase comprehension — new joiners, architects, reviewers.</p>
+<hr />
+<h3 id="2-repository-structure">2. 저장소 구조 (Repository Structure)</h3>
+<pre><code>/
+├── .claude-plugin/              # Claude Code 플러그인 메타데이터
+├── .copilot-plugin/             # GitHub Copilot 자동 탐지
+├── .cursor-plugin/              # Cursor 자동 탐지
+├── .github/                     # 워크플로우, 이슈/PR 템플릿
+├── READMEs/                     # 8개 언어 번역 README
+├── assets/                      # 마케팅 이미지
+├── docs/                        # 설계 스펙
+├── homepage/                    # Astro 마케팅 사이트
+├── scripts/                     # 성능 테스트용 그래프 생성기
+├── tests/                       # 스킬 통합 테스트
+├── understand-anything-plugin/  # 핵심 플러그인 모노레포
+│   ├── packages/core/           # 분석 엔진 (Node.js 전용)
+│   ├── packages/dashboard/      # React SPA 대시보드
+│   ├── src/                     # 스킬 TypeScript 소스
+│   ├── skills/                  # 8개 스킬 정의 (SKILL.md + 다국어)
+│   └── agents/                  # 9개 LLM 에이전트 정의
+├── CLAUDE.md / README.md / CONTRIBUTING.md / SECURITY.md
+├── package.json / pnpm-workspace.yaml / tsconfig.json
+└── vitest.config.ts / eslint.config.mjs
+</code></pre>
+<p><strong>구조 평가</strong>: 기능 지향 분리(core vs dashboard vs skill)가 명확하며, 각 패키지가 독립적으로 빌드/테스트 가능. 루트 vitest 설정이 모든 패키지 테스트를 통합 수집.</p>
+<hr />
+<h3 id="3-software-stack">3. 소프트웨어 스택 (Software Stack)</h3>
+<table>
+<thead>
+<tr>
+<th>레이어</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>런타임</strong></td>
+<td>Node.js ≥22 (개발: v24), pnpm 10.6.2 (핀)</td>
+</tr>
+<tr>
+<td><strong>언어</strong></td>
+<td>TypeScript 5.7+ strict, ESM 전용 (<code>"type": "module"</code>)</td>
+</tr>
+<tr>
+<td><strong>정적 분석</strong></td>
+<td>web-tree-sitter (WASM) + 40+ 언어 TOML 설정</td>
+</tr>
+<tr>
+<td><strong>스키마 검증</strong></td>
+<td>Zod 3.x</td>
+</tr>
+<tr>
+<td><strong>검색</strong></td>
+<td>Fuse.js (퍼지), 코사인 유사도 (시맨틱)</td>
+</tr>
+<tr>
+<td><strong>그래프 처리</strong></td>
+<td>graphology 0.26, graphology-communities-louvain</td>
+</tr>
+<tr>
+<td><strong>대시보드 UI</strong></td>
+<td>React 19, React Flow (XYflow), TailwindCSS v4</td>
+</tr>
+<tr>
+<td><strong>레이아웃</strong></td>
+<td>ELK.js (계층형), D3-Force (포스 기반)</td>
+</tr>
+<tr>
+<td><strong>상태 관리</strong></td>
+<td>Zustand 5.0</td>
+</tr>
+<tr>
+<td><strong>코드 하이라이트</strong></td>
+<td>prism-react-renderer</td>
+</tr>
+<tr>
+<td><strong>빌드</strong></td>
+<td>Vite 6.4+ (대시보드), tsc (core/skill)</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest 3.1+, @vitest/coverage-v8</td>
+</tr>
+<tr>
+<td><strong>린트</strong></td>
+<td>ESLint 9.0+ flat config, TypeScript ESLint 8.0+</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주목할 선택:</strong>
+- <strong>web-tree-sitter(WASM)</strong>: darwin/arm64 + Node 24 호환성 문제 회피
+- <strong>TailwindCSS v4</strong>: 최신 릴리즈 조기 채택
+- <strong>React 19</strong>: 최신 React 버전 사용
+- <strong>ESM only</strong>: 미래 지향적이나 일부 레거시 도구와 비호환 가능</p>
+<hr />
+<h3 id="4-architecture-analysis">4. 아키텍처 분석 (Architecture Analysis)</h3>
+<h4 id="4-1">4-1. 멀티 에이전트 파이프라인</h4>
+<pre><code>/understand 스킬 실행
+    │
+    ├── Phase 1: project-scanner (파일 탐색, 언어 탐지, 임포트 맵)
+    ├── Phase 2: file-analyzer × N (5개 병렬, 배치당 20-30 파일)
+    │           └── 번들 스크립트 (extract-structure.mjs) + LLM 의미 분석
+    ├── Phase 3: architecture-analyzer (3-10개 논리 레이어 분류)
+    ├── Phase 4: tour-builder (의존성 순서 학습 투어 생성)
+    ├── Phase 5: graph-reviewer / assemble-reviewer (무결성 검증)
+    └── Phase 6: /understand-dashboard (Vite dev 서버 실행)
+</code></pre>
+<h4 id="4-2">4-2. 계층 분리</h4>
+<table>
+<thead>
+<tr>
+<th>레이어</th>
+<th>역할</th>
+<th>격리 수단</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>core</strong></td>
+<td>파싱, 스키마, 검색, 그래프 빌드</td>
+<td>Node.js 전용, 서브패스 익스포트</td>
+</tr>
+<tr>
+<td><strong>dashboard</strong></td>
+<td>시각화 SPA</td>
+<td><code>./search</code>, <code>./types</code>, <code>./schema</code> 서브패스만 임포트</td>
+</tr>
+<tr>
+<td><strong>skill source</strong></td>
+<td>스킬 로직</td>
+<td>core(workspace) 의존</td>
+</tr>
+<tr>
+<td><strong>agents</strong></td>
+<td>LLM 프롬프트 정의</td>
+<td>Markdown + 다국어 locales</td>
+</tr>
+<tr>
+<td><strong>skills</strong></td>
+<td>오케스트레이션</td>
+<td>SKILL.md 실행 지시</td>
+</tr>
+</tbody>
+</table>
+<h4 id="4-3">4-3. 핵심 패턴</h4>
+<ul>
+<li><strong>결정론적 추출 → LLM 판단 분리</strong>: tree-sitter가 사실(import, function signatures)을 추출하고 LLM이 의미(summary, tags, complexity)를 부여</li>
+<li><strong>지문 기반 증분 업데이트</strong>: 변경된 파일만 재분석 → 대규모 코드베이스 효율성</li>
+<li><strong>서브패스 익스포트</strong>: <code>./search</code>, <code>./types</code>, <code>./schema</code>가 브라우저 안전 → 대시보드 번들 크기 최소화</li>
+</ul>
+<h4 id="4-4">4-4. 지식 그래프 스키마</h4>
+<pre><code>KnowledgeGraph
+├── version, kind, project (ProjectMeta)
+├── nodes[] (GraphNode: 21개 타입)
+│   └── id, type, name, filePath, lineRange, summary, tags, complexity
+│       domainMeta (도메인 뷰), knowledgeMeta (지식 베이스 뷰)
+├── edges[] (GraphEdge: 35개 타입)
+│   └── source, target, type, direction, description, weight(0-1)
+├── layers[] (Layer: 아키텍처 레이어)
+└── tour[] (TourStep: 학습 투어)
+</code></pre>
+<hr />
+<h3 id="5-quality-testing">5. 품질 및 테스트 (Quality &amp; Testing)</h3>
+<h4 id="ci-ciyml">CI 워크플로우 (<code>ci.yml</code>)</h4>
+<pre><code>PR / main push 트리거:
+  ├── lint (ESLint 9.0+)
+  ├── build:core
+  ├── build:skill
+  ├── test:core (Vitest + coverage-v8)
+  └── test:skill
+</code></pre>
+<h4 id="_1">테스트 범위</h4>
+<table>
+<thead>
+<tr>
+<th>패키지</th>
+<th>테스트 파일</th>
+<th>유형</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>core</td>
+<td>tour-generator, graph-builder, llm-analyzer, tree-sitter-plugin, persistence, types</td>
+<td>단위</td>
+</tr>
+<tr>
+<td>dashboard</td>
+<td>utils/<strong>tests</strong></td>
+<td>단위</td>
+</tr>
+<tr>
+<td>skill source</td>
+<td>src/<strong>tests</strong></td>
+<td>단위</td>
+</tr>
+<tr>
+<td>tests/skill/</td>
+<td>통합 테스트</td>
+<td>통합</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_2">한계</h4>
+<ul>
+<li><strong>E2E 테스트 없음</strong>: 실제 에이전트 파이프라인 end-to-end 검증 부재</li>
+<li><strong>LLM 에이전트 테스트 한계</strong>: LLM 응답 품질, 프롬프트 회귀를 자동화 테스트 어려움</li>
+<li><strong>커버리지 임계값 미설정</strong>: vitest.config.ts에 coverage threshold 없음</li>
+<li><strong>대시보드 컴포넌트 테스트</strong>: App.tsx(27KB), GraphView.tsx(59KB) 등 복잡한 컴포넌트 테스트 부재</li>
+</ul>
+<hr />
+<h3 id="6-security-supply-chain">6. 보안 및 공급망 (Security &amp; Supply Chain)</h3>
+<h4 id="viteconfigts">대시보드 보안 설계 (vite.config.ts)</h4>
+<pre><code class="language-typescript">// 1. 일회용 액세스 토큰
+const token = crypto.randomBytes(16).toString(&quot;hex&quot;);
+
+// 2. 경로 화이트리스트
+const allowedPaths = graph.nodes.map(n =&gt; n.filePath);
+
+// 3. 바인딩 제한
+server: { host: &quot;127.0.0.1&quot;, port: 5173 }
+
+// 4. 파일 크기 제한
+if (stat.size &gt; 1_000_000) return 400;
+
+// 5. 바이너리 감지
+if (buffer.includes(0x00)) return 400;
+</code></pre>
+<h4 id="_3">공급망</h4>
+<ul>
+<li><strong>Dependabot</strong>: <code>.github/dependabot.yml</code> 존재 여부 미확인 → 별도 검증 필요</li>
+<li><strong>SBOM/아티팩트 서명</strong>: 없음 (로컬 IDE 플러그인으로 배포 파이프라인 단순)</li>
+<li><strong>라이선스</strong>: MIT (오픈소스 친화적)</li>
+<li><strong>주요 의존성 라이선스</strong>: React(MIT), React Flow(MIT), tree-sitter(MIT), Fuse.js(Apache-2.0), ELK.js(EPL-2.0) — 모두 상업적 사용 가능</li>
+<li><strong>비밀 관리</strong>: 하드코딩된 시크릿 없음, 토큰은 런타임 생성</li>
+</ul>
+<h4 id="securitymd">SECURITY.md 범위</h4>
+<ul>
+<li><strong>범위 내</strong>: 외부 프로젝트 코드 실행 취약점, 파일 콘텐츠 엔드포인트 보안, 셸 명령 인젝션</li>
+<li><strong>범위 외</strong>: 로컬 쓰기 권한이 필요한 버그</li>
+<li><strong>보고 채널</strong>: GitHub Private Vulnerability Reporting</li>
+</ul>
+<hr />
+<h3 id="7-documentation-operational-maturity">7. 문서화 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h3>
+<h4 id="_4">문서 완성도</h4>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>⭐⭐⭐⭐⭐ — 빠른 시작, 기능 목록, 영상 데모, 커뮤니티 링크</td>
+</tr>
+<tr>
+<td>CLAUDE.md</td>
+<td>⭐⭐⭐⭐⭐ — 아키텍처, 개발 가이드, Gotchas, 버전 관리</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>⭐⭐⭐⭐⭐ — 셋업, 워크플로우, 코드 스타일, 번역 가이드</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>⭐⭐⭐⭐ — 범위, 보고 프로세스 명확</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>⭐⭐⭐⭐ — 표준적 커뮤니티 기준</td>
+</tr>
+<tr>
+<td>API 문서</td>
+<td>부재 — core API 자동 생성 문서 없음</td>
+</tr>
+<tr>
+<td>ADR(Architecture Decision Records)</td>
+<td>부재</td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td>부재 — 버전 변경 이력 문서 없음</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_5">커뮤니티 활동</h4>
+<ul>
+<li>8개 언어 README (en, zh, zh-TW, ja, ko, ru, es, tr)</li>
+<li>GitHub 이슈 템플릿 3종 (bug, feature, question)</li>
+<li>PR 템플릿 (요약, 링크, 테스트 체크리스트, 버전 업 체크)</li>
+<li>주간 PR 병합 빈도, 다수 기여자 (최근 커밋: PR #387)</li>
+<li>버전 2.7.6 — 활발한 릴리즈 사이클</li>
+</ul>
+<h4 id="_6">버저닝 전략</h4>
+<p>5개 manifest 파일(package.json × 2, plugin.json × 3) 동기화 필요 — 수동 실수 가능성 있음.</p>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>정교한 하이브리드 분석 엔진</strong>: tree-sitter 결정론적 파싱 + LLM 의미론적 판단의 명확한 책임 분리. 동일 코드 → 동일 구조 엣지(재현성), LLM이 담당하는 의미 레이어는 별도 검증 가능. 타 도구 대비 환각 위험 최소화.</p>
+</li>
+<li>
+<p><strong>뛰어난 보안 설계</strong>: 로컬 도구임에도 일회용 토큰, 경로 화이트리스트, localhost 전용 바인딩, 절대경로 상대화, 바이너리 필터를 모두 구현. SECURITY.md와 책임 공개 프로세스까지 완비. 보안 기준이 동종 도구 최상위 수준.</p>
+</li>
+<li>
+<p><strong>광범위한 생태계 지원</strong>: Claude Code, Cursor, GitHub Copilot, Codex, OpenCode, Gemini CLI, Copilot CLI, Vibe 등 원 플러그인으로 8+ 플랫폼 지원. 40+ 언어, 30+ 프레임워크 자동 탐지. 다국어 콘텐츠 생성(8개 언어).</p>
+</li>
+<li>
+<p><strong>성숙한 오픈소스 운영</strong>: CONTRIBUTING.md, CODE_OF_CONDUCT.md, SECURITY.md, 3종 이슈 템플릿, PR 템플릿, CI 워크플로우, 8개 언어 README가 모두 완비. 신규 기여자 진입 장벽이 낮음.</p>
+</li>
+<li>
+<p><strong>브라우저 안전 모듈 경계</strong>: core의 서브패스 익스포트(<code>./search</code>, <code>./types</code>, <code>./schema</code>)가 Node.js 모듈을 대시보드 번들에서 격리. 빌드 타임 오류로 경계 위반 즉시 탐지. 유지보수성과 번들 크기 모두 이득.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험 및 개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>CHANGELOG / 릴리즈 노트 부재</strong>: 버전 2.7.6임에도 변경 이력 문서가 없음. 사용자가 업그레이드 영향을 판단하기 어렵고, 커뮤니티 신뢰도에 부정적. <code>CHANGELOG.md</code> 또는 GitHub Releases 자동화 도입 권고.</p>
+</li>
+<li>
+<p><strong>5개 manifest 수동 버전 동기화</strong>: plugin.json × 3 + package.json × 2를 매 릴리즈마다 수동으로 동기화해야 함. <code>release-it</code>, <code>changesets</code>, 또는 커스텀 릴리즈 스크립트로 원자적 버전 업 자동화가 필요.</p>
+</li>
+<li>
+<p><strong>LLM 에이전트 테스트 한계</strong>: 핵심 가치(의미론적 그래프 품질)가 LLM 프롬프트에 의존하지만 프롬프트 회귀 테스트, 에이전트 응답 품질 측정 자동화가 없음. 프롬프트 변경이 조용히 품질 저하를 일으킬 수 있음. 골든 파일 기반 스냅샷 테스트나 LLM 심판 자동 평가 도입 검토 필요.</p>
+</li>
+<li>
+<p><strong>대형 컴포넌트 테스트 부재</strong>: <code>GraphView.tsx</code>(59KB), <code>App.tsx</code>(27KB), <code>NodeInfo.tsx</code>(22KB) 등 복잡한 대시보드 컴포넌트에 단위/통합 테스트가 없음. UI 회귀 감지를 위한 Playwright/Storybook 도입 권고.</p>
+</li>
+<li>
+<p><strong>core API 자동 생성 문서 없음</strong>: 134개 TypeScript 소스 파일에 대한 API 레퍼런스가 없음. 외부 기여자나 플러그인 개발자가 core를 활용하기 어려움. TypeDoc 또는 tsdoc 기반 자동 문서 생성 파이프라인 추가 권고.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 도입 권고</strong>: ⭐⭐⭐⭐⭐ <strong>강력 권고</strong></p>
+<p>Understand Anything은 코드베이스 이해 도구 카테고리에서 아키텍처적으로 우수한 설계를 보여줍니다. 하이브리드 정적+LLM 분석, 멀티 플랫폼 지원, 모범적 보안 설계, 성숙한 오픈소스 운영이 동시에 달성되어 있습니다.</p>
+<table>
+<thead>
+<tr>
+<th>목적</th>
+<th>권고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>코드베이스 온보딩 가속화</td>
+<td>✅ 즉시 도입 가능</td>
+</tr>
+<tr>
+<td>아키텍처 리뷰 및 시각화</td>
+<td>✅ 즉시 도입 가능</td>
+</tr>
+<tr>
+<td>변경 영향 분석</td>
+<td>✅ 즉시 도입 가능</td>
+</tr>
+<tr>
+<td>멀티 IDE 환경</td>
+<td>✅ Claude Code, Cursor, Copilot 모두 지원</td>
+</tr>
+<tr>
+<td>오픈소스 기여</td>
+<td>✅ CONTRIBUTING.md 완비, 활발한 커뮤니티</td>
+</tr>
+<tr>
+<td>엔터프라이즈 프로덕션 내부 배포</td>
+<td>⚠️ CHANGELOG 부재, 버전 동기화 자동화 미비 개선 후 권고</td>
+</tr>
+</tbody>
+</table>
+<p><strong>개선 우선순위</strong>: (1) CHANGELOG + 릴리즈 자동화, (2) 버전 동기화 스크립트화, (3) 프롬프트 회귀 테스트 프레임워크.</p>
+<hr />
+<p><strong>English Adoption Summary:</strong> Understand Anything is a technically excellent codebase-comprehension tool. Its hybrid static+LLM architecture, best-in-class security design (token gating, path allowlist, localhost-only binding), broad platform support (8+ IDE platforms), and mature open-source governance make it a strong adoption candidate. Primary gaps are the absence of a CHANGELOG, manual version synchronization across five manifests, and the lack of automated LLM agent quality regression tests. These are operational polish items — the core architecture is sound. <strong>Recommended for immediate adoption</strong> for onboarding, architectural review, and change impact analysis use cases.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>Egonex-AI/Understand-Anything</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/Egonex-AI/Understand-Anything" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panniantong/Agent-Reach - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/Panniantong/Agent-Reach" target="_blank" rel="noopener">Panniantong/Agent-Reach</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Give your AI agent eyes to see the entire internet. Read & search Twitter, Reddit, YouTube, GitHub, Bilibili, XiaoHongShu — one CLI, zero API fees.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 23887</span>
+      <span class="badge badge-stars">+796 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 모든 파일을 분석했습니다. 종합 보고서를 작성합니다.</p>
+<hr />
+<h1 id="agent-reach-review-sourcemd">Agent Reach — 소스 분석 보고서 (REVIEW-Source.md)</h1>
+<p><strong>분석일:</strong> 2026-06-09
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/Panniantong_Agent-Reach</code>
+<strong>리포지토리:</strong> <code>github.com/Panniantong/Agent-Reach</code>
+<strong>버전:</strong> 1.4.0 (pyproject.toml / __init__.py 기준)</p>
+<hr />
+<h2 id="analysis-summary-table">항목별 분석 요약 / Analysis Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 에이전트가 16개 이상 인터넷 플랫폼(Twitter, Reddit, YouTube, GitHub, 소홍서, B站, Weibo 등)에 접근할 수 있도록 의존 도구를 설치·설정·진단하는 Python CLI+라이브러리. 래퍼(wrapper) 아님—설치 후 Agent가 upstream CLI 직접 호출</td>
+<td>★★★★☆ — 문제 정의 명확, 포지셔닝 독특</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 패키지(<code>agent_reach/</code>) + <code>channels/</code>(플랫폼별 1파일), <code>integrations/</code>, <code>skill/</code>, <code>guides/</code>, <code>utils/</code>. <code>tests/</code>(10개 파일). <code>docs/</code>(4개국어 README). 단순 평면 구조</td>
+<td>★★★★☆ — 플러그인 패턴, 직관적 레이아웃</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.10+, hatchling 빌드, uv lock. 핵심 의존: requests, feedparser, loguru, PyYAML, rich, yt-dlp. 선택: playwright, mcp[cli], browser-cookie3. 외부 CLI: gh, twitter-cli, rdt-cli, xhs-cli, bili-cli, mcporter</td>
+<td>★★★★☆ — 경량 의존성, 명확한 선택</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>agent_reach/cli.py:main()</code> → argparse 서브커맨드 (install, doctor, configure, setup, uninstall, skill, format, check-update, watch)</td>
+<td>★★★★☆ — 명확한 진입점, 풍부한 서브커맨드</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>채널 레지스트리 패턴—<code>Channel</code> ABC → 16개 구현체 → <code>channels/__init__.py</code> 등록 → <code>doctor.py</code>가 집계. Config는 YAML 파일(~/.agent-reach/config.yaml). MCP 서버는 최소 노출(<code>get_status</code>만). <code>AgentReach</code> 코어 클래스는 doctor 래퍼로만 작동</td>
+<td>★★★★☆ — 교체 가능한 플러그인 구조, 단순하고 확장 용이</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>YAML 파일 기반 로컬 설정(~/.agent-reach/config.yaml, 0o600 권한). 환경변수 오버라이드 지원. 쿠키/토큰은 로컬에만 저장</td>
+<td>★★★★☆ — 외부 DB 없음, 보안 파일 권한 적절</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI 패키지(pip install). Docker 없음, 서버리스 없음. 자체 진단/업데이트 CLI 제공(<code>check-update</code>, <code>watch</code>). hatchling 빌드</td>
+<td>★★★☆☆ — 단순 pip 배포, 컨테이너 지원 없음</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>10개 pytest 파일, 계약 테스트(channel contract), CLI 단위 테스트, config/core/doctor 단위 테스트, 채널별 엣지케이스. CI: GitHub Actions (Python 3.10–3.13 매트릭스). constraints.txt로 의존성 고정</td>
+<td>★★★★☆ — 구조 탄탄, 커버리지 도구 미설치는 개선 필요</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 존재(비공개 어드바이저리, 48h 응답 SLA). config 파일 0o600 권한 생성, 민감값 마스킹, 권한 런타임 검사. <code>--safe</code> / <code>--dry-run</code> 모드. 쿠키 로컬 전용. 단, 외부 스크립트 실행(NodeSource setup.sh), <code>--break-system-packages</code> 사용, SBOM/아티팩트 서명 없음</td>
+<td>★★★☆☆ — 기본 보안 양호, 공급망 위험 존재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 1.4.0(베타). 4개국어 문서. CONTRIBUTING, CHANGELOG 존재. 단일 유지관리자. 얕은 git 히스토리(1커밋만 보임). CHANGELOG v1.4.0 항목 누락. 이슈/PR 템플릿 없음. Dependabot/Renovate 없음</td>
+<td>★★★☆☆ — 개인 프로젝트 수준의 성숙도, 커뮤니티 인프라 미흡</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="detailed-analysis">섹션별 상세 분석 / Detailed Analysis</h2>
+<h3 id="step-1-purpose-scope">Step 1. 목적 및 범위 / Purpose &amp; Scope</h3>
+<p>Agent Reach는 AI 에이전트(Claude Code, Cursor, OpenClaw, Windsurf 등)에게 인터넷 접근 능력을 부여하는 <strong>설치관리자 + 진단도구 + 설정도구</strong>다. 16개 플랫폼을 지원한다:</p>
+<ul>
+<li><strong>제로 설정</strong>: 웹(Jina Reader), GitHub(gh CLI), YouTube(yt-dlp), RSS(feedparser), 웨이보, V2EX</li>
+<li><strong>선택적 설정 필요</strong>: Twitter, Reddit, 소홍서, 도우인, 링크드인, B站, 위챗, 샤오위저우, 쉐치우, Exa 검색</li>
+</ul>
+<p>핵심 포지셔닝은 "래퍼가 아닌 발판(scaffolding)"—설치 완료 후 Agent가 upstream CLI를 직접 호출하며, Agent Reach는 개입하지 않는다.</p>
+<p><strong>대상 사용자</strong>: AI 에이전트 사용자/개발자, 인터넷 접근 도구를 팀이나 Agent에게 표준화하려는 사람.</p>
+<hr />
+<h3 id="step-2-repository-structure">Step 2. 저장소 구조 / Repository Structure</h3>
+<pre><code>Panniantong_Agent-Reach/
+├── agent_reach/          # 메인 패키지
+│   ├── channels/         # 플랫폼별 채널 구현 (16개 파일)
+│   │   └── base.py       # Channel ABC
+│   ├── integrations/     # MCP 서버 (최소 기능)
+│   ├── skill/            # AI 에이전트 skill 파일 (SKILL.md, references/)
+│   ├── guides/           # 플랫폼별 설정 가이드 (md)
+│   ├── scripts/          # 쉘 스크립트 (transcribe_xiaoyuzhou.sh)
+│   ├── utils/            # 유틸리티 (paths.py, text.py)
+│   ├── cli.py            # CLI 진입점 (1744줄)
+│   ├── core.py           # AgentReach 코어 클래스 (doctor 래퍼)
+│   ├── config.py         # YAML 설정 관리
+│   ├── doctor.py         # 채널 상태 집계 및 포맷
+│   └── cookie_extract.py # 브라우저 쿠키 자동 추출
+├── tests/                # pytest 테스트 (10개 파일)
+├── docs/                 # 다국어 문서 (EN, JA, KO README + 가이드)
+├── config/               # mcporter.json MCP 도구 설정
+├── scripts/              # sync-upstream.sh
+├── .github/workflows/    # CI (pytest.yml만)
+├── pyproject.toml        # 프로젝트 메타데이터, 의존성
+├── constraints.txt       # 고정된 의존성 버전
+├── uv.lock               # uv 잠금 파일
+└── llms.txt              # AI 에이전트용 컨텍스트 요약
+</code></pre>
+<ul>
+<li><strong>단일 리포</strong>: 모노리포 아님, 단일 Python 패키지</li>
+<li><strong>구조 방향성</strong>: 기능 지향(채널별 파일) + 레이어 분리(cli/core/doctor/config)</li>
+<li><strong>코드와 운영 자산 분리</strong>: 적절 (channels/, guides/, skill/ 분리)</li>
+</ul>
+<hr />
+<h3 id="step-3-software-stack">Step 3. 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Python 3.10+ (3.10, 3.11, 3.12, 3.13 CI 매트릭스)</td>
+</tr>
+<tr>
+<td><strong>빌드</strong></td>
+<td>hatchling (<code>[build-system]</code>)</td>
+</tr>
+<tr>
+<td><strong>패키지 매니저</strong></td>
+<td>uv (<code>uv.lock</code> 313KB), pip 호환</td>
+</tr>
+<tr>
+<td><strong>핵심 의존성</strong></td>
+<td>requests≥2.28, feedparser≥6.0, python-dotenv≥1.0, loguru≥0.7, PyYAML≥6.0, rich≥13.0, yt-dlp≥2024.0</td>
+</tr>
+<tr>
+<td><strong>선택 의존성</strong></td>
+<td>playwright≥1.40, mcp[cli]≥1.0, browser-cookie3≥0.19, rookiepy(비공식)</td>
+</tr>
+<tr>
+<td><strong>개발 도구</strong></td>
+<td>pytest≥8.0, ruff≥0.8, mypy≥1.12</td>
+</tr>
+<tr>
+<td><strong>외부 CLI 도구</strong></td>
+<td>gh(GitHub), twitter-cli, rdt-cli, xhs-cli(xiaohongshu-cli), bili-cli, mcporter(npm), yt-dlp, ffmpeg</td>
+</tr>
+<tr>
+<td><strong>데이터 저장</strong></td>
+<td>YAML 파일 (<code>~/.agent-reach/config.yaml</code>) — DB 없음</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI, pip install (Docker/K8s 없음)</td>
+</tr>
+<tr>
+<td><strong>런타임 환경</strong></td>
+<td>로컬 개발 컴퓨터 또는 VPS/서버, 자동 감지 (<code>_detect_environment()</code>)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="step-4-architecture-analysis">Step 4. 아키텍처 분석 / Architecture Analysis</h3>
+<p><strong>채널 레지스트리 패턴 (Plugin Registry)</strong></p>
+<pre><code>cli.py:main()
+    ├── _cmd_doctor()
+    │     └── doctor.check_all(config)
+    │           └── [ch.check(config) for ch in ALL_CHANNELS]  ← 채널 집계
+    ├── _cmd_install(args)       ← 시스템 의존성 설치
+    ├── _cmd_configure(args)     ← 쿠키/토큰 설정
+    ├── _cmd_setup()             ← 대화형 설정
+    └── _cmd_uninstall(args)     ← 정리
+
+Channel(ABC)  ←  base.py
+    ├── can_handle(url) → bool
+    ├── check(config) → (status, message)
+    └── [선택] read(), search()
+
+channels/__init__.py  ←  ALL_CHANNELS 레지스트리 (16개 인스턴스)
+</code></pre>
+<p><strong>레이어 구조:</strong>
+- <strong>Presentation</strong>: <code>cli.py</code> (argparse, Rich 출력)
+- <strong>Business Logic</strong>: <code>doctor.py</code>, 각 채널의 <code>check()</code>, 설치 로직
+- <strong>Data Access</strong>: <code>config.py</code> (YAML R/W), <code>cookie_extract.py</code> (브라우저 쿠키)</p>
+<p><strong>상태 관리</strong>: 상태없음(stateless)—설정만 YAML 파일에 영속화.</p>
+<p><strong>컴포넌트 간 통신</strong>: 내부는 함수 호출. 외부 도구는 <code>subprocess.run()</code> 직접 호출. MCP는 <code>stdio_server</code>로 최소 노출.</p>
+<p><strong>아키텍처 패턴</strong>: Plugin/Registry + Façade (AgentReach 클래스가 doctor 집계를 단순화)</p>
+<hr />
+<h3 id="step-5-quality-test-system">Step 5. 품질 및 테스트 시스템 / Quality &amp; Test System</h3>
+<p><strong>테스트 파일 목록:</strong></p>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>test_channel_contracts.py</code></td>
+<td>채널 인터페이스 계약 테스트 (레지스트리 비어있지 않음, 이름 유일성, tier 유효성)</td>
+</tr>
+<tr>
+<td><code>test_channels.py</code></td>
+<td>플랫폼별 채널 단위 테스트</td>
+</tr>
+<tr>
+<td><code>test_cli.py</code></td>
+<td>CLI 서브커맨드 단위 테스트, GitHub retry/backoff 로직</td>
+</tr>
+<tr>
+<td><code>test_config.py</code></td>
+<td>Config CRUD, 환경변수 우선순위, 파일 권한(0o600) 검증</td>
+</tr>
+<tr>
+<td><code>test_core.py</code></td>
+<td>AgentReach 코어 클래스</td>
+</tr>
+<tr>
+<td><code>test_doctor.py</code></td>
+<td>doctor 집계 및 포맷</td>
+</tr>
+<tr>
+<td><code>test_skill_command.py</code></td>
+<td><code>agent-reach skill</code> 서브커맨드</td>
+</tr>
+<tr>
+<td><code>test_twitter_channel.py</code></td>
+<td>Twitter 채널 엣지케이스</td>
+</tr>
+<tr>
+<td><code>test_xhs_format.py</code></td>
+<td>소홍서 출력 포맷 정제</td>
+</tr>
+<tr>
+<td><code>test_xiaoyuzhou_install.py</code></td>
+<td>샤오위저우 설치 로직</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CI/CD:</strong>
+- GitHub Actions: <code>.github/workflows/pytest.yml</code>
+- Python 3.10, 3.11, 3.12, 3.13 매트릭스 (fail-fast: false)
+- <code>pip install -c constraints.txt -e .[dev]</code> → <code>pytest -q</code>
+- <strong>누락</strong>: ruff/mypy CI 단계 없음(컨트리뷰팅 가이드는 명시하지만 워크플로에 없음)
+- 커버리지 도구(pytest-cov) 없음, 커버리지 리포트 없음</p>
+<p><strong>Lint/타입 검사:</strong>
+- ruff (line-length=100, E/F/I 선택)
+- mypy (check_untyped_defs=true, ignore_missing_imports=true)
+- pre-commit 선택적 설치 안내 (훅 파일 미포함)</p>
+<hr />
+<h3 id="step-6-security-supply-chain">Step 6. 보안 및 공급망 / Security &amp; Supply Chain</h3>
+<p><strong>잘 된 점:</strong></p>
+<table>
+<thead>
+<tr>
+<th>보안 조치</th>
+<th>구현 상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 있음 — GitHub private advisory, 48h SLA</td>
+</tr>
+<tr>
+<td>설정 파일 권한</td>
+<td>✅ 0o600 (<code>os.open</code> + <code>S_IRUSR\|S_IWUSR</code>)</td>
+</tr>
+<tr>
+<td>민감값 마스킹</td>
+<td>✅ <code>Config.to_dict()</code>에서 key/token/password/proxy 마스킹</td>
+</tr>
+<tr>
+<td>런타임 권한 검사</td>
+<td>✅ doctor 실행 시 config.yaml 권한 경고</td>
+</tr>
+<tr>
+<td>로컬 저장 전용</td>
+<td>✅ 쿠키/토큰 서버 전송 없음</td>
+</tr>
+<tr>
+<td>Safe mode / Dry-run</td>
+<td>✅ <code>--safe</code>, <code>--dry-run</code> 플래그</td>
+</tr>
+<tr>
+<td>완전 오픈소스</td>
+<td>✅ MIT 라이선스, 감사 가능</td>
+</tr>
+</tbody>
+</table>
+<p><strong>위험 요소:</strong></p>
+<table>
+<thead>
+<tr>
+<th>위험</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>외부 스크립트 실행</td>
+<td><code>_install_system_deps()</code>에서 NodeSource <code>setup_22.x</code> 스크립트를 다운로드 후 <code>bash</code>로 실행 — 공급망 공격 경로</td>
+</tr>
+<tr>
+<td><code>--break-system-packages</code></td>
+<td><code>_install_wechat_deps()</code>에서 시스템 패키지 강제 설치 — 시스템 Python 오염 위험</td>
+</tr>
+<tr>
+<td>SBOM / 아티팩트 서명</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>Dependabot / Renovate</td>
+<td>없음 — 의존성 취약점 자동 감지 부재</td>
+</tr>
+<tr>
+<td>외부 CLI 신뢰</td>
+<td>twitter-cli, rdt-cli 등 제3자 CLI 도구에 대한 무결성 검증 없음</td>
+</tr>
+<tr>
+<td>쿠키 기반 인증 플랫폼</td>
+<td>Twitter, 소홍서 — 계정 정지(봉인) 위험, 쿠키 탈취 시 전체 계정 권한 위험</td>
+</tr>
+</tbody>
+</table>
+<p><strong>라이선스:</strong> MIT (주 패키지). 외부 도구(twitter-cli, rdt-cli 등)는 각자 별도 라이선스.</p>
+<hr />
+<h3 id="step-7-documentation-operational-maturity">Step 7. 문서화 및 운영 성숙도 / Documentation &amp; Operational Maturity</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README (ZH/EN/JA/KO)</td>
+<td>✅ 4개국어, 풍부한 예시와 FAQ</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 있음, 한/영 이중 언어</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 있음</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>⚠️ 있음이지만 v1.4.0 항목 누락 (최신: 1.3.1)</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>이슈/PR 템플릿</td>
+<td>❌ <code>.github/ISSUE_TEMPLATE/</code> 없음</td>
+</tr>
+<tr>
+<td>SKILL.md (AI 에이전트용 라우터)</td>
+<td>✅ 있음, 라우팅 테이블 + references/ 분류</td>
+</tr>
+<tr>
+<td>llms.txt</td>
+<td>✅ 있음 (AI 에이전트가 컨텍스트 로딩용)</td>
+</tr>
+<tr>
+<td>가이드 문서</td>
+<td>✅ guides/ — twitter, reddit, exa, groq, wechat, xhs</td>
+</tr>
+<tr>
+<td>troubleshooting.md</td>
+<td>✅ 있음</td>
+</tr>
+</tbody>
+</table>
+<p><strong>커뮤니티 활동:</strong>
+- 단일 유지관리자 (Neo Reid / @Neo_Reidlab) — 버스 팩터=1
+- 보이는 git 커밋 1개 (얕은 클론, 실제 히스토리 판단 불가)
+- 위챗 그룹 QR 코드 제공, GitHub Issues 추적
+- "vibe coding" 자인(自認) — 빠른 반복이지만 완성도 주의 필요</p>
+<hr />
+<h2 id="strengths">강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>명확한 포지셔닝과 철학</strong>: "래퍼가 아닌 발판" — 설치 후 Agent가 upstream CLI를 직접 호출한다는 원칙이 일관되게 구현되어 있음. 각 채널 파일은 순수 상태 검사만 수행하고, 실제 데이터 흐름에 개입하지 않음.</p>
+</li>
+<li>
+<p><strong>완성도 높은 채널 플러그인 구조</strong>: <code>Channel</code> ABC → 구현체 → 레지스트리의 3-레이어 플러그인 패턴이 깔끔하다. 계약 테스트(<code>test_channel_contracts.py</code>)로 모든 채널이 인터페이스 준수를 보장하며, 새 채널 추가는 단일 파일 작성으로 끝남.</p>
+</li>
+<li>
+<p><strong>보안 세부 구현 수준</strong>: config 파일 0o600 권한 설정을 <code>os.open()</code> + 원자적 생성으로 구현(레이스 윈도 제거), 런타임 권한 검사, 민감값 마스킹, SECURITY.md private advisory — 개인 프로젝트 치고 보안 의식이 높음.</p>
+</li>
+<li>
+<p><strong>다층적 사용자 경험 설계</strong>: <code>--safe</code> (자동 변경 없음), <code>--dry-run</code> (미리보기), <code>--env=auto</code> (환경 자동 감지), <code>agent-reach doctor</code> (상태 진단), <code>check-update</code> / <code>watch</code> (업데이트/모니터링) 등 운영 친화적 CLI 인터페이스.</p>
+</li>
+<li>
+<p><strong>AI 에이전트 통합 완성도</strong>: <code>SKILL.md</code> + <code>references/*.md</code> 라우팅 테이블, <code>llms.txt</code>, 다국어 설치 안내가 AI 에이전트가 자율적으로 설치·설정·사용할 수 있도록 잘 설계되어 있음.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvement-areas">위험 및 개선 필요 사항 / Risks &amp; Improvement Areas</h2>
+<ol>
+<li>
+<p><strong>공급망 위험 — 외부 스크립트 실행</strong>: <code>_install_system_deps()</code>에서 NodeSource <code>setup_22.x</code> 스크립트를 curl로 다운로드 후 <code>bash</code>로 직접 실행함. MITM 공격이나 CDN 타협 시 임의 코드 실행 가능. <strong>개선</strong>: 스크립트 SHA256 검증 또는 패키지 매니저 직접 호출(apt, brew)로 대체.</p>
+</li>
+<li>
+<p><strong>단일 유지관리자 + 버전 불일치</strong>: 버스 팩터=1. <code>pyproject.toml</code>/<code>__init__.py</code>는 v1.4.0이지만 CHANGELOG 최신 항목은 v1.3.1. CLAUDE.md는 v1.3.0을 명시. 세 곳의 버전 동기화 규칙이 있음에도 불일치 발생 — 릴리스 프로세스 자동화 필요.</p>
+</li>
+<li>
+<p><strong>외부 CLI 도구 의존성 취약성</strong>: twitter-cli, rdt-cli, xhs-cli 등 제3자 CLI에 대한 무결성 검증(체크섬, 서명) 없음. 플랫폼 반크롤링 조치 변화 시 도구 전체가 무력화될 수 있음(CHANGELOG에 Instagram 제거 사례 이미 있음).</p>
+</li>
+<li>
+<p><strong>CI 파이프라인 미완성</strong>: ruff lint, mypy 타입 검사가 CI 워크플로에 없음(CONTRIBUTING에는 명시). 코드 품질 게이트가 테스트 실행에만 의존. 커버리지 리포트도 없어 미검증 경로 파악 불가.</p>
+</li>
+<li>
+<p><strong><code>--break-system-packages</code> 사용</strong>: <code>_install_wechat_deps()</code>에서 Python 시스템 패키지를 강제 설치함. 사용자 시스템 Python 환경을 오염시킬 수 있으며, 특히 서버 환경에서 위험. <strong>개선</strong>: pipx/uv tool 또는 venv 격리 사용.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h2>
+<p><strong>기술 도입 관점 (Technology Adoption)</strong></p>
+<blockquote>
+<p><strong>조건부 권고 — 개인/소규모 팀 사용, 프로덕션 서버 직접 노출 주의</strong></p>
+</blockquote>
+<p>Agent Reach는 AI 에이전트에게 다플랫폼 인터넷 접근 능력을 빠르게 부여하는 데 탁월하다. "래퍼 없는 발판" 철학이 명확하고, 채널 플러그인 구조가 확장 친화적이며, 설치/진단/업데이트를 위한 CLI 경험이 잘 다듬어져 있다.</p>
+<p>다만 다음 조건에서 도입 전 검토가 필요하다:</p>
+<ul>
+<li><strong>프로덕션 서버 환경</strong>: NodeSource 스크립트 자동 실행, <code>--break-system-packages</code> 사용이 있으므로 <code>--safe</code> 모드 또는 수동 설치 필수</li>
+<li><strong>엔터프라이즈/규정 준수 환경</strong>: SBOM 없음, 의존성 자동 업데이트 없음, 단일 유지관리자</li>
+<li><strong>장기 안정성</strong>: 외부 CLI 도구(twitter-cli, rdt-cli 등)가 플랫폼 반크롤링 정책 변화에 취약. Instagram처럼 특정 채널이 갑작스럽게 비활성화될 수 있음</li>
+</ul>
+<p><strong>아키텍처 벤치마킹 관점</strong></p>
+<p>채널 레지스트리 패턴 + 계약 테스트 조합은 다른 멀티-플랫폼 통합 도구에서 참고할 만한 좋은 설계 예시다. <code>Channel</code> ABC의 <code>check()</code> → <code>(status, message)</code> 반환 규약이 doctor 집계를 깔끔하게 만드는 핵심.</p>
+<p><strong>보안 검토 관점</strong></p>
+<p>외부 스크립트 실행 부분을 패치하고 의존성 감사를 추가하면 보안 수준을 크게 향상시킬 수 있다. 현재 구현의 config 파일 권한 처리와 민감값 마스킹은 좋은 참고 사례.</p>
+<hr />
+<p><em>분석 도구: 직접 파일 읽기 및 git 히스토리 검사 (얕은 클론으로 히스토리 1커밋만 확인 가능)</em>
+<em>분석 범위: 전체 소스코드, 테스트, CI 설정, 보안 정책, 문서</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>Panniantong/Agent-Reach</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/Panniantong/Agent-Reach" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
