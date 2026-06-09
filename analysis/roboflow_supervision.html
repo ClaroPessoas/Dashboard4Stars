@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>roboflow/supervision - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/roboflow/supervision" target="_blank" rel="noopener">roboflow/supervision</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">We write your reusable computer vision tools. 💜</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 42831</span>
+      <span class="badge badge-stars">+735 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 종합 분석 보고서를 작성합니다.</p>
+<hr />
+<h1 id="source-analysis-report">소스 코드 분석 보고서 (Source Analysis Report)</h1>
+<p><strong>분석일:</strong> 2026-06-10
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/roboflow_supervision</code>
+<strong>출력 파일:</strong> <code>.review/REVIEW-Source.md</code></p>
+<hr />
+<h2 id="_1">종합 분석 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>컴퓨터 비전 파이프라인을 위한 범용 Python 유틸리티 라이브러리. 탐지(Detection), 어노테이션(Annotation), 추적(Tracking), 데이터셋 관리, 평가 메트릭을 단일 패키지로 통합 제공. 모델에 구애받지 않는(model-agnostic) 설계.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>src/supervision/</code> 레이아웃. 도메인 중심 모듈 분리 (<code>annotators</code>, <code>detection</code>, <code>dataset</code>, <code>tracker</code>, <code>metrics</code>, <code>key_points</code>, <code>geometry</code>, <code>draw</code>). 단일 저장소(single repo). 테스트가 소스 구조를 완전히 미러링.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python ≥3.9 (3.9–3.14 지원), NumPy, OpenCV-Python, SciPy, Pillow, matplotlib. 빌드: setuptools + uv + twine. 린팅: ruff + mypy + codespell. 문서: MkDocs Material.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>src/supervision/__init__.py</code>가 모든 공개 API를 단일 네임스페이스로 노출. CLI 없음, 순수 라이브러리.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td><code>sv.Detections</code> 데이터클래스를 중심으로 하는 파이프라인 아키텍처. 어댑터 패턴으로 외부 모델(Ultralytics, HF Transformers, SAM, VLM 등) 결과를 표준 컨테이너로 정규화. ByteTracker 내장 구현.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>별도 DB/캐시 없음. 로컬 파일시스템 기반(이미지/비디오/어노테이션). COCO, YOLO, Pascal VOC 포맷 지원. 메모리 효율적 마스크 저장(<code>CompactMask</code>, RLE 기반 최대 240× 절감).</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI 배포 (<code>pip install supervision</code>). OIDC 기반 PyPI Attestations 사용. main/pre-release/TestPyPI 3단계 릴리즈 파이프라인. 컨테이너화 없음(라이브러리이므로 불필요).</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>70+ 테스트 파일. pytest + --doctest-modules. 커버리지 타겟 95%. 3 OS × 5 Python 버전 매트릭스 CI (15개 잡). Codecov 통합.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>Dependabot(주간), PyPI Attestations, detect-private-key 훅, defusedxml 사용, ruff bandit(S) 룰. SECURITY.md 부재. SBOM 미생성.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 0.29.0.dev (활발한 개발). CITATION.cff, CODEOWNERS, 상세 CHANGELOG. PR/이슈 템플릿. AI 기여자 지침(AGENTS.md). 다중 커뮤니티 채널.</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h3>
+<p><code>supervision</code>은 Roboflow가 개발하는 <strong>컴퓨터 비전 파운데이션 라이브러리</strong>이다. 다음 문제를 해결한다:</p>
+<ul>
+<li><strong>모델 결과 표준화</strong>: Ultralytics YOLO, HuggingFace Transformers, Roboflow Inference, SAM, Florence-2, PaliGemma, Qwen-VL, Google Gemini 등 다양한 모델 출력을 <code>sv.Detections</code>라는 단일 컨테이너로 정규화</li>
+<li><strong>시각화</strong>: 22종 이상의 어노테이터 (Box, Mask, Label, Heatmap, Trace, Ellipse 등)</li>
+<li><strong>분석 도구</strong>: LineZone, PolygonZone을 통한 객체 계수/구역 분석, InferenceSlicer(SAHI 방식 슬라이싱)</li>
+<li><strong>데이터셋 관리</strong>: COCO, YOLO, Pascal VOC 형식 입출력, 분할/병합</li>
+<li><strong>메트릭</strong>: mAP, mAR, Precision, Recall, F1Score (OBB 포함)</li>
+</ul>
+<p>대상 사용자: 컴퓨터 비전 연구자, ML 엔지니어, Python 개발자. <strong>라이브러리</strong> 형태이며 독립 애플리케이션이 아니다.</p>
+<hr />
+<h3 id="2-repository-structure">2. 저장소 구조 분석 (Repository Structure)</h3>
+<pre><code>roboflow_supervision/
+├── src/supervision/          # 메인 소스 (src-layout)
+│   ├── annotators/           # 22종 시각화 어노테이터
+│   ├── detection/            # 핵심 Detections 클래스 + 도구
+│   │   ├── core.py           # 2,777줄 - 중심 데이터 모델
+│   │   ├── compact_mask.py   # RLE 기반 메모리 효율 마스크
+│   │   ├── line_zone.py      # 선 교차 카운팅
+│   │   ├── tools/            # InferenceSlicer, CSV/JSON Sink 등
+│   │   ├── utils/            # boxes, converters, IoU/NMS, masks
+│   │   └── vlm.py            # VLM 어댑터 (Florence-2, Gemini 등)
+│   ├── dataset/              # COCO/YOLO/PascalVOC 데이터셋
+│   ├── tracker/byte_tracker/ # ByteTrack 내장 구현
+│   ├── metrics/              # mAP, mAR, F1, Precision, Recall
+│   ├── key_points/           # 구형 네임스페이스 (호환성 유지)
+│   ├── keypoint/             # 신규 네임스페이스 (마이그레이션 진행 중)
+│   ├── geometry/             # 좌표 변환 유틸리티
+│   ├── draw/                 # 색상/이미지 그리기 유틸리티
+│   └── utils/                # 비디오, 파일, 이미지 유틸리티
+├── tests/                    # 소스 구조 미러링 테스트
+├── docs/                     # MkDocs 문서
+├── examples/                 # 실사용 예제 (speed_estimation 등)
+├── .github/                  # CI/CD, 이슈 템플릿, CONTRIBUTING
+└── pyproject.toml            # 프로젝트 전체 설정
+</code></pre>
+<p><strong>특이사항</strong>: <code>key_points/</code>와 <code>keypoint/</code> 두 디렉토리가 공존. 네임스페이스 마이그레이션 진행 중으로, <code>key_points/skeletons.py</code>가 2,646줄로 대형 파일.</p>
+<p>구조는 <strong>도메인 지향(domain-oriented)</strong> 이며 모노레포 단일 패키지 형태이다.</p>
+<hr />
+<h3 id="3-software-stack">3. 소프트웨어 스택 (Software Stack)</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>상세</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Python ≥3.9 (3.9, 3.10, 3.11, 3.12, 3.13, 3.14 명시 지원)</td>
+</tr>
+<tr>
+<td><strong>빌드/패키징</strong></td>
+<td>setuptools (build-backend), uv (패키지 관리/실행), twine (배포), build</td>
+</tr>
+<tr>
+<td><strong>핵심 의존성</strong></td>
+<td>numpy≥1.21, opencv-python≥4.5, scipy≥1.10, pillow≥9.4, matplotlib≥3.6, tqdm≥4.62, requests≥2.26, pyyaml≥5.3, defusedxml≥0.7, pydeprecate≥0.9</td>
+</tr>
+<tr>
+<td><strong>선택 의존성</strong></td>
+<td>pandas≥2 (metrics extras)</td>
+</tr>
+<tr>
+<td><strong>런타임</strong></td>
+<td>서버리스/CPU. GPU 불필요 (OpenCV 기반).</td>
+</tr>
+<tr>
+<td><strong>데이터 저장소</strong></td>
+<td>해당 없음 (로컬 파일시스템만)</td>
+</tr>
+<tr>
+<td><strong>문서</strong></td>
+<td>MkDocs-Material + mkdocstrings-python + mike (버전 관리)</td>
+</tr>
+<tr>
+<td><strong>린팅/포맷팅</strong></td>
+<td>ruff (check + format), mypy (strict), codespell, mdformat, prettier</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest + pytest-cov, doctest 통합</td>
+</tr>
+<tr>
+<td><strong>CI</strong></td>
+<td>GitHub Actions (matrix: 3 OS × 5 Python = 15 jobs)</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI (OIDC Attestations), TestPyPI (사전 검증)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="4-architecture-analysis">4. 아키텍처 분석 (Architecture Analysis)</h3>
+<h4 id="svdetections">핵심 추상화: <code>sv.Detections</code> 데이터클래스</h4>
+<pre><code>외부 모델 출력
+    │
+    ▼ from_inference() / from_ultralytics() / from_sam3() / ...
+sv.Detections (표준 컨테이너)
+    ├── xyxy: NDArray[float]        # 바운딩 박스
+    ├── mask: NDArray[bool]|CompactMask  # 세그멘테이션 마스크
+    ├── confidence: NDArray[float]  # 신뢰도
+    ├── class_id: NDArray[int]      # 클래스 ID
+    ├── tracker_id: NDArray[int]    # 트래커 ID
+    ├── data: dict[str, Any]        # 추가 per-detection 데이터
+    └── metadata: dict[str, Any]    # 글로벌 메타데이터
+    │
+    ▼ with_nms() / with_nmm() / [mask]
+필터링된 sv.Detections
+    │
+    ├── ▼ ByteTracker.update()  → 트래킹
+    ├── ▼ BoxAnnotator.annotate()  → 시각화
+    ├── ▼ LineZone.trigger()  → 구역 분석
+    └── ▼ CSVSink/JSONSink  → 데이터 저장
+</code></pre>
+<h4 id="_3">설계 패턴</h4>
+<ul>
+<li><strong>어댑터 패턴</strong>: <code>from_&lt;model&gt;</code> 클래스 메서드로 외부 포맷 정규화</li>
+<li><strong>슬라이싱 API</strong>: NumPy 스타일 인덱싱 (<code>detections[mask]</code>, <code>detections[0:5]</code>)</li>
+<li><strong>불변 연산</strong>: 대부분의 필터 연산이 새 객체 반환</li>
+<li><strong>지연 로딩</strong>: <code>DetectionDataset</code>이 이미지를 요청 시 로드</li>
+<li><strong>VLM 통합</strong>: Florence-2, PaliGemma, Qwen-VL, Gemini, Moondream 등을 파서로 포함</li>
+</ul>
+<h4 id="_4">계층 분리</h4>
+<p>명시적 클린 아키텍처는 아니지만, 기능 레이어가 명확히 분리됨:
+- <strong>데이터 계층</strong>: <code>detection/core.py</code>, <code>compact_mask.py</code>
+- <strong>변환 계층</strong>: <code>detection/utils/</code>, <code>dataset/formats/</code>
+- <strong>프레젠테이션 계층</strong>: <code>annotators/core.py</code>
+- <strong>분석 도구 계층</strong>: <code>detection/tools/</code> (InferenceSlicer, Smoother 등)</p>
+<hr />
+<h3 id="5-quality-test-system">5. 품질 및 테스트 시스템 (Quality &amp; Test System)</h3>
+<h4 id="_5">테스트 구성</h4>
+<ul>
+<li><strong>테스트 유형</strong>: 단위 테스트(unit) + 독테스트(doctest) 통합. E2E/통합 테스트 없음(외부 모델 의존성 없음이 정책).</li>
+<li><strong>구조</strong>: AAA(Arrange-Act-Assert) 패턴 강제. 클래스로 그룹화. <code>@pytest.mark.parametrize</code> 활용.</li>
+<li><strong>독테스트</strong>: <code>--doctest-modules</code>로 소스 내 docstring 예제가 자동 테스트화.</li>
+<li><strong>커버리지</strong>: Codecov 목표 95%. 색상 범위 40~100% 설정.</li>
+<li><strong>자산</strong>: <code>tests/utils/assets/</code>에 기준 이미지(골든 파일) 포함.</li>
+</ul>
+<h4 id="cicd">CI/CD 파이프라인</h4>
+<pre><code>PR 생성
+  ├── pre-commit CI (ruff, mypy, codespell, mdformat 자동 수정 PR 생성)
+  ├── ci-tests.yml: matrix(ubuntu/windows/macos × 3.9/3.10/3.11/3.12/3.13)
+  │     └── import test → pytest --cov → Codecov 업로드
+  ├── build-package.yml: 빌드 + lychee 링크 검사 + twine check
+  └── ci-check-links.yml: 문서 링크 유효성 검사
+태그 푸시 (pre-release)
+  └── publish-pre-release.yml → TestPyPI
+릴리즈 게시
+  └── publish-release.yml → PyPI (OIDC Attestations)
+</code></pre>
+<h4 id="_6">린팅 규칙</h4>
+<ul>
+<li><strong>ruff</strong>: A(빌트인 충돌), E/W(pycodestyle), F(Pyflakes), I(isort), PT(pytest), Q(따옴표), RUF, S(bandit), UP(pyupgrade)</li>
+<li><strong>mypy</strong>: <code>strict = true</code>, Python 3.9 타겟</li>
+<li><strong>codespell</strong>: 오타 검사 (ByteTrack 관련 커스텀 무시 목록 포함)</li>
+</ul>
+<hr />
+<h3 id="6-security-supply-chain">6. 보안 및 공급망 (Security &amp; Supply Chain)</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td><strong>부재</strong> — 취약점 보고 채널 공식 문서화 없음</td>
+</tr>
+<tr>
+<td>Dependabot</td>
+<td>✅ pip + GitHub Actions 주간 자동 업데이트</td>
+</tr>
+<tr>
+<td>PyPI Attestations</td>
+<td>✅ OIDC 기반 빌드 증명 (main/pre-release/testpypi 모두)</td>
+</tr>
+<tr>
+<td>Actions 핀 고정</td>
+<td>✅ SHA 고정 (<code>actions/checkout@de0fac2e...</code>, <code>astral-sh/setup-uv@fac544c07...</code>)</td>
+</tr>
+<tr>
+<td>detect-private-key</td>
+<td>✅ pre-commit 훅으로 비밀 키 커밋 방지</td>
+</tr>
+<tr>
+<td>안전한 XML 파싱</td>
+<td>✅ <code>defusedxml</code> 사용 (XXE 공격 방어)</td>
+</tr>
+<tr>
+<td>경로 순회 방어</td>
+<td>✅ <code>load_coco_annotations</code>에서 <code>../</code> 탈출 차단 (v0.28에서 수정)</td>
+</tr>
+<tr>
+<td>보안 린팅</td>
+<td>✅ ruff bandit(S) 규칙 활성화</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td><strong>미생성</strong></td>
+</tr>
+<tr>
+<td>최소 권한</td>
+<td>✅ CI 워크플로우에 <code>permissions: {}</code> 기본 설정</td>
+</tr>
+</tbody>
+</table>
+<p><strong>라이선스</strong>: MIT (상업적 이용, 수정, 배포 자유). 주요 의존성 모두 호환 라이선스(Apache-2.0, BSD, MIT).</p>
+<hr />
+<h3 id="7-documentation-operational-maturity">7. 문서화 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h3>
+<h4 id="_7">문서 품질</h4>
+<ul>
+<li><strong>README</strong>: 뱃지, 빠른 시작, 다중 모델 커넥터 예제, 튜토리얼 링크, 커뮤니티 섹션 포함. 고품질.</li>
+<li><strong>API 문서</strong>: mkdocstrings으로 소스에서 자동 생성. supervision.roboflow.com에 배포.</li>
+<li><strong>Changelog</strong>: <code>docs/changelog.md</code>에 각 버전별 신기능/변경/수정 상세 기록. PR 링크 포함.</li>
+<li><strong>Cookbook</strong>: Jupyter 노트북 기반 실사용 레시피. Google Colab 연동.</li>
+<li><strong>예제</strong>: <code>examples/</code> 디렉토리에 speed estimation, zone counting, heatmap 등 완전한 애플리케이션.</li>
+</ul>
+<h4 id="_8">커뮤니티 성숙도</h4>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 상세한 기여 가이드, API 설계 원칙, 리뷰 체크리스트 포함</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>✅ 존재</td>
+</tr>
+<tr>
+<td>CODEOWNERS</td>
+<td>✅ <code>@SkalskiP @soumik12345</code></td>
+</tr>
+<tr>
+<td>이슈 템플릿</td>
+<td>✅ bug-report.yml, feature-request.yml 구조화 양식</td>
+</tr>
+<tr>
+<td>PR 템플릿</td>
+<td>✅ 체크리스트 포함</td>
+</tr>
+<tr>
+<td>CITATION.cff</td>
+<td>✅ 학술 인용 메타데이터</td>
+</tr>
+<tr>
+<td>AI 기여자 지침</td>
+<td>✅ AGENTS.md + copilot-instructions.md (선도적 실천)</td>
+</tr>
+<tr>
+<td>버전 전략</td>
+<td>Semantic Versioning. develop 브랜치 기반 개발, main 안정 릴리즈</td>
+</tr>
+<tr>
+<td>활동성</td>
+<td>활발한 개발 (최신 커밋 2026-06-10 기준 당일). v0.28 → v0.29 진행 중</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>탁월한 추상화 설계 — <code>sv.Detections</code> 데이터클래스</strong>
+   모델 벤더에 구애받지 않는 단일 컨테이너가 20개 이상 모델(Ultralytics, SAM, Florence-2, Gemini, Qwen-VL 등)의 출력을 정규화한다. NumPy 스타일 슬라이싱 API를 제공하여 체이닝 파이프라인 구성이 자연스럽다. 이 설계 덕분에 새 모델 통합 비용이 극히 낮다.</p>
+</li>
+<li>
+<p><strong>광범위한 CI 매트릭스와 품질 게이트</strong>
+   3 OS(Ubuntu/Windows/macOS) × 5 Python 버전(3.9–3.13) = 15개 병렬 잡이 매 PR마다 실행된다. <code>--doctest-modules</code>로 소스 docstring 예제가 자동 검증되고, pre-commit CI가 자동 수정 PR을 생성한다. 95% 커버리지 목표와 Codecov 통합이 회귀를 방지한다.</p>
+</li>
+<li>
+<p><strong>공급망 보안 모범 사례 이행</strong>
+   PyPI OIDC Attestations(빌드 증명), GitHub Actions SHA 핀 고정, 최소 권한 워크플로우, <code>defusedxml</code> 안전 파싱, bandit 보안 린팅이 모두 적용되어 있다. 오픈소스 라이브러리 중 상위 수준의 공급망 보안 실천이다.</p>
+</li>
+<li>
+<p><strong>메모리 효율적 <code>CompactMask</code> 설계</strong>
+   v0.28에서 도입된 RLE 기반 컴팩트 마스크는 희소 마스크에서 최대 240× 메모리 절감을 제공하면서 <code>sv.Detections.mask</code> API와 완전 호환된다. 슬라이싱, 병합, <code>area</code> 연산이 전체 배열 물화(materialization) 없이 동작한다.</p>
+</li>
+<li>
+<p><strong>탁월한 기여자 경험(DX)</strong>
+   상세한 CONTRIBUTING.md, AI 기여자를 위한 AGENTS.md와 copilot-instructions.md, 구조화된 PR/이슈 템플릿, 리뷰 품질 점수 체계를 갖추고 있다. API 설계 원칙 4개가 명문화되어 있어 기여 일관성이 높다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험 및 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>SECURITY.md 부재 — 취약점 보고 채널 없음</strong>
+   공식 취약점 보고 정책이 없다. PyPI Attestations와 Dependabot을 갖추고 있으나 보안 연구자가 취약점을 책임 있게 보고할 공식 경로가 문서화되어 있지 않다. GitHub Security Advisories 설정과 <code>SECURITY.md</code> 추가가 권장된다.</p>
+</li>
+<li>
+<p><strong><code>key_points/</code> vs <code>keypoint/</code> 이중 네임스페이스</strong>
+   <code>src/supervision/key_points/</code>(구형)와 <code>src/supervision/keypoint/</code>(신형) 두 디렉토리가 공존한다. <code>key_points/skeletons.py</code>는 2,646줄로 최대 파일 중 하나이다. 마이그레이션 완료 전까지 API 혼선과 유지보수 부담이 존재한다.</p>
+</li>
+<li>
+<p><strong><code>assert</code> 문 소스 코드 내 사용 (S101 억제)</strong>
+   <code>pyproject.toml</code>에서 <code>src/**</code>에 대해 ruff S101(assert 감지) 규칙을 억제하고 있으며, TODO 주석으로 향후 개선을 명시했다. <code>assert</code>는 Python 최적화 모드(<code>-O</code>)에서 제거되므로 런타임 입력 검증에 사용하면 안 된다. 적절한 예외 처리로의 전환이 필요하다.</p>
+</li>
+<li>
+<p><strong>SBOM(Software Bill of Materials) 미생성</strong>
+   릴리즈 파이프라인에서 SBOM을 생성하지 않는다. PyPI Attestations이 빌드 출처를 증명하지만, 런타임 의존성 목록의 머신 리더블 공급 문서가 없어 엔터프라이즈 도입 시 규정 준수 검토가 복잡해질 수 있다.</p>
+</li>
+<li>
+<p><strong>mypy strict 설정과 실제 적용 간 괴리</strong>
+   <code>pyproject.toml</code>에 <code>[tool.mypy] strict = true</code>가 설정되고 pre-commit에 mypy 훅이 있으나, CONTRIBUTING.md는 "현재 시스템적 타입 검사가 구현되지 않았다"고 명시한다. CI에서 mypy 실패가 빌드를 차단하지 않을 가능성이 있어 타입 안전성 보증이 불명확하다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>종합 평가: ★★★★★ — 적극 도입 권장</strong></p>
+<p><code>supervision</code>은 컴퓨터 비전 파이프라인 개발을 위한 <strong>사실상 표준(de facto standard)</strong> 라이브러리로 자리잡고 있다. 다음 시나리오에서 즉시 채택을 권장한다:</p>
+<ul>
+<li><strong>기술 도입</strong>: 다양한 CV 모델을 통합하는 파이프라인에서 모델 출력 정규화, 시각화, 구역 분석, 추적이 필요한 경우. 모델 교체 비용이 사실상 0에 가깝다.</li>
+<li><strong>아키텍처 벤치마킹</strong>: 라이브러리 API 설계, 어댑터 패턴, 메모리 효율 마스크 저장, 독테스트 통합 테스트 등을 참조 설계로 활용.</li>
+<li><strong>보안 검토</strong>: PyPI OIDC Attestations, Actions SHA 핀 고정, 최소 권한 워크플로우는 오픈소스 보안 모범 사례로 참조 가치가 높다. 단, SECURITY.md 부재는 보안 정책 측면에서 보완이 필요하다.</li>
+<li><strong>기여 준비도</strong>: 상세한 CONTRIBUTING.md, AI 기여자 가이드, 구조화된 PR 리뷰 체계가 갖추어져 있어 오픈소스 기여 문화가 성숙하다. 첫 기여 진입 장벽이 낮다.</li>
+</ul>
+<p><strong>주의사항</strong>: 엔터프라이즈 보안 감사 환경에서는 SECURITY.md 추가, SBOM 생성, mypy strict 실제 강제 등의 항목을 기여 또는 포크 수준에서 보완한 후 도입하는 것을 권장한다.</p>
+<hr />
+<p><em>분석 도구: 직접 파일 검사 (README.md, pyproject.toml, src/</em><em>, tests/</em><em>, .github/</em><em>/</em>, docs/changelog.md, CONTRIBUTING.md, LICENSE.md, CITATION.cff, pre-commit-config, CI workflows)*</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>roboflow/supervision</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/roboflow/supervision" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
