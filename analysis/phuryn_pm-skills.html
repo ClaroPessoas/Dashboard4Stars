@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>phuryn/pm-skills - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/phuryn/pm-skills" target="_blank" rel="noopener">phuryn/pm-skills</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">PM Skills Marketplace: 100+ agentic skills, commands, and plugins — from discovery to strategy, execution, launch, and growth.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      
+      <span class="badge badge-stars">★ 14442</span>
+      <span class="badge badge-stars">+775 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-11
+분석 대상: <code>/tmp/github-dashboard-analysis/phuryn_pm-skills</code></p>
+<hr />
+<h1 id="pm-skills-marketplace-review-source">PM Skills Marketplace — 소스 분석 보고서 (REVIEW-Source)</h1>
+<blockquote>
+<p><strong>Source Analysis Report — PM Skills Marketplace</strong>
+Repository: <code>phuryn/pm-skills</code> | Version: 2.0.0 | License: MIT</p>
+</blockquote>
+<hr />
+<h2 id="analysis-summary-table">분석 요약표 (Analysis Summary Table)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong> (Purpose)</td>
+<td>AI 코딩 어시스턴트(Claude Code, Claude Cowork, Gemini CLI, Codex CLI 등)에 통합하는 제품 관리(PM) 워크플로우 마켓플레이스. 68개 스킬·42개 커맨드를 9개 플러그인으로 묶어 제공. 제네릭 AI 응답을 구조화된 PM 프레임워크 기반의 단계별 워크플로우로 대체.</td>
+<td>★★★★★ — 문제 정의와 타깃 사용자(PM, 창업자, AI 빌더)가 명확함</td>
+</tr>
+<tr>
+<td><strong>구조</strong> (Structure)</td>
+<td>단일 레포지토리(모노레포). 루트에 <code>marketplace.json</code> 매니페스트 + <code>validate_plugins.py</code> + <code>CLAUDE.md</code>/<code>AGENTS.md</code> + 9개 <code>pm-{name}/</code> 플러그인 디렉토리. 각 플러그인은 <code>.claude-plugin/plugin.json</code>, <code>skills/{skill}/SKILL.md</code>, <code>commands/{command}.md</code>, <code>README.md</code>의 일관된 4-레이어 구조를 따름.</td>
+<td>★★★★★ — 완벽하게 일관된 도메인 지향 구조. 플러그인 간 독립성 보장</td>
+</tr>
+<tr>
+<td><strong>스택</strong> (Stack)</td>
+<td>런타임 코드 없음. 콘텐츠는 YAML 프론트매터를 포함한 Markdown(<code>.md</code>). 매니페스트는 JSON. 검증 도구는 Python 3(표준 라이브러리만 사용, 외부 패키지 없음). CI/CD 파이프라인 없음.</td>
+<td>★★★★☆ — 의도적으로 단순한 스택. 배포 자동화 부재가 약점</td>
+</tr>
+<tr>
+<td><strong>진입점</strong> (Entry Points)</td>
+<td>사용자 진입: <code>/discover</code>, <code>/write-prd</code>, <code>/strategy</code> 등 슬래시 커맨드. 에이전트 자동 로딩: SKILL.md 트리거 문구. 마켓플레이스 진입: <code>marketplace.json</code> → <code>plugin.json</code>. 검증 진입: <code>python3 validate_plugins.py</code>.</td>
+<td>★★★★★ — 다중 진입점이 Claude Code, Cowork, Codex CLI, 기타 에이전트를 각각 지원</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong> (Architecture)</td>
+<td>콘텐츠-주도(Content-Driven) 플러그인 아키텍처. 스킬(명사/도메인 지식) ↔ 커맨드(동사/워크플로우) 분리 원칙. 플러그인 간 참조 금지(독립 설치 보장). 프론트매터(경량, 항상 로드) + SKILL.md 본문(상세, 필요시 로드)의 점진적 공개(Progressive Disclosure) 패턴.</td>
+<td>★★★★★ — 플러그인 독립성, 점진적 공개, 스킬/커맨드 이중 레이어가 탁월한 설계 결정</td>
+</tr>
+<tr>
+<td><strong>데이터</strong> (Data)</td>
+<td>런타임 데이터 저장소 없음. 모든 콘텐츠는 정적 Markdown 파일. 사용자 데이터 수집 없음. 프라이버시 리스크 없음.</td>
+<td>★★★★★ — 정적 콘텐츠로 데이터 관련 리스크가 원천적으로 없음</td>
+</tr>
+<tr>
+<td><strong>배포</strong> (Deployment)</td>
+<td>Claude Code CLI(<code>claude plugin marketplace add</code>), Claude Cowork GUI, Codex CLI(<code>codex plugin add</code>) 설치 지원. 다른 에이전트(Gemini CLI, Cursor, OpenCode)는 수동 파일 복사. GitHub 레포지토리가 배포 원본(CDN 역할).</td>
+<td>★★★☆☆ — 설치 지원이 넓으나 자동화된 릴리즈 파이프라인(GitHub Actions, 태그, Changelog) 부재</td>
+</tr>
+<tr>
+<td><strong>테스트</strong> (Testing)</td>
+<td><code>validate_plugins.py</code>: 9개 플러그인, 68개 스킬, 42개 커맨드 전체를 자동 검증. 검증 항목: 매니페스트 필수 필드, 버전 형식(semver), 스킬 프론트매터, 커맨드 프론트매터, 디렉토리 이름-매니페스트 일치, 크로스 참조. 실행 결과: <strong>0 에러, 0 경고(100% PASS)</strong>.</td>
+<td>★★★★☆ — 자체 도메인 내 검증은 완벽. e2e AI 응답 품질 테스트는 범위 밖</td>
+</tr>
+<tr>
+<td><strong>보안</strong> (Security)</td>
+<td><code>SECURITY.md</code> 없음. 런타임 코드 없으므로 취약점 공격 면적(attack surface)이 없음. <code>.gitignore</code>에 <code>_Internal/</code>(비공개 유지관리 파일) 제외. 비밀(Secrets) 없음. 외부 의존성 없음. <code>dependabot</code>/<code>snyk</code> 불필요. 라이선스: MIT(상업적 이용 허가).</td>
+<td>★★★★☆ — 정적 콘텐츠 특성상 보안 리스크 최소. <code>SECURITY.md</code> 부재는 오픈소스 성숙도 관점 개선 여지</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong> (Maturity)</td>
+<td><code>README.md</code>: 설치 가이드, 플러그인 상세, 예시, 기여 안내 완비. <code>CLAUDE.md</code>: 에이전트 작업 지침, 버전 정책, 운영 절차 상세 기술. <code>CONTRIBUTING.md</code>: 명확한 기여 절차. <code>AGENTS.md</code>: 비-Claude 에이전트 지원 포인터. 버전 일관성: 전체 9개 플러그인 + 마켓플레이스 모두 <code>2.0.0</code> 동기화. 단일 커밋 이력(깊은 히스토리 없음 — 셸로우 클론).</td>
+<td>★★★★☆ — 문서·운영 성숙도는 높음. PR 템플릿, GitHub Actions, Changelog, <code>SECURITY.md</code> 추가 시 최고 수준</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>일관된 플러그인 아키텍처 — 확장에 최적화</strong>
+   9개 플러그인 모두가 동일한 디렉토리 레이아웃, 프론트매터 규칙, 명명 규칙을 따른다. <code>validate_plugins.py</code>가 이 일관성을 자동으로 강제하여, 새 스킬·커맨드 추가 시 구조적 회귀가 불가능하다. 오픈소스 기여자가 패턴을 학습하는 비용이 매우 낮다.</p>
+</li>
+<li>
+<p><strong>스킬/커맨드 이중 레이어 설계 — 조합성과 재사용성</strong>
+   스킬(명사/지식)과 커맨드(동사/워크플로우)의 분리는 단순하지만 강력한 설계다. <code>/discover</code>는 4개 스킬을 체이닝하고, <code>prioritization-frameworks</code>는 어떤 커맨드에서도 독립적으로 참조된다. 플러그인 간 하드 참조 금지 규칙은 독립 설치를 보장한다.</p>
+</li>
+<li>
+<p><strong>점진적 공개 패턴(Progressive Disclosure)</strong>
+   프론트매터(경량 메타데이터)와 SKILL.md 본문(상세 콘텐츠)의 분리는 AI 컨텍스트 윈도우를 효율적으로 사용한다. 트리거 문구 기반의 자동 로딩은 사용자가 명시적 명령 없이도 적절한 스킬을 활성화하게 한다.</p>
+</li>
+<li>
+<p><strong>멀티-에이전트 호환성 — 광범위한 생태계 커버리지</strong>
+   Claude Code, Claude Cowork, Codex CLI(OpenAI), Gemini CLI, Cursor, OpenCode, Kiro를 단일 레포지토리로 지원한다. <code>marketplace.json</code> 스키마가 표준화되어 있어 새로운 AI 에이전트 플랫폼 지원 추가가 용이하다.</p>
+</li>
+<li>
+<p><strong>검증 도구의 완성도 — 자동화된 품질 게이트</strong>
+   <code>validate_plugins.py</code>는 외부 패키지 없이 Python 표준 라이브러리만으로 110개 컴포넌트(68스킬 + 42커맨드) 전체를 검증한다. 에러/경고/정보 3단계 리포팅, 컬러 출력, exit code까지 갖춘 프로덕션 수준의 도구다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험 / 개선 필요 사항 (Risks / Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>CI/CD 자동화 부재 — 릴리즈 파이프라인 없음</strong>
+   GitHub Actions 워크플로우가 존재하지 않는다. PR 시 <code>validate_plugins.py</code> 자동 실행이 없어, 기여자가 로컬에서 수동 실행을 잊을 경우 유효하지 않은 변경이 머지될 수 있다. 버전 범프, 릴리즈 노트 생성도 수동이다.</p>
+</li>
+<li>
+<p><strong>버전 동기화의 취약성 — 수동 프로세스 의존</strong>
+   9개 <code>plugin.json</code> + <code>marketplace.json</code>의 버전을 수동으로 동기화해야 한다. <code>CLAUDE.md</code>에 규칙이 명시되어 있지만 자동화가 없다. 하나라도 누락 시 <code>validate_plugins.py</code>가 감지하지 못한다(버전 일치 여부를 크로스-체크하지 않음).</p>
+</li>
+<li>
+<p><strong><code>SECURITY.md</code> 부재</strong>
+   런타임 코드가 없어 실질적 보안 리스크는 낮지만, GitHub 오픈소스 표준(OSSF Scorecard, OpenSSF Best Practices)에서 <code>SECURITY.md</code>는 성숙도 지표다. 취약점 보고 경로가 README에도 명시되지 않았다.</p>
+</li>
+<li>
+<p><strong>AI 응답 품질 검증 불가 — 구조 검증만 존재</strong>
+   현재 테스트는 파일 구조·프론트매터 유효성만 확인한다. 스킬 콘텐츠가 실제 AI 에이전트와 통합될 때 의도대로 동작하는지(트리거 문구의 효과, 출력 품질, 프레임워크 충실도)를 자동으로 검증하는 방법이 없다.</p>
+</li>
+<li>
+<p><strong>기여자 경험 — PR 템플릿·이슈 템플릿 부재</strong>
+   <code>.github/PULL_REQUEST_TEMPLATE.md</code>, <code>.github/ISSUE_TEMPLATE/</code> 디렉토리가 없다. 기여자 수가 늘어날 경우 PR 품질 관리와 이슈 트라이지가 수동 부담으로 전가된다. 릴리즈별 <code>CHANGELOG.md</code>도 없다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>종합 평가: 도입 강력 권고 ★★★★☆ (4.5/5)</strong></p>
+<p>PM Skills Marketplace는 다음 기준 각각에서 높은 점수를 기록한다:</p>
+<table>
+<thead>
+<tr>
+<th>평가 기준</th>
+<th>점수</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>기술 도입 적합성</td>
+<td>★★★★★</td>
+<td>런타임 의존성 없음, 즉각 설치 가능</td>
+</tr>
+<tr>
+<td>아키텍처 벤치마킹</td>
+<td>★★★★★</td>
+<td>플러그인 마켓플레이스 설계 레퍼런스로 활용 가능</td>
+</tr>
+<tr>
+<td>보안 리뷰</td>
+<td>★★★★★</td>
+<td>정적 콘텐츠로 attack surface 없음</td>
+</tr>
+<tr>
+<td>기여 준비도</td>
+<td>★★★☆☆</td>
+<td>구조와 가이드라인은 훌륭하나 자동화 미비</td>
+</tr>
+<tr>
+<td>운영 성숙도</td>
+<td>★★★★☆</td>
+<td>문서 수준은 높음, CI/CD·릴리즈 자동화가 마지막 관문</td>
+</tr>
+</tbody>
+</table>
+<p><strong>권고 사항:</strong></p>
+<ul>
+<li><strong>즉시 도입 가능</strong>: Claude Code 또는 Claude Cowork 환경에서는 <code>phuryn/pm-skills</code> 마켓플레이스를 그대로 설치하면 된다. 검증 결과 100% 통과, 외부 의존성 없음, 라이선스(MIT) 클리어.</li>
+<li><strong>기여 계획 시</strong>: GitHub Actions에 <code>validate_plugins.py</code> 실행 워크플로우를 추가하고, PR/이슈 템플릿을 작성하는 것을 첫 기여로 제안한다.</li>
+<li><strong>포크/파생 시</strong>: 버전 동기화 스크립트를 <code>validate_plugins.py</code>에 통합(9개 <code>plugin.json</code> + <code>marketplace.json</code> 버전 일치 검사)하면 수동 오류를 원천 차단할 수 있다.</li>
+<li><strong>엔터프라이즈 채택 시</strong>: <code>SECURITY.md</code> 추가와 공식 취약점 보고 경로 정의를 먼저 처리한다.</li>
+</ul>
+<hr />
+<blockquote>
+<p>이 보고서는 실제 파일 검사(<code>validate_plugins.py</code> 직접 실행 포함) 및 소스 코드 리뷰를 기반으로 작성되었습니다.
+<em>This report is based on direct file inspection including live execution of <code>validate_plugins.py</code> and source code review.</em></p>
+</blockquote></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>phuryn/pm-skills</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/phuryn/pm-skills" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

@@ -95,10 +95,10 @@
     <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Your Personal AI super intelligence. Private, Simple and extremely powerful.</div>
     
     <div class="repo-meta">
-      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-period">monthly trending</span>
       <span class="badge badge-lang">Rust</span>
-      <span class="badge badge-stars">★ 23909</span>
-      <span class="badge badge-stars">+3,394 stars today</span>
+      <span class="badge badge-stars">★ 31325</span>
+      <span class="badge badge-stars">+30,988 stars this month</span>
     </div>
   </div>
   <div class="header-right">
@@ -107,15 +107,668 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="analysis">📊 소스 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
   <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-analysis">
+  <div class="panel active" id="panel-source">
     
-    <div class="md-body"><p>분석 결과 없음</p></div>
+    <div class="md-body"><hr />
+<h1 id="openhuman-source-analysis-report">OpenHuman — 소스 분석 리포트 (Source Analysis Report)</h1>
+<p><strong>분석일:</strong> 2026-06-11
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/tinyhumansai_openhuman</code>
+<strong>출력 파일:</strong> <code>.review/REVIEW-Source.md</code></p>
+<hr />
+<h2 id="analysis-summary">분석 요약표 (Analysis Summary)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>커뮤니티 및 개인을 위한 오픈소스 AI 에이전트 하네스. 로컬 메모리 트리(Obsidian 호환), 118+ OAuth 통합(Gmail, Slack, GitHub 등), 모델 라우팅, 음성 I/O, 80+ 네이티브 툴을 갖춘 Human-in-the-loop 데스크탑 앱</td>
+<td>★★★★★ — 독창적 포지셔닝: 로컬 퍼스트 + 풍부한 통합 생태계</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>모노레포. <code>app/</code>(React + Tauri), <code>src/</code>(Rust lib + CLI), <code>gitbooks/</code>(아키텍처 문서), <code>scripts/</code>(자동화), <code>.github/</code>(CI/CD). 도메인-지향 구조, 114개 Rust 도메인 모듈</td>
+<td>★★★★★ — 명확한 레이어 분리, 표준화된 모듈 형태</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>React 19 + Vite 8, Redux Toolkit 2, Tailwind 3, TypeScript 5.8 (프론트엔드); Rust (Tokio 1, Axum 0.8, SQLite/rusqlite, Sentry); Tauri v2 CEF 커스텀 빌드; pnpm 10 워크스페이스</td>
+<td>★★★★☆ — 최신 스택, CEF 벤더링이 복잡도 추가</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>데스크탑: <code>app/src/main.tsx</code> → <code>App.tsx</code>(React Provider 체인); Rust CLI: <code>src/main.rs</code>; 임베디드 코어: <code>app/src-tauri/src/core_process.rs</code>(tokio task)</td>
+<td>★★★★★ — 명확한 진입점, 외부 사이드카 제거됨(PR #1061)</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>React(UI) → Tauri IPC bridge → Rust Core(JSON-RPC/Axum) 3계층. 이벤트 버스(pub/sub + native request/response), 컨트롤러 레지스트리 패턴, 도메인-주도 설계</td>
+<td>★★★★★ — 헥사고날에 가까운 Clean Architecture, 이벤트 버스 분리</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLite(bundled/로컬 퍼스트), 마크다운 메모리 트리(계층적 요약 인덱스), OS 키링(Keychain/Credential Manager), redux-persist(UI 상태)</td>
+<td>★★★★☆ — 로컬 퍼스트 철학 일관성, 클라우드 동기화는 선택적</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Homebrew(macOS), apt(Ubuntu/Debian), AUR(Arch), MSI(Windows), AppImage/deb(Linux). GitHub Actions 20+개 워크플로우, 스테이징/프로덕션 릴리즈 분리</td>
+<td>★★★★☆ — 다중 플랫폼 지원, macOS 서명은 로컬 스크립트 의존</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest(단위), WDIO + Appium(데스크탑 E2E), Playwright(웹 E2E), cargo test(Rust). diff-cover로 변경된 라인 80% 커버리지 게이트 강제</td>
+<td>★★★★★ — 3중 테스트 레이어, CI 커버리지 게이트 매우 엄격</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>승인 게이트(기본 ON), 명령어 분류/티어 제어, OS 수준 크리덴셜 저장, 샌드박스 백엔드(Docker/Landlock/AppContainer/Seatbelt), 경로 격리(action_dir vs workspace_dir)</td>
+<td>★★★★★ — 다계층 심층 방어, 잘 설계된 자율성 모델</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v0.57.32(Early Beta). GPL v3 라이선스, 14개 언어 i18n(CI 강제), 기여자 보상 시스템, 6개 언어 README, Contributor Covenant 2.1, SECURITY.md, CONTRIBUTING.md</td>
+<td>★★★★☆ — 엔터프라이즈급 운영 관행, 베타 상태이나 성숙한 구조</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="detailed-analysis">상세 분석 (Detailed Analysis)</h2>
+<h3 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h3>
+<p><strong>[한국어]</strong> OpenHuman은 커뮤니티 및 개인 사용자를 위한 오픈소스 AI 에이전트 하네스(harness)로, 로컬 퍼스트(local-first) 메모리 트리, 118개 이상의 OAuth 통합 서비스, TokenJuice 토큰 압축 엔진, 모델 라우팅, 음성 I/O를 갖춘 Human-in-the-loop 데스크탑 애플리케이션이다. Claude Code와(AI 코딩 도우미), OpenClaw, Hermes 등 경쟁 제품 대비 오픈소스 + 저비용 + 로컬 메모리 + 통합 생태계를 핵심 차별점으로 내세운다.</p>
+<p><strong>[English]</strong> OpenHuman is an open-source AI assistant/harness for communities and individuals. It ships as a Tauri v2 desktop app (Windows/macOS/Linux) with a Rust core, local-first SQLite memory tree (Obsidian-compatible), 118+ OAuth integrations, a token-compression engine (TokenJuice), model routing, voice I/O, and 80+ native tools. Positioned as a cost-effective alternative to cloud-only AI assistants.</p>
+<ul>
+<li><strong>유형(Type):</strong> 데스크탑 애플리케이션 플랫폼 + AI 에이전트 런타임</li>
+<li><strong>대상 사용자(Target Users):</strong> 개인 개발자, 소규모 팀, AI 에이전트 커뮤니티</li>
+<li><strong>현재 상태(Status):</strong> Early Beta (v0.57.32)</li>
+</ul>
+<hr />
+<h3 id="2-repository-structure">2. 저장소 구조 (Repository Structure)</h3>
+<pre><code>tinyhumansai_openhuman/
+├── app/                    # pnpm workspace: React 19 UI + Tauri v2 데스크탑 셸
+│   ├── src/                # React 컴포넌트, Redux 슬라이스, 서비스(~285 파일)
+│   ├── src-tauri/          # Rust Tauri 셸 + CEF 커스텀 빌드(벤더링)
+│   └── test/               # Vitest 설정, E2E 스펙(WDIO + Playwright)
+├── src/                    # Rust 코어 라이브러리 + CLI 바이너리
+│   ├── core/               # 전송 계층(JSON-RPC, auth, event_bus)
+│   └── openhuman/          # 114개 도메인 모듈(agent, memory, channels, ...)
+├── gitbooks/developing/    # 기여자용 아키텍처 문서(공개)
+├── docs/                   # 내부 엔지니어링 문서
+├── scripts/                # 개발/테스트/디버그/자동화 스크립트
+├── .github/                # CI/CD 워크플로우 20+개, 이슈/PR 템플릿
+├── Cargo.toml              # Rust 워크스페이스(openhuman 코어 + 바이너리)
+├── package.json            # pnpm 워크스페이스 루트(openhuman-repo)
+├── AGENTS.md               # AI 에이전트 및 기여자를 위한 전체 컨벤션 문서
+├── CLAUDE.md               # → AGENTS.md 리다이렉트
+├── LICENSE                 # GNU GPL v3
+└── SECURITY.md             # 취약점 보고 정책
+</code></pre>
+<p><strong>구조 평가:</strong> 기능-지향이 아닌 <strong>도메인 + 레이어 혼합</strong> 구조. Rust 코어는 도메인-주도, 프론트엔드는 역할(services, store, components, pages)로 분리. 코드와 운영 자산(CI, scripts)이 명확히 구분됨.</p>
+<hr />
+<h3 id="3-software-stack">3. 소프트웨어 스택 (Software Stack)</h3>
+<h4 id="frontend">프론트엔드 (Frontend)</h4>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>프레임워크</td>
+<td>React 19 + Vite 8.0</td>
+</tr>
+<tr>
+<td>상태 관리</td>
+<td>Redux Toolkit 2.11.2 + redux-persist 6.0.0</td>
+</tr>
+<tr>
+<td>스타일링</td>
+<td>Tailwind CSS 3.4.19 + Inter/Cabinet Grotesk/JetBrains Mono</td>
+</tr>
+<tr>
+<td>UI 컴포넌트</td>
+<td>Radix UI, react-icons, Lottie, Recharts, Three.js, Pixi.js</td>
+</tr>
+<tr>
+<td>라우팅</td>
+<td>react-router-dom 7.13.0 (HashRouter)</td>
+</tr>
+<tr>
+<td>실시간</td>
+<td>Socket.io-client 4.8.3</td>
+</tr>
+<tr>
+<td>암호화</td>
+<td>@noble/ciphers, @noble/secp256k1, @scure/bip32/39</td>
+</tr>
+<tr>
+<td>유효성</td>
+<td>Zod 4.3.6</td>
+</tr>
+<tr>
+<td>테스트</td>
+<td>Vitest 4.0.18, @testing-library/react 16.3.2</td>
+</tr>
+<tr>
+<td>TypeScript</td>
+<td>5.8.3</td>
+</tr>
+<tr>
+<td>빌드 도구</td>
+<td>ESLint 9.39.2, Prettier 3.8.1, Husky 9.1.7</td>
+</tr>
+</tbody>
+</table>
+<h4 id="rust">백엔드/코어 (Rust)</h4>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>비동기 런타임</td>
+<td>Tokio 1 (full features)</td>
+</tr>
+<tr>
+<td>HTTP 서버</td>
+<td>Axum 0.8 (JSON-RPC, WebSocket, macros)</td>
+</tr>
+<tr>
+<td>데이터베이스</td>
+<td>SQLite (rusqlite 0.37, bundled)</td>
+</tr>
+<tr>
+<td>HTTP 클라이언트</td>
+<td>reqwest 0.12 (rustls, HTTP2, SOCKS proxy)</td>
+</tr>
+<tr>
+<td>직렬화</td>
+<td>serde 1, serde_json 1, serde_yaml 0.9</td>
+</tr>
+<tr>
+<td>암호화</td>
+<td>rustls 0.23, ring 0.17, AES-GCM, ChaCha20-Poly1305, Argon2</td>
+</tr>
+<tr>
+<td>TLS</td>
+<td>rustls (macOS/Linux), native-tls (Windows)</td>
+</tr>
+<tr>
+<td>음성/오디오</td>
+<td>whisper-rs 0.16 (Metal 가속), cpal 0.15, hound 3.5</td>
+</tr>
+<tr>
+<td>블록체인</td>
+<td>bitcoin 0.32, ed25519-dalek 2 (Solana), ethers-core 2.0.14 (EVM)</td>
+</tr>
+<tr>
+<td>관찰성</td>
+<td>Sentry 0.47.0, tracing, prometheus 0.14, OpenTelemetry OTLP</td>
+</tr>
+<tr>
+<td>CLI</td>
+<td>clap 4.5 (derive)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="tauri">데스크탑 셸 (Tauri)</h4>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>프레임워크</td>
+<td>Tauri v2 (CEF 커스텀 빌드, 벤더링)</td>
+</tr>
+<tr>
+<td>플러그인</td>
+<td>deep-link, opener, OS, barcode-scanner, autostart, updater, notification(패치)</td>
+</tr>
+<tr>
+<td>번들러</td>
+<td>벤더링된 tauri-cli (app/src-tauri/vendor/tauri-cef)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="4-architecture-analysis">4. 아키텍처 분석 (Architecture Analysis)</h3>
+<h4 id="_1">전체 흐름도</h4>
+<pre><code>┌─────────────────────────────────────────────────────┐
+│  React 19 UI (app/src/)                             │
+│  Redux Toolkit → SocketService → coreRpcClient     │
+└──────────────────────┬──────────────────────────────┘
+                       │ Tauri IPC (invoke)
+┌──────────────────────▼──────────────────────────────┐
+│  Tauri v2 Shell (app/src-tauri/)                    │
+│  core_rpc_relay → HTTP 127.0.0.1:&lt;port&gt;/rpc         │
+│  CEF 웹뷰 관리, 알림, 딥링크, 스크린 캡처          │
+└──────────────────────┬──────────────────────────────┘
+                       │ Bearer Token (per-launch)
+┌──────────────────────▼──────────────────────────────┐
+│  Rust Core (src/)                                   │
+│  ┌─────────────────────────────────────────────┐   │
+│  │  JSON-RPC Server (Axum 0.8, tokio task)     │   │
+│  │  src/core/all.rs (컨트롤러 레지스트리)      │   │
+│  └──────────────┬──────────────────────────────┘   │
+│  ┌──────────────▼──────────────────────────────┐   │
+│  │  Event Bus (pub/sub + native req/resp)       │   │
+│  └──────────────┬──────────────────────────────┘   │
+│  ┌──────────────▼──────────────────────────────┐   │
+│  │  114 도메인 모듈 (openhuman/)               │   │
+│  │  agent, memory, channels, tools, ...        │   │
+│  └──────────────┬──────────────────────────────┘   │
+│  ┌──────────────▼──────────────────────────────┐   │
+│  │  SQLite (rusqlite, bundled)                  │   │
+│  │  ~/.openhuman/users/&lt;id&gt;/workspace/core.db  │   │
+│  └─────────────────────────────────────────────┘   │
+└─────────────────────────────────────────────────────┘
+</code></pre>
+<h4 id="_2">아키텍처 패턴</h4>
+<table>
+<thead>
+<tr>
+<th>패턴</th>
+<th>적용 위치</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>클린/헥사고날 아키텍처</strong></td>
+<td>Rust 코어 — 도메인 로직이 전송 계층(core/)과 완전 분리</td>
+</tr>
+<tr>
+<td><strong>컨트롤러 레지스트리</strong></td>
+<td><code>src/core/all.rs</code>에 모든 RPC 메서드 중앙 등록</td>
+</tr>
+<tr>
+<td><strong>이벤트 버스</strong></td>
+<td>Typed pub/sub(글로벌) + native request/response(일대일); 도메인 간 결합 제거</td>
+</tr>
+<tr>
+<td><strong>도메인 주도 설계</strong></td>
+<td>114개 도메인 각각 <code>ops.rs</code>(비즈니스) + <code>store.rs</code>(영속성) + <code>schemas.rs</code>(RPC)</td>
+</tr>
+<tr>
+<td><strong>승인 게이트 패턴</strong></td>
+<td>보안 정책에 따른 에이전트 행동 결재 시스템</td>
+</tr>
+<tr>
+<td><strong>3계층 분리</strong></td>
+<td>프레젠테이션(React) / 오케스트레이션(Tauri) / 비즈니스(Rust)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="security-model">보안 모델 (Security Model)</h4>
+<pre><code>사용자 요청
+    ↓
+승인 게이트 (ApprovalGate, 기본 ON, 10분 TTL)
+    ↓
+명령어 분류 (classify_command → Read/Write/Network/Install/Destructive)
+    ↓
+티어 게이트 (gate_decision: readonly/supervised/full)
+    ↓
+경로 격리 (action_dir vs workspace_dir — workspace_internal_path 항상 차단)
+    ↓
+샌드박스 실행 (Docker/Landlock/Seatbelt/AppContainer)
+</code></pre>
+<hr />
+<h3 id="5-quality-test-system">5. 품질 및 테스트 시스템 (Quality &amp; Test System)</h3>
+<h4 id="_3">테스트 구성</h4>
+<table>
+<thead>
+<tr>
+<th>유형</th>
+<th>도구</th>
+<th>위치</th>
+<th>게이트</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>프론트엔드 단위</strong></td>
+<td>Vitest 4.0.18 + @testing-library/react</td>
+<td><code>app/src/**/*.test.ts(x)</code></td>
+<td>PR 필수</td>
+</tr>
+<tr>
+<td><strong>Rust 단위</strong></td>
+<td>cargo test (std) + wiremock 0.6</td>
+<td><code>src/**/#[cfg(test)] mod tests</code></td>
+<td>PR 필수</td>
+</tr>
+<tr>
+<td><strong>E2E 데스크탑</strong></td>
+<td>WDIO 9.24.0 + tauri-driver(Linux)/Appium Mac2(macOS)</td>
+<td><code>app/test/e2e/specs/*.spec.ts</code></td>
+<td>CI</td>
+</tr>
+<tr>
+<td><strong>E2E 웹</strong></td>
+<td>Playwright 1.56.1</td>
+<td><code>app/test/e2e/</code></td>
+<td>CI</td>
+</tr>
+<tr>
+<td><strong>커버리지</strong></td>
+<td>diff-cover (Vitest lcov + cargo-llvm-cov lcov)</td>
+<td>GitHub Actions</td>
+<td><strong>80% 변경 라인 필수</strong></td>
+</tr>
+</tbody>
+</table>
+<h4 id="cicd">CI/CD 워크플로우 목록</h4>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pr-ci.yml</code></td>
+<td>포맷, 린트, 타입체크, Rust 검사</td>
+</tr>
+<tr>
+<td><code>test.yml</code> / <code>test-reusable.yml</code></td>
+<td>Vitest + cargo test</td>
+</tr>
+<tr>
+<td><code>coverage.yml</code></td>
+<td>80% diff-cover 게이트</td>
+</tr>
+<tr>
+<td><code>build-desktop.yml</code>, <code>build-windows.yml</code></td>
+<td>네이티브 빌드</td>
+</tr>
+<tr>
+<td><code>e2e.yml</code>, <code>e2e-reusable.yml</code>, <code>e2e-playwright.yml</code></td>
+<td>E2E</td>
+</tr>
+<tr>
+<td><code>release-production.yml</code>, <code>release-staging.yml</code></td>
+<td>릴리즈 자동화</td>
+</tr>
+<tr>
+<td><code>docker-ci-image.yml</code></td>
+<td>CI 컨테이너 빌드</td>
+</tr>
+<tr>
+<td><code>installer-smoke.yml</code>, <code>deploy-smoke.yml</code></td>
+<td>설치/배포 스모크 테스트</td>
+</tr>
+<tr>
+<td><code>code-review.yml</code></td>
+<td>주간 보안 집중 코드 리뷰</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_4">품질 도구</h4>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>목적</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ESLint 9.39.2</td>
+<td>JS/TS 정적 분석</td>
+</tr>
+<tr>
+<td>Prettier 3.8.1</td>
+<td>코드 포맷</td>
+</tr>
+<tr>
+<td>TypeScript 5.8.3 <code>--noEmit</code></td>
+<td>타입 검사</td>
+</tr>
+<tr>
+<td>cargo fmt + cargo check</td>
+<td>Rust 포맷 + 정적 분석</td>
+</tr>
+<tr>
+<td>Husky 9.1.7</td>
+<td>pre-commit(포맷/린트), pre-push(Rust 검사)</td>
+</tr>
+<tr>
+<td>knip 6.3.1</td>
+<td>미사용 의존성 탐지</td>
+</tr>
+<tr>
+<td>i18n:check / i18n:react:check</td>
+<td>i18n 키 일치 및 누락 번역 탐지</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="6-security-supply-chain">6. 보안 및 공급망 (Security &amp; Supply Chain)</h3>
+<h4 id="_5">보안 정책</h4>
+<ul>
+<li><strong>취약점 신고:</strong> 이메일을 통한 비공개 보고(GitHub 이슈 금지), 5일 이내 응답 목표</li>
+<li><strong>Safe Harbor:</strong> 선의의 보안 연구자 법적 보호 명시</li>
+<li><strong>지원 버전:</strong> 최신 + 직전 마이너 버전만 지원</li>
+</ul>
+<h4 id="_6">구현된 보안 계층</h4>
+<table>
+<thead>
+<tr>
+<th>계층</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>자격 증명 저장</strong></td>
+<td>OS 키링(macOS Keychain, Windows Credential Manager, Linux native)</td>
+</tr>
+<tr>
+<td><strong>RPC 인증</strong></td>
+<td>런치당 hex bearer 토큰(메모리 내 전달, <code>OPENHUMAN_CORE_TOKEN</code>)</td>
+</tr>
+<tr>
+<td><strong>명령어 제어</strong></td>
+<td>ReadOnly/Supervised/Full 티어, 항상 차단되는 시스템/자격 증명 경로</td>
+</tr>
+<tr>
+<td><strong>샌드박스</strong></td>
+<td>Docker(원격/크론), Landlock(Linux), Seatbelt(macOS), AppContainer(Windows)</td>
+</tr>
+<tr>
+<td><strong>데이터 에피메럴성</strong></td>
+<td>메시지 내용 임시 처리, 장기 보존 없음</td>
+</tr>
+<tr>
+<td><strong>CEF 웹뷰</strong></td>
+<td>신규 JS 주입 금지 정책(코드에 명시, 레거시만 유지)</td>
+</tr>
+<tr>
+<td><strong>경로 격리</strong></td>
+<td><code>action_dir</code> vs <code>workspace_dir</code> 이중 루트, workspace 내부 경로 항상 차단</td>
+</tr>
+<tr>
+<td><strong>관찰성</strong></td>
+<td>Sentry(PII 스크러빙 포함), OpenTelemetry OTLP</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_7">공급망</h4>
+<ul>
+<li><strong>라이선스:</strong> GNU GPL v3 (copyleft — 파생 작업 오픈소스 강제)</li>
+<li><strong>의존성 감사:</strong> Dependabot/Renovate 설정 파일 미확인; 주간 code-review.yml 워크플로우가 보안 집중 감사를 수행</li>
+<li><strong>SBOM/서명:</strong> 별도 SBOM 생성 파이프라인 미확인; macOS 서명은 로컬 스크립트 의존</li>
+</ul>
+<hr />
+<h3 id="7-documentation-operational-maturity">7. 문서 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h3>
+<h4 id="_8">문서 현황</h4>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>존재 여부</th>
+<th>품질</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>✅</td>
+<td>고품질 — 설치, 비교표, 기능 설명, 6개 언어</td>
+</tr>
+<tr>
+<td>AGENTS.md</td>
+<td>✅</td>
+<td>매우 상세 — AI 에이전트/기여자를 위한 전체 컨벤션</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅</td>
+<td>상세 — 전제조건, 설정, 검증, 규칙</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>✅</td>
+<td>표준 이상 — 범위, Safe Harbor, 절차 명시</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>✅</td>
+<td>Contributor Covenant 2.1</td>
+</tr>
+<tr>
+<td>gitbooks/ 아키텍처 문서</td>
+<td>✅</td>
+<td>다층 — frontend, tauri-shell, agent-harness, e2e-testing, CEF</td>
+</tr>
+<tr>
+<td>CHANGELOG / 릴리즈 노트</td>
+<td>△</td>
+<td>Cargo.toml 버전 있음; 별도 CHANGELOG 미확인</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>✗</td>
+<td>미발견</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_9">커뮤니티 및 생태계</h4>
+<ul>
+<li><strong>Discord:</strong> discord.tinyhumans.ai (커뮤니티 중심)</li>
+<li><strong>Reddit:</strong> r/tinyhumansai</li>
+<li><strong>공식 문서:</strong> tinyhumans.gitbook.io/openhuman</li>
+<li><strong>기여자 보상:</strong> 첫 PR 머지 시 굿즈 + 특별 Discord 역할 (자동화됨)</li>
+<li><strong>멀티링귀얼 README:</strong> 영어, 중국어(간체), 일본어, 한국어, 독일어, 우르두어</li>
+</ul>
+<h4 id="pr">이슈/PR 거버넌스</h4>
+<ul>
+<li><strong>이슈 템플릿:</strong> bug.md, feature.md, task.md</li>
+<li><strong>PR 템플릿:</strong> 요약 불릿, 문제/솔루션, 제출 체크리스트(커버리지 80%, 스모크 테스트, AI 메타데이터 섹션)</li>
+<li><strong>버전 전략:</strong> 시멘틱 버저닝 (0.57.32 — Minor+Patch 기반 빈번 릴리즈)</li>
+</ul>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>엄격한 아키텍처 경계(Strict Architectural Boundaries)</strong>
+   Rust 코어(비즈니스 로직) — Tauri 셸(오케스트레이션) — React(프레젠테이션) 간 계층이 컴파일 타임에 강제된다. 114개 도메인 모듈이 표준화된 6-파일 형태(<code>mod.rs</code>, <code>types.rs</code>, <code>store.rs</code>, <code>ops.rs</code>, <code>schemas.rs</code>, <code>tools.rs</code>)를 따르며, 새 도메인 추가 시 일관성이 자동 확보된다.</p>
+</li>
+<li>
+<p><strong>3중 테스트 레이어 + 커버리지 게이트(Triple Test Layer + Coverage Gate)</strong>
+   Vitest(단위) + WDIO/Playwright(E2E) + cargo test(Rust)가 하나의 CI 파이프라인에 통합되고, diff-cover를 통해 변경된 라인의 80% 이상을 커버하지 않으면 PR이 머지되지 않는다. 실제 데스크탑 테스트(tauri-driver, Appium Mac2)가 플랫폼별로 분리되어 동작한다.</p>
+</li>
+<li>
+<p><strong>다계층 보안 모델(Multi-layer Security Model)</strong>
+   승인 게이트(Approval Gate) → 명령어 분류(CommandClass) → 자율성 티어(readonly/supervised/full) → 샌드박스(OS 수준 jail) → 경로 격리(action_dir/workspace_dir)로 이어지는 심층 방어(Defense-in-depth)가 체계적으로 구현되어 있다. 에이전트가 의도치 않게 시스템 자격 증명을 접근하는 경로가 컴파일 타임에 차단된다.</p>
+</li>
+<li>
+<p><strong>로컬 퍼스트 + 운영 투명성(Local-First + Operational Transparency)</strong>
+   SQLite 기반 마크다운 메모리 트리가 로컬에 저장되고 Obsidian과 호환된다. TokenJuice 압축 엔진이 최대 80% 토큰 절약을 목표로 한다. 모든 설정이 TOML 파일 + 환경 변수로 오버라이드 가능하여 운영 투명성이 높다.</p>
+</li>
+<li>
+<p><strong>프로덕션급 i18n 및 커뮤니티 거버넌스(Production-grade i18n &amp; Governance)</strong>
+   16개 언어 번역이 CI로 강제(키 누락/영어 플레이스홀더 탐지)되고, 6개 언어 README, 기여자 보상 자동화 시스템, Contributor Covenant 2.1, SECURITY.md Safe Harbor 조항까지 갖춘 거버넌스는 오픈소스 Early Beta 단계에서 보기 드문 성숙도다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험/개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>벤더링된 Tauri CEF 빌드의 유지보수 부담 (Vendored Tauri-CEF Maintenance Risk)</strong>
+   <code>app/src-tauri/vendor/tauri-cef</code>에 커스텀 빌드된 Tauri CLI와 Chromium이 포함되어 있다. 이는 공식 <code>@tauri-apps/cli</code>와 지속적으로 sync해야 하며, 보안 패치가 포함된 Tauri/Chromium 업스트림을 수동으로 병합해야 한다. 장기적으로 N-day 취약점이 데스크탑 번들에 잔류할 위험이 있다.</p>
+</li>
+<li>
+<p><strong>macOS 코드 서명이 로컬 스크립트에 의존 (macOS Signing Dependency on Local Script)</strong>
+   프로덕션 릴리즈 워크플로우 중 macOS 서명이 <code>build-macos-signed.sh</code> 로컬 스크립트에 의존하며 CI 자동화에 완전히 통합되지 않은 것으로 보인다. 이는 릴리즈 프로세스의 재현성과 보안 감사 가능성을 낮춘다.</p>
+</li>
+<li>
+<p><strong>의존성 자동 취약점 관리 부재 (No Automated Dependency Vulnerability Management)</strong>
+   Dependabot 또는 Renovate 설정 파일이 확인되지 않는다. 118개 이상의 외부 OAuth 통합과 대규모 Rust/npm 의존성 그래프를 고려하면, 취약한 의존성이 머지될 위험을 증가시킨다. 주간 code-review.yml이 부분적으로 보완하지만 자동화된 취약점 스캔과 업데이트 PR이 필요하다.</p>
+</li>
+<li>
+<p><strong>블록체인/Web3 통합의 공격 표면 확대 (Expanded Attack Surface via Blockchain/Wallet Integration)</strong>
+   bitcoin 0.32, ed25519-dalek 2(Solana), ethers-core 2.0.14(EVM), XChaCha20-Poly1305 터널, BIP32/39 등 암호화폐 관련 코드가 데스크탑 앱에 포함되어 있다. 이 기능들은 에이전트가 자금을 직접 이동시킬 수 있는 경로를 만들며, x402(기계 결제) 도메인과 결합 시 에이전트 재정 자율성(financial autonomy)의 보안 리스크가 상당하다.</p>
+</li>
+<li>
+<p><strong>CHANGELOG 및 ADR 부재 (No CHANGELOG or Architecture Decision Records)</strong>
+   v0.57.32라는 높은 패치 번호에도 불구하고 독립된 CHANGELOG 파일이나 ADR(Architecture Decision Records)이 확인되지 않는다. 주요 아키텍처 결정(예: 사이드카 제거 PR #1061, QuickJS 제거 등)이 코드 주석과 PR 본문에 분산되어 있어, 신규 기여자의 의사결정 맥락 파악이 어렵다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<table>
+<thead>
+<tr>
+<th>목적</th>
+<th>권고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>기술 도입 (AI 에이전트 플랫폼)</strong></td>
+<td>✅ 적극 권고 — 로컬 퍼스트 + 118+ 통합 + 오픈소스 + 80% 커버리지 게이트를 갖춘 드문 조합. 엔터프라이즈 데이터를 외부에 보내기 꺼리는 조직의 내부 AI 에이전트 플랫폼으로 유력하다.</td>
+</tr>
+<tr>
+<td><strong>아키텍처 벤치마킹</strong></td>
+<td>✅ 권고 — Tauri + Rust 코어 3계층 분리, 114-도메인 표준 모듈 형태, 이벤트 버스 패턴은 데스크탑 AI 앱 아키텍처의 참조 모델로 활용 가능하다.</td>
+</tr>
+<tr>
+<td><strong>보안 리뷰 대상</strong></td>
+<td>⚠️ 조건부 — 다계층 방어는 우수하나, (a) 벤더링된 CEF 번들 N-day 취약점 감사, (b) 블록체인/x402 에이전트 재정 자율성 위협 모델링, (c) Dependabot 자동화 구축을 선행해야 한다.</td>
+</tr>
+<tr>
+<td><strong>오픈소스 기여</strong></td>
+<td>✅ 권고 — AGENTS.md의 상세한 기여 가이드, 표준화된 도메인 모듈 형태, PR 템플릿, 기여자 보상 시스템이 신규 기여자의 진입 장벽을 낮춘다. GPL v3 라이선스 조건을 확인할 것.</td>
+</tr>
+<tr>
+<td><strong>프로덕션 운영</strong></td>
+<td>⚠️ 주의 — Early Beta(v0.57.32). "Expect rough edges" 경고가 명시되어 있으며, macOS 서명 자동화와 의존성 관리 개선을 확인한 후 프로덕션 배포를 권고한다.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>분석일: 2026-06-11 | 분석 대상: tinyhumansai/openhuman @ main (37ed1d4) | 버전: 0.57.32</em></p></div>
     
   </div>
 

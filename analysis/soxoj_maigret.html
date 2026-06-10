@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>soxoj/maigret - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/soxoj/maigret" target="_blank" rel="noopener">soxoj/maigret</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">🕵️‍♂️ Collect a dossier on a person by username from 3000+ sites</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 31847</span>
+      <span class="badge badge-stars">+261 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-11
+분석 대상: <code>/tmp/github-dashboard-analysis/soxoj_maigret</code></p>
+<hr />
+<h1 id="maigret-source-analysis-report">Maigret 소스코드 분석 보고서 (Source Analysis Report)</h1>
+<h2 id="project-overview">프로젝트 개요 / Project Overview</h2>
+<p><strong>Maigret</strong>는 사용자 이름(username) 하나만으로 3,000개 이상의 웹사이트에서 계정을 검색하고, 프로필 페이지에서 가능한 모든 정보를 수집하는 OSINT(공개출처정보) 도구입니다. API 키가 불필요하며 CLI 도구, Python 라이브러리, 웹 인터페이스 세 가지 형태로 사용할 수 있습니다.</p>
+<p><strong>Maigret</strong> is an OSINT tool that collects a dossier on a person by username only, checking for accounts across 3,000+ websites and extracting all available information from profile pages. No API keys are required; it operates as a CLI tool, Python library, and web interface.</p>
+<hr />
+<h2 id="analysis-summary-table">분석 요약 테이블 / Analysis Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>사용자명 기반 다중 사이트 계정 조회 및 OSINT 프로파일링 도구. AI 분석 모드, 재귀 검색, Tor/I2P 지원 포함</td>
+<td>⭐⭐⭐⭐⭐ 명확하고 집중된 목적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 Python 패키지(<code>maigret/</code>), <code>tests/</code>, <code>utils/</code>, <code>docs/</code>, <code>static/</code>, <code>pyinstaller/</code> 디렉터리 분리. 단일 저장소(monorepo) 구조</td>
+<td>⭐⭐⭐⭐ 역할 분리가 명확하고 탐색 용이</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.10–3.14, aiohttp(비동기 HTTP), Flask(웹 UI), Poetry(의존성 관리), Jinja2(리포트 템플릿), networkx/pyvis(그래프), curl-cffi(TLS 지문 우회)</td>
+<td>⭐⭐⭐⭐ 현대적 비동기 스택, 의존성이 다소 많음</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>CLI: <code>maigret/maigret.py::run()</code> → <code>main()</code> (asyncio). 라이브러리: <code>maigret/__init__.py</code>에서 <code>search</code> 노출. 웹 UI: <code>maigret/web/app.py</code> (Flask)</td>
+<td>⭐⭐⭐⭐⭐ 세 가지 진입점이 명확히 구분됨</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>핵심 검사 로직(<code>checking.py</code>, ~1644줄), 사이트 데이터 모델(<code>sites.py</code>), 리포트 생성(<code>report.py</code>), 설정 관리(<code>settings.py</code>), AI 분석(<code>ai.py</code>) 등 모듈 분리. 비동기 큐 기반 실행 엔진(<code>AsyncioQueueGeneratorExecutor</code>)</td>
+<td>⭐⭐⭐⭐ 기능 중심 모듈화, <code>checking.py</code>가 다소 비대</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>정적 JSON 사이트 데이터베이스(<code>maigret/resources/data.json</code>). GitHub에서 24시간마다 자동 업데이트. 별도 DB/캐시 시스템 없음</td>
+<td>⭐⭐⭐⭐ 심플한 파일 기반 DB, 자동 업데이트로 신선도 유지</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI, Docker(멀티 스테이지: CLI + Web), Snap, Windows 독립 실행형 <code>.exe</code>(PyInstaller), Google Cloud Shell</td>
+<td>⭐⭐⭐⭐⭐ 다양한 배포 채널, 모든 플랫폼 지원</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>25개 테스트 파일, ~5400줄, pytest-asyncio, pytest-httpserver(실 HTTP 서버), 커버리지 60% 이상 CI 강제. Python 3.10~3.14 매트릭스 테스트</td>
+<td>⭐⭐⭐⭐ 광범위한 테스트 구성, 60% 커버리지 하한은 개선 여지 있음</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 없음. GitHub CodeQL 정기 스캔(매주 토요일 + push). Dependabot 일일 업데이트. PyPI 배포에 OIDC Trusted Publisher 사용. <code>send_from_directory</code> path traversal 취약점 수정됨 (#2635). API 키는 환경변수 또는 설정 파일로 관리</td>
+<td>⭐⭐⭐ 코드 스캐닝 및 의존성 관리 양호, SECURITY.md 부재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v0.6.1 (Production/Stable PyPI 분류), 2700+ PR 이력, 다국어 README(EN/ZH), ReadTheDocs 공식 문서, CONTRIBUTING.md, CODE_OF_CONDUCT.md, CHANGELOG.md, 이슈 템플릿 3종</td>
+<td>⭐⭐⭐⭐⭐ 고성숙 오픈소스 프로젝트, 커뮤니티 인프라 완비</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-1-purpose-and-scope">Step 1. 목적 및 범위 / Purpose and Scope</h2>
+<p>Maigret는 <strong>OSINT 도구 카테고리에서 사용자명 기반 계정 조회 분야의 사실상 표준</strong>입니다.</p>
+<ul>
+<li><strong>해결 문제</strong>: 하나의 사용자명으로 수천 개 사이트에서 계정 존재 여부를 빠르게 확인하고 연결된 신원 정보를 수집</li>
+<li><strong>대상 사용자</strong>: 보안 연구자, OSINT 전문가, 저널리스트, 법집행기관, 상업용 OSINT 플랫폼(Social Links, UserSearch 등이 내부 활용)</li>
+<li><strong>유형</strong>: CLI 도구 + Python 라이브러리 + 웹 인터페이스 복합체</li>
+<li><strong>주요 특징</strong>:</li>
+<li>3,000+ 사이트 데이터베이스, 기본 상위 500개 사이트 검색</li>
+<li>재귀 검색(발견된 다른 사용자명/ID로 추가 검색)</li>
+<li>AI 분석 모드(<code>--ai</code>, OpenAI 호환 API)</li>
+<li>Cloudflare 우회(FlareSolverr 연동)</li>
+<li>Tor/I2P 프록시 지원</li>
+</ul>
+<hr />
+<h2 id="step-2-repository-structure">Step 2. 저장소 구조 / Repository Structure</h2>
+<pre><code>soxoj_maigret/
+├── maigret/                 # 핵심 Python 패키지
+│   ├── __init__.py          # 공개 API 진입점
+│   ├── maigret.py           # CLI 진입점 및 메인 로직
+│   ├── checking.py          # 사이트 검사 핵심 로직 (~1644줄)
+│   ├── sites.py             # 사이트 데이터 모델
+│   ├── report.py            # 다형식 리포트 생성
+│   ├── ai.py                # AI 분석 모듈
+│   ├── db_updater.py        # 데이터베이스 자동 업데이트
+│   ├── settings.py          # 설정 관리
+│   ├── permutator.py        # 사용자명 변형 생성
+│   ├── web/                 # Flask 웹 인터페이스
+│   └── resources/           # data.json, settings.json, AI 프롬프트
+├── tests/                   # 25개 테스트 파일
+├── utils/                   # 유지보수 스크립트 (DB 업데이트, 태그 추가 등)
+├── docs/                    # ReadTheDocs 소스
+├── static/                  # 스크린샷, 예시 리포트
+├── pyinstaller/             # Windows 독립 실행형 빌드 설정
+├── .github/                 # CI/CD, Dependabot, 이슈 템플릿
+├── Dockerfile               # 멀티 스테이지(CLI + Web)
+├── pyproject.toml           # Poetry 패키지 설정
+└── snapcraft.yaml           # Snap 패키지 설정
+</code></pre>
+<p><strong>구조 특성</strong>: 기능 중심(function-oriented) 단층 패키지 구조. 코드와 운영 자산(Docker, Snap, CI)이 잘 분리되어 있음.</p>
+<hr />
+<h2 id="step-3-software-stack">Step 3. 소프트웨어 스택 / Software Stack</h2>
+<table>
+<thead>
+<tr>
+<th>카테고리</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Python</td>
+<td>3.10–3.14</td>
+</tr>
+<tr>
+<td><strong>빌드/패키지</strong></td>
+<td>Poetry</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>비동기 HTTP</strong></td>
+<td>aiohttp</td>
+<td>^3.12.14</td>
+</tr>
+<tr>
+<td><strong>TLS 지문 우회</strong></td>
+<td>curl-cffi</td>
+<td>&gt;=0.14,&lt;1.0</td>
+</tr>
+<tr>
+<td><strong>프록시</strong></td>
+<td>aiohttp-socks, PySocks</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>웹 프레임워크</strong></td>
+<td>Flask (async 모드)</td>
+<td>^3.1.1</td>
+</tr>
+<tr>
+<td><strong>그래프 시각화</strong></td>
+<td>networkx, pyvis</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>리포트</strong></td>
+<td>Jinja2, xhtml2pdf(optional), reportlab, XMind</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>페이지 파싱</strong></td>
+<td>lxml, html5lib, socid-extractor</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>OSINT 추출</strong></td>
+<td>socid-extractor</td>
+<td>&gt;=0.0.27</td>
+</tr>
+<tr>
+<td><strong>Tor</strong></td>
+<td>stem, torrequest</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>Cloudflare 스크래핑</strong></td>
+<td>cloudscraper</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest, pytest-asyncio, pytest-httpserver, coverage</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>린팅/타입</strong></td>
+<td>flake8, mypy, black</td>
+<td>-</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker, PyInstaller, Snap, PyPI</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-4-architecture-analysis">Step 4. 아키텍처 분석 / Architecture Analysis</h2>
+<h3 id="_1">진입점 흐름</h3>
+<pre><code>CLI: maigret USERNAME
+  └─→ maigret/maigret.py::run()
+        └─→ asyncio.run(main())
+              ├─ Settings 로드
+              ├─ MaigretDatabase 로드 (data.json)
+              ├─ 사이트 필터링 (top N, tags, 사이트명)
+              └─→ checking.maigret() [핵심 검색 함수]
+                    └─→ AsyncioQueueGeneratorExecutor
+                          └─→ 각 사이트별 병렬 HTTP 검사
+</code></pre>
+<h3 id="_2">아키텍처 패턴</h3>
+<ul>
+<li><strong>비동기 큐 기반 실행</strong>: <code>AsyncioQueueGeneratorExecutor</code>가 세마포어 방식으로 동시 연결 수를 제한하며 사이트를 병렬 검사</li>
+<li><strong>전략 패턴 (체커 선택)</strong>: 사이트 속성(<code>protection</code> 필드)에 따라 <code>SimpleAiohttpChecker</code>, <code>CurlCffiChecker</code>, <code>CloudflareWebgateChecker</code> 중 선택</li>
+<li><strong>플러그인식 리포트</strong>: <code>save_csv_report</code>, <code>save_html_report</code>, <code>save_pdf_report</code>, <code>save_xmind_report</code> 등 포맷별 함수 조합</li>
+<li><strong>데이터 모델</strong>: <code>MaigretSite</code>, <code>MaigretEngine</code>, <code>MaigretDatabase</code> 클래스로 사이트 데이터 캡슐화</li>
+<li><strong>재귀 검색</strong>: 각 검색 결과에서 추가 사용자명/ID를 추출해 동적으로 검색 큐에 추가</li>
+<li><strong>상태 관리</strong>: 메모리 내 딕셔너리(<code>QueryResultWrapper</code>) - 영구 상태 없음</li>
+</ul>
+<h3 id="_3">레이어 분리 평가</h3>
+<ul>
+<li><strong>CLI/UI 레이어</strong>: <code>maigret.py</code>, <code>web/app.py</code></li>
+<li><strong>비즈니스 로직</strong>: <code>checking.py</code>, <code>permutator.py</code>, <code>extractors.py</code></li>
+<li><strong>데이터 접근</strong>: <code>sites.py</code>, <code>db_updater.py</code>, <code>settings.py</code></li>
+<li><strong>출력</strong>: <code>report.py</code>, <code>notify.py</code></li>
+</ul>
+<p><code>checking.py</code>가 1644줄로 비대하며 HTTP 검사, 오류 분류, 활성화 로직 등 여러 책임이 혼재함.</p>
+<hr />
+<h2 id="step-5-quality-and-test-system">Step 5. 품질 및 테스트 시스템 / Quality and Test System</h2>
+<h3 id="_4">테스트 구성</h3>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>파일 수</th>
+<th>총 테스트 함수 수(추정)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트</td>
+<td>~20</td>
+<td>~150+</td>
+</tr>
+<tr>
+<td>통합/HTTP 테스트</td>
+<td>~5</td>
+<td>~50+</td>
+</tr>
+</tbody>
+</table>
+<p>주요 테스트 파일:
+- <code>test_checking.py</code> (686줄, 43개 함수) — 핵심 검사 로직
+- <code>test_report.py</code> (755줄, 34개 함수) — 리포트 생성
+- <code>test_sites.py</code> (387줄) — 사이트 데이터 모델
+- <code>test_cloudflare_webgate.py</code> (303줄) — Cloudflare 우회 모듈
+- <code>test_web.py</code> (302줄) — Flask 웹 인터페이스</p>
+<p><strong>pytest-httpserver</strong>를 사용해 실 HTTP 서버를 로컬에서 시작하여 테스트 — mock 의존성 없이 실제 HTTP 동작 검증.</p>
+<h3 id="cicd">CI/CD</h3>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>목적</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>python-package.yml</code></td>
+<td>Python 3.10~3.14 매트릭스 테스트 + 커버리지(≥60%)</td>
+</tr>
+<tr>
+<td><code>minimal-install.yml</code></td>
+<td><code>pip install .</code> 최소 설치 스모크 테스트</td>
+</tr>
+<tr>
+<td><code>codeql-analysis.yml</code></td>
+<td>GitHub CodeQL 정적 보안 분석 (주간 스케줄 + push)</td>
+</tr>
+<tr>
+<td><code>python-publish.yml</code></td>
+<td>릴리스 시 PyPI 자동 배포 (OIDC Trusted Publisher)</td>
+</tr>
+<tr>
+<td><code>build-docker-image.yml</code></td>
+<td>Docker 이미지 빌드 검증</td>
+</tr>
+<tr>
+<td><code>update-site-data.yml</code></td>
+<td>사이트 데이터 자동 업데이트</td>
+</tr>
+</tbody>
+</table>
+<p><strong>코드 품질 도구</strong>: flake8(린팅), black(포매팅), mypy(타입 검사).</p>
+<h3 id="_5">릴리스 전략</h3>
+<p>시맨틱 버저닝(Semantic Versioning), CHANGELOG.md 유지, GitHub Releases 트리거 시 PyPI 자동 배포.</p>
+<hr />
+<h2 id="step-6-security-and-supply-chain">Step 6. 보안 및 공급망 / Security and Supply Chain</h2>
+<h3 id="_6">현황</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td><strong>없음</strong></td>
+</tr>
+<tr>
+<td>의존성 취약점 관리</td>
+<td>Dependabot (일일 pip 업데이트)</td>
+</tr>
+<tr>
+<td>정적 보안 분석</td>
+<td>GitHub CodeQL (Python, 주간)</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>아티팩트 서명</td>
+<td>없음 (OIDC로 PyPI 배포는 Trusted Publisher 사용)</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td>MIT (상업 이용 제한 없음)</td>
+</tr>
+<tr>
+<td>비밀 관리</td>
+<td>환경변수(<code>OPENAI_API_KEY</code>) 또는 <code>settings.json</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_7">주목할 보안 사항</h3>
+<ol>
+<li><strong>Path Traversal 수정</strong> (PR #2635): <code>/reports</code> 경로에서 <code>send_from_directory</code>로 path containment를 강화함. 수정 이력 확인됨.</li>
+<li><strong>Flask Secret Key</strong>: <code>os.urandom(24).hex()</code>로 자동 생성 (환경변수 <code>FLASK_SECRET_KEY</code>로 오버라이드 가능). 재시작 시 세션 무효화됨.</li>
+<li><strong>Docker 보안</strong>: <code>FLASK_HOST=0.0.0.0</code> 기본값이 Docker 환경에서 모든 인터페이스 바인딩. 로컬 배포 시 주의 필요.</li>
+<li><strong>API 키 노출 위험</strong>: <code>settings.json</code>에 <code>openai_api_key</code> 빈 문자열로 기본값 설정. 사용자가 파일에 직접 키를 입력할 경우 git 실수 커밋 위험.</li>
+<li><strong>OSINT 도구 특성</strong>: 법적 면책 조항 명시(<code>README.md</code>), GDPR/CCPA 준수 책임을 사용자에게 귀속.</li>
+</ol>
+<h3 id="_8">라이선스</h3>
+<ul>
+<li><strong>Maigret 본체</strong>: MIT</li>
+<li><strong>주요 의존성</strong>: aiohttp(Apache 2.0), Flask(BSD), requests(Apache 2.0), lxml(BSD/MIT), socid-extractor(MIT)</li>
+<li>상업 이용 허용, 라이선스 호환성 문제 없음</li>
+</ul>
+<hr />
+<h2 id="step-7-documentation-and-operational-maturity">Step 7. 문서화 및 운영 성숙도 / Documentation and Operational Maturity</h2>
+<h3 id="_9">문서 현황</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md (EN)</td>
+<td>매우 상세 — 빠른 시작, 설치(5가지 방법), 사용 예제, 기능별 섹션</td>
+</tr>
+<tr>
+<td>README.zh-CN.md</td>
+<td>간체 중국어 번역 완비</td>
+</tr>
+<tr>
+<td>ReadTheDocs 공식 문서</td>
+<td><code>maigret.readthedocs.io</code> — API, CLI 옵션, 설정, 개발 가이드</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>상세한 기여 방법, 개발 환경 설정, pre-commit hook 설명</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>Contributor Covenant 기반</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>v0.6.0, v0.6.1 등 버전별 상세 변경 이력 (~75KB)</td>
+</tr>
+<tr>
+<td>TROUBLESHOOTING.md</td>
+<td>자주 발생하는 문제 해결 가이드</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td><strong>부재</strong></td>
+</tr>
+</tbody>
+</table>
+<h3 id="pr">이슈/PR 인프라</h3>
+<ul>
+<li>이슈 템플릿 3종: <code>add-a-site.md</code>, <code>bug.md</code>, <code>report-false-result.md</code></li>
+<li>PR 2700+개로 매우 활발한 커뮤니티 기여 이력</li>
+<li>Dependabot PR이 자동으로 의존성 최신화</li>
+<li>자동화된 사이트 목록 업데이트 봇(<code>github-actions[bot]</code>)</li>
+</ul>
+<h3 id="_10">커뮤니티 활동</h3>
+<p>최근 커밋 이력에서 10~20개 이상의 서로 다른 GitHub 계정이 기여(@razbenya, @SayanDey322, @juliosuas, @egrezeli 등). 주요 메인테이너는 @soxoj. v0.6.1(2026-05-15) 기준 매우 활발.</p>
+<hr />
+<h2 id="strengths">강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>완벽한 다중 진입점 설계</strong>: CLI, Python 라이브러리 API, Flask 웹 UI를 모두 지원하여 다양한 통합 시나리오에 대응. <code>maigret/__init__.py</code>에서 <code>search</code> 함수를 직접 노출해 프로그래밍 방식 임베딩이 용이.</p>
+</li>
+<li>
+<p><strong>강력한 비동기 아키텍처</strong>: <code>aiohttp</code> 기반 비동기 큐 실행으로 최대 100개 동시 연결을 관리하며 수백 개 사이트를 병렬 검사. 키보드 인터럽트(Ctrl+C) 시 부분 결과를 보존하는 세심한 SIGINT 핸들링 구현.</p>
+</li>
+<li>
+<p><strong>자동 갱신 사이트 데이터베이스</strong>: 실행 시 GitHub에서 메타 파일을 확인하고 24시간 간격으로 새 데이터베이스를 자동 다운로드. 오프라인 시 번들 DB로 폴백. Pre-commit 훅으로 기여자가 DB 메타데이터를 자동 재생성.</p>
+</li>
+<li>
+<p><strong>광범위한 배포 옵션</strong>: PyPI, Docker(CLI+Web 멀티 스테이지), Snap, Windows PyInstaller 독립 실행형, Google Cloud Shell, Colab 등 모든 주요 플랫폼과 실행 환경을 포괄. OIDC Trusted Publisher로 PyPI 배포 공급망 보안 강화.</p>
+</li>
+<li>
+<p><strong>포괄적인 리포트 형식</strong>: HTML, PDF, CSV, TXT, JSON(simple/ndjson), XMind 마인드맵, D3 그래프, Markdown 등 8가지 이상의 리포트 형식 지원. Jinja2 템플릿 기반으로 확장 용이.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-and-areas-for-improvement">위험/개선 필요 사항 / Risks and Areas for Improvement</h2>
+<ol>
+<li>
+<p><strong><code>checking.py</code> 과밀집(God Module)</strong>: 1644줄에 HTTP 검사 로직, 오류 분류, 활성화 메커니즘, Cloudflare 우회 설정 빌더, SIGINT 핸들링까지 혼재. 기능 추가 시 복잡도가 기하급수적으로 증가할 위험. 체커 클래스별 파일 분리 권장.</p>
+</li>
+<li>
+<p><strong>SECURITY.md 부재</strong>: 취약점 신고 방법, 연락처, 지원 버전, CVE 처리 프로세스가 명시되어 있지 않음. OSINT 도구 특성상 악용 가능성이 있는 취약점 신고 경로 확보가 중요. GitHub Security Advisories 설정 권장.</p>
+</li>
+<li>
+<p><strong>테스트 커버리지 하한선(60%)</strong>: CI에서 60%를 강제하나, OSINT 검사 로직의 복잡성을 감안하면 낮은 편. 특히 <code>checking.py</code>의 각 체커 클래스, Cloudflare 우회 로직, 재귀 검색 경로에 대한 단위 테스트 보강 필요.</p>
+</li>
+<li>
+<p><strong>Docker 기본값 <code>FLASK_HOST=0.0.0.0</code></strong>: 웹 이미지에서 모든 인터페이스 바인딩. 로컬 Docker 실행 시 포트가 열려 있으면 네트워크 내 다른 호스트에서 접근 가능. 기본값을 <code>127.0.0.1</code>로 변경하거나 문서화를 강화할 필요.</p>
+</li>
+<li>
+<p><strong>의존성 수 과다</strong>: <code>pyproject.toml</code>에 40개 이상의 런타임 의존성. <code>mock</code>, <code>six</code>, <code>future</code>와 같은 구 호환성 패키지가 아직 잔존. Python 3.10+만 지원하므로 <code>six</code>, <code>future</code>, <code>mock</code>(Python 3 내장으로 대체 가능) 등 레거시 의존성 정리 여지가 있음.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h2>
+<p><strong>종합 평가: 도입 권장 (Production-Ready Open Source)</strong></p>
+<p>Maigret는 OSINT 분야에서 가장 성숙한 사용자명 검색 도구 중 하나입니다. 다음 용도에 적합합니다:</p>
+<table>
+<thead>
+<tr>
+<th>도입 목적</th>
+<th>적합도</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OSINT 조사 도구로 직접 사용</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td>CLI/웹 UI 모두 즉시 사용 가능</td>
+</tr>
+<tr>
+<td>Python 프로젝트에 라이브러리로 내장</td>
+<td>⭐⭐⭐⭐⭐</td>
+<td><code>from maigret import search</code> API 안정적</td>
+</tr>
+<tr>
+<td>상업적 OSINT 플랫폼 빌딩 블록</td>
+<td>⭐⭐⭐⭐</td>
+<td>MIT 라이선스, 기존 상업 활용 사례 있음</td>
+</tr>
+<tr>
+<td>보안 연구/레드팀 정찰 도구</td>
+<td>⭐⭐⭐⭐</td>
+<td>Tor/Proxy 지원, 대규모 사이트 커버리지</td>
+</tr>
+<tr>
+<td>아키텍처 벤치마킹</td>
+<td>⭐⭐⭐⭐</td>
+<td>비동기 OSINT 도구 설계 참고 가능</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주의사항</strong>:
+- 법적/윤리적 사용 의무: GDPR, CCPA 등 개인정보보호법 준수 책임은 사용자에게 있음
+- 프로덕션 배포 시 <code>FLASK_HOST</code> 및 Flask Secret Key 환경변수 명시적 설정 필요
+- 사이트 데이터베이스의 검사 정확도는 사이트 정책 변경에 따라 지속 유지보수가 필요함 (커뮤니티 기여 모델에 의존)</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>soxoj/maigret</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/soxoj/maigret" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

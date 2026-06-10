@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>addyosmani/agent-skills - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/addyosmani/agent-skills" target="_blank" rel="noopener">addyosmani/agent-skills</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Production-grade engineering skills for AI coding agents.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Shell</span>
+      <span class="badge badge-stars">★ 51066</span>
+      <span class="badge badge-stars">+781 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-11
+분석 대상: <code>/tmp/github-dashboard-analysis/addyosmani_agent-skills</code></p>
+<hr />
+<h1 id="agent-skills-source-analysis-report">agent-skills — 소스 분석 보고서 / Source Analysis Report</h1>
+<h2 id="project-overview">프로젝트 개요 / Project Overview</h2>
+<p><strong>agent-skills</strong>는 AI 코딩 에이전트(Claude Code, Cursor, Gemini CLI, Windsurf, OpenCode, GitHub Copilot, Kiro IDE 등)를 위한 프로덕션급 엔지니어링 스킬 컬렉션입니다. 각 스킬은 Google 엔지니어링 관행(Software Engineering at Google, eng-practices guide)을 기반으로 한 구조화된 워크플로우로, AI 에이전트가 소프트웨어 개발 전 단계에 걸쳐 따를 수 있는 프로세스를 정의합니다.</p>
+<p><strong>agent-skills</strong> is a production-grade collection of engineering skills for AI coding agents (Claude Code, Cursor, Gemini CLI, Windsurf, OpenCode, GitHub Copilot, Kiro IDE, etc.). Each skill encodes a structured workflow grounded in Google engineering practices, defining verifiable processes AI agents can follow across all phases of software development.</p>
+<hr />
+<h2 id="analysis-summary-table">분석 요약표 / Analysis Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적 (Purpose)</strong></td>
+<td>AI 코딩 에이전트를 위한 23개의 프로덕션급 엔지니어링 스킬 + 3개 에이전트 페르소나 + 7개 슬래시 커맨드. Define→Plan→Build→Verify→Review→Ship의 전체 SDLC를 커버. 단순 참고 문서가 아닌, 에이전트가 실행 가능한 워크플로우 모음.</td>
+<td>★★★★★ 명확하고 구체적인 목적. 도구 중립적(multi-IDE) 설계.</td>
+</tr>
+<tr>
+<td><strong>구조 (Structure)</strong></td>
+<td><code>skills/</code>(23), <code>agents/</code>(3), <code>hooks/</code>(10), <code>.claude/commands/</code>(7), <code>references/</code>(5), <code>docs/</code>(7). 기능 지향(function-oriented) 구조. 단일 저장소(single repo). 코드와 운영 자산이 명확히 분리되어 있음. 각 스킬은 독립 디렉터리에 <code>SKILL.md</code> 파일로 존재.</td>
+<td>★★★★★ 계층이 얕고 탐색이 쉬우며, 컨벤션이 엄격히 적용됨.</td>
+</tr>
+<tr>
+<td><strong>스택 (Stack)</strong></td>
+<td>주 언어: Markdown. 검증 스크립트: Node.js(scripts/validate-skills.js). Shell(hooks/*.sh). YAML frontmatter(스킬 메타데이터). 외부 프레임워크/라이브러리 의존성 없음. 빌드 도구: 불필요(문서 프로젝트). <code>package.json</code> 없음.</td>
+<td>★★★★☆ 의존성 최소화는 장점이나, Node.js 버전 고정 파일(.nvmrc 등) 부재.</td>
+</tr>
+<tr>
+<td><strong>진입점 (Entry Points)</strong></td>
+<td>1) Claude Code: <code>.claude/commands/*.md</code> 슬래시 커맨드 + <code>hooks/session-start.sh</code> 자동 주입. 2) Gemini CLI: <code>.gemini/commands/*.toml</code>. 3) OpenCode: <code>AGENTS.md</code> 인텐트 매핑. 4) Cursor/Windsurf/Copilot: <code>docs/</code> 수동 셋업 가이드. 5) 범용: <code>skills/using-agent-skills/SKILL.md</code> 메타-스킬.</td>
+<td>★★★★★ 다중 IDE 진입점이 잘 문서화됨. 세션 시작 훅으로 자동 활성화.</td>
+</tr>
+<tr>
+<td><strong>아키텍처 (Architecture)</strong></td>
+<td>게이트 워크플로우(Gated Workflow) 패턴: 각 스킬은 단계별 검증 게이트를 포함. 3계층 경계 시스템(Always do / Ask first / Never do). 5축 코드 리뷰(정확성, 가독성, 아키텍처, 보안, 성능). 팬아웃 오케스트레이션(<code>/ship</code>은 3개 페르소나 병렬 실행). Prove-It 패턴(버그 재현 → 실패 확인 → 수정 → 통과 확인). 각 스킬에 안티-합리화(Anti-rationalization) 섹션 내장.</td>
+<td>★★★★★ Google 엔지니어링 관행 기반. 검증 불가능한 조언 배제. 에이전트 실패 모드를 명시적으로 다룸.</td>
+</tr>
+<tr>
+<td><strong>데이터 (Data)</strong></td>
+<td>상태 없음(Stateless). 영구 저장소 없음. 스킬 정의는 정적 Markdown. SDD 캐시(hooks/sdd-cache-pre.sh/post.sh)가 유일한 런타임 상태로, Markdown 문서 캐싱에만 사용.</td>
+<td>★★★★★ 데이터 레이어 없음이 적절. 문서 프로젝트에서 복잡성을 최소화.</td>
+</tr>
+<tr>
+<td><strong>배포 (Deployment)</strong></td>
+<td>GitHub Actions 1개 워크플로우(<code>.github/workflows/test-plugin-install.yml</code>): 스킬 유효성 검사 → 플러그인 구조 검증 → 플러그인 설치 테스트. Claude Code 플러그인(<code>claude plugin install agent-skills@addy-agent-skills</code>) 및 Kiro IDE 스킬로 배포 가능. MIT 라이선스로 무제한 배포.</td>
+<td>★★★★☆ CI 파이프라인 존재하나 단계가 단순. 릴리스 자동화(태깅, 버전 관리) 미구현.</td>
+</tr>
+<tr>
+<td><strong>테스트 (Testing)</strong></td>
+<td>단위 수준: <code>hooks/session-start-test.sh</code>(JSON 페이로드 검증), <code>hooks/sdd-cache-test.sh</code>, <code>hooks/simplify-ignore-test.sh</code>. 검증 스크립트: <code>scripts/validate-skills.js</code>(YAML frontmatter 유효성 검사). GitHub Actions에서 자동 실행. 코드 커버리지 도구 없음(해당 없음 — 쉘 스크립트).</td>
+<td>★★★☆☆ 훅 테스트는 충실하나, 스킬 콘텐츠 품질(링크, 섹션 완전성) 자동 검증 미흡.</td>
+</tr>
+<tr>
+<td><strong>보안 (Security)</strong></td>
+<td>SECURITY.md: 없음. Dependabot/Renovate: 없음(외부 의존성 없어 실질적 필요도 낮음). 시크릿 관리: 불필요(런타임 시크릿 없음). SBOM: 없음. 라이선스: MIT(단독). <code>security-and-hardening</code> 스킬 내 OWASP Top 10 + OWASP LLM Top 10 커버리지. <code>security-auditor</code> 에이전트 페르소나 포함.</td>
+<td>★★★☆☆ 프로젝트 자체 보안 정책(SECURITY.md) 부재. 의존성이 없어 공급망 위험은 낮음.</td>
+</tr>
+<tr>
+<td><strong>성숙도 (Maturity)</strong></td>
+<td>MIT 라이선스(2025 Addy Osmani). CONTRIBUTING.md 완비. 커뮤니티 헬스 파일 부분 구비(CODE_OF_CONDUCT 없음). PR/이슈 템플릿: 없음. 변경 로그: 없음. 다중 IDE 지원으로 광범위한 생태계 커버. <code>session-start.sh</code>로 에이전트 자동 활성화. 저자: Google Chrome DevRel 팀 리드(Addy Osmani).</td>
+<td>★★★★☆ 기술적 성숙도 높음. 커뮤니티 프로세스(CoC, PR 템플릿, CHANGELOG) 일부 미비.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>검증 가능한 워크플로우 설계 (Verifiable Workflow Design)</strong><br />
+   모든 23개 스킬은 "Common Rationalizations"(합리화 방지) + "Red Flags"(위험 신호) + "Verification"(증거 요구) 섹션을 포함하여, AI 에이전트가 단계를 건너뛰거나 부정확한 결과를 내는 것을 구조적으로 방지합니다. 단순한 조언이 아닌 실행 가능한 프로세스로 구성된 것이 핵심 차별점입니다.</p>
+</li>
+<li>
+<p><strong>다중 IDE 에코시스템 지원 (Multi-IDE Ecosystem Coverage)</strong><br />
+   Claude Code(플러그인/훅/슬래시 커맨드), Cursor, Gemini CLI(TOML 커맨드), Windsurf, OpenCode(AGENTS.md), GitHub Copilot, Kiro IDE, Codex 등 8개 이상의 AI 코딩 도구를 단일 저장소에서 지원합니다. 각 도구별 셋업 가이드가 <code>docs/</code>에 완비되어 있습니다.</p>
+</li>
+<li>
+<p><strong>Google 엔지니어링 관행 기반 (Google Engineering Practice Foundation)</strong><br />
+   Hyrum's Law, Chesterton's Fence, Beyoncé Rule, Rule of 500, 트렁크 기반 개발, Shift Left, OWASP Top 10, Core Web Vitals 등 검증된 엔지니어링 원칙을 스킬 전반에 체계적으로 통합했습니다. 이는 에이전트가 산업 표준 관행을 따르도록 보장합니다.</p>
+</li>
+<li>
+<p><strong>오케스트레이션 패턴의 명시적 정의 (Explicit Orchestration Patterns)</strong><br />
+<code>references/orchestration-patterns.md</code>와 <code>AGENTS.md</code>는 페르소나 간 통신 규칙(단일 역할, 페르소나 간 직접 호출 금지, 병렬 팬아웃 허용)을 명확히 정의합니다. <code>/ship</code> 커맨드의 3개 페르소나 병렬 실행은 복잡한 에이전트 팀 오케스트레이션의 실용적 예시입니다.</p>
+</li>
+<li>
+<p><strong>컨텐츠 경계의 엄격한 관리 (Strict Content Boundary Management)</strong><br />
+   100줄 초과 시만 지원 파일 생성, 기술 정보 금지(SKILL.md는 행동 변경 내용만), 스킬 간 중복 금지 등의 컨벤션이 토큰 효율성과 유지보수성을 동시에 높입니다. 이는 AI 에이전트의 컨텍스트 윈도우를 효과적으로 활용하기 위한 의도적 설계입니다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvement-areas">위험 / 개선 필요 사항 / Risks &amp; Improvement Areas</h2>
+<ol>
+<li>
+<p><strong>SECURITY.md 및 커뮤니티 헬스 파일 부재 (Missing SECURITY.md and Community Health Files)</strong><br />
+   보안 취약점 보고 절차(<code>SECURITY.md</code>), 행동 강령(<code>CODE_OF_CONDUCT.md</code>), PR/이슈 템플릿이 없습니다. 오픈소스 프로젝트로서 기여자와 사용자를 위한 커뮤니티 인프라가 미흡합니다. GitHub의 커뮤니티 헬스 체크리스트에서 낮은 점수를 받을 가능성이 있습니다.</p>
+</li>
+<li>
+<p><strong>변경 로그 및 버전 관리 전략 부재 (No Changelog or Versioning Strategy)</strong><br />
+<code>CHANGELOG.md</code>가 없고 릴리스 태깅 전략이 문서화되어 있지 않습니다. 스킬이 변경될 때 어떤 버전의 Claude Code 플러그인이 어떤 스킬 내용을 포함하는지 추적하기 어렵습니다. 사용자가 스킬 업데이트 내용을 파악하기 위해 git log를 직접 확인해야 합니다.</p>
+</li>
+<li>
+<p><strong>스킬 콘텐츠 품질의 자동 검증 한계 (Limited Automated Content Quality Validation)</strong><br />
+<code>scripts/validate-skills.js</code>는 YAML frontmatter의 존재 여부만 검증합니다. 필수 섹션(Overview, When to Use, Process, Common Rationalizations, Red Flags, Verification)의 완전성, 스킬 간 상호 참조의 유효성, 링크 깨짐 등을 자동으로 검사하지 않습니다. 스킬 품질 저하를 자동으로 감지하는 메커니즘이 부족합니다.</p>
+</li>
+<li>
+<p><strong>Node.js 버전 고정 파일 미존재 (No Node.js Version Pinning)</strong><br />
+   검증 스크립트가 Node.js를 사용하지만 <code>.nvmrc</code>, <code>.node-version</code>, 또는 <code>package.json</code>의 <code>engines</code> 필드가 없어 버전 불일치로 인한 CI 실패 가능성이 있습니다. 특히 다른 기여자 환경에서의 재현성이 보장되지 않습니다.</p>
+</li>
+<li>
+<p><strong>스킬 발견 의존성 (Skill Discovery Dependency on Session Hook)</strong><br />
+<code>hooks/session-start.sh</code>가 <code>using-agent-skills</code> 메타 스킬을 모든 세션에 자동 주입하는 방식은 편리하지만, Claude Code 외 다른 IDE에서는 수동 셋업이 필요합니다. 또한 hooks.json 포맷 변경이나 Claude Code API 업데이트 시 자동 스킬 주입이 조용히 실패할 수 있으며, 실패 감지 메커니즘이 부족합니다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h2>
+<p><strong>기술 도입 / Technology Adoption</strong> ★★★★★<br />
+AI 코딩 에이전트를 활용하는 개발팀이라면 즉시 도입을 권장합니다. 특히 Claude Code, Cursor, Gemini CLI 사용자에게 가장 높은 가치를 제공합니다. MIT 라이선스로 상업적 사용도 자유롭습니다.</p>
+<p><strong>아키텍처 벤치마킹 / Architectural Benchmarking</strong> ★★★★★<br />
+에이전트 스킬 시스템을 직접 구축하려는 팀에게 이 저장소는 최상의 참조 구현입니다. 게이트 워크플로우, 안티-합리화 패턴, 3계층 경계 시스템, 팬아웃 오케스트레이션 등은 모두 독립적으로 참고할 가치가 있는 설계 패턴입니다.</p>
+<p><strong>기여 준비도 / Contribution Readiness</strong> ★★★★☆<br />
+<code>CONTRIBUTING.md</code>가 명확하고 스킬 품질 기준이 잘 정의되어 있습니다. 다만 PR 템플릿과 이슈 트래커 가이드라인이 없어 초기 기여자의 마찰이 다소 있을 수 있습니다. <code>CODE_OF_CONDUCT.md</code> 추가를 권장합니다.</p>
+<p><strong>운영 성숙도 / Operational Maturity</strong> ★★★★☆<br />
+CI 파이프라인이 존재하고 핵심 훅에 대한 회귀 테스트가 있습니다. 프로덕션 사용을 위해서는 릴리스 버전 관리와 CHANGELOG 자동화 추가를 권장합니다.</p>
+<blockquote>
+<p><strong>종합 결론</strong>: agent-skills는 AI 코딩 에이전트의 품질과 일관성을 높이기 위한 실용적이고 즉시 사용 가능한 솔루션입니다. Google 엔지니어링 관행에 기반한 검증된 프로세스와 광범위한 IDE 생태계 지원이 핵심 강점입니다. 커뮤니티 거버넌스 파일 보강과 스킬 콘텐츠 자동 검증 강화를 통해 오픈소스 프로젝트로서의 완성도를 높일 수 있습니다.</p>
+<p><strong>Overall</strong>: agent-skills is a practical, immediately deployable solution for improving the quality and consistency of AI coding agent workflows. Its key strengths are validated processes rooted in Google engineering practices and broad IDE ecosystem support. Strengthening community governance files and automated content validation would further mature it as an open-source project.</p>
+</blockquote></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>addyosmani/agent-skills</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/addyosmani/agent-skills" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
