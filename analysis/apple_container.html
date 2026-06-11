@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>apple/container - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/apple/container" target="_blank" rel="noopener">apple/container</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A tool for creating and running Linux containers using lightweight virtual machines on a Mac. It is written in Swift, and optimized for Apple silicon.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Swift</span>
+      <span class="badge badge-stars">★ 31606</span>
+      <span class="badge badge-stars">+2,419 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 충분한 정보가 수집되었습니다. 최종 보고서를 작성합니다.</p>
+<hr />
+<p>분석일: 2026-06-12
+분석 대상: <code>/tmp/github-dashboard-analysis/apple_container</code></p>
+<hr />
+<h1 id="review-source-applecontainer">REVIEW-Source: apple/container 소스 분석 보고서</h1>
+<h2 id="_1">📋 프로젝트 개요 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>Apple Silicon Mac에서 OCI 호환 Linux 컨테이너를 경량 VM으로 실행하는 CLI 도구</td>
+<td>★★★★★ — 명확하고 혁신적인 접근 방식</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 Swift 패키지 모노리포. <code>Sources/</code> 20개 모듈, <code>Tests/</code> 15개 테스트 대상, <code>docs/</code>, <code>signing/</code>, <code>scripts/</code> 분리</td>
+<td>★★★★★ — 역할 분리가 명확하고 일관적</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Swift 6.2 / Swift PM, macOS 15+ (Apple silicon 필수), gRPC+Protobuf, Swift NIO, XPC, Virtualization 프레임워크, vmnet</td>
+<td>★★★★☆ — 최신 Swift 동시성(async/await) 완전 채택; 플랫폼 종속성은 설계상 의도적</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>Sources/CLI/ContainerCLI.swift</code> → <code>Application.swift</code> (ArgumentParser). 데몬: <code>Sources/APIServer</code> (<code>container-apiserver</code>), 플러그인: <code>Sources/Plugins/{RuntimeLinux,NetworkVmnet,CoreImages,MachineAPIServer}</code></td>
+<td>★★★★★ — 클라이언트·서버·플러그인 경계가 명시적으로 분리</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>CLI → XPC → API 서버 → XPC 플러그인 계층 구조. 각 컨테이너마다 독립 VM(<code>container-runtime-linux</code>). Client/Server 패턴을 모듈 단위로 분리 (ContainerAPIClient ↔ ContainerAPIService, ContainerNetworkClient ↔ ContainerNetworkServer 등)</td>
+<td>★★★★★ — VM-per-container 보안 모델과 플러그인 아키텍처가 독창적</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>파일시스템 기반 영속성 (ContainerPersistence). TOML 설정 (<code>~/.config/container/config.toml</code>). OCI 이미지·레이어 콘텐츠 스토어. EXT4 볼륨. keychain 기반 레지스트리 자격증명</td>
+<td>★★★★☆ — DB 없이 파일 기반 단순화; 볼륨 저널 관리 존재</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>macOS 서명된 <code>.pkg</code> 인스톨러 + Launchd 에이전트. CI: GitHub Actions (Self-hosted macOS ARM64 러너). 릴리스: 태그 기반 자동화(<code>0.x.x</code> 패턴). Makefile 기반 빌드 파이프라인</td>
+<td>★★★★☆ — SBOM·컨테이너 이미지 서명 없음이 아쉬움</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>단위 테스트 + 통합 테스트 (<code>make test</code> / <code>make integration</code>). llvm-cov 기반 커버리지 리포트(JSON+HTML). PR마다 커버리지 코멘트 자동화. 15개 테스트 대상</td>
+<td>★★★★☆ — 통합 테스트가 실제 VM 실행을 포함; 커버리지 수치는 CI 빌드에서만 확인 가능</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 존재 (7일 이내 응답 SLA). GitHub Private Vulnerability Reporting. 커밋 서명 필수 (PR-build 워크플로우 검증). macOS entitlements 최소 권한(<code>com.apple.security.virtualization</code>만). hawkeye로 라이선스 헤더 강제</td>
+<td>★★★★☆ — Dependabot은 GitHub Actions만 관리; Swift 의존성 자동 취약점 스캔 미존재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>Apache 2.0 라이선스. CONTRIBUTING, MAINTAINERS, CODE_OF_CONDUCT (상위 저장소 참조). 이슈/PR 템플릿, Labeler 자동화. swift-format + 사전 커밋 훅. DocC 문서 자동 게시. 버전은 0.x.x (pre-1.0, 패치 내 안정성 보장)</td>
+<td>★★★★☆ — 공개 초기 단계이지만 운영 인프라는 성숙함</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-step-1">1. 목적 및 범위 (Step 1)</h2>
+<p><strong>EN:</strong> <code>container</code> is a CLI tool developed by Apple that runs Linux containers as individual lightweight virtual machines on macOS (Apple silicon). Unlike Docker Desktop's shared-VM model, each container runs in its own VM using Apple's Virtualization framework, maximizing security isolation and per-container memory privacy. The tool is OCI-compatible — images can be pulled from/pushed to any standard registry and run in any OCI-compatible runtime.</p>
+<p><strong>KO:</strong> <code>container</code>는 Apple이 개발한 macOS용 Linux 컨테이너 실행 CLI 도구로, 각 컨테이너를 독립적인 경량 가상 머신(VM)으로 구동합니다. Docker Desktop의 공유 VM 방식과 달리 VM-per-container 설계를 채택하여 컨테이너 간 격리를 VM 수준으로 끌어올렸습니다. OCI 표준을 완전 준수하므로 기존 레지스트리 이미지를 그대로 사용할 수 있습니다.</p>
+<ul>
+<li><strong>대상 사용자:</strong> macOS Apple silicon 사용자, 특히 Linux 컨테이너를 개발·테스트하는 백엔드 개발자</li>
+<li><strong>프로젝트 유형:</strong> CLI 도구 + 시스템 데몬 + Swift 라이브러리 모음</li>
+</ul>
+<hr />
+<h2 id="2-step-2">2. 저장소 구조 (Step 2)</h2>
+<pre><code>apple_container/
+├── Sources/                  # 20개 Swift 모듈 (라이브러리 + 실행 파일)
+│   ├── CLI/                  # container CLI 진입점
+│   ├── ContainerCommands/    # 모든 CLI 서브커맨드 (Container, Image, Volume, Machine, Network 등)
+│   ├── APIServer/            # container-apiserver 데몬 (런치 에이전트)
+│   ├── Services/             # Client/Server 쌍 모듈
+│   │   ├── ContainerAPIService/{Client,Server}
+│   │   ├── ContainerImagesService/{Client,Server}
+│   │   ├── Network/{Client,Server}, NetworkVmnet/Server
+│   │   ├── Runtime/RuntimeClient
+│   │   ├── RuntimeLinux/{Client,Server}
+│   │   └── MachineAPIService/{Client,Server}
+│   ├── Plugins/              # XPC 플러그인 실행 파일
+│   │   ├── RuntimeLinux/     # container-runtime-linux (컨테이너당 1개 프로세스)
+│   │   ├── NetworkVmnet/     # container-network-vmnet (vmnet 네트워크 관리)
+│   │   ├── CoreImages/       # container-core-images (OCI 이미지/콘텐츠 스토어)
+│   │   └── MachineAPIServer/ # machine-apiserver (macOS VM 관리)
+│   ├── ContainerBuild/       # Dockerfile 빌드 (gRPC → container-builder-shim)
+│   ├── ContainerPersistence/ # TOML 설정 및 파일시스템 영속성
+│   ├── ContainerPlugin/      # 플러그인 로더/팩토리/서비스 관리자
+│   ├── ContainerResource/    # 도메인 모델 (컨테이너, 볼륨, 네트워크 설정 등)
+│   ├── ContainerXPC/         # XPC 클라이언트/서버 추상화
+│   ├── DNSServer/            # Swift NIO 기반 DNS 서버
+│   ├── SocketForwarder/      # TCP/UDP 포트 포워딩 (NIO)
+│   ├── TerminalProgress/     # CLI 진행 표시줄
+│   ├── ContainerLog/         # 로깅 유틸리티
+│   ├── ContainerOS/          # macOS 시스템 인터페이스 (디렉토리 감시자 등)
+│   ├── ContainerVersion/     # 버전 정보 관리
+│   ├── CAuditToken/          # C 언어 audit token 바인딩 (XPC 인증)
+│   └── CVersion/             # C 언어 버전 상수
+├── Tests/                    # 15개 테스트 타겟
+├── docs/                     # 기술 문서, 튜토리얼, 커맨드 레퍼런스
+├── signing/                  # macOS entitlements 파일
+├── scripts/                  # 빌드 보조 스크립트 (install-hawkeye, protobuf gen 등)
+├── examples/                 # 예제 (container-machine-vscode 등)
+├── assets/                   # 로고/이미지
+├── .github/                  # CI 워크플로우, 이슈/PR 템플릿, Dependabot
+├── Package.swift             # Swift 패키지 매니페스트 (swift-tools-version 6.2)
+├── Package.resolved          # 의존성 잠금 파일
+├── Makefile                  # 빌드, 테스트, 커버리지, 포매팅, 배포 자동화
+└── Protobuf.Makefile         # Protobuf/gRPC 코드 생성
+</code></pre>
+<p><strong>구조 특성:</strong>
+- <strong>단일 저장소(monoRepo)</strong> — CLI, 데몬, 플러그인, 라이브러리가 하나의 Swift 패키지
+- 기능 지향(function-oriented) + 도메인 지향 혼합 구조
+- Client/Server 모듈 쌍 패턴이 모든 서비스에 일관 적용
+- 코드와 운영 자산(signing, scripts, docs)이 명확히 분리</p>
+<hr />
+<h2 id="3-step-3">3. 소프트웨어 스택 (Step 3)</h2>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>구성 요소</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Swift</td>
+<td>6.2 (swift-tools-version)</td>
+</tr>
+<tr>
+<td><strong>최소 플랫폼</strong></td>
+<td>macOS</td>
+<td>15.0 (권장: macOS 26)</td>
+</tr>
+<tr>
+<td><strong>필수 하드웨어</strong></td>
+<td>Apple silicon (ARM64)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>빌드 도구</strong></td>
+<td>Swift Package Manager + GNU Make</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>주요 프레임워크</strong></td>
+<td>Apple Virtualization.framework, vmnet, XPC, Launchd, Keychain</td>
+<td>macOS 시스템</td>
+</tr>
+<tr>
+<td><strong>RPC</strong></td>
+<td>gRPC Swift 2 (grpc-swift-2, grpc-swift-nio-transport, grpc-swift-protobuf)</td>
+<td>2.3.0 / 2.4.4 / 2.2.0</td>
+</tr>
+<tr>
+<td><strong>직렬화</strong></td>
+<td>Swift Protobuf</td>
+<td>1.36.0</td>
+</tr>
+<tr>
+<td><strong>비동기 I/O</strong></td>
+<td>Swift NIO (NIOCore, NIOPosix, NIOFoundationCompat)</td>
+<td>2.98.0</td>
+</tr>
+<tr>
+<td><strong>HTTP 클라이언트</strong></td>
+<td>AsyncHTTPClient</td>
+<td>1.26.1</td>
+</tr>
+<tr>
+<td><strong>CLI</strong></td>
+<td>swift-argument-parser</td>
+<td>1.7.0</td>
+</tr>
+<tr>
+<td><strong>설정</strong></td>
+<td>swift-toml, swift-configuration, swift-configuration-toml</td>
+<td>2.0.0 / 1.2.0</td>
+</tr>
+<tr>
+<td><strong>YAML</strong></td>
+<td>Yams</td>
+<td>6.2.1</td>
+</tr>
+<tr>
+<td><strong>컬렉션</strong></td>
+<td>swift-collections, swift-algorithms</td>
+<td>1.5.0 / 1.2.1</td>
+</tr>
+<tr>
+<td><strong>암호화/TLS</strong></td>
+<td>swift-crypto, swift-certificates, swift-asn1, swift-nio-ssl</td>
+<td>다수</td>
+</tr>
+<tr>
+<td><strong>로깅</strong></td>
+<td>swift-log</td>
+<td>1.10.1</td>
+</tr>
+<tr>
+<td><strong>압축</strong></td>
+<td>zstd</td>
+<td>1.5.7</td>
+</tr>
+<tr>
+<td><strong>문서화</strong></td>
+<td>swift-docc-plugin (DocC)</td>
+<td>1.4.5</td>
+</tr>
+<tr>
+<td><strong>포매팅</strong></td>
+<td>swift-format (내장 Swift 도구)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>라이선스 헤더</strong></td>
+<td>hawkeye</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>컨테이너화 기반</strong></td>
+<td>apple/containerization</td>
+<td>0.33.4 (exact pin)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-step-4">4. 아키텍처 분석 (Step 4)</h2>
+<h3 id="_2">진입점</h3>
+<table>
+<thead>
+<tr>
+<th>실행 파일</th>
+<th>경로</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>container</code></td>
+<td><code>Sources/CLI/ContainerCLI.swift</code></td>
+<td>사용자 향 CLI</td>
+</tr>
+<tr>
+<td><code>container-apiserver</code></td>
+<td><code>Sources/APIServer/</code></td>
+<td>런치 에이전트 (핵심 데몬)</td>
+</tr>
+<tr>
+<td><code>container-runtime-linux</code></td>
+<td><code>Sources/Plugins/RuntimeLinux/</code></td>
+<td>컨테이너당 1개 XPC 플러그인</td>
+</tr>
+<tr>
+<td><code>container-network-vmnet</code></td>
+<td><code>Sources/Plugins/NetworkVmnet/</code></td>
+<td>네트워크 관리 XPC 플러그인</td>
+</tr>
+<tr>
+<td><code>container-core-images</code></td>
+<td><code>Sources/Plugins/CoreImages/</code></td>
+<td>OCI 이미지/콘텐츠 스토어 XPC 플러그인</td>
+</tr>
+<tr>
+<td><code>machine-apiserver</code></td>
+<td><code>Sources/Plugins/MachineAPIServer/</code></td>
+<td>macOS VM 관리 XPC 플러그인</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">아키텍처 패턴</h3>
+<pre><code>사용자
+  │
+  ▼
+[container CLI]
+  │  XPC (ContainerXPC)
+  ▼
+[container-apiserver]  ←→  [container-core-images]  (OCI 이미지 관리)
+  │  XPC                 XPC
+  │                      
+  ├──[container-network-vmnet]  (vmnet 가상 네트워크)
+  │
+  └──[container-runtime-linux] × N  (컨테이너당 1개, VM 생명주기 관리)
+        │
+        ▼
+    [Linux VM per Container]  ← Apple Virtualization.framework
+</code></pre>
+<ul>
+<li><strong>통신 패턴:</strong> CLI ↔ 데몬 = XPC (Unix 도메인 소켓), 빌더 ↔ shim = gRPC over HTTP/2</li>
+<li><strong>아키텍처 스타일:</strong> Plug-in 기반 마이크로서비스 아키텍처 (macOS 전용). Client/Server 이중 모듈 패턴.</li>
+<li><strong>상태 관리:</strong> 파일시스템 기반 (ContainerPersistence) — 컨테이너, 볼륨, 네트워크 메타데이터를 TOML/JSON으로 디스크에 저장</li>
+<li><strong>동시성 모델:</strong> Swift 6 strict concurrency — <code>Sendable</code>, <code>actor</code>, <code>nonisolated(unsafe)</code> 사용</li>
+<li><strong>VM-per-container:</strong> 핵심 설계 결정. 각 컨테이너는 독립 Virtualization.framework VM으로 실행 → 컨테이너 간 완전 격리</li>
+</ul>
+<h3 id="_4">모듈 의존성 그래프 (핵심)</h3>
+<pre><code>container (CLI)
+  └─ ContainerCommands
+       ├─ ContainerAPIClient ←── ContainerXPC, ContainerResource, ContainerPersistence
+       ├─ ContainerBuild     ←── gRPC, swift-nio
+       ├─ ContainerPlugin    ←── ContainerVersion, swift-toml
+       └─ TerminalProgress
+
+container-apiserver
+  └─ ContainerAPIService
+       ├─ ContainerPlugin (XPC 플러그인 생명주기)
+       ├─ ContainerRuntimeClient
+       ├─ ContainerNetworkClient
+       └─ DNSServer (swift-nio 기반 DNS)
+</code></pre>
+<hr />
+<h2 id="5-step-5">5. 품질 및 테스트 시스템 (Step 5)</h2>
+<h3 id="_5">테스트 구성</h3>
+<table>
+<thead>
+<tr>
+<th>타겟</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CLITests</code></td>
+<td>CLI 헬프 및 통합 시나리오 (실제 API 호출 포함)</td>
+</tr>
+<tr>
+<td><code>ContainerAPIClientTests</code></td>
+<td>아키텍처, DNS, 파서, 유틸리티 단위 테스트</td>
+</tr>
+<tr>
+<td><code>ContainerBuildTests</code></td>
+<td>Dockerfile 빌드파일 파싱, Globber, 빌더 확장</td>
+</tr>
+<tr>
+<td><code>ContainerResourceTests</code></td>
+<td>컨테이너 설정, 볼륨, 네트워크, 레지스트리 리소스</td>
+</tr>
+<tr>
+<td><code>ContainerPersistenceTests</code></td>
+<td>설정 로더, 파일시스템 엔티티 스토어, 경로 유틸</td>
+</tr>
+<tr>
+<td><code>ContainerPluginTests</code></td>
+<td>플러그인 팩토리, 로더, 설정</td>
+</tr>
+<tr>
+<td><code>DNSServerTests</code></td>
+<td>컴포지트/호스트테이블/NxDomain 리졸버, 쿼리 검증</td>
+</tr>
+<tr>
+<td><code>SocketForwarderTests</code></td>
+<td>TCP/UDP 포워더, LRU 캐시, 레이스 컨디션 테스트</td>
+</tr>
+<tr>
+<td><code>ContainerNetworkServerTests</code></td>
+<td>어태치먼트 할당자</td>
+</tr>
+<tr>
+<td><code>TerminalProgressTests</code></td>
+<td>진행 표시줄</td>
+</tr>
+<tr>
+<td><code>ContainerOSTests</code></td>
+<td>디렉토리 감시자</td>
+</tr>
+<tr>
+<td><code>ContainerVersionTests</code></td>
+<td>버전/실행파일 경로</td>
+</tr>
+<tr>
+<td><code>ContainerCommandsTests</code></td>
+<td>헬프 커맨드, 리스트 포매팅</td>
+</tr>
+<tr>
+<td><code>ContainerAPIServiceTests</code></td>
+<td>런타임 설정</td>
+</tr>
+</tbody>
+</table>
+<h3 id="cicd">CI/CD 파이프라인</h3>
+<pre><code>PR 제출
+  ├─ verify-signatures: 모든 커밋 GPG 서명 검증
+  └─ common.yml (self-hosted macOS ARM64):
+       ├─ swift-format 포매팅 체크 (hawkeye 라이선스 헤더 포함)
+       ├─ Protobuf 코드 일관성 검증
+       ├─ make container dsym docs (빌드)
+       ├─ make test integration (단위+통합 테스트)
+       ├─ llvm-cov 커버리지 리포트 생성 (JSON+HTML)
+       ├─ PR 커버리지 코멘트 자동 게시
+       └─ DocC 문서 GitHub Pages 배포
+
+태그 푸시 (x.y.z)
+  └─ release.yml: 서명된 .pkg 배포, Draft GitHub Release 생성
+</code></pre>
+<h3 id="_6">포매팅·린팅 도구</h3>
+<ul>
+<li><code>swift-format</code> — 4 스페이스 인덴트, 라인 길이 180, 엄격한 규칙 세트</li>
+<li><code>hawkeye</code> — Apache 2.0 라이선스 헤더 자동 검사/삽입</li>
+<li><code>make pre-commit</code> — pre-commit Git 훅 설치 지원</li>
+<li>warnings-as-errors 기본 활성화</li>
+</ul>
+<h3 id="_7">커버리지</h3>
+<ul>
+<li><code>llvm-cov export</code> + <code>jq</code> 기반 JSON 파싱</li>
+<li>단위/통합/결합 3종 커버리지 리포트 분리 생성</li>
+<li>PR마다 커버리지 퍼센트 자동 코멘트 (unit-line%, integration-line%, combined-line%)</li>
+<li>절대 커버리지 수치는 CI 실행 시에만 확인 가능 (저장소에 미포함)</li>
+</ul>
+<hr />
+<h2 id="6-step-6">6. 보안 및 공급망 (Step 6)</h2>
+<h3 id="_8">보안 정책</h3>
+<ul>
+<li><strong>SECURITY.md</strong> 존재: GitHub Private Vulnerability Reporting 활용</li>
+<li><strong>응답 SLA:</strong> 7일 이내 초기 응답</li>
+<li>Apple Security Bounty 비대상 (오픈소스 프로젝트)</li>
+<li>공개 CVE는 일반 이슈로 접수 가능</li>
+</ul>
+<h3 id="pr">커밋·PR 보안</h3>
+<ul>
+<li><strong>서명된 커밋 강제</strong>: <code>pr-build.yml</code>에서 모든 PR 커밋의 GPG 서명을 API로 검증 (<code>commit.verification.verified</code>)</li>
+<li>Actions 워크플로우에서 <code>actions/checkout</code>, <code>actions/upload-artifact</code>, <code>actions/download-artifact</code> 등 모두 <strong>SHA 핀닝</strong> 적용 (예: <code>de0fac2e4500dabe0009e67214ff5f5447ce83dd</code>)</li>
+</ul>
+<h3 id="macos">macOS 권한 최소화</h3>
+<ul>
+<li><code>signing/container-network-vmnet.entitlements</code>: <code>com.apple.security.virtualization</code>만 보유</li>
+<li><code>signing/container-runtime-linux.entitlements</code>: <code>com.apple.security.virtualization</code>만 보유</li>
+<li>XPC를 통한 macOS audit token 기반 IPC 인증 (<code>CAuditToken</code>)</li>
+<li>Keychain 서비스를 통한 레지스트리 자격증명 저장</li>
+</ul>
+<h3 id="_9">의존성 관리</h3>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>범위</th>
+<th>현황</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dependabot</td>
+<td>GitHub Actions 워크플로우만</td>
+<td>주간 자동 업데이트</td>
+</tr>
+<tr>
+<td>Swift PM 잠금 파일</td>
+<td><code>Package.resolved</code> (exact + from 혼합)</td>
+<td>수동 업데이트</td>
+</tr>
+<tr>
+<td><strong>Swift 패키지 취약점 스캔</strong></td>
+<td><strong>부재</strong></td>
+<td>⚠️ 개선 필요</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><code>containerization</code> 패키지는 <code>exact</code> 버전 고정 (0.33.4) — 예측 가능하나 보안 패치 자동 반영 불가</li>
+<li><strong>SBOM(Software Bill of Materials):</strong> 공식 생성 파이프라인 없음</li>
+<li><strong>아티팩트 서명:</strong> <code>.pkg</code> 배포물에 코드사이닝 적용 (Makefile: <code>--force --sign -</code>), 단 개발 빌드는 임시 서명</li>
+</ul>
+<h3 id="_10">라이선스</h3>
+<ul>
+<li><strong>주 라이선스:</strong> Apache 2.0</li>
+<li><strong>모든 의존성:</strong> Apache 2.0 또는 Apache 2.0 + Runtime Library Exception (MIT/BSD 없음)</li>
+<li><code>NOTICE.md</code>에 전체 의존성 라이선스 열거</li>
+<li><code>hawkeye</code> + <code>licenserc.toml</code>으로 소스 파일 헤더 강제</li>
+</ul>
+<hr />
+<h2 id="7-step-7">7. 문서 및 운영 성숙도 (Step 7)</h2>
+<h3 id="_11">문서 품질</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>내용</th>
+<th>완성도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>빠른 시작, 설치/업그레이드/제거 스크립트, 링크 모음</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>BUILDING.md</td>
+<td>빌드 요구사항, 로컬 개발, XPC 디버깅, 프로토버프 컴파일</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>docs/technical-overview.md</td>
+<td>아키텍처 원리, VM-per-container 설계 근거, 제한사항 명시</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>docs/command-reference.md</td>
+<td>전체 CLI 커맨드 레퍼런스</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>docs/how-to.md</td>
+<td>기능별 사용 가이드</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>docs/tutorials/</td>
+<td>단계별 튜토리얼 (웹서버 빌드/실행/푸시)</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>docs/bug-report-how-to.md</td>
+<td>버그 리포트 작성 가이드 (재현 단계, 환경 정보)</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>API 문서</td>
+<td>DocC 자동 생성, GitHub Pages 배포</td>
+<td>★★★★☆</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">커뮤니티 인프라</h3>
+<ul>
+<li><strong>CONTRIBUTING.md:</strong> 존재 (상위 containerization 저장소 참조)</li>
+<li><strong>CODE_OF_CONDUCT:</strong> apple/.github 중앙 관리</li>
+<li><strong>MAINTAINERS.txt:</strong> 존재 (상위 저장소 참조)</li>
+<li><strong>이슈 템플릿:</strong> Bug Report (전제조건 체크리스트, 환경 정보 구조화), Feature Request</li>
+<li><strong>PR 템플릿:</strong> 변경 유형, 동기/컨텍스트, 테스트 체크리스트</li>
+<li><strong>Labeler:</strong> 자동 레이블 (<code>cli</code>, <code>documentation</code>, <code>ci</code> 등)</li>
+<li><strong>NOTICE.md:</strong> 의존성 라이선스 완전 열거</li>
+</ul>
+<h3 id="_13">릴리스 전략</h3>
+<ul>
+<li><strong>버전 체계:</strong> SemVer (현재 0.x.x — 패치 내 안정성 보장, 마이너 버전에서 Breaking Change 가능)</li>
+<li><strong>릴리스 채널:</strong> GitHub Releases (Draft → 수동 게시)</li>
+<li><strong>배포 형태:</strong> 서명된 macOS <code>.pkg</code> 인스톨러 + dSYM ZIP</li>
+<li><strong>자동화:</strong> 태그 푸시 시 빌드·아티팩트 생성 자동화</li>
+</ul>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>VM-per-container 보안 격리:</strong> 각 컨테이너가 독립 VM으로 실행되어 컨테이너 탈출 공격 표면을 획기적으로 줄임. 기존 Docker Desktop 대비 근본적으로 다른 보안 모델.</p>
+</li>
+<li>
+<p><strong>완벽한 Swift 6 동시성 채택:</strong> <code>Sendable</code>, strict concurrency, <code>actor</code> 전면 적용. 데이터 레이스 버그를 컴파일 타임에 방지하는 최신 Swift 관용구 완전 준수.</p>
+</li>
+<li>
+<p><strong>Client/Server 모듈 이중 분리 패턴:</strong> <code>ContainerAPIClient</code>/<code>ContainerAPIService</code>, <code>ContainerNetworkClient</code>/<code>ContainerNetworkServer</code> 등 모든 서비스가 클라이언트·서버 라이브러리로 분리되어 테스트 용이성과 재사용성 극대화.</p>
+</li>
+<li>
+<p><strong>공급망 보안 강화:</strong> GitHub Actions SHA 핀닝, GPG 커밋 서명 강제, hawkeye 라이선스 헤더 자동화 — CI 체인 전반에 걸쳐 변조 방지 조치 적용.</p>
+</li>
+<li>
+<p><strong>운영 문서의 완성도:</strong> README에서 기술 개요, 튜토리얼, API 문서, 버그 리포트 가이드까지 계층적으로 잘 구성된 문서 생태계. DocC 자동 게시로 API 문서 최신성 유지.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험/개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>Swift 패키지 취약점 스캔 부재:</strong> Dependabot이 GitHub Actions만 커버하고 Swift 의존성(30개 이상)은 스캔하지 않음. <code>swift package audit</code> 또는 Snyk/OSV-Scanner 통합 필요. <code>containerization</code> exact 핀은 보안 패치 업스트림 적용을 차단.</p>
+</li>
+<li>
+<p><strong>macOS 전용 플랫폼 잠금:</strong> Apple silicon + macOS 15/26만 지원. Linux/Windows 환경에서는 빌드·실행 불가. CI 러너도 self-hosted macOS ARM64 전용이므로 외부 기여자의 CI 접근이 제한적.</p>
+</li>
+<li>
+<p><strong>SBOM·아티팩트 검증 없음:</strong> <code>.pkg</code> 배포물에 코드사이닝은 있으나 SBOM 생성, Sigstore/notarytool 외 독립적 아티팩트 서명, sha256 체크섬 게시가 없어 공급망 투명성이 부족.</p>
+</li>
+<li>
+<p><strong>0.x.x 안정성 한계:</strong> 마이너 버전 간 Breaking Change 허용 정책으로 라이브러리로서의 API 안정성 보장 없음. 프로덕션 환경 도입 시 버전 고정 필수. 1.0.0까지 유지보수 부담이 높음.</p>
+</li>
+<li>
+<p><strong>메모리 풍선 반환 미지원:</strong> Apple Virtualization.framework의 부분적 memory ballooning 구현으로 VM이 해제한 메모리를 호스트에 반환하지 못함. 메모리 집약적 다중 컨테이너 환경에서 호스트 메모리 고갈 위험. 상위 프레임워크 의존적 제한이나 문서화 필요.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 도입 맥락별 평가:</strong></p>
+<table>
+<thead>
+<tr>
+<th>맥락</th>
+<th>권고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>macOS Apple silicon 개발 환경</strong></td>
+<td>✅ 적극 권고 — VM-per-container 보안과 OCI 호환성의 조합이 탁월. Docker Desktop 대안으로 충분한 완성도</td>
+</tr>
+<tr>
+<td><strong>아키텍처 벤치마킹</strong></td>
+<td>✅ 권고 — XPC 기반 플러그인 아키텍처, Client/Server 모듈 분리 패턴은 macOS 시스템 소프트웨어 설계의 좋은 참조 사례</td>
+</tr>
+<tr>
+<td><strong>보안 검토 대상</strong></td>
+<td>⚠️ 조건부 — 커밋 서명, SHA 핀닝 등 강점은 있으나 Swift 의존성 취약점 스캔 부재, SBOM 없음이 엔터프라이즈 도입에 장벽</td>
+</tr>
+<tr>
+<td><strong>오픈소스 기여</strong></td>
+<td>✅ 권고 — 잘 정돈된 CONTRIBUTING 가이드, 이슈 템플릿, pre-commit 훅. 단, self-hosted CI 러너 접근 불가로 PR 검증에 시간 소요 가능</td>
+</tr>
+<tr>
+<td><strong>CI/CD 인프라 (Linux/Windows)</strong></td>
+<td>❌ 비권고 — macOS Apple silicon 전용으로 플랫폼 종속성이 절대적</td>
+</tr>
+<tr>
+<td><strong>프로덕션 서버 사이드 컨테이너 런타임</strong></td>
+<td>⚠️ 유보 — 0.x.x 단계, 메모리 반환 제한, macOS 서버 환경 희소성을 고려해 1.0.0 이후 재평가 권장</td>
+</tr>
+</tbody>
+</table>
+<p><strong>종합 평가:</strong> <code>apple/container</code>는 macOS 플랫폼 특화된 혁신적 아키텍처(VM-per-container)와 높은 코드 품질, 성숙한 CI 인프라를 갖춘 Apple 오픈소스 프로젝트입니다. 현재 macOS 개발자 도구로서 즉시 가치를 제공하며, Swift 시스템 프로그래밍의 모범 사례를 보여줍니다. 공급망 취약점 스캔과 SBOM 개선이 이루어지고 1.0.0에 도달한다면 엔터프라이즈급 Mac 기반 CI/CD 환경에서도 강력한 선택지가 될 것입니다.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>apple/container</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/apple/container" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

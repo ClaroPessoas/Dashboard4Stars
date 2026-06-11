@@ -1,0 +1,945 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>NVIDIA/SkillSpector - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/NVIDIA/SkillSpector" target="_blank" rel="noopener">NVIDIA/SkillSpector</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Security scanner for AI agent skills. Detect vulnerabilities, malicious patterns, and security risks.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 2453</span>
+      <span class="badge badge-stars">+308 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-12
+분석 대상: <code>/tmp/github-dashboard-analysis/NVIDIA_SkillSpector</code></p>
+<hr />
+<h1 id="nvidia-skillspector-source-analysis-report">NVIDIA SkillSpector — 소스 분석 보고서 (Source Analysis Report)</h1>
+<hr />
+<h2 id="summary-evaluation-table">종합 평가표 (Summary Evaluation Table)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 에이전트 스킬(Claude Code, Codex CLI, Gemini CLI 등의 플러그인) 설치 전 보안 취약점·악성 패턴 자동 탐지 스캐너. 연구 결과 42,447개 스킬 중 26.1%가 취약점을 포함하고 5.2%는 악의적 의도를 보임</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>src/skillspector/</code> 단일 패키지, <code>nodes/analyzers/</code> 20개 분석기, <code>providers/</code> 3개 LLM 공급자, <code>tests/</code> 단위·통합·노드 테스트 분리. 기능 중심 구조</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.12+, LangGraph(상태 머신 워크플로), LangChain, Typer(CLI), Rich(터미널 UI), Pydantic v2, YARA-Python, httpx, hatchling(빌드), uv(패키지 관리)</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>skillspector scan &lt;input&gt;</code> CLI → <code>cli.py:app</code> → <code>graph.py:graph</code> → LangGraph 파이프라인</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>LangGraph 상태 머신: <code>resolve_input → build_context → [20개 병렬 분석기] → meta_analyzer → report</code>. Event-Driven + Pipeline 패턴. <code>SkillspectorState</code> TypedDict로 상태 전달</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>파일 캐시(인메모리), AST 캐시, OSV.dev API(실시간 CVE 조회, 1시간 TTL), YARA 서명 파일 4종, 정적 패턴 64개</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI 배포(<code>pip install skillspector</code>), LangGraph CLI(<code>langgraph dev</code>), 소스 설치(<code>make install-dev</code>). Docker/Kubernetes 미확인</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest + pytest-asyncio + pytest-cov. 단위/통합/노드 계층 분리. 비LLM 단위 테스트(<code>make test-unit</code>)와 전체 그래프 통합 테스트(<code>make test-integration</code>) 구분. conftest 픽스처 완비</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 존재, PSIRT 이메일 채널. 환경변수 기반 자격 증명 관리. LLM 프롬프트 탈취 방지 설계. OSV.dev HTTPS 통신. 임시 디렉토리 정리. Apache 2.0 라이선스</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 2.1.3, CONTRIBUTING.md + THIRD_PARTY_NOTICES.md + DCO 서명 요구. ruff(린트·포맷) + mypy(타입 검사) + pre-commit 훅. 개발 가이드 20KB + LLM 분석기 가이드 22KB + MCP 가이드 25KB+</td>
+<td>★★★★☆</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h2>
+<h3 id="_1">한국어</h3>
+<p>SkillSpector는 NVIDIA가 개발한 <strong>AI 에이전트 스킬 보안 스캐너</strong>다. Claude Code, Codex CLI, Gemini CLI 등의 AI 에이전트 플랫폼에서 실행되는 "스킬(플러그인)"은 묵시적 신뢰 하에 실행되며 검증이 거의 이루어지지 않는다는 보안 공백을 해결한다. 핵심 질문은 "이 스킬을 설치해도 안전한가?"이며, 정적 패턴 분석·행동 AST 분석·YARA 서명 매칭·실시간 CVE 조회·선택적 LLM 의미 분석을 결합하여 0~100 위험 점수와 권고사항을 출력한다.</p>
+<h3 id="english">English</h3>
+<p>SkillSpector is a <strong>security scanner for AI agent skills</strong> developed by NVIDIA. It addresses a critical gap: skills (plugins) for agent platforms like Claude Code, Codex CLI, and Gemini CLI execute with implicit trust and minimal vetting. Research on 42,447 skills found 26.1% contain vulnerabilities and 5.2% show likely malicious intent. The tool answers "Is this skill safe to install?" by combining static regex analysis, Python AST inspection, YARA signature matching, live OSV.dev CVE lookups, and optional LLM semantic evaluation — producing a 0–100 risk score with severity labels and install recommendations.</p>
+<p><strong>분류 / Classification:</strong> 보안 도구 (Security Tool/Scanner)<br />
+<strong>대상 사용자 / Target Users:</strong> AI 에이전트 플랫폼 운영자, 보안 엔지니어, 개발자, 기업 IT 팀</p>
+<hr />
+<h2 id="2-repository-structure-analysis">2. 저장소 구조 분석 (Repository Structure Analysis)</h2>
+<pre><code>NVIDIA_SkillSpector/
+├── src/skillspector/           # 메인 패키지 (97개 Python 파일)
+│   ├── cli.py                  # Typer CLI 진입점 (259 lines)
+│   ├── graph.py                # LangGraph 워크플로 정의
+│   ├── state.py                # SkillspectorState (TypedDict)
+│   ├── models.py               # Finding, Severity, Location 모델
+│   ├── constants.py            # 토큰 예산, 모델 슬롯 설정
+│   ├── llm_analyzer_base.py    # LLM 분석기 기반 클래스
+│   ├── sarif_models.py         # SARIF 2.1.0 Pydantic 모델
+│   ├── nodes/
+│   │   ├── resolve_input.py    # 입력 정규화 (URL, zip, dir, file)
+│   │   ├── build_context.py    # 컨텍스트 구성 (파일 목록, AST 캐시)
+│   │   ├── meta_analyzer.py    # LLM 메타 분석기 (필터링/보강)
+│   │   ├── report.py           # 보고서 생성 (terminal/json/md/sarif)
+│   │   └── analyzers/          # 20개 분석기 노드
+│   │       ├── static_patterns_*.py   (11개 정적 패턴 분석기)
+│   │       ├── static_yara.py         (YARA 서명 분석기)
+│   │       ├── behavioral_ast.py      (AST 행동 분석기)
+│   │       ├── behavioral_taint_tracking.py  (테인트 추적 - 스텁)
+│   │       ├── mcp_*.py               (3개 MCP 분석기)
+│   │       └── semantic_*.py          (3개 LLM 의미 분석기)
+│   ├── providers/              # LLM 공급자 (openai, anthropic, nv_build)
+│   └── yara_rules/             # YARA 서명 파일 4종
+├── tests/                      # 테스트 스위트 (~5K lines)
+│   ├── unit/                   # 단위 테스트 (LLM 미사용)
+│   ├── nodes/                  # 노드 수준 테스트
+│   └── integration/            # 통합 테스트 (전체 그래프)
+├── docs/                       # 개발 가이드, LLM 분석기 가이드, MCP 가이드
+├── pyproject.toml              # 패키지 메타데이터 및 의존성
+├── uv.lock                     # 의존성 잠금 파일 (317KB)
+├── Makefile                    # 빌드 자동화
+├── langgraph.json              # LangGraph 개발 서버 설정
+├── .pre-commit-config.yaml     # 프리커밋 훅
+├── README.md / CONTRIBUTING.md / SECURITY.md / LICENSE
+└── THIRD_PARTY_NOTICES.md
+</code></pre>
+<p><strong>구조 유형 / Structure Type:</strong> 기능 중심(Function-oriented), 단일 저장소(Single-repo)<br />
+<strong>코드와 운영 자산 분리 / Separation:</strong> <code>src/</code>(코드) vs <code>docs/</code>(문서) vs <code>tests/</code>(테스트) 명확히 분리됨</p>
+<hr />
+<h2 id="3-software-stack">3. 소프트웨어 스택 (Software Stack)</h2>
+<h3 id="language-runtime">언어 및 런타임 / Language &amp; Runtime</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Python 3.12+ (상한 3.14 미만)</td>
+</tr>
+<tr>
+<td><strong>빌드 도구</strong></td>
+<td>hatchling (PEP 517/518 준수), uv (패키지 관리자)</td>
+</tr>
+<tr>
+<td><strong>패키지 매니저</strong></td>
+<td>uv (권장) / pip (대안)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="core-frameworks">핵심 프레임워크 / Core Frameworks</h3>
+<table>
+<thead>
+<tr>
+<th>라이브러리</th>
+<th>버전 제약</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>langgraph</code></td>
+<td>≥1.0.10</td>
+<td>상태 머신 워크플로 프레임워크</td>
+</tr>
+<tr>
+<td><code>langchain-core</code></td>
+<td>≥1.2.17</td>
+<td>LangChain 코어</td>
+</tr>
+<tr>
+<td><code>langchain-openai</code></td>
+<td>≥1.1.10</td>
+<td>LangChain OpenAI 통합</td>
+</tr>
+<tr>
+<td><code>openai</code></td>
+<td>≥2.25.0</td>
+<td>LLM 클라이언트 (OpenAI API 호환)</td>
+</tr>
+<tr>
+<td><code>typer</code></td>
+<td>≥0.23.0,&lt;0.24</td>
+<td>CLI 프레임워크</td>
+</tr>
+<tr>
+<td><code>rich</code></td>
+<td>≥14.3.0</td>
+<td>터미널 UI (테이블, 패널, 색상)</td>
+</tr>
+<tr>
+<td><code>pydantic</code></td>
+<td>≥2.12.0</td>
+<td>데이터 검증 (Finding 모델, SARIF)</td>
+</tr>
+<tr>
+<td><code>httpx</code></td>
+<td>≥0.28.0</td>
+<td>HTTP 클라이언트 (OSV.dev, 파일 다운로드)</td>
+</tr>
+<tr>
+<td><code>yara-python</code></td>
+<td>≥4.5.0</td>
+<td>YARA 서명 매칭</td>
+</tr>
+<tr>
+<td><code>pyyaml</code></td>
+<td>≥6.0.1</td>
+<td>YAML 파싱 (모델 레지스트리)</td>
+</tr>
+<tr>
+<td><code>langsmith</code></td>
+<td>≥0.7.30</td>
+<td>추적/모니터링</td>
+</tr>
+</tbody>
+</table>
+<h3 id="dev-tools">개발 도구 / Dev Tools</h3>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>pytest</code> ≥9.0.0 + pytest-asyncio + pytest-cov</td>
+<td>테스트 프레임워크</td>
+</tr>
+<tr>
+<td><code>ruff</code> ≥0.15.0</td>
+<td>린트 + 포맷</td>
+</tr>
+<tr>
+<td><code>mypy</code> ≥1.19.0</td>
+<td>정적 타입 검사</td>
+</tr>
+<tr>
+<td><code>build</code> + <code>twine</code></td>
+<td>패키지 빌드 및 배포</td>
+</tr>
+</tbody>
+</table>
+<h3 id="data-storage">데이터 저장소 / Data Storage</h3>
+<ul>
+<li><strong>인메모리 캐시:</strong> <code>file_cache</code>, <code>ast_cache</code> (LangGraph 상태 내)</li>
+<li><strong>OSV.dev API:</strong> 실시간 CVE 조회 (1시간 TTL 캐시)</li>
+<li><strong>파일 기반:</strong> YARA 서명 파일(<code>.yar</code>), 모델 레지스트리 YAML, <code>uv.lock</code></li>
+</ul>
+<hr />
+<h2 id="4-architecture-analysis">4. 아키텍처 분석 (Architecture Analysis)</h2>
+<h3 id="41-langgraph">4.1 LangGraph 상태 머신 파이프라인</h3>
+<pre><code>START
+  ↓
+resolve_input        ← URL/zip/dir/file → 로컬 디렉토리 정규화
+  ↓
+build_context        ← 파일 목록, 파일 캐시, AST 캐시, 매니페스트 구성
+  ↓
+┌──────────────────────────────────────────────┐
+│          20개 병렬 분석기 노드                  │
+│  ┌─────────────────┐  ┌──────────────────┐   │
+│  │ 정적 패턴 (11개)  │  │ 행동 AST (1개)   │   │
+│  │ YARA (1개)       │  │ 테인트 추적 (1개) │   │
+│  │ MCP (3개)        │  │ 의미 분석 (3개)   │   │
+│  └─────────────────┘  └──────────────────┘   │
+└──────────────────────────────────────────────┘
+  ↓ findings (Annotated list, operator.add 리듀서)
+meta_analyzer        ← LLM 기반 오탐 제거 및 설명 보강 (use_llm=True 시)
+  ↓
+report               ← 위험 점수 계산, 출력 포맷팅 (terminal/json/md/sarif)
+  ↓
+END
+</code></pre>
+<h3 id="42-state-management">4.2 상태 관리 (State Management)</h3>
+<p><code>SkillspectorState</code> (TypedDict, <code>total=False</code>):</p>
+<table>
+<thead>
+<tr>
+<th>키</th>
+<th>유형</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>input_path</code></td>
+<td>str</td>
+<td>원본 입력 경로</td>
+</tr>
+<tr>
+<td><code>skill_path</code></td>
+<td>str</td>
+<td>정규화된 로컬 경로</td>
+</tr>
+<tr>
+<td><code>file_cache</code></td>
+<td>dict</td>
+<td>파일명 → 내용 매핑</td>
+</tr>
+<tr>
+<td><code>findings</code></td>
+<td><code>Annotated[list, operator.add]</code></td>
+<td>모든 분석기의 발견사항 집계</td>
+</tr>
+<tr>
+<td><code>filtered_findings</code></td>
+<td>list</td>
+<td>메타 분석기 후 최종 발견사항</td>
+</tr>
+<tr>
+<td><code>risk_score</code></td>
+<td>int</td>
+<td>0–100 위험 점수</td>
+</tr>
+<tr>
+<td><code>report_body</code></td>
+<td>str</td>
+<td>최종 출력 내용</td>
+</tr>
+</tbody>
+</table>
+<p><strong>핵심 설계 결정:</strong> <code>findings</code>의 <code>Annotated[list, operator.add]</code> 리듀서는 20개 병렬 분석기가 경합 없이 독립적으로 발견사항을 추가할 수 있도록 한다.</p>
+<h3 id="43">4.3 아키텍처 패턴</h3>
+<ul>
+<li><strong>파이프라인 패턴:</strong> 단방향 선형 흐름 (입력 → 분석 → 보고)</li>
+<li><strong>팬아웃/팬인:</strong> 20개 분석기 병렬 실행 후 단일 메타 분석기로 수렴</li>
+<li><strong>플러그인/레지스트리 패턴:</strong> <code>ANALYZER_NODES</code> 딕셔너리로 동적 분석기 등록</li>
+<li><strong>전략 패턴:</strong> <code>providers/</code> 폴더에서 LLM 공급자 교체 가능</li>
+</ul>
+<h3 id="44-llm">4.4 LLM 공급자 시스템</h3>
+<table>
+<thead>
+<tr>
+<th>공급자</th>
+<th>인증 자격 증명</th>
+<th>기본 모델</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openai</code></td>
+<td><code>OPENAI_API_KEY</code></td>
+<td>gpt-5.4</td>
+</tr>
+<tr>
+<td><code>anthropic</code></td>
+<td><code>ANTHROPIC_API_KEY</code></td>
+<td>claude-opus-4-6</td>
+</tr>
+<tr>
+<td><code>nv_build</code></td>
+<td><code>NVIDIA_INFERENCE_KEY</code></td>
+<td>deepseek-ai/deepseek-v4-flash</td>
+</tr>
+</tbody>
+</table>
+<p><strong>선택 방법:</strong> <code>SKILLSPECTOR_PROVIDER</code> 환경변수 → 폴백 순서 자동 처리</p>
+<h3 id="45">4.5 위험 점수 계산 알고리즘</h3>
+<pre><code class="language-python">score = 0
+for finding in findings:
+    score += {CRITICAL: 50, HIGH: 25, MEDIUM: 10, LOW: 5}[finding.severity]
+if has_executable_scripts:
+    score *= 1.3       # 실행 가능 스크립트 1.3배 가중치
+score = min(100, max(0, round(score)))
+</code></pre>
+<table>
+<thead>
+<tr>
+<th>점수 범위</th>
+<th>심각도</th>
+<th>권고사항</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0–20</td>
+<td>LOW</td>
+<td>설치 가능 (SAFE)</td>
+</tr>
+<tr>
+<td>21–50</td>
+<td>MEDIUM</td>
+<td>주의 (CAUTION)</td>
+</tr>
+<tr>
+<td>51–80</td>
+<td>HIGH</td>
+<td>설치 금지</td>
+</tr>
+<tr>
+<td>81–100</td>
+<td>CRITICAL</td>
+<td>설치 금지</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-vulnerability-detection-patterns">5. 취약점 탐지 패턴 (Vulnerability Detection Patterns)</h2>
+<h3 id="64-16">64개 패턴, 16개 범주</h3>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>패턴 수</th>
+<th>패턴 ID</th>
+<th>심각도 범위</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>프롬프트 인젝션</td>
+<td>5</td>
+<td>P1–P5</td>
+<td>HIGH–CRITICAL</td>
+</tr>
+<tr>
+<td>데이터 유출</td>
+<td>4</td>
+<td>E1–E4</td>
+<td>MEDIUM–HIGH</td>
+</tr>
+<tr>
+<td>권한 상승</td>
+<td>3</td>
+<td>PE1–PE3</td>
+<td>LOW–HIGH</td>
+</tr>
+<tr>
+<td>공급망</td>
+<td>6</td>
+<td>SC1–SC6</td>
+<td>LOW–HIGH</td>
+</tr>
+<tr>
+<td>과도한 에이전시</td>
+<td>4</td>
+<td>EA1–EA4</td>
+<td>MEDIUM–HIGH</td>
+</tr>
+<tr>
+<td>출력 처리</td>
+<td>3</td>
+<td>OH1–OH3</td>
+<td>MEDIUM–HIGH</td>
+</tr>
+<tr>
+<td>시스템 프롬프트 유출</td>
+<td>3</td>
+<td>P6–P8</td>
+<td>MEDIUM–HIGH</td>
+</tr>
+<tr>
+<td>메모리 오염</td>
+<td>3</td>
+<td>MP1–MP3</td>
+<td>MEDIUM–HIGH</td>
+</tr>
+<tr>
+<td>도구 오용</td>
+<td>3</td>
+<td>TM1–TM3</td>
+<td>MEDIUM–HIGH</td>
+</tr>
+<tr>
+<td>악성 에이전트</td>
+<td>2</td>
+<td>RA1–RA2</td>
+<td>HIGH–CRITICAL</td>
+</tr>
+<tr>
+<td>행동 AST</td>
+<td>8</td>
+<td>AST1–AST8</td>
+<td>MEDIUM–CRITICAL</td>
+</tr>
+<tr>
+<td>테인트 추적</td>
+<td>5</td>
+<td>TT1–TT5</td>
+<td>MEDIUM–CRITICAL</td>
+</tr>
+<tr>
+<td>YARA 서명</td>
+<td>4</td>
+<td>YR1–YR4</td>
+<td>HIGH–CRITICAL</td>
+</tr>
+<tr>
+<td>MCP 최소 권한</td>
+<td>4</td>
+<td>LP1–LP4</td>
+<td>LOW–MEDIUM</td>
+</tr>
+<tr>
+<td>MCP 도구 오염</td>
+<td>4</td>
+<td>TP1–TP4</td>
+<td>MEDIUM–HIGH</td>
+</tr>
+</tbody>
+</table>
+<h3 id="osvdev-cve-sc4">OSV.dev 실시간 CVE 조회 (SC4)</h3>
+<ul>
+<li><code>POST https://api.osv.dev/v1/query</code>로 PyPI/npm 패키지 취약점 실시간 조회</li>
+<li>1시간 TTL 캐시로 중복 요청 방지</li>
+<li>오프라인 시 정적 15개 항목 폴백 목록으로 자동 전환</li>
+</ul>
+<hr />
+<h2 id="6-quality-testing">6. 품질 및 테스트 (Quality &amp; Testing)</h2>
+<h3 id="_2">테스트 구조</h3>
+<pre><code>tests/
+├── conftest.py          # 픽스처: safe_skill_dir, malicious_skill_dir
+├── unit/                # 단위 테스트 (LLM 미사용, ~20개 파일)
+├── nodes/               # 노드 수준 테스트
+├── integration/         # 통합 테스트 (전체 그래프, LLM 사용 가능)
+├── test_mcp_least_privilege.py
+└── test_mcp_tool_poisoning.py
+</code></pre>
+<h3 id="cicd">CI/CD 현황</h3>
+<ul>
+<li><code>.github/</code> 디렉토리 존재하나 워크플로 파일 미확인 (체크인되지 않았거나 비공개)</li>
+<li><code>Makefile</code>을 통한 로컬 빌드/테스트 자동화</li>
+<li><code>pre-commit</code> 훅: ruff + mypy 실행</li>
+</ul>
+<h3 id="_3">코드 품질 도구</h3>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>설정</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ruff</code></td>
+<td>select: E,F,W,I,N,UP,B,C4 / line-length: 100</td>
+<td>린트 + 포맷</td>
+</tr>
+<tr>
+<td><code>mypy</code></td>
+<td>Python 3.12, <code>disallow_untyped_defs=true</code></td>
+<td>정적 타입 검사</td>
+</tr>
+<tr>
+<td><code>pre-commit</code></td>
+<td><code>.pre-commit-config.yaml</code></td>
+<td>커밋 전 자동 검사</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-security-supply-chain">7. 보안 및 공급망 (Security &amp; Supply Chain)</h2>
+<h3 id="_4">보안 정책</h3>
+<ul>
+<li><strong><code>SECURITY.md</code></strong> 존재: PSIRT(psirt@nvidia.com) 이메일 채널, PGP 키 제공, 취약점 공개 양식</li>
+<li>공개 이슈로 보안 취약점 보고 금지 명시</li>
+</ul>
+<h3 id="_5">자격 증명 관리</h3>
+<ul>
+<li><strong>하드코딩된 시크릿 없음:</strong> 모든 자격 증명은 환경변수(<code>OPENAI_API_KEY</code>, <code>ANTHROPIC_API_KEY</code>, <code>NVIDIA_INFERENCE_KEY</code>)로 관리</li>
+<li><strong><code>.env.example</code></strong> 제공으로 설정 가이드 제공</li>
+</ul>
+<h3 id="llm">LLM 프롬프트 보안</h3>
+<ul>
+<li>악성 스킬의 프롬프트 인젝션 공격에 저항하도록 LLM 프롬프트 설계</li>
+<li>Pydantic 구조화 출력 검증으로 응답 형식 강제 및 주입 차단</li>
+</ul>
+<h3 id="_6">의존성 보안</h3>
+<ul>
+<li><code>uv.lock</code> (317KB) 잠금 파일로 의존성 버전 고정</li>
+<li><strong>Dependabot/Renovate 미확인</strong> (GitHub Actions 워크플로 미체크인)</li>
+<li><strong>SBOM 없음</strong>: 소프트웨어 명세서(Software Bill of Materials) 미생성</li>
+</ul>
+<h3 id="_7">라이선스</h3>
+<ul>
+<li><strong>주 라이선스:</strong> Apache License 2.0</li>
+<li><strong><code>THIRD_PARTY_NOTICES.md</code></strong> 존재: 제3자 라이선스 귀속 명시</li>
+</ul>
+<hr />
+<h2 id="8-documentation-operational-maturity">8. 문서 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h2>
+<h3 id="_8">문서 품질</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>크기</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>README.md</code></td>
+<td>19KB</td>
+<td>빠른 시작, 사용법, 패턴 목록, 위험 점수 설명</td>
+</tr>
+<tr>
+<td><code>docs/DEVELOPMENT.md</code></td>
+<td>20KB</td>
+<td>아키텍처, 패키지 레이아웃, 워크플로 실행 가이드</td>
+</tr>
+<tr>
+<td><code>docs/LLM_ANALYZER_BASE_GUIDE.md</code></td>
+<td>22KB</td>
+<td>파일별 배치 처리, 토큰 예산 관리</td>
+</tr>
+<tr>
+<td><code>docs/SC4-osv-live-vulnerability-lookups.md</code></td>
+<td>8KB</td>
+<td>OSV.dev 통합 세부 내용</td>
+</tr>
+<tr>
+<td><code>docs/B.3.1-mcp-least-privilege.md</code></td>
+<td>—</td>
+<td>MCP 최소 권한 분석기 설계</td>
+</tr>
+<tr>
+<td><code>docs/B.3.2-mcp-tool-poisoning.md</code></td>
+<td>—</td>
+<td>MCP 도구 오염 분석기 설계</td>
+</tr>
+<tr>
+<td><code>CONTRIBUTING.md</code></td>
+<td>—</td>
+<td>기여 가이드, DCO 서명 요구사항</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">커뮤니티 및 프로세스</h3>
+<ul>
+<li><strong>DCO(Developer Certificate of Origin) 서명 필수:</strong> <code>git commit -s</code></li>
+<li><strong>SPDX 라이선스 헤더:</strong> 모든 새 파일에 요구</li>
+<li><strong>코드 스타일 준수:</strong> <code>make lint</code> + <code>make format</code> 제출 전 실행 필수</li>
+<li><strong>GitHub 이슈/PR 템플릿:</strong> 미확인</li>
+<li><strong>릴리즈 노트/CHANGELOG:</strong> 미확인 (버전 2.1.3까지 출시됨)</li>
+</ul>
+<hr />
+<h2 id="9-output-formats">9. 출력 포맷 (Output Formats)</h2>
+<table>
+<thead>
+<tr>
+<th>포맷</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>terminal</code> (기본)</td>
+<td>Rich 포맷 테이블, 색상, 패널</td>
+</tr>
+<tr>
+<td><code>json</code></td>
+<td>기계 판독 가능 구조화 보고서</td>
+</tr>
+<tr>
+<td><code>markdown</code></td>
+<td>사람이 읽기 쉬운 마크다운 보고서</td>
+</tr>
+<tr>
+<td><code>sarif</code></td>
+<td>SARIF 2.1.0 — IDE/CI 통합 표준</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_10">종료 코드</h3>
+<table>
+<thead>
+<tr>
+<th>코드</th>
+<th>의미</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>성공 (위험 점수 ≤ 50)</td>
+</tr>
+<tr>
+<td>1</td>
+<td>성공, 고위험 (위험 점수 &gt; 50)</td>
+</tr>
+<tr>
+<td>2</td>
+<td>오류 (잘못된 입력, 자격 증명 없음 등)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>다층 탐지 전략 (Multi-Layer Detection Strategy)</strong><br />
+   정적 패턴(regex) + 행동 AST + YARA 서명 + 실시간 CVE + LLM 의미 분석을 단일 파이프라인으로 결합. 단일 기법의 오탐/미탐을 상호 보완하여 높은 탐지율을 달성한다.</p>
+</li>
+<li>
+<p><strong>LangGraph 기반 병렬 워크플로 설계 (LangGraph Parallel Workflow)</strong><br />
+   20개 분석기가 동시에 실행되며 <code>operator.add</code> 리듀서로 경합 없이 발견사항을 집계한다. 새 분석기 추가가 레지스트리(<code>ANALYZER_NODES</code> 딕셔너리)에만 등록하면 되므로 확장성이 뛰어나다.</p>
+</li>
+<li>
+<p><strong>실시간 CVE 조회 (Live CVE Lookup via OSV.dev)</strong><br />
+   정적 취약점 목록(15개)을 훨씬 초월하는 수만 건의 PyPI/npm 어드바이저리를 OSV.dev API로 실시간 조회. 캐시 TTL(1시간)과 오프라인 폴백을 갖춰 운영 안정성도 확보했다.</p>
+</li>
+<li>
+<p><strong>플러그형 LLM 공급자 시스템 (Pluggable LLM Provider Architecture)</strong><br />
+   OpenAI, Anthropic, NVIDIA Build 세 공급자를 환경변수 하나(<code>SKILLSPECTOR_PROVIDER</code>)로 교체 가능하며, 슬롯별 기본 모델 설정과 모델 레지스트리 YAML로 세밀한 제어를 지원한다.</p>
+</li>
+<li>
+<p><strong>SARIF 2.1.0 표준 지원 (SARIF 2.1.0 Compliance)</strong><br />
+   GitHub Code Scanning, VS Code, JetBrains 등 주요 IDE/CI 도구와 표준 형식으로 통합 가능. 보안 결과를 개발 워크플로에 자연스럽게 삽입할 수 있다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험 및 개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>스텁(Stub) 분석기 다수 (Incomplete Stub Analyzers)</strong><br />
+<code>behavioral_taint_tracking</code>(TT1–TT5), <code>mcp_rug_pull</code>, 일부 <code>semantic_*</code> 분석기가 스텁으로 남아 있다. 이 범주들은 보고서에 표시되지만 실질적인 탐지가 이루어지지 않아 보안 보장의 범위가 문서상 기술보다 좁다.</p>
+</li>
+<li>
+<p><strong>GitHub Actions CI/CD 미설정 (No Visible CI/CD Pipeline)</strong><br />
+<code>.github/workflows/</code> 디렉토리에 워크플로 파일이 체크인되지 않았다. PR 자동 테스트, 보안 스캔(ironically), 릴리즈 자동화 여부를 확인할 수 없다. Makefile 기반 수동 프로세스에만 의존한다면 재현 가능성과 일관성이 저하된다.</p>
+</li>
+<li>
+<p><strong>SBOM 및 의존성 자동 감사 부재 (No SBOM or Automated Dependency Audit)</strong><br />
+   Dependabot, Renovate, Snyk 등 의존성 자동 업데이트/취약점 감사 도구 설정이 확인되지 않는다. 역설적으로 보안 스캐너를 만들면서 자신의 의존성 취약점 관리가 수동에 의존하는 점은 개선 필요가 있다.</p>
+</li>
+<li>
+<p><strong>Docker/Kubernetes 미지원 (No Container/Kubernetes Support)</strong><br />
+   배포 옵션이 PyPI 설치와 로컬 LangGraph 개발 서버에 국한된다. 엔터프라이즈 환경에서 REST API 서버나 컨테이너 기반 배포가 필요할 때 직접 구현이 필요하다. <code>docs/plans/</code>에 REST API(FastAPI) 계획이 있으나 미구현 상태다.</p>
+</li>
+<li>
+<p><strong>비정형 콘텐츠 탐지 한계 (Limited Non-Code Detection)</strong><br />
+   이미지 임베드 텍스트, 암호화/컴파일된 바이너리, 영어 외 언어 콘텐츠에 대한 탐지가 불가능하다. 런타임 동적 행동 분석(샌드박스 실행)도 지원하지 않아 난독화된 악성 코드는 탐지를 회피할 수 있다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<h3 id="_11">종합 평가</h3>
+<p>SkillSpector는 <strong>AI 에이전트 스킬 보안 분야에서 선구적인 오픈소스 도구</strong>다. 버전 2.1.3에서 64개 탐지 패턴, LangGraph 기반 병렬 워크플로, SARIF 출력, Pydantic 데이터 검증, 상세한 개발 문서를 갖춘 상업적 수준의 완성도를 보인다.</p>
+<h3 id="_12">권고 시나리오별 판단</h3>
+<table>
+<thead>
+<tr>
+<th>활용 목적</th>
+<th>권고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI 에이전트 스킬 보안 게이팅 (CI/CD 연동)</strong></td>
+<td>✅ 강력 권고 — SARIF 출력으로 GitHub Code Scanning 등과 즉시 연동 가능</td>
+</tr>
+<tr>
+<td><strong>기업 보안 정책 준수 도구</strong></td>
+<td>✅ 권고 — 위험 점수 기반 설치 차단 정책 구현 가능</td>
+</tr>
+<tr>
+<td><strong>아키텍처 벤치마킹 (LangGraph 워크플로 설계)</strong></td>
+<td>✅ 우수 참고 사례 — 병렬 팬아웃/팬인 패턴의 실제 구현 예제</td>
+</tr>
+<tr>
+<td><strong>공급망 보안 연구</strong></td>
+<td>✅ 권고 — OSV.dev 통합 및 64개 AI 특화 보안 패턴 제공</td>
+</tr>
+<tr>
+<td><strong>프로덕션 REST API 서비스 (즉시 배포)</strong></td>
+<td>⚠️ 조건부 — REST API/Docker 지원 미구현으로 추가 작업 필요</td>
+</tr>
+<tr>
+<td><strong>보안 감사 완전성 보장</strong></td>
+<td>⚠️ 조건부 — 스텁 분석기(테인트 추적, MCP rug-pull 등)로 인한 탐지 범위 한계 인식 필요</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_13">최종 평가 점수</h3>
+<pre><code>전반적 성숙도:     ★★★★☆ (4/5)
+코드 품질:         ★★★★★ (5/5)
+보안 설계:         ★★★★☆ (4/5)
+문서화:            ★★★★★ (5/5)
+운영 준비도:       ★★★☆☆ (3/5)
+혁신성:            ★★★★★ (5/5)
+</code></pre>
+<p>SkillSpector는 <strong>AI 보안 분야의 신규 문제</strong>를 명확하게 정의하고 실용적인 해결책을 제시한 수작이다. 스텁 분석기와 CI/CD 가시성 부재는 주요 성장 과제지만, 현재 형태로도 AI 에이전트 플랫폼 보안 강화를 목표로 하는 조직에 즉시 적용 가능한 도구다.</p>
+<hr />
+<p><em>분석일: 2026-06-12</em><br />
+<em>분석 대상: <code>/tmp/github-dashboard-analysis/NVIDIA_SkillSpector</code></em><br />
+<em>분석 도구: Claude Sonnet 4.6 (claude-sonnet-4-6) via analysis-source skill</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>NVIDIA/SkillSpector</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/NVIDIA/SkillSpector" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

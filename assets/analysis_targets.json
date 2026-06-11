@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-11 15:12:17 KST",
+  "generated_at": "2026-06-12 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 0,
+  "total_targets": 3,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,8 +17,8 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 0,
-      "skipped_existing_analysis": 5,
+      "selected": 3,
+      "skipped_existing_analysis": 2,
       "skipped_duplicate": 0
     },
     "weekly": {
@@ -34,5 +34,48 @@
       "skipped_duplicate": 1
     }
   },
-  "targets": []
+  "targets": [
+    {
+      "rank": 1,
+      "name": "container",
+      "full_name": "apple/container",
+      "owner": "apple",
+      "description": "A tool for creating and running Linux containers using lightweight virtual machines on a Mac. It is written in Swift, and optimized for Apple silicon.",
+      "url": "https://github.com/apple/container",
+      "stars": 31606,
+      "forks": 882,
+      "language": "Swift",
+      "stars_gained": "2,419 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 3,
+      "name": "openmed",
+      "full_name": "maziyarpanahi/openmed",
+      "owner": "maziyarpanahi",
+      "description": "open-source healthcare ai",
+      "url": "https://github.com/maziyarpanahi/openmed",
+      "stars": 2629,
+      "forks": 262,
+      "language": "Python",
+      "stars_gained": "427 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 5,
+      "name": "SkillSpector",
+      "full_name": "NVIDIA/SkillSpector",
+      "owner": "NVIDIA",
+      "description": "Security scanner for AI agent skills. Detect vulnerabilities, malicious patterns, and security risks.",
+      "url": "https://github.com/NVIDIA/SkillSpector",
+      "stars": 2453,
+      "forks": 202,
+      "language": "Python",
+      "stars_gained": "308 stars today",
+      "topics": [],
+      "period": "daily"
+    }
+  ]
 }
