@@ -1,0 +1,471 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iptv-org/iptv - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener">iptv-org/iptv</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Collection of publicly available IPTV channels from all over the world</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 117877</span>
+      <span class="badge badge-stars">+142 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 분석 결과를 보고서로 작성합니다.</p>
+<hr />
+<p>분석일: 2026-06-13
+분석 대상: <code>/tmp/github-dashboard-analysis/iptv-org_iptv</code></p>
+<hr />
+<h1 id="iptv-orgiptv">iptv-org/iptv 소스 코드 분석 보고서</h1>
+<h1 id="iptv-orgiptv-source-code-analysis-report">iptv-org/iptv Source Code Analysis Report</h1>
+<hr />
+<h2 id="summary-analysis-table">요약 분석표 / Summary Analysis Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>전 세계 공개 IPTV 채널 스트림 링크를 수집·분류하여 M3U 플레이리스트로 배포하는 커뮤니티 데이터 저장소. 영상 파일은 보관하지 않으며, 공개적으로 접근 가능한 스트림 URL 목록만 유지.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>루트에 <code>streams/</code>(323개 국가별 M3U 파일), <code>scripts/</code>(TypeScript 자동화 도구), <code>tests/</code>(Jest 통합 테스트), <code>.github/</code>(워크플로우·이슈 템플릿) 분리. 단일 저장소(monorepo는 아님)이나 iptv-org 조직의 다수 연관 저장소(database, api, epg)와 밀접하게 연동.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>TypeScript (strict, ES2022, NodeNext), Node.js 22, npm, tsx, Jest 30 (@swc/jest), ESLint 9, m3u-linter, @iptv-org/sdk, @freearhey/core, axios, hls-parser, mpd-parser, mediainfo.js, @octokit/core</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>npm run</code> 스크립트 → <code>tsx scripts/commands/*</code> 실행. 단일 main() 함수 패턴. <code>api:load</code>가 postinstall 훅으로 자동 실행. CLI 툴이자 자동화 파이프라인.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>Command 패턴 + Generator 패턴의 명시적 조합. <code>scripts/commands/</code>(명령어), <code>scripts/core/</code>(파서·테스터 유틸), <code>scripts/generators/</code>(플레이리스트 빌더), <code>scripts/models/</code>(Stream, Playlist, Issue 도메인), <code>scripts/tables/</code>(보고용 테이블 렌더러). 레이어 분리가 명확하나 DB 없이 M3U 파일과 JSON 파일 기반의 플랫 스토리지 사용.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>외부 저장소(iptv-org/api)에서 JSON 다운로드 → 메모리 내 처리. 영속 저장소는 M3U 파일(streams/)과 GitHub Pages. DB·캐시 미사용.</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>GitHub Actions 3개 워크플로우(check/format/update). update 워크플로우는 매일 00:00 UTC에 실행되어 플레이리스트 생성 후 gh-pages 브랜치와 iptv-org/api 저장소에 자동 배포. GitHub App 토큰으로 봇 커밋 수행.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Jest 기반 통합 테스트 9개(commands 수준). <code>execSync</code>로 실제 CLI 명령 실행 후 파일 출력을 기대값과 비교하는 스냅샷 방식. 단위 테스트 없음. 커버리지 측정 미설정.</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 없음. Unlicense(퍼블릭 도메인) 라이선스. Dependabot/Renovate 설정 없음. SBOM 없음. GitHub App 토큰으로 자동화 권한 분리. DMCA 절차 명시. NSFW 채널 필터링 로직 내장(isSFW()).</td>
+<td>★★☆☆☆</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>CONTRIBUTING.md·FAQ.md·CODE_OF_CONDUCT 완비. 이슈 템플릿 5종. OpenCollective 후원. iptv-org 조직 전체 생태계의 핵심 허브. 커뮤니티 기여 규모가 매우 크고 자동화 파이프라인이 성숙.</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="detailed-analysis">상세 분석 / Detailed Analysis</h2>
+<h3 id="1-purpose-and-scope">1. 목적 및 범위 / Purpose and Scope</h3>
+<p><strong>한국어</strong>: <code>iptv-org/iptv</code>는 전 세계 190여 개국의 공개 IPTV 스트림 URL을 국가별, 언어별, 카테고리별, 지역별로 분류하여 M3U 플레이리스트 형태로 제공하는 커뮤니티 기반 오픈소스 데이터 저장소이다. 직접 영상 파일을 저장하거나 재배포하지 않으며, 외부 저작권자가 공개적으로 제공하는 스트림 URL 포인터만 관리한다. VLC, Kodi 등 IPTV 플레이어 사용자와 IPTV 관련 서비스 개발자를 주요 대상으로 한다.</p>
+<p><strong>English</strong>: <code>iptv-org/iptv</code> is a community-driven open-source data repository that collects and classifies publicly available IPTV stream URLs from 190+ countries into M3U playlist format, organized by country, language, category, and geographic region. No video files are stored — only URL pointers to externally hosted streams. Primary audiences are IPTV player users (VLC, Kodi) and developers building IPTV-related services.</p>
+<hr />
+<h3 id="2-repository-structure">2. 저장소 구조 / Repository Structure</h3>
+<pre><code>iptv-org/iptv/
+├── .github/
+│   ├── workflows/         # check.yml, format.yml, update.yml
+│   ├── ISSUE_TEMPLATE/    # 5종 이슈 템플릿
+│   └── CODE_OF_CONDUCT.md
+├── .readme/
+│   └── template.md        # PLAYLISTS.md 생성 템플릿
+├── scripts/
+│   ├── commands/          # CLI 진입점 (api, playlist, readme, report)
+│   ├── core/              # 공통 파서·테스터·유틸리티
+│   ├── generators/        # 공개 플레이리스트 생성기 (12종)
+│   ├── models/            # 도메인 모델 (Stream, Playlist, Issue, Discussion)
+│   └── tables/            # CLI/HTML 보고 테이블
+├── streams/               # 323개 국가별 내부 M3U 파일
+├── tests/
+│   ├── __data__/          # 입력/기대값 픽스처
+│   └── commands/          # 통합 테스트 (9개 파일)
+├── CONTRIBUTING.md
+├── FAQ.md
+├── PLAYLISTS.md           # 자동 생성 (readme:update 스크립트)
+├── README.md
+├── package.json
+├── tsconfig.json
+├── eslint.config.mjs
+└── m3u-linter.json
+</code></pre>
+<p><strong>한국어</strong>: 기능 지향 구조로 명확히 분리되어 있다. <code>streams/</code>은 순수 데이터 레이어이며, <code>scripts/</code>은 자동화 로직, <code>tests/</code>은 검증 레이어다. 외부 데이터(채널 DB, 가이드)는 별도 iptv-org 조직 저장소에서 관리되어 이 저장소는 스트림 URL 관리에만 집중한다.</p>
+<p><strong>English</strong>: The structure follows a clear functional orientation. <code>streams/</code> is pure data, <code>scripts/</code> contains all automation logic, and <code>tests/</code> handles verification. External channel metadata is managed in separate iptv-org organization repos, keeping this repo focused solely on stream URL management.</p>
+<hr />
+<h3 id="3-software-stack">3. 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>TypeScript 5.x (strict mode, ES2022 target, NodeNext module resolution)</td>
+</tr>
+<tr>
+<td><strong>런타임</strong></td>
+<td>Node.js 22</td>
+</tr>
+<tr>
+<td><strong>패키지 매니저</strong></td>
+<td>npm (package-lock.json 존재)</td>
+</tr>
+<tr>
+<td><strong>실행기</strong></td>
+<td>tsx (TypeScript 직접 실행, 컴파일 불필요)</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Jest 30, @swc/jest (빠른 TS 변환), jest-expect-message</td>
+</tr>
+<tr>
+<td><strong>린팅</strong></td>
+<td>ESLint 9 (@typescript-eslint, @stylistic), m3u-linter</td>
+</tr>
+<tr>
+<td><strong>포매팅</strong></td>
+<td>Prettier (.prettierrc)</td>
+</tr>
+<tr>
+<td><strong>HTTP 클라이언트</strong></td>
+<td>axios 1.x (HTTP/HTTPS 스트림 테스트), socks-proxy-agent (SOCKS 프록시 지원)</td>
+</tr>
+<tr>
+<td><strong>미디어 분석</strong></td>
+<td>mediainfo.js (스트림 유효성 검증), hls-parser, mpd-parser</td>
+</tr>
+<tr>
+<td><strong>IPTV SDK</strong></td>
+<td>@iptv-org/sdk (채널·피드·방송 지역 등 도메인 모델)</td>
+</tr>
+<tr>
+<td><strong>코어 유틸</strong></td>
+<td>@freearhey/core (Collection, Dictionary, Logger), @freearhey/storage-js</td>
+</tr>
+<tr>
+<td><strong>GitHub API</strong></td>
+<td>@octokit/core + paginate-graphql/rest (이슈 처리 자동화)</td>
+</tr>
+<tr>
+<td><strong>CLI 프레임워크</strong></td>
+<td>commander, chalk, cli-progress, @inquirer/prompts</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>GitHub Actions + GitHub Pages (gh-pages 브랜치)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="4-architecture-analysis">4. 아키텍처 분석 / Architecture Analysis</h3>
+<p><strong>한국어</strong>: 전체 시스템은 <strong>이슈 기반 자동화 파이프라인</strong> 구조를 따른다.</p>
+<ol>
+<li>
+<p><strong>데이터 수집</strong>: GitHub Issues를 입력 소스로 활용. <code>update</code> 워크플로우가 매일 00:00 UTC 실행 시 <code>loadIssues()</code>를 통해 Octokit GraphQL API로 labels:streams:add/edit/remove 이슈를 가져온다.</p>
+</li>
+<li>
+<p><strong>데이터 처리</strong>: <code>Stream.updateWithIssue()</code>가 이슈 메타데이터를 파싱하여 M3U 파일을 갱신. <code>DataSet</code> 클래스가 이슈 폼 필드를 파싱.</p>
+</li>
+<li>
+<p><strong>검증·린팅</strong>: <code>playlist:validate</code>가 채널 ID 유효성과 URL 형식을 검사, <code>playlist:lint</code>(m3u-linter)가 M3U 문법을 검사.</p>
+</li>
+<li>
+<p><strong>공개 플레이리스트 생성</strong>: 12개의 Generator 클래스가 내부 <code>streams/*.m3u</code>를 읽어 카테고리별, 국가별, 언어별, 지역별 공개 M3U 파일을 <code>.gh-pages/</code>에 생성.</p>
+</li>
+<li>
+<p><strong>배포</strong>: <code>JamesIves/github-pages-deploy-action</code>으로 gh-pages 브랜치에 배포, 별도 iptv-org/api 저장소에도 streams.json 푸시.</p>
+</li>
+</ol>
+<pre><code>GitHub Issues
+    ↓ (Octokit API)
+playlist:update (Node.js/TypeScript)
+    ↓
+streams/*.m3u (internal)
+    ↓ playlist:validate + playlist:lint
+playlist:generate
+    ↓
+.gh-pages/ (public playlists)
+    ↓ GitHub Pages Deploy Action
+https://iptv-org.github.io/iptv/
+</code></pre>
+<p><strong>English</strong>: The system follows an <strong>issue-driven automation pipeline</strong> pattern. GitHub Issues act as the input interface for community contributions. The <code>Stream</code> model extends <code>@iptv-org/sdk</code>'s base model with IPTV-specific logic (filepath management, URL normalization, broadcast area resolution). Generator classes implement a uniform <code>Generator</code> interface and handle the fan-out from internal playlists to the many public playlist variants.</p>
+<hr />
+<h3 id="5-quality-and-test-system">5. 품질 및 테스트 / Quality and Test System</h3>
+<p><strong>한국어</strong>:
+- <strong>테스트 방식</strong>: <code>tests/commands/</code> 아래 9개 통합 테스트 파일. <code>execSync</code>로 실제 npm 스크립트를 실행한 뒤 출력 파일을 <code>tests/__data__/expected/</code>의 기대값과 파일 단위로 비교하는 <strong>실행 결과 스냅샷</strong> 방식.
+- <strong>환경 격리</strong>: <code>cross-env</code>를 활용해 테스트용 경로(<code>STREAMS_DIR</code>, <code>DATA_DIR</code>, <code>PUBLIC_DIR</code>, <code>LOGS_DIR</code>)를 환경변수로 주입. <code>TESTING=true</code> 시 스트림 테스트 결과는 mock 파일에서 읽음.
+- <strong>커버리지</strong>: Jest 커버리지 설정 없음. 단위 테스트 부재.
+- <strong>CI</strong>: <code>check.yml</code>은 PR 단위로 변경된 스트림 파일만 lint+validate. <code>format.yml</code>은 수동 실행. <code>update.yml</code>은 매일 스케줄 실행.
+- <strong>린팅</strong>: ESLint (TypeScript 코드), m3u-linter (M3U 파일 문법), Prettier (스타일).</p>
+<p><strong>English</strong>: Tests are integration-level: each test launches a real subprocess and does file-diff comparison against fixture data. This provides high confidence in end-to-end behavior but makes unit-level regression harder to isolate. No coverage tooling is configured. The three CI workflows cleanly separate PR validation (check), manual formatting (format), and daily pipeline (update).</p>
+<hr />
+<h3 id="6-security-and-supply-chain">6. 보안 및 공급망 / Security and Supply Chain</h3>
+<p><strong>한국어</strong>:
+- <strong>SECURITY.md</strong>: <strong>없음</strong> (부재). 보안 취약점 신고 절차가 문서화되어 있지 않음.
+- <strong>의존성 관리</strong>: Dependabot 또는 Renovate 설정 파일 없음. 수동 업데이트 의존.
+- <strong>라이선스</strong>: 프로젝트 자체는 <strong>Unlicense (퍼블릭 도메인)</strong>. <code>package.json</code>에는 MIT라고 표기되어 일치하지 않음 (실제 LICENSE 파일은 Unlicense).
+- <strong>비밀 관리</strong>: GitHub Secrets (<code>APP_ID</code>, <code>APP_PRIVATE_KEY</code>)로 GitHub App 토큰 관리. 코드에 시크릿 하드코딩 없음.
+- <strong>SBOM</strong>: 없음.
+- <strong>공급망 위험</strong>: <code>@freearhey/core</code>, <code>@freearhey/storage-js</code>는 프로젝트 메인테이너 소유의 소규모 패키지로 외부 감사가 제한적.
+- <strong>콘텐츠 위험</strong>: Xtream Codes 서버 URL 거부, 차단 목록(blocklist) 기반 채널 필터링, NSFW 필터(isSFW()) 내장.
+- <strong>법적 보호</strong>: README에 DMCA 면책 조항 및 저작권 침해 신고 절차 명시.</p>
+<p><strong>English</strong>: The most notable security gap is the absence of a SECURITY.md and any automated dependency scanning. The project also has a package.json/LICENSE inconsistency (MIT vs Unlicense). The GitHub App token pattern for bot automation is a reasonable privilege-separation approach. Content safety is handled at the application level (blocklist, NSFW filter) rather than infrastructure level.</p>
+<hr />
+<h3 id="7-documentation-and-operational-maturity">7. 문서화 및 운영 성숙도 / Documentation and Operational Maturity</h3>
+<p><strong>한국어</strong>:
+- <strong>README.md</strong>: 깔끔하고 간결. 빠른 시작, EPG 연동, DB, API, 법적 고지 모두 포함.
+- <strong>CONTRIBUTING.md</strong>: 193줄 분량의 매우 상세한 기여 가이드. 스트림 추가/수정/제거/테스트 방법, M3U 스키마 정의, 스크립트·워크플로우 문서 완비.
+- <strong>FAQ.md</strong>: 자주 묻는 5가지 질문에 명확히 답변.
+- <strong>PLAYLISTS.md</strong>: 123KB에 달하는 자동 생성 파일로 모든 플레이리스트 링크 포함.
+- <strong>이슈 템플릿</strong>: 스트림 추가/수정/신고/버그/저작권 침해 등 5종 상황별 템플릿.
+- <strong>토론 채널</strong>: GitHub Discussions 활성화.
+- <strong>자금 지원</strong>: OpenCollective를 통한 커뮤니티 후원.
+- <strong>커뮤니티</strong>: 39,000개 이상의 PR이 처리된 매우 활발한 저장소(PR #39199가 최근 병합).
+- <strong>봇 자동화</strong>: <code>iptv-bot[bot]</code> GitHub App이 매일 배포 커밋 생성.
+- <strong>ADR (Architecture Decision Records)</strong>: 없음.
+- <strong>변경 로그</strong>: CHANGELOG.md 없음. Git 커밋 메시지와 PR 이력이 유일한 변경 내역.</p>
+<p><strong>English</strong>: Documentation quality is excellent for the contribution workflow but lacks engineering-level records (no ADR, no changelog). The project has extraordinary operational maturity for a data-driven repository: fully automated daily pipeline, bot-assisted issue processing, multi-destination deployment. Community activity is exceptionally high given 39,000+ merged PRs.</p>
+<hr />
+<h2 id="strengths">강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>완전 자동화된 데이터 파이프라인</strong>: GitHub Issues → 자동 M3U 업데이트 → 검증·린팅 → 공개 플레이리스트 생성 → GitHub Pages 배포가 매일 무인으로 실행됨. 사람의 개입 없이 커뮤니티 기여가 제품에 반영되는 수준의 자동화.
+   <em>(Fully automated data pipeline running daily without manual intervention.)</em></p>
+</li>
+<li>
+<p><strong>강력한 도메인 모델과 생태계 통합</strong>: <code>@iptv-org/sdk</code>로 채널·피드·방송 지역·언어·카테고리 등 복잡한 TV 방송 도메인을 SDK 수준으로 추상화. 별도 저장소(database, api, epg)와 일관된 SDK로 연동되는 마이크로서비스 생태계 구조.
+   <em>(Well-abstracted domain model via dedicated SDK, cleanly integrated with a multi-repo organization ecosystem.)</em></p>
+</li>
+<li>
+<p><strong>다차원 플레이리스트 생성</strong>: 단일 소스(streams/<em>.m3u)에서 국가별, 언어별, 카테고리별, 지역별, 도시별, 서브디비전별 총 12종의 공개 플레이리스트를 자동 생성. Generator 패턴으로 쉽게 확장 가능.
+   </em>(Multi-dimensional playlist generation from a single source using an extensible Generator pattern.)*</p>
+</li>
+<li>
+<p><strong>기여 친화적 워크플로우</strong>: 5종 이슈 템플릿, 상세한 CONTRIBUTING.md, PR 검증 자동화(check.yml)로 39,000개 이상의 커뮤니티 PR을 효율적으로 처리. 기여 장벽이 매우 낮음.
+   <em>(Excellent contributor onboarding with templates, detailed guide, and automated PR validation that scales to 39k+ contributions.)</em></p>
+</li>
+<li>
+<p><strong>실용적 스트림 검증</strong>: mediainfo.js, HLS 파서, MPD 파서를 조합하여 URL 유효성뿐 아니라 실제 미디어 트랙 존재 여부까지 검증. 지오블로킹·타임아웃·HTTP 오류 코드를 세분화하여 정확한 상태 보고.
+   <em>(Practical stream health checking that validates actual media track presence beyond URL reachability.)</em></p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-and-improvement-areas">위험/개선 필요 사항 / Risks and Improvement Areas</h2>
+<ol>
+<li>
+<p><strong>보안 정책 부재 및 의존성 취약점 관리 미흡</strong>: SECURITY.md가 없어 취약점 신고 경로가 불명확. Dependabot이나 Renovate 없이 수동 의존성 업데이트. <code>@freearhey/core</code> 등 소규모 내부 패키지에 대한 공급망 감사 부재.
+   <em>(No SECURITY.md, no automated dependency scanning, and small internal packages with limited external audit trail.)</em></p>
+</li>
+<li>
+<p><strong>라이선스 불일치</strong>: LICENSE 파일은 Unlicense(퍼블릭 도메인)인데 package.json에는 MIT로 표기되어 있어 법적 혼선 가능성.
+   <em>(License mismatch between LICENSE file (Unlicense) and package.json (MIT) field.)</em></p>
+</li>
+<li>
+<p><strong>테스트 커버리지 및 단위 테스트 부재</strong>: 모든 테스트가 통합 수준의 subprocess 실행 방식이어서 개별 함수 레벨의 회귀 탐지가 어려움. 스트림 URL 정규화, 도메인 모델 메서드 등 핵심 로직에 단위 테스트 없음.
+   <em>(All tests are integration-level subprocess tests with no unit tests or coverage measurement, making fine-grained regression detection difficult.)</em></p>
+</li>
+<li>
+<p><strong>데이터 품질의 외부 의존성</strong>: 채널 메타데이터(이름, 카테고리, 로고 등)가 전적으로 외부 저장소(iptv-org/database)에 의존. 해당 저장소의 데이터 오류나 서비스 중단이 이 저장소의 플레이리스트 품질에 직접 영향.
+   <em>(Entire channel metadata quality depends on an external repository; any outage or data error in iptv-org/database propagates directly.)</em></p>
+</li>
+<li>
+<p><strong>스트림 URL의 법적·콘텐츠 위험</strong>: 공개 스트림 URL 목록이므로 저작권 분쟁, 악의적 URL 삽입, 성인 콘텐츠 필터 우회 등의 위험이 상존. 자동화된 URL 스캐닝(악성 도메인, 피싱 등)이나 콘텐츠 검증 파이프라인 없음.
+   <em>(Inherent legal and content risk from community-submitted stream URLs with no automated malicious URL detection or content scanning pipeline.)</em></p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h2>
+<p><strong>한국어</strong>:</p>
+<p><code>iptv-org/iptv</code>는 IPTV 스트림 데이터를 오픈소스로 관리하는 가장 성숙하고 포괄적인 프로젝트다. <strong>기술 도입 관점</strong>에서는 다음과 같이 평가한다:</p>
+<ul>
+<li><strong>아키텍처 벤치마킹</strong>: 이슈 기반 커뮤니티 기여 자동화 파이프라인의 우수 사례로 참고 가치가 높음. GitHub Actions + Bot 자동화 패턴, Generator 패턴 기반 다차원 출력 생성 구조는 유사 데이터 저장소 프로젝트에 직접 응용 가능.</li>
+<li><strong>데이터 소스로서의 활용</strong>: IPTV 관련 서비스 구축 시 공식 API(<code>https://iptv-org.github.io/iptv/index.m3u</code>)를 통해 신뢰할 수 있는 채널 데이터 소스로 활용 가능. 단, 스트림 URL의 가용성이 외부 서버에 의존하므로 프로덕션 사용 시 별도의 건강 확인 레이어 필요.</li>
+<li><strong>보안 민감 환경 도입 주의</strong>: SECURITY.md 부재, Dependabot 미설정, 라이선스 불일치 등으로 인해 엔터프라이즈 보안 정책이 엄격한 환경에서는 직접 fork 후 보완 필요.</li>
+<li><strong>기여 참여</strong>: 기여 워크플로우가 매우 잘 정립되어 있어 채널 추가 PR 기여의 진입 장벽이 낮음.</li>
+</ul>
+<p><strong>English</strong>:</p>
+<p><code>iptv-org/iptv</code> represents the gold standard for community-managed IPTV data repositories. For <strong>architectural benchmarking</strong>, the issue-driven automation pipeline and Generator-based multi-output playlist system are directly applicable patterns for similar data repository projects. For <strong>data consumption</strong>, the official playlist API is reliable with active daily updates and community oversight. However, direct production adoption without a health-check layer is inadvisable due to inherent stream URL volatility. For <strong>security-sensitive environments</strong>, the absence of SECURITY.md, dependency scanning, and the license inconsistency require remediation before adoption under strict compliance policies. Overall, this is a <strong>recommended reference architecture</strong> for open data pipeline projects, with caveats around security governance maturity.</p>
+<hr />
+<p><em>보고서 생성 도구: Claude Code (claude-sonnet-4-6) | Report generated by: Claude Code (claude-sonnet-4-6)</em>
+<em>분석일: 2026-06-13 | Analysis date: 2026-06-13</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>iptv-org/iptv</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/iptv-org/iptv" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

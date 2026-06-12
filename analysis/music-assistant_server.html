@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>music-assistant/server - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/music-assistant/server" target="_blank" rel="noopener">music-assistant/server</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Music Assistant is a free, opensource Media library manager that connects to your streaming services and a wide range of connected speakers. The server is the beating heart, the core of Music Assistant and must run on an always-on device like a Raspberry Pi, a NAS or an Intel NUC or alike.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 1692</span>
+      <span class="badge badge-stars">+6 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-13
+분석 대상: /tmp/github-dashboard-analysis/music-assistant_server
+출력 파일: .review/REVIEW-Source.md</p>
+<hr />
+<h1 id="music-assistant-server">Music Assistant Server — 소스 분석 보고서</h1>
+<h2 id="_1">프로젝트 개요 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>스트리밍 서비스와 스피커를 연결하는 비동기 Python 뮤직 라이브러리 매니저. Home Assistant 애드온으로 주로 사용되며, Raspberry Pi·NAS·Intel NUC 같은 상시 구동 기기에서 실행</td>
+<td>★★★★★ 명확한 도메인 집중, 광범위한 플랫폼 지원</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 패키지(<code>music_assistant/</code>) 내 controllers / models / helpers / providers 4계층 분리. 105개 provider 디렉터리, 25+ helper 모듈, 9개 controller 모듈로 구성</td>
+<td>★★★★★ 관심사 분리 우수, 모노레포 단일 앱</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.14 + asyncio, aiohttp 3.14, SQLite (aiosqlite), FFmpeg 6.1+, PyTorch 2.11 (CPU), torchvision, Pillow, mashumaro, orjson, zeroconf, aiortc</td>
+<td>★★★★☆ 최신 Python 사용, ML 의존성으로 이미지 크기 증가</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>music_assistant/__main__.py</code> → CLI 인자 파싱 후 <code>MusicAssistant</code> 인스턴스 생성 및 asyncio 루프 기동. 명령어: <code>mass</code> 또는 <code>python -m music_assistant</code></td>
+<td>★★★★★ 단일 진입점, 신호 처리·로그 로테이션 구현 완비</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>이벤트 구동(Event-Driven) + 플러그인 아키텍처. <code>mass.py</code>가 중앙 허브, 각 provider가 기능 단위 모듈. ProviderFeature enum 기반 기능 협상, <code>@api_command</code> 데코레이터로 WebSocket/REST API 자동 노출</td>
+<td>★★★★★ 확장성·유연성 탁월, 의존성 역전 준수</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLite (<code>library.db</code>) — 음악 라이브러리·메타데이터 영구 저장. 파일 기반 로그(10 MB 로테이션, 1 백업). 인메모리 캐시 계층(<code>controllers/cache/</code>)</td>
+<td>★★★★☆ 경량 DB 적합, 대규모 확장 시 SQLite 한계 존재</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker 멀티스테이지 빌드 (Alpine 기반), ghcr.io 레지스트리, linux/amd64·arm64 멀티플랫폼. Home Assistant 애드온 자동 배포. 4채널 릴리즈: stable / beta / rc / nightly</td>
+<td>★★★★★ 완전 자동화 배포, 다채널 릴리즈 전략 성숙</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest + pytest-aiohttp + pytest-cov + syrupy(스냅샷). 33+ provider 전용 테스트 디렉터리, controllers / integration / models 분리. CI에서 <code>--cov=music_assistant</code> 커버리지 측정</td>
+<td>★★★★☆ 체계적 구조, 커버리지 수치 미확인</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>Dependabot (actions: 일간, pip: 주간), <code>dependency-security.yml</code> 워크플로우, <code>detect-private-key</code> 훅. JWT 인증(<code>helpers/jwt_auth.py</code>), SSL 헬퍼(<code>helpers/ssl.py</code>), redirect 검증(<code>helpers/redirect_validation.py</code>). SECURITY.md 부재</td>
+<td>★★★☆☆ 운영 보안 구현은 충분, 공개 보안 정책 문서 없음</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>Apache 2.0 라이선스, 명확한 코딩 가이드라인(AGENTS.md/CLAUDE.md), Sphinx 스타일 docstring 강제, 자동 백포트, Dependabot 자동 머지·승인 워크플로우. CHANGELOG 미확인, CONTRIBUTING.md 부재</td>
+<td>★★★★☆ 프로덕션 품질, 기여자 온보딩 문서 보완 필요</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h3>
+<p><strong>[한국어]</strong>
+Music Assistant Server는 Spotify, Apple Music, YouTube Music, Tidal, Deezer 등 50+ 스트리밍 서비스와 Sonos, Chromecast, AirPlay, DLNA, Snapcast 등 30+ 스피커 시스템을 단일 인터페이스로 통합하는 오픈소스 미디어 서버다. Home Assistant 생태계와 깊이 통합되며, 독립 실행 Docker 컨테이너로도 배포된다. 대상 사용자는 자체 호스팅 음악 관리 환경을 원하는 홈 오토메이션 사용자 및 오디오파일이다.</p>
+<p><strong>[English]</strong>
+Music Assistant Server is an open-source media server that unifies 50+ streaming services (Spotify, Apple Music, YouTube Music, Tidal, Deezer, etc.) and 30+ speaker systems (Sonos, Chromecast, AirPlay, DLNA, Snapcast, etc.) under a single interface. It integrates deeply with the Home Assistant ecosystem and is also deployable as a standalone Docker container. Target users are self-hosting enthusiasts and audiophiles who want a unified music management environment.</p>
+<hr />
+<h3 id="2-repository-structure">2. 저장소 구조 분석 (Repository Structure)</h3>
+<pre><code>music-assistant_server/
+├── music_assistant/          # 핵심 애플리케이션 패키지
+│   ├── __main__.py           # CLI 진입점 (271 lines)
+│   ├── mass.py               # 중앙 MusicAssistant 클래스 (1,138 lines)
+│   ├── constants.py          # 앱 상수 (46 KB)
+│   ├── controllers/          # 9개 컨트롤러 (config, music, players, streams, webserver 등)
+│   ├── models/               # 기반 클래스 (MusicProvider, PlayerProvider 등)
+│   ├── helpers/              # 25+ 유틸리티 (audio, ffmpeg, tags, jwt_auth 등)
+│   └── providers/            # 105개 플러그인 디렉터리
+├── tests/                    # pytest 테스트 스위트
+│   ├── conftest.py           # 공유 픽스처
+│   ├── controllers/          # 컨트롤러 테스트
+│   ├── providers/            # 33+ provider 테스트
+│   └── integration/          # 통합 테스트
+├── scripts/                  # 개발 보조 스크립트
+├── .github/workflows/        # 12개 CI/CD 워크플로우
+├── Dockerfile                # 멀티스테이지 프로덕션 이미지
+├── pyproject.toml            # 프로젝트 메타데이터·의존성·도구 설정
+├── .pre-commit-config.yaml   # 12개 pre-commit 훅
+└── devenv.nix                # Nix 개발 환경
+</code></pre>
+<ul>
+<li><strong>단일 앱 모노레포</strong>: 코드와 운영 자산(Docker, CI, 스크립트)이 한 저장소에 응집</li>
+<li><strong>도메인 지향 구조</strong>: providers/ 가 가장 큰 단위이며 type(music/player/metadata/plugin)별로 기능 분리</li>
+<li><strong>공개/비공개 코드 위치 규칙</strong>: public 메서드 파일 상단, private 메서드 하단 (CLAUDE.md 명시)</li>
+</ul>
+<hr />
+<h3 id="3-software-stack">3. 소프트웨어 스택 (Software Stack)</h3>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Python</td>
+<td>3.14 (<code>.python-version</code> 고정)</td>
+</tr>
+<tr>
+<td>비동기 프레임워크</td>
+<td>asyncio + aiohttp</td>
+<td>3.14.0</td>
+</tr>
+<tr>
+<td>오디오 처리</td>
+<td>FFmpeg</td>
+<td>6.1+ (외부 의존)</td>
+</tr>
+<tr>
+<td>ML/음악 분석</td>
+<td>PyTorch, torchaudio, librosa</td>
+<td>2.11.0 / 2.11.0 / 0.11.0</td>
+</tr>
+<tr>
+<td>직렬화</td>
+<td>orjson, mashumaro</td>
+<td>3.11.6 / 3.20</td>
+</tr>
+<tr>
+<td>데이터베이스</td>
+<td>SQLite (aiosqlite)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>패키징</td>
+<td>setuptools + uv</td>
+<td>61+ / latest</td>
+</tr>
+<tr>
+<td>린터/포매터</td>
+<td>ruff, mypy</td>
+<td>0.15.6 / 2.1.0</td>
+</tr>
+<tr>
+<td>컨테이너</td>
+<td>Docker (Alpine), ghcr.io</td>
+<td>—</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>GitHub Actions</td>
+<td>—</td>
+</tr>
+<tr>
+<td>서비스 검색</td>
+<td>zeroconf, aiortc</td>
+<td>0.149.12 / 1.6.0+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="4-architecture">4. 아키텍처 분석 (Architecture)</h3>
+<p><strong>핵심 패턴: 이벤트 구동 플러그인 아키텍처 (Event-Driven Plugin Architecture)</strong></p>
+<pre><code>                    ┌─────────────────────────────────────┐
+                    │           MusicAssistant (mass.py)   │
+                    │  ┌──────────┐  ┌──────────────────┐ │
+                    │  │ EventBus │  │  TaskManager     │ │
+                    │  └──────────┘  └──────────────────┘ │
+                    └───────┬─────────────────────────────┘
+                            │ manages
+          ┌─────────────────┼──────────────────┐
+          ▼                 ▼                  ▼
+   ┌─────────────┐  ┌──────────────┐  ┌──────────────┐
+   │ Controllers │  │  Providers   │  │  WebServer   │
+   │ (config,    │  │ (105 plugins)│  │ (REST+WS)    │
+   │  music,     │  │ Music/Player │  │ @api_command │
+   │  players,   │  │ /Metadata/   │  │ decorator    │
+   │  streams)   │  │ Plugin       │  └──────────────┘
+   └─────────────┘  └──────────────┘
+          │                 │
+          ▼                 ▼
+   ┌─────────────┐  ┌──────────────┐
+   │  SQLite DB  │  │ manifest.json│
+   │ (library.db)│  │ + __init__.py│
+   └─────────────┘  └──────────────┘
+</code></pre>
+<p><strong>주요 아키텍처 특성:</strong>
+- <strong>비동기 우선</strong>: 전체 코드베이스가 async/await 기반. 스레드풀(max 32 workers)은 executor 작업에만 한정
+- <strong>기능 협상</strong>: <code>ProviderFeature</code> enum으로 각 provider가 지원 기능을 선언, controller가 동적 능력 판별
+- <strong>API 자동 노출</strong>: <code>@api_command</code> 데코레이터로 WebSocket/REST 엔드포인트 자동 등록
+- <strong>이벤트 구독</strong>: <code>EventType</code> 기반 pub/sub, sync·async 콜백 모두 지원
+- <strong>플러그인 동적 로딩</strong>: manifest.json 기반 발견·설정·요구사항 자동 처리</p>
+<hr />
+<h3 id="5-quality-testing">5. 품질 및 테스트 시스템 (Quality &amp; Testing)</h3>
+<p><strong>테스트 도구:</strong>
+- <code>pytest</code> + <code>pytest-aiohttp</code> (비동기 HTTP 테스트)
+- <code>pytest-cov</code> (커버리지 측정)
+- <code>syrupy</code> (스냅샷 테스트)
+- <code>AsyncMock / MagicMock</code> (의존성 모킹)</p>
+<p><strong>테스트 구조:</strong></p>
+<pre><code>tests/
+├── conftest.py        # mass, mass_minimal 픽스처
+├── common.py          # MockProvider, MockPlayer, MockMass
+├── controllers/       # 컨트롤러 단위 테스트
+├── models/            # 모델 단위 테스트
+├── integration/       # 통합 테스트
+├── providers/         # 33+ provider 개별 테스트
+└── fixtures/          # 정적 테스트 데이터
+</code></pre>
+<p><strong>코드 품질 파이프라인:</strong>
+| 도구 | 역할 | 설정 |
+|------|------|------|
+| ruff | 린팅 + 자동 수정 + 포맷팅 | 줄 길이 100, Python 3.13 타겟 |
+| mypy | 정적 타입 검사 | strict 모드 |
+| codespell | 오타 검사 | 사용자 정의 스킵/무시 |
+| pre-commit | 로컬 훅 실행 | 12개 훅 |
+| pylint 설정 | 복잡도 제한 | max-args=10, max-complexity=25 |</p>
+<p><strong>CI 테스트 워크플로우:</strong> <code>push to stable/dev</code>, <code>PR</code> 발생 시 자동 실행.</p>
+<hr />
+<h3 id="6-security-supply-chain">6. 보안 및 공급망 (Security &amp; Supply Chain)</h3>
+<p><strong>구현된 보안 요소:</strong>
+- <code>helpers/jwt_auth.py</code> — JWT 기반 인증
+- <code>helpers/ssl.py</code> — SSL/TLS 설정
+- <code>helpers/redirect_validation.py</code> — 오픈 리다이렉트 방지
+- <code>helpers/security.py</code> — 보안 유틸리티
+- <code>detect-private-key</code> pre-commit 훅 — 비밀 키 커밋 방지
+- <code>dependency-security.yml</code> — GitHub Actions 보안 스캔
+- <code>auto-merge-dependency-updates.yml</code> — Dependabot PR 자동 승인·병합</p>
+<p><strong>Dependabot 설정:</strong></p>
+<pre><code class="language-yaml"># GitHub Actions: 일간 업데이트
+# pip 의존성: 주간 업데이트
+</code></pre>
+<p><strong>라이선스:</strong>
+- 프로젝트: Apache License 2.0
+- 서드파티 (NOTICE):
+  - Beat This! (MIT) — JKU Linz
+  - SKey (MIT) — Deezer SA
+  - Microsoft CLAP (MIT) — vendored 코드</p>
+<p><strong>미비 사항:</strong>
+- <code>SECURITY.md</code> 없음 (취약점 신고 채널 미공개)
+- SBOM(Software Bill of Materials) 없음
+- 아티팩트 서명(cosign 등) 미확인</p>
+<hr />
+<h3 id="7-documentation-operational-maturity">7. 문서화 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h3>
+<p><strong>문서 현황:</strong>
+| 문서 | 존재 여부 | 품질 |
+|------|-----------|------|
+| README.md | ✅ | 프로젝트 목적, 배포 방법, 외부 문서 링크 |
+| DEVELOPMENT.md | ✅ | 개발자 가이드 |
+| AGENTS.md / CLAUDE.md | ✅ | AI 어시스턴트 지침, 코딩 규칙 |
+| CONTRIBUTING.md | ❌ 없음 | — |
+| SECURITY.md | ❌ 없음 | — |
+| CODE_OF_CONDUCT.md | ❌ 미확인 | — |
+| CHANGELOG | ❌ 미확인 | 자동 릴리즈 노트 생성 스크립트 존재 |
+| ADR (Architecture Decision Records) | ❌ 없음 | — |
+| API 문서 | 외부 (music-assistant.io) | — |</p>
+<p><strong>릴리즈 전략:</strong>
+- 4채널 자동 릴리즈 (stable / beta / rc / nightly)
+- 버전 형식: <code>X.Y.Z</code>, <code>X.Y.ZbN</code>, <code>X.Y.ZrcN</code>, <code>X.Y.Z.devYYYYMMDDHH</code>
+- 릴리즈 노트 자동 생성 (<code>RELEASE_NOTES_GENERATION.md</code> 가이드라인 보유)
+- <code>backport-to-stable.yml</code> — bugfix 레이블 + backport-to-stable 레이블 시 자동 cherry-pick</p>
+<p><strong>PR 관리:</strong>
+- PR 레이블 자동화 (<code>pr-labels.yaml</code>)
+- Dependabot 자동 승인·병합</p>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>완성도 높은 플러그인 에코시스템</strong>: 105개 provider 디렉터리로 스트리밍·플레이어·메타데이터·분석 영역을 포괄. <code>manifest.json</code> + <code>__init__.py</code> 표준 인터페이스로 신규 provider 추가가 일관적이며, <code>_demo_*_provider/</code> 템플릿으로 진입 장벽이 낮다.</p>
+</li>
+<li>
+<p><strong>철저한 비동기 설계</strong>: 전체 I/O가 asyncio 기반이며 FFmpeg 스트리밍, 오디오 처리, HTTP 통신 모두 블로킹 없이 처리된다. 스레드풀(최대 32 workers)은 CPU 바운드 작업에만 한정 사용되어 이벤트 루프 오염을 최소화한다.</p>
+</li>
+<li>
+<p><strong>엄격한 코드 품질 자동화</strong>: mypy strict 모드, ruff 린팅/포매팅, codespell, 12개 pre-commit 훅이 파이프라인으로 강제된다. <code>check-python-version</code> 훅으로 <code>.python-version</code>과 <code>pyproject.toml</code>의 버전 불일치를 빌드 전에 차단한다.</p>
+</li>
+<li>
+<p><strong>성숙한 4채널 릴리즈 파이프라인</strong>: nightly/beta/rc/stable 분리, Docker 멀티플랫폼 빌드(amd64·arm64), ghcr.io 자동 push, Home Assistant 애드온 자동 배포, 버그픽스 자동 백포트가 모두 GitHub Actions로 자동화되어 있다.</p>
+</li>
+<li>
+<p><strong>이벤트 구동 + 기능 협상 패턴</strong>: <code>ProviderFeature</code> enum과 <code>@api_command</code> 데코레이터의 조합으로 provider가 지원 기능을 선언하고, 컨트롤러가 런타임에 능력을 판별한다. 새 provider는 기능 집합만 선언하면 WebSocket/REST API에 자동으로 노출된다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험/개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>SECURITY.md 및 취약점 신고 채널 부재</strong>: 취약점 발견 시 외부 연구자나 사용자가 어떻게 신고해야 하는지 공개 정책이 없다. GitHub의 Private vulnerability reporting이나 보안 이메일을 명시한 SECURITY.md를 추가해야 한다.</p>
+</li>
+<li>
+<p><strong>PyTorch·ML 의존성으로 인한 이미지 크기 및 빌드 복잡성</strong>: <code>torch 2.11.0</code>, <code>torchaudio</code>, <code>librosa</code>는 음성 분석 기능에만 사용되지만 전체 설치 크기를 수 GB 단위로 증가시킨다. CPU 전용 PyTorch 인덱스(<code>download.pytorch.org/whl/cpu</code>)를 사용하지만, 분석 기능 없이 경량 배포를 원하는 사용자에게는 옵션 분리가 필요하다.</p>
+</li>
+<li>
+<p><strong>CONTRIBUTING.md 및 기여자 온보딩 문서 없음</strong>: 105개 provider를 가진 규모임에도 외부 기여자를 위한 공식 기여 가이드가 없다. CLAUDE.md에 내부 지침이 있지만, GitHub 표준 CONTRIBUTING.md 파일 없이는 새 기여자 유입이 제한된다.</p>
+</li>
+<li>
+<p><strong>SQLite 단일 데이터베이스 확장 한계</strong>: 대규모 라이브러리(수십만 트랙)나 동시 접근 시나리오에서 SQLite의 쓰기 직렬화가 병목이 될 수 있다. 현재 아키텍처는 단일 인스턴스 가정 하에 설계되어 있어, 수평 확장이 필요한 환경에 적합하지 않다.</p>
+</li>
+<li>
+<p><strong>테스트 커버리지 수치 미공개 및 badge 부재</strong>: CI에서 <code>--cov=music_assistant</code>로 커버리지를 측정하지만, README나 PR에 커버리지 badge·임계값 설정이 없다. 커버리지 회귀를 자동으로 방지하는 <code>--cov-fail-under</code> 옵션 추가와 badge 표시를 권장한다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>[한국어]</strong></p>
+<p>Music Assistant Server는 <strong>홈 오디오 통합 플랫폼</strong>으로서 기술적 성숙도와 에코시스템 완성도가 높은 프로젝트다.</p>
+<ul>
+<li>
+<p><strong>기술 채택(Technology Adoption)</strong>: Python 비동기 플러그인 아키텍처, 이벤트 구동 설계, 멀티채널 릴리즈 자동화의 레퍼런스로 적합하다. 특히 <code>@api_command</code> 데코레이터 패턴과 <code>ProviderFeature</code> 기반 기능 협상은 확장 가능한 플러그인 시스템 설계의 좋은 사례다.</p>
+</li>
+<li>
+<p><strong>아키텍처 벤치마킹</strong>: 이벤트 구동 + 플러그인 구조를 채택하는 미디어 서버 또는 IoT 허브 프로젝트의 벤치마킹 대상으로 권장한다.</p>
+</li>
+<li>
+<p><strong>보안 검토</strong>: SECURITY.md 부재와 SBOM 미생성은 보안 정책 측면에서 개선이 필요하다. 엔터프라이즈 환경 도입 전 의존성 취약점 전체 스캔과 공급망 검토가 선행되어야 한다.</p>
+</li>
+<li>
+<p><strong>기여 준비도</strong>: 코딩 규칙과 provider 템플릿이 잘 정의되어 있으나 CONTRIBUTING.md 부재로 외부 기여 진입 장벽이 있다. 기여를 계획한다면 CLAUDE.md와 DEVELOPMENT.md를 먼저 숙지하고, <code>_demo_*_provider/</code> 템플릿을 참고해야 한다.</p>
+</li>
+<li>
+<p><strong>운영 성숙도</strong>: 4채널 릴리즈, 자동 백포트, Dependabot 자동화, Docker 멀티플랫폼 빌드는 프로덕션 운영 표준에 부합한다. 홈랩·커뮤니티 규모 배포에는 즉시 적용 가능하며, 대규모 엔터프라이즈 배포는 SQLite 확장 이슈 해결 후 검토를 권장한다.</p>
+</li>
+</ul>
+<p><strong>종합 평가: ★★★★☆ (4.5/5)</strong> — 명확한 도메인, 성숙한 자동화, 풍부한 에코시스템. SECURITY.md·CONTRIBUTING.md 보완 후 기여 및 도입 권장.</p>
+<hr />
+<p><strong>[English Summary]</strong></p>
+<p>Music Assistant Server is a technically mature open-source media server with a rich plugin ecosystem (105 providers), strict code quality automation (mypy strict + ruff + pre-commit), and a sophisticated 4-channel release pipeline (stable/beta/rc/nightly). The async-first, event-driven plugin architecture serves as an excellent reference for extensible system design. Primary gaps are the absence of a SECURITY.md vulnerability disclosure policy, missing CONTRIBUTING.md for external contributors, and potential SQLite scalability limits at scale. Recommended for adoption in home-lab and community-scale deployments; enterprise adoption requires a dependency security audit and SQLite bottleneck assessment first.</p>
+<p><strong>Overall Rating: ★★★★☆ (4.5/5)</strong></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>music-assistant/server</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/music-assistant/server" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

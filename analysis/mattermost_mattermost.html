@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mattermost/mattermost - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/mattermost/mattermost" target="_blank" rel="noopener">mattermost/mattermost</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Mattermost is an open source platform for secure collaboration across the entire software development lifecycle..</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 37550</span>
+      <span class="badge badge-stars">+391 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<h2 id="mattermost">Mattermost 소스 분석 보고서</h2>
+<p>분석 결과를 <code>/tmp/github-dashboard-analysis/mattermost_mattermost/.review/REVIEW-Source.md</code>에 저장했습니다.</p>
+<hr />
+<h2 id="_1">종합 분석 표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>오픈코어 자체 호스팅 팀 협업 플랫폼. 채팅·파일 공유·워크플로 자동화·음성·AI 통합을 단일 Linux 바이너리로 제공. DevSecOps·IT서비스데스크·사고 대응 엔터프라이즈 대응.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>모노레포. <code>server/</code>(Go 백엔드), <code>webapp/</code>(React/TS 7-workspace), <code>e2e-tests/</code>(Cypress+Playwright), <code>api/</code>(OpenAPI 스펙), <code>tools/</code> 분리. 코드-운영-문서 명확히 분리.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Go 1.26.3 + React 18/TypeScript 5.6.3, Node 24/npm 11, PostgreSQL(필수), Elasticsearch/OpenSearch(선택), Redis(캐시), S3/MinIO(파일), Docker/Kubernetes/Helm.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>server/cmd/mattermost/main.go</code> → <code>commands.Run()</code>. CLI 기반 부트스트랩. GitLab OAuth·슬래시 커맨드·엔터프라이즈 기능은 blank import로 플러그인식 로드.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>레이어드 모놀리스(App → API4/wsapi → Store). 인터페이스 기반 추상화(<code>einterfaces/</code>). 29종 백그라운드 잡 시스템. WebSocket 실시간 이벤트. 플러그인 시스템.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>PostgreSQL 단독 지원(MySQL 종료). sqlx + squirrel 쿼리 빌더. morph 마이그레이션. pgvector(AI 벡터 검색). S3/MinIO 파일 저장. Redis 세션·캐시.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Dockerfile 4종(기본·ES·OpenSearch·FIPS). docker-compose 3종. Kubernetes/Helm 지원. Gitpod 개발 환경. 월 1회(16일) 릴리스.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Go 단위/통합 (<code>*_test.go</code> 광범위). Cypress + Playwright E2E 이중 체계. Jest(프론트). 43개 GitHub Actions 워크플로(야간·주간·레이스·릴리스). CodeQL 정적 분석.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 책임 공개 정책. 최근 3릴리스+ESR 지원. OSSF Scorecard·CodeQL CI 통합. NOTICE.txt 646KB 의존성 라이선스 전체 명시. FIPS 빌드 환경.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>2015년 창립, 10년+ 운영. 월간 정기 릴리스. 700+ 통합. CODEOWNERS 설정. 43개 워크플로. 기여 가이드 완비. 오픈코어 상용 모델(MIT 코어).</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="top-5">강점 (Top 5)</h2>
+<ol>
+<li><strong>검증된 레이어드 모놀리스</strong>: <code>einterfaces/</code> 추상화로 테스트 가능성과 확장성을 동시에 확보. 29종 잡 시스템·WebSocket 실시간 통신이 긴밀하게 통합됨.</li>
+<li><strong>포괄적 CI/CD</strong>: 43개 GitHub Actions 워크플로로 단위·통합·E2E·야간 레이스 컨디션·보안 스캔·i18n·마이그레이션 자동화를 망라.</li>
+<li><strong>다중 배포 환경</strong>: 단일 바이너리 + Docker 4종(FIPS 포함) + Kubernetes/Helm + 주요 Linux 배포판 패키지로 규제 산업까지 커버.</li>
+<li><strong>오픈코어 경계 명확</strong>: <code>enterprise/</code> blank import 패턴으로 MIT 코어와 상용 기능 경계가 투명하게 분리됨.</li>
+<li><strong>현대적 프론트엔드 모노레포</strong>: 7개 npm 워크스페이스(API 클라이언트·Redux·타입·UI·ESLint 플러그인)로 관심사 분리 우수.</li>
+</ol>
+<h2 id="top-5_1">위험 / 개선 필요 사항 (Top 5)</h2>
+<ol>
+<li><strong>PostgreSQL 단독 의존</strong>: pgvector 등 전용 기능 증가로 이식성 저하 및 운영 부담 집중 우려.</li>
+<li><strong>CHANGELOG 외부 의존</strong>: 리포 내 릴리스 히스토리 부재로 오프라인 감사·자동화 도구 연동 어려움.</li>
+<li><strong>모놀리스 성장 한계</strong>: <code>channels/app/</code>이 16개 서브패키지로 누적되어 빌드·테스트 시간 및 팀 소유권 충돌 리스크.</li>
+<li><strong>Dependabot/Renovate 미확인</strong>: 50+ Go 의존성과 7개 npm 워크스페이스의 자동 취약점 패치 메커니즘 불명확.</li>
+<li><strong>E2E 이중 체계 비용</strong>: Cypress→Playwright 이행 중 두 프레임워크 병행 유지로 CI 시간 및 개발자 인지 부하 증가.</li>
+</ol>
+<h2 id="_2">도입 권고</h2>
+<p>데이터 주권·규제 준수(FIPS, HIPAA, FedRAMP)가 중요한 엔터프라이즈에 <strong>강력 권고</strong>. 아키텍처 벤치마킹(레이어드 모놀리스 모범 사례), 보안 검토(OSSF Scorecard·CodeQL 통합), 기여 준비도(AGENTS.md·CODEOWNERS·43개 워크플로) 모두 높은 수준. 운영 성숙도는 10년 실전 검증으로 신뢰도가 매우 높음.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>mattermost/mattermost</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/mattermost/mattermost" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
