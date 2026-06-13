@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-13 02:00:09 KST",
+  "generated_at": "2026-06-14 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 3,
+  "total_targets": 2,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,8 +17,8 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 3,
-      "skipped_existing_analysis": 2,
+      "selected": 2,
+      "skipped_existing_analysis": 3,
       "skipped_duplicate": 0
     },
     "weekly": {
@@ -36,44 +36,30 @@
   },
   "targets": [
     {
-      "rank": 2,
-      "name": "server",
-      "full_name": "music-assistant/server",
-      "owner": "music-assistant",
-      "description": "Music Assistant is a free, opensource Media library manager that connects to your streaming services and a wide range of connected speakers. The server is the beating heart, the core of Music Assistant and must run on an always-on device like a Raspberry Pi, a NAS or an Intel NUC or alike.",
-      "url": "https://github.com/music-assistant/server",
-      "stars": 1692,
-      "forks": 422,
-      "language": "Python",
-      "stars_gained": "6 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
       "rank": 3,
-      "name": "mattermost",
-      "full_name": "mattermost/mattermost",
-      "owner": "mattermost",
-      "description": "Mattermost is an open source platform for secure collaboration across the entire software development lifecycle..",
-      "url": "https://github.com/mattermost/mattermost",
-      "stars": 37550,
-      "forks": 8708,
-      "language": "TypeScript",
-      "stars_gained": "391 stars today",
+      "name": "chatwoot",
+      "full_name": "chatwoot/chatwoot",
+      "owner": "chatwoot",
+      "description": "Open-source live-chat, email support, omni-channel desk. An alternative to Intercom, Zendesk, Salesforce Service Cloud etc. 🔥💬",
+      "url": "https://github.com/chatwoot/chatwoot",
+      "stars": 30736,
+      "forks": 7546,
+      "language": "Ruby",
+      "stars_gained": "86 stars today",
       "topics": [],
       "period": "daily"
     },
     {
-      "rank": 5,
-      "name": "iptv",
-      "full_name": "iptv-org/iptv",
-      "owner": "iptv-org",
-      "description": "Collection of publicly available IPTV channels from all over the world",
-      "url": "https://github.com/iptv-org/iptv",
-      "stars": 117877,
-      "forks": 6292,
-      "language": "TypeScript",
-      "stars_gained": "142 stars today",
+      "rank": 4,
+      "name": "superpowers",
+      "full_name": "obra/superpowers",
+      "owner": "obra",
+      "description": "An agentic skills framework & software development methodology that works.",
+      "url": "https://github.com/obra/superpowers",
+      "stars": 226729,
+      "forks": 20152,
+      "language": "Shell",
+      "stars_gained": "931 stars today",
       "topics": [],
       "period": "daily"
     }
