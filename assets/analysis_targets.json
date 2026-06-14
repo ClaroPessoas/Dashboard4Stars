@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-14 02:00:09 KST",
+  "generated_at": "2026-06-15 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -18,14 +18,14 @@
     "daily": {
       "candidates": 5,
       "selected": 2,
-      "skipped_existing_analysis": 3,
-      "skipped_duplicate": 0
+      "skipped_existing_analysis": 2,
+      "skipped_duplicate": 1
     },
     "weekly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 4,
-      "skipped_duplicate": 1
+      "skipped_existing_analysis": 5,
+      "skipped_duplicate": 0
     },
     "monthly": {
       "candidates": 5,
@@ -37,29 +37,29 @@
   "targets": [
     {
       "rank": 3,
-      "name": "chatwoot",
-      "full_name": "chatwoot/chatwoot",
-      "owner": "chatwoot",
-      "description": "Open-source live-chat, email support, omni-channel desk. An alternative to Intercom, Zendesk, Salesforce Service Cloud etc. 🔥💬",
-      "url": "https://github.com/chatwoot/chatwoot",
-      "stars": 30736,
-      "forks": 7546,
-      "language": "Ruby",
-      "stars_gained": "86 stars today",
+      "name": "pytest",
+      "full_name": "pytest-dev/pytest",
+      "owner": "pytest-dev",
+      "description": "The pytest framework makes it easy to write small tests, yet scales to support complex functional testing",
+      "url": "https://github.com/pytest-dev/pytest",
+      "stars": 13981,
+      "forks": 3175,
+      "language": "Python",
+      "stars_gained": "8 stars today",
       "topics": [],
       "period": "daily"
     },
     {
       "rank": 4,
-      "name": "superpowers",
-      "full_name": "obra/superpowers",
-      "owner": "obra",
-      "description": "An agentic skills framework & software development methodology that works.",
-      "url": "https://github.com/obra/superpowers",
-      "stars": 226729,
-      "forks": 20152,
-      "language": "Shell",
-      "stars_gained": "931 stars today",
+      "name": "swc",
+      "full_name": "swc-project/swc",
+      "owner": "swc-project",
+      "description": "Rust-based platform for the Web",
+      "url": "https://github.com/swc-project/swc",
+      "stars": 33744,
+      "forks": 1400,
+      "language": "Rust",
+      "stars_gained": "163 stars today",
       "topics": [],
       "period": "daily"
     }

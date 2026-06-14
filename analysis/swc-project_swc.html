@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>swc-project/swc - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/swc-project/swc" target="_blank" rel="noopener">swc-project/swc</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Rust-based platform for the Web</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Rust</span>
+      <span class="badge badge-stars">★ 33744</span>
+      <span class="badge badge-stars">+163 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-15
+분석 대상: /tmp/github-dashboard-analysis/swc-project_swc</p>
+<hr />
+<h1 id="swc-speedy-web-compiler">SWC (Speedy Web Compiler) — 소스 분석 보고서</h1>
+<blockquote>
+<p><strong>REVIEW-Source.md</strong> | 단일 프로젝트 분석 | 분석일: 2026-06-15</p>
+</blockquote>
+<hr />
+<h2 id="1">1. 프로젝트 개요 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>Rust로 작성된 초고속 JavaScript/TypeScript 컴파일러. Babel 대체제로서 파싱·변환·번들링·최소화를 단일 툴체인에서 제공. Rust 라이브러리이자 Node.js/WASM 바인딩을 모두 포함</td>
+<td>★★★★★ — 명확한 단일 목표, 광범위한 적용 범위</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>Rust Cargo 워크스페이스 + pnpm npm 워크스페이스의 모노레포. 121개 크레이트(<code>crates/</code>), 11개 바인딩(<code>bindings/</code>), 6개 npm 패키지(<code>packages/</code>)</td>
+<td>★★★★☆ — 매우 세분화된 크레이트 구조, 초기 진입 장벽 높음</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Rust 2021 Edition (MSRV 1.73), nightly-2026-04-10(CI), NAPI v3(Node.js), wasm-bindgen(WASM), pnpm v10, rayon/tokio/wasmer/wasmtime</td>
+<td>★★★★★ — 최신 Rust 생태계 적극 활용, 멀티플랫폼 지원</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>crates/swc/src/lib.rs</code>(Rust API), <code>bindings/binding_core_node</code>(Node.js NAPI), <code>bindings/binding_core_wasm</code>(WASM), <code>bindings/swc_cli</code>(CLI)</td>
+<td>★★★★☆ — 명확한 다중 진입점, 문서화 추가 보강 필요</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>멀티패스 파이프라인: resolver → hygiene → fixer → transforms. 방문자 패턴(Visit/Fold/VisitMut), 문자열 인터닝(hstr), 아레나 할당자, proc-macro 기반 AST 자동 생성</td>
+<td>★★★★★ — 성능 최우선 설계, 확장 가능한 플러그인 시스템</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>인메모리 AST 트리 처리. 파일시스템 캐시 선택적 활성화(<code>filesystem_cache</code> feature). 영구 저장소 없음</td>
+<td>★★★★☆ — 컴파일러로서 적절, 캐시 전략 명시적</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Cargo 크레이트 퍼블리싱 + npm 패키지 퍼블리싱 자동화. GitHub Actions 16개 워크플로우, knope/changesets 기반 릴리스 자동화</td>
+<td>★★★★★ — 완전 자동화된 릴리스 파이프라인</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>픽스처 기반 테스트(20+ 디렉터리), tc39/test262 준수 테스트, Babel 호환 exec 테스트, Deno 통합 테스트, 실제 프로젝트 기반 테스트</td>
+<td>★★★★★ — 업계 최고 수준의 다층 테스트 전략</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 명시적 제공, 취약점 전용 이메일(비공개), Renovate 의존성 자동 업데이트, cargo-deny(라이선스·보안 스캔), 워크플로우 액션 버전 고정</td>
+<td>★★★★☆ — 보안 모델 명확하나 SBOM 미생성</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v66.0.1(swc), v1.15.41(CHANGELOG 기준 2026-06-09), 활발한 커밋, Discord 커뮤니티, 스폰서십(OpenCollective, JetBrains), 체계적인 기여 가이드</td>
+<td>★★★★★ — 프로덕션 검증된 성숙한 오픈소스 프로젝트</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2. 상세 분석</h2>
+<h3 id="2-1-purpose-scope">2-1. 목적 및 범위 (Purpose &amp; Scope)</h3>
+<p>SWC는 JavaScript·TypeScript 에코시스템을 위한 <strong>초고속 컴파일러 툴체인</strong>이다. Babel의 기능적 대체제로 시작했으나, 현재는 다음 기능을 아우른다:</p>
+<ul>
+<li><strong>파서(Parser):</strong> ECMAScript 2022+, TypeScript, JSX/TSX, Flow 타입</li>
+<li><strong>변환기(Transformer):</strong> ES3~ES2022 호환성 레이어 20+, TypeScript 제거, React JSX</li>
+<li><strong>최소화기(Minifier):</strong> Terser 호환 JavaScript/CSS/HTML 최소화</li>
+<li><strong>번들러(Bundler):</strong> <code>swc_bundler</code> — 실험적 번들링</li>
+<li><strong>플러그인 시스템:</strong> WASM 기반 사용자 정의 변환 플러그인</li>
+</ul>
+<p><strong>대상 사용자:</strong> Next.js, Deno, Vite, Rome(Biome), Parcel 등 주요 JavaScript 도구 개발자 및 대형 웹 프론트엔드 빌드 시스템 사용자.</p>
+<hr />
+<h3 id="2-2-repository-structure">2-2. 저장소 구조 분석 (Repository Structure)</h3>
+<pre><code>swc-project_swc/
+├── crates/           # 121개 Rust 크레이트 (핵심 로직)
+│   ├── swc/          # 메인 라이브러리 진입점
+│   ├── swc_ecma_*/   # JavaScript/TypeScript 관련 크레이트군
+│   ├── swc_css_*/    # CSS 처리 크레이트군 (13개)
+│   ├── swc_html_*/   # HTML 처리 크레이트군
+│   ├── swc_xml_*/    # XML 처리 크레이트군
+│   ├── swc_plugin_*/ # 플러그인 인프라
+│   └── testing*/     # 테스트 인프라
+├── bindings/         # 11개 플랫폼 바인딩
+│   ├── binding_core_node/    # Node.js NAPI 바인딩
+│   ├── binding_core_wasm/    # WebAssembly 바인딩
+│   └── swc_cli/              # CLI 도구
+├── packages/         # 6개 npm 패키지 (@swc/core 등)
+├── tools/            # 코드 생성 도구
+├── scripts/          # 빌드·퍼블리싱·벤치마킹 스크립트
+├── xtask/            # Cargo xtask 자동화
+└── docs/             # 문서 소스
+</code></pre>
+<p><strong>구조 패턴:</strong> 기능 지향적(function-oriented) 도메인 분리. 언어별(ecma/css/html/xml) + 기능별(parser/ast/codegen/transforms/minifier) 2차원 분리. 각 크레이트가 단일 책임을 유지.</p>
+<hr />
+<h3 id="2-3-tech-stack">2-3. 소프트웨어 스택 (Tech Stack)</h3>
+<table>
+<thead>
+<tr>
+<th>레이어</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Rust 2021 Edition (MSRV 1.73), nightly toolchain in CI</td>
+</tr>
+<tr>
+<td><strong>빌드 도구</strong></td>
+<td>Cargo (Rust), pnpm v10 (JS), xtask</td>
+</tr>
+<tr>
+<td><strong>직렬화</strong></td>
+<td>serde 1.0.225, serde_json, rkyv 0.8.16(제로카피)</td>
+</tr>
+<tr>
+<td><strong>병렬 처리</strong></td>
+<td>rayon 1.7.0, parking_lot, dashmap</td>
+</tr>
+<tr>
+<td><strong>비동기</strong></td>
+<td>tokio 1 (플러그인 런타임용)</td>
+</tr>
+<tr>
+<td><strong>WASM 런타임</strong></td>
+<td>wasmer 6.1.0-rc.3, wasmtime 38</td>
+</tr>
+<tr>
+<td><strong>Node.js 바인딩</strong></td>
+<td>napi 3, napi-derive</td>
+</tr>
+<tr>
+<td><strong>메모리 최적화</strong></td>
+<td>bumpalo (아레나), smallvec, smartstring, compact_str</td>
+</tr>
+<tr>
+<td><strong>문자열 인터닝</strong></td>
+<td>hstr, string_cache 0.8.7</td>
+</tr>
+<tr>
+<td><strong>CSS 파싱</strong></td>
+<td>lightningcss 1.0.0-alpha.68</td>
+</tr>
+<tr>
+<td><strong>CSS 브라우저 호환</strong></td>
+<td>browserslist-rs 0.19.0</td>
+</tr>
+<tr>
+<td><strong>정규식</strong></td>
+<td>regex, regress 0.10.3</td>
+</tr>
+<tr>
+<td><strong>로깅/프로파일링</strong></td>
+<td>tracing 0.1.41, tracing-chrome</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>criterion 0.5.1, pretty_assertions, assert_cmd</td>
+</tr>
+<tr>
+<td><strong>릴리스 자동화</strong></td>
+<td>changesets, git-cliff, knope</td>
+</tr>
+<tr>
+<td><strong>의존성 관리</strong></td>
+<td>Renovate, cargo-deny</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="2-4-architecture">2-4. 아키텍처 분석 (Architecture)</h3>
+<h4 id="_1">핵심 파이프라인</h4>
+<pre><code>소스 파일
+    │
+    ▼
+[swc_ecma_lexer] → 토큰 스트림
+    │
+    ▼
+[swc_ecma_parser] → AST (swc_ecma_ast)
+    │
+    ▼
+[resolver pass] → 식별자에 위생(hygiene) ID 부여
+    │
+    ▼
+[transforms] → ES 호환성, TypeScript 제거, React JSX 변환 등
+    │
+    ▼
+[hygiene pass] → ID 충돌 해결 (이름 변경)
+    │
+    ▼
+[fixer pass] → 연산자 우선순위 괄호 추가
+    │
+    ▼
+[swc_ecma_codegen] → JavaScript 소스 코드 출력
+    │
+    ▼
+[swc_sourcemap] → 소스맵 생성
+</code></pre>
+<h4 id="_2">핵심 설계 원칙</h4>
+<ol>
+<li><strong>방문자 패턴 (Visitor Pattern):</strong> <code>Visit</code>(불변), <code>Fold</code>(소유권), <code>VisitMut</code>(가변참조) 세 가지 변환 트레이트. <code>swc_visit</code> 크레이트에서 proc-macro로 자동 생성</li>
+<li><strong>문자열 인터닝:</strong> <code>Atom</code>(≒ <code>Arc&lt;str&gt;</code>) 타입으로 동일 문자열 중복 저장 제거. <code>&amp;str</code> &gt; <code>Cow&lt;str&gt;</code> &gt; <code>String</code> 우선순위 정책</li>
+<li><strong>아레나 할당:</strong> <code>bumpalo</code> 기반으로 AST 노드를 연속 메모리에 배치, GC 없이 일괄 해제</li>
+<li><strong>플러그인 시스템:</strong> WASM 샌드박스로 사용자 정의 변환 플러그인 실행 (wasmer/wasmtime 이중 백엔드)</li>
+<li><strong>다중 플랫폼:</strong> 동일 Rust 코어에서 Native(NAPI), WASM, CLI 동시 지원</li>
+</ol>
+<h4 id="_3">모듈 의존성 방향</h4>
+<pre><code>swc_core (재수출 허브)
+├── swc_ecma_ast        (데이터 모델, 의존성 없음)
+├── swc_ecma_parser     (lexer → parser)
+├── swc_ecma_transforms (base → compat → typescript → react → module → optimization → proposal)
+├── swc_ecma_minifier   (optimizer, tree-shaker)
+└── swc_ecma_codegen    (AST → 코드)
+</code></pre>
+<hr />
+<h3 id="2-5-quality-testing">2-5. 품질 및 테스트 시스템 (Quality &amp; Testing)</h3>
+<h4 id="_4">테스트 전략 (다층 구조)</h4>
+<table>
+<thead>
+<tr>
+<th>테스트 유형</th>
+<th>위치</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>픽스처 테스트</strong></td>
+<td>각 크레이트 <code>tests/fixture/</code></td>
+<td>입력→출력 골든 파일 비교</td>
+</tr>
+<tr>
+<td><strong>tc39 test262</strong></td>
+<td><code>swc_ecma_parser/tests/</code></td>
+<td>ECMAScript 표준 준수</td>
+</tr>
+<tr>
+<td><strong>Babel exec</strong></td>
+<td><code>crates/swc/tests/babel-exec/</code></td>
+<td>Babel 호환성 실행 테스트</td>
+</tr>
+<tr>
+<td><strong>Deno 통합</strong></td>
+<td><code>crates/swc_bundler/tests/deno-exec/</code></td>
+<td>Deno 런타임 통합</td>
+</tr>
+<tr>
+<td><strong>에러 테스트</strong></td>
+<td><code>tests/errors/</code></td>
+<td>오류 메시지 검증</td>
+</tr>
+<tr>
+<td><strong>실행 테스트</strong></td>
+<td><code>swc_ecma_minifier/scripts/exec.sh</code></td>
+<td>실제 코드 실행 결과 검증</td>
+</tr>
+<tr>
+<td><strong>프로젝트 테스트</strong></td>
+<td><code>crates/swc/tests/projects/</code></td>
+<td>실제 오픈소스 프로젝트 변환</td>
+</tr>
+<tr>
+<td><strong>벤치마크</strong></td>
+<td><code>criterion</code> 기반, <code>scripts/bench/</code></td>
+<td>회귀 성능 측정</td>
+</tr>
+</tbody>
+</table>
+<p><strong>픽스처 업데이트 워크플로우:</strong></p>
+<pre><code class="language-bash">UPDATE=1 cargo test -p &lt;crate&gt;  # 기대값 갱신
+cargo test -p &lt;crate&gt;            # 검증
+</code></pre>
+<h4 id="cicd-16">CI/CD 워크플로우 (16개)</h4>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>CI.yml</code></td>
+<td>fmt + clippy + deny + 테스트 (PR/push/merge-group)</td>
+</tr>
+<tr>
+<td><code>publish-npm-package.yml</code></td>
+<td>npm 패키지 자동 배포</td>
+</tr>
+<tr>
+<td><code>publish-crates.yml</code></td>
+<td>Cargo 크레이트 자동 배포</td>
+</tr>
+<tr>
+<td><code>bench.yml</code></td>
+<td>성능 회귀 탐지</td>
+</tr>
+<tr>
+<td><code>binary-size.yml</code></td>
+<td>바이너리 크기 추적</td>
+</tr>
+<tr>
+<td><code>ecosystem-ci.yml</code></td>
+<td>생태계 통합 테스트</td>
+</tr>
+<tr>
+<td><code>actions-security.yml</code></td>
+<td>GitHub Actions 보안 스캔</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_5">코드 품질 도구</h4>
+<ul>
+<li><code>rustfmt</code> — 포맷 강제 (<code>.rustfmt.toml</code>)</li>
+<li><code>clippy</code> — <code>-D warnings</code> 플래그로 경고를 에러로 처리</li>
+<li><code>cargo-deny</code> — 라이선스 충돌·취약 의존성 검사</li>
+<li><code>cspell</code> — 코드 내 오타 검사</li>
+<li><code>taplo</code> — TOML 파일 포맷 검증</li>
+<li><code>prettier</code> — JavaScript/TypeScript 파일 포맷</li>
+</ul>
+<hr />
+<h3 id="2-6-security-supply-chain">2-6. 보안 및 공급망 (Security &amp; Supply Chain)</h3>
+<h4 id="securitymd">보안 모델 명확화 (SECURITY.md)</h4>
+<blockquote>
+<p>SWC는 신뢰할 수 없는 입력(untrusted input) 처리를 위해 설계되지 않음. 사용자가 입력 유효성 검증 책임.</p>
+</blockquote>
+<p><strong>보안 범위 (In-scope):</strong>
+- Rust 크레이트, npm 패키지, CLI, 바인딩
+- 파서, 컴파일러, 변환기, 최소화기의 심각한 취약점</p>
+<p><strong>보안 범위 외 (Out-of-scope):</strong>
+- SaaS 형태 사용에 의존하는 문제
+- 지원 중단 버전
+- 실용적 영향이 없는 이론적 취약점</p>
+<p><strong>취약점 신고:</strong> <code>kdy.1997.dev@gmail.com</code> (비공개 이메일)</p>
+<h4 id="_6">의존성 관리</h4>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Renovate</strong></td>
+<td>자동 PR로 의존성 업데이트, squash 자동 병합</td>
+</tr>
+<tr>
+<td><strong>cargo-deny</strong></td>
+<td>라이선스 호환성·CVE 스캔</td>
+</tr>
+<tr>
+<td>GitHub Actions 버전 고정</td>
+<td><code>actions/checkout@v4.3.1</code> 등 SHA 고정</td>
+</tr>
+</tbody>
+</table>
+<p><strong>SBOM:</strong> 현재 미생성 — 공급망 투명성 부분 미흡</p>
+<p><strong>주요 라이선스:</strong>
+- SWC 자체: <strong>Apache-2.0</strong>
+- 주요 의존성: MIT, Apache-2.0, BSD-3-Clause 계열 (deny.toml로 검증)</p>
+<hr />
+<h3 id="2-7-documentation-operational-maturity">2-7. 문서화 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>README.md</code></td>
+<td>우수 — 빠른 시작, npm 설치, Babel 비교, 벤치마크, 커뮤니티</td>
+</tr>
+<tr>
+<td><code>ARCHITECTURE.md</code></td>
+<td>제공 — 핵심 패스 및 설계 원리 설명</td>
+</tr>
+<tr>
+<td><code>CONTRIBUTING.md</code></td>
+<td>상세 — 환경 설정, 라벨 체계, 기여 흐름</td>
+</tr>
+<tr>
+<td><code>SECURITY.md</code></td>
+<td>제공 — 보안 모델 명확히 정의</td>
+</tr>
+<tr>
+<td><code>MAINTENANCE.md</code></td>
+<td>제공 — 메인테이너 운영 절차</td>
+</tr>
+<tr>
+<td><code>CHANGELOG.md</code></td>
+<td>체계적 — git-cliff 자동 생성, v1.15.41(2026-06-09)</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td>미제공 — 아키텍처 결정 기록 부재</td>
+</tr>
+<tr>
+<td>API 문서</td>
+<td>Rustdoc (https://rustdoc.swc.rs/)</td>
+</tr>
+<tr>
+<td>외부 웹사이트</td>
+<td>https://swc.rs/docs/</td>
+</tr>
+</tbody>
+</table>
+<p><strong>이슈/PR 템플릿:</strong>
+- 버그 리포트: 구조화된 YAML 폼
+- 기능 요청: 구조화된 YAML 폼
+- PR 템플릿: 미제공 (자유 형식)</p>
+<p><strong>릴리스 전략:</strong>
+- Changesets 기반 시맨틱 버저닝
+- 주요 릴리스(major)/패치(patch) 명시적 선언
+- 자동화된 npm + Cargo 퍼블리싱</p>
+<p><strong>커뮤니티 활동:</strong>
+- 최신 커밋: 2026-06-15 (분석 시점 기준 당일)
+- 활발한 CHANGELOG (매주 이상 업데이트)
+- Discord 커뮤니티 운영
+- JetBrains·OpenCollective 스폰서십 확보</p>
+<hr />
+<h2 id="3-strengths">3. 강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>최고 수준의 성능 아키텍처:</strong> 아레나 할당(<code>bumpalo</code>), 문자열 인터닝(<code>hstr</code>/<code>string_cache</code>), <code>rayon</code> 데이터 병렬화, 최적화된 릴리스 프로파일(LTO=fat, codegen-units=1)이 체계적으로 결합된 성능 우선 설계.</p>
+</li>
+<li>
+<p><strong>산업 표준 수준의 테스트 생태계:</strong> tc39/test262 공식 준수 테스트 + Babel exec 호환 테스트 + 실제 오픈소스 프로젝트 회귀 테스트의 삼중 안전망. 픽스처 기반 골든 파일 전략으로 회귀 탐지 자동화.</p>
+</li>
+<li>
+<p><strong>WASM 플러그인 시스템:</strong> wasmer/wasmtime 이중 백엔드로 사용자 정의 변환 플러그인을 샌드박스에서 안전하게 실행. JavaScript 생태계에서 Rust 기반 플러그인 확장 가능.</p>
+</li>
+<li>
+<p><strong>완전 자동화된 릴리스 파이프라인:</strong> changesets + git-cliff + knope + GitHub Actions 16개 워크플로우로 Cargo 크레이트와 npm 패키지의 버전 관리·CHANGELOG 생성·퍼블리싱을 완전 자동화.</p>
+</li>
+<li>
+<p><strong>명확한 멀티플랫폼 전략:</strong> 동일 Rust 코어에서 Native Library(Rust), Node.js(NAPI v3), WebAssembly, CLI 네 가지 소비 방식을 동시 지원. 각 플랫폼별 독립된 바인딩 크레이트로 관심사 분리.</p>
+</li>
+</ol>
+<hr />
+<h2 id="4-risks-improvement-areas">4. 위험 / 개선 필요 사항 (Risks &amp; Improvement Areas)</h2>
+<ol>
+<li>
+<p><strong>높은 크레이트 복잡도 — 진입 장벽:</strong> 121개 크레이트의 의존성 그래프가 방대하다. 신규 기여자가 변경해야 할 크레이트를 찾는 데 상당한 시간 소요. 크레이트 간 의존성 시각화 문서(예: mermaid 다이어그램) 부재.</p>
+</li>
+<li>
+<p><strong>SBOM(소프트웨어 자재 명세서) 미생성:</strong> <code>cargo-sbom</code> 또는 <code>syft</code>를 통한 SBOM 아티팩트가 없음. 공급망 보안 감사 및 기업 도입 심사 시 장애 요인이 될 수 있음. cargo-deny 만으로는 전체 공급망 투명성을 보장하기 어려움.</p>
+</li>
+<li>
+<p><strong>단일 보안 연락처 의존:</strong> 취약점 신고가 개인 이메일(<code>kdy.1997.dev@gmail.com</code>) 단일 채널에 의존. 메인테이너 부재 시 신고 처리가 중단될 위험. GitHub Security Advisories 또는 팀 이메일 도입 권고.</p>
+</li>
+<li>
+<p><strong>nightly Rust 의존성 (CI):</strong> CI에서 <code>nightly-2026-04-10</code> 툴체인을 고정 사용. Rust stable 기능만으로 빌드하는 MSRV(1.73)와 CI 환경 사이의 괴리가 있어, stable에서 재현되지 않는 버그 또는 기능 의존이 잠재적으로 존재할 수 있음.</p>
+</li>
+<li>
+<p><strong>PR 템플릿 미제공 및 ADR 부재:</strong> Pull Request 템플릿이 없어 기여자가 테스트 결과, 변경 이유, 영향 범위를 체계적으로 기술하기 어렵다. 또한 주요 아키텍처 결정(예: wasmer vs wasmtime 이중 백엔드 선택, rkyv 도입 이유)에 대한 Architecture Decision Record가 존재하지 않아 역사적 맥락 파악이 어렵다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="5-adoption-recommendation">5. 도입 권고 (Adoption Recommendation)</h2>
+<h3 id="_7">기술 도입 관점</h3>
+<p><strong>강력 권고.</strong> SWC는 JavaScript/TypeScript 컴파일 파이프라인에서 Babel을 대체하는 <strong>가장 성숙한 선택지</strong>다. Next.js, Deno, Vite 등 주요 프레임워크가 이미 SWC를 프로덕션에서 채택했다는 사실이 산업 검증 증거다.</p>
+<h3 id="_8">아키텍처 벤치마킹 관점</h3>
+<p><strong>참조 가치 최상.</strong> 다음 패턴은 고성능 컴파일러/도구를 설계하는 모든 팀의 벤치마킹 대상이 된다:</p>
+<ul>
+<li>Visitor 패턴을 proc-macro로 자동 생성하는 접근법</li>
+<li>Arena allocator + 문자열 인터닝을 통한 메모리 최적화</li>
+<li>멀티패스 파이프라인 설계 (resolver → hygiene → transforms → codegen)</li>
+<li>WASM 샌드박스 플러그인 시스템 설계</li>
+</ul>
+<h3 id="_9">보안 검토 관점</h3>
+<p><strong>조건부 승인.</strong> Apache-2.0 라이선스는 기업 사용에 적합하다. 다만 SBOM 미생성과 단일 보안 연락처 문제는 엄격한 공급망 보안 정책을 가진 조직에서 추가 검토가 필요하다. 신뢰할 수 없는 입력(예: 사용자 업로드 JS 파일)을 SWC로 직접 처리하는 아키텍처는 SECURITY.md가 명시적으로 지원 범위 외임을 경고하므로 입력 검증 레이어를 반드시 별도 구성해야 한다.</p>
+<h3 id="_10">기여 준비도 관점</h3>
+<p><strong>중급 이상 권고.</strong> E-easy/E-mentor 라벨 이슈와 CONTRIBUTING.md의 상세한 환경 설정 가이드 덕분에 Rust 중급자라면 기여 시작이 가능하다. 단, 크레이트 구조 파악과 ARCHITECTURE.md 숙지에 초기 투자 시간이 필요하다.</p>
+<h3 id="_11">운영 성숙도 관점</h3>
+<p><strong>최상급.</strong> 완전 자동화된 CI/CD, 체계적인 CHANGELOG, Renovate 기반 의존성 관리, 활발한 커뮤니티, 정기적 릴리스 — 모든 지표에서 프로덕션 급 오픈소스 프로젝트의 기준을 충족하거나 초과한다.</p>
+<hr />
+<h2 id="appendix">Appendix: 분석 통계</h2>
+<table>
+<thead>
+<tr>
+<th>지표</th>
+<th>값</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>총 Rust 크레이트 수</td>
+<td>121개</td>
+</tr>
+<tr>
+<td>플랫폼 바인딩 수</td>
+<td>11개 (Node.js NAPI + WASM)</td>
+</tr>
+<tr>
+<td>npm 패키지 수</td>
+<td>6개</td>
+</tr>
+<tr>
+<td>CI 워크플로우 수</td>
+<td>16개</td>
+</tr>
+<tr>
+<td>Cargo.lock 라인 수</td>
+<td>9,894줄</td>
+</tr>
+<tr>
+<td>워크스페이스 의존성 수</td>
+<td>150개+</td>
+</tr>
+<tr>
+<td>MSRV</td>
+<td>Rust 1.73</td>
+</tr>
+<tr>
+<td>CI 툴체인</td>
+<td>nightly-2026-04-10</td>
+</tr>
+<tr>
+<td>메인 라이브러리 버전</td>
+<td>swc v66.0.1</td>
+</tr>
+<tr>
+<td>최신 CHANGELOG 항목</td>
+<td>v1.15.41 (2026-06-09)</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td>Apache-2.0</td>
+</tr>
+<tr>
+<td>분석일</td>
+<td>2026-06-15</td>
+</tr>
+</tbody>
+</table></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>swc-project/swc</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/swc-project/swc" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
