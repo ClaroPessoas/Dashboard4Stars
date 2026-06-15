@@ -95,10 +95,10 @@
     <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Learn it. Build it. Ship it for others.</div>
     
     <div class="repo-meta">
-      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-period">monthly trending</span>
       <span class="badge badge-lang">Python</span>
-      <span class="badge badge-stars">★ 9815</span>
-      <span class="badge badge-stars">+765 stars today</span>
+      <span class="badge badge-stars">★ 32901</span>
+      <span class="badge badge-stars">+24,741 stars this month</span>
     </div>
   </div>
   <div class="header-right">
@@ -107,15 +107,177 @@
 </div>
 
 <div class="tabs">
-  <button class="tab active" data-panel="analysis">📊 소스 분석</button>
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
   <button class="tab" data-panel="indepth">🔬 심층 분석</button>
   <button class="tab" data-panel="guide">📚 주니어 가이드</button>
 </div>
 
 <div class="content">
-  <div class="panel active" id="panel-analysis">
+  <div class="panel active" id="panel-source">
     
-    <div class="md-body"><p>분석 결과 없음</p></div>
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-16
+분석 대상: <code>/tmp/github-dashboard-analysis/rohitg00_ai-engineering-from-scratch</code></p>
+<hr />
+<h1 id="ai-engineering-from-scratch">AI Engineering from Scratch — 소스 코드 분석 보고서</h1>
+<h2 id="project-overview">프로젝트 개요 (Project Overview)</h2>
+<p><strong>rohitg00/ai-engineering-from-scratch</strong>는 선형대수부터 자율 멀티에이전트 시스템까지, AI 엔지니어링 전 영역을 다루는 <strong>오픈소스 커리큘럼</strong>이다. 20개 Phase, 503개 Lesson, 약 320시간 분량의 학습 자료로 구성되어 있으며, 매 Lesson마다 재사용 가능한 아티팩트(프롬프트, 스킬, 에이전트, MCP 서버)를 산출한다. Python, TypeScript, Rust, Julia 4개 언어를 사용하고, MIT 라이선스 하에 무료로 배포된다.</p>
+<hr />
+<h2 id="8-a">8-A 단일 프로젝트 보고서</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI/ML을 처음부터 손으로 직접 구축하며 학습하는 커리큘럼. "Build It / Use It" 패턴으로 알고리즘 수식 → 직접 구현 → 프레임워크 적용 순으로 진행. 84%가 AI 도구를 쓰지만 18%만 실무 준비가 됐다는 문제 의식에서 출발</td>
+<td>★★★★★ 명확하고 차별화된 교육 목적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>phases/NN-&lt;slug&gt;/NN-&lt;slug&gt;/{code/, docs/en.md, quiz.json, outputs/}</code> 구조로 503개 레슨이 일관되게 배치. <code>site/</code>(정적 웹사이트), <code>scripts/</code>(자동화), <code>glossary/</code>(277개 용어), <code>outputs/</code>(색인), <code>.claude/skills/</code>(에이전트 스킬) 분리. 기능 기반 단일 레포</td>
+<td>★★★★★ 모노레포이나 도메인 분리 명확</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python(numpy, torch, transformers, anthropic, openai 등), TypeScript(hono, zod, tsx), Rust(stdlib only), Julia(stdlib only). 런타임: Python 3.12, Node 20+. 배포: Vercel(정적 사이트). CI: GitHub Actions. 빌드: <code>node site/build.js</code></td>
+<td>★★★★☆ 폴리글랏 접근 적절, 단 Node 버전 <code>.nvmrc</code> 미존재</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>웹: <code>site/index.html</code> (Vercel 배포). 로컬 학습: <code>python phases/01-math-foundations/01-linear-algebra-intuition/code/vectors.py</code>. 에이전트: <code>.claude/skills/find-your-level/SKILL.md</code> (배치 퀴즈), <code>.claude/skills/check-understanding/SKILL.md</code> (단계별 퀴즈)</td>
+<td>★★★★★ 3가지 진입 경로 제공, 명확</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>콘텐츠 레이어(phases/)와 프레젠테이션 레이어(site/) 분리. <code>site/build.js</code>가 README.md, ROADMAP.md, glossary/terms.md를 파싱해 <code>site/data.js</code> 생성 (빌드 타임 SSG). 에이전트 스킬 레이어(.claude/) 별도. 데이터 흐름: Markdown → Parser → data.js → 브라우저 렌더링</td>
+<td>★★★★☆ 단방향 데이터 흐름, 단 data.js 중간 레이어가 병목 가능</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>학습 콘텐츠는 Markdown 파일(<code>.md</code>), 퀴즈는 JSON(<code>quiz.json</code>), 사이트 데이터는 생성된 JS(<code>data.js</code>), 통계는 수동 갱신 JSON(<code>site/stats.json</code>). DB 없음. <code>.gitignore</code>에 <code>models/</code>, <code>checkpoints/</code>, <code>*.safetensors</code> 등 대용량 모델 파일 명시적 제외</td>
+<td>★★★★☆ 가벼운 파일 기반, 통계 수동 갱신은 단점</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Vercel(vercel.json): <code>node site/build.js</code> → <code>site/</code> 정적 호스팅. URL 리라이트(<code>/glossary</code>, <code>/catalog</code>, <code>/path</code>), 정적 에셋 CDN 캐싱 설정. <code>.vercel</code> gitignore. <code>site/sitemap.xml</code>, <code>site/llms.txt</code>는 빌드 시 생성(버전 관리 제외)</td>
+<td>★★★★★ 제로-인프라 정적 배포, 스케일링 걱정 없음</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td><code>scripts/audit_lessons.py</code>: 레슨 구조 불변성 검사(L001~L010 규칙: 디렉토리 명명, docs/en.md 존재·UTF-8·H1, code/ 비어있지 않음, quiz.json 스키마 검증, 내부 링크 해결). CI 블로킹 게이트. 각 레슨 <code>code/tests/</code>에 5개 이상 단위 테스트 요구(AGENTS.md 기준). Python: <code>unittest</code>, TS: <code>tsx --test</code>, Rust/Julia: 인라인. 커버리지 도구 미설정. 퀴즈 63개 JSON 파일 확인</td>
+<td>★★★☆☆ 구조 감사는 탄탄하나 코드 테스트 CI 실행 없고 커버리지 미측정</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 없음. Dependabot/Renovate 설정 없음. GitHub Actions 워크플로우는 핀된 SHA 해시 사용(<code>actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5</code>)으로 공급망 공격 방어. <code>permissions: contents: read</code> 최소 권한 원칙 적용. <code>.gitignore</code>에 <code>.env</code>, <code>*.pem</code>, <code>*.key</code> 포함. 실제 비밀 키 하드코딩 없음(docs의 예시는 <code>sk-ant-...</code> 플레이스홀더만 사용). CodeRabbit AI 코드 리뷰 설정(<code>.coderabbit.yaml</code>)</td>
+<td>★★★☆☆ 공급망 보안 양호, 전용 SECURITY.md 및 의존성 취약점 자동 스캔 미비</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>README 90KB, ROADMAP 616줄, AGENTS.md 운영 매뉴얼 완비. PR 템플릿, 이슈 템플릿(버그/신규레슨) 있음. CODE_OF_CONDUCT.md, CONTRIBUTING.md, FORKING.md, SPONSORS.md 있음. GitHub Actions 자동화(readme-counts-sync, site-rebuild, audit). 150K+ 방문자/30일, 7500+ GitHub Stars. CHANGELOG 존재(KAC 형식). ADR 없음</td>
+<td>★★★★☆ 오픈소스 성숙도 높음, ADR·SECURITY.md 부재만 아쉬움</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>교육 설계의 일관성</strong>: 503개 레슨 전체가 동일한 6-beat 구조(MOTTO → PROBLEM → CONCEPT → BUILD IT → USE IT → SHIP IT)를 따른다. <code>audit_lessons.py</code>가 CI에서 이 불변성을 자동 검증한다.</p>
+</li>
+<li>
+<p><strong>에이전트 네이티브 설계</strong>: <code>.claude/skills/</code> 아래 <code>find-your-level</code>, <code>check-understanding</code> 스킬이 Claude, Cursor, Codex 등 MCP 호환 에이전트에서 바로 동작한다. 각 레슨이 재사용 가능한 프롬프트/스킬/에이전트/MCP 서버를 산출하는 "학습이 곧 도구 포트폴리오" 모델이 독창적이다.</p>
+</li>
+<li>
+<p><strong>공급망 보안 우수</strong>: GitHub Actions 워크플로우 전체가 커밋 SHA로 핀되어 있어(예: <code>actions/checkout@34e114...</code>) 의존성 하이재킹 위험이 낮다. 최소 권한(<code>permissions: contents: read</code>) 원칙도 명확히 적용된다.</p>
+</li>
+<li>
+<p><strong>자동화 파이프라인 완결성</strong>: 푸시 시 README 레슨 카운트 자동 동기화 → <code>site/data.js</code> 재빌드 → Vercel 배포까지 완전 자동화. 기여자가 콘텐츠만 작성하면 웹사이트가 자동 갱신된다. 루프 방지(봇 커밋 감지 + 5회 리트라이) 로직도 견고하다.</p>
+</li>
+<li>
+<p><strong>폴리글랏 + 의존성 최소화</strong>: Python, TypeScript, Rust, Julia를 다루면서도 각 언어별 의존성 허용 목록(allowlist)을 <code>AGENTS.md</code>에 명시해 교육 목적의 순수성을 유지한다. Rust는 stdlib만, Julia는 표준 라이브러리만 허용한다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험/개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>코드 실행 CI 테스트 없음</strong>: <code>audit_lessons.py</code>는 파일 구조와 스키마를 검증하지만 실제 코드를 실행하지 않는다. AGENTS.md는 "Code must run" 규칙을 명시하지만, CI에서 <code>python3 main.py</code> 자동 실행이 없어 실행 불가 코드가 합쳐질 수 있다. 503개 레슨 중 코드 파일 수는 Python 595개, TypeScript 129개, Rust 10개, Julia 20개인 반면, 실제 테스트 파일은 Python 63개, TS 27개로 커버리지가 낮다.</p>
+</li>
+<li>
+<p><strong>SECURITY.md 및 의존성 취약점 스캔 부재</strong>: 전용 보안 정책 파일이 없으며, Dependabot나 Renovate 같은 자동 취약점 스캔 도구가 설정되어 있지 않다. <code>requirements.txt</code>의 패키지들(torch, transformers, anthropic 등)은 취약점이 발견될 경우 수동 업데이트에만 의존한다.</p>
+</li>
+<li>
+<p><strong>사이트 통계 수동 갱신</strong>: <code>site/stats.json</code>은 Vercel 대시보드에서 수동으로 복사해 갱신해야 한다. 파일 자체에 "Vercel has no public analytics API"라고 명시. 자동화할 수 없는 구조적 한계가 문서화되어 있으나, 수치가 오래된 상태로 방치될 위험이 있다.</p>
+</li>
+<li>
+<p><strong>단일 기여자 의존도</strong>: git 히스토리가 얕게 클론되어 있고 (<code>git log --all</code>이 커밋 1개만 반환), SPONSORS.md와 AGENTS.md 모두 주요 관리자가 단일 인물(rohitg00)임을 시사한다. 커뮤니티 기여가 증가하고 있으나 핵심 설계 결정의 단일 실패 지점(SPOF)이 될 수 있다.</p>
+</li>
+<li>
+<p><strong>outputs/index.json 빈 상태</strong>: 루트 <code>outputs/index.json</code>이 빈 배열(<code>{"prompts":[], "skills":[], "agents":[], "mcp_servers":[]}</code>)인 반면, 각 레슨의 <code>outputs/</code> 폴더에는 493개의 아티팩트 마크다운이 존재한다. <code>install_skills.py</code>는 각 레슨을 직접 순회하므로 인덱스 파일이 사실상 dead code 상태다. 의도적 설계인지, 자동화 미완성인지 불명확하다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>교육 기관·팀 내 AI 온보딩·개인 심층 학습 모두에 강력 권고.</strong></p>
+<ul>
+<li><strong>기술 도입 벤치마킹</strong>: 에이전트 스킬 설계 패턴, "Build-It-First" 교육 방법론, Vercel 기반 무서버 정적 사이트 + GitHub Actions 자동화 파이프라인 조합은 유사 교육 플랫폼 구축 시 참조 아키텍처로 활용 가능하다.</li>
+<li><strong>기여 준비도</strong>: <code>AGENTS.md</code>에 기여 절차가 매우 상세하며, PR 체크리스트·이슈 템플릿·CodeRabbit AI 리뷰가 갖춰져 있다. 첫 기여 진입 장벽이 낮다.</li>
+<li><strong>운영 성숙도</strong>: 150K+ 월간 방문자, 7500+ GitHub Stars, 활발한 콘텐츠 업데이트(2026-04 Phase 4 완성, 2026-06 현재 진행 중)는 사장될 프로젝트가 아님을 시사한다.</li>
+<li><strong>주의 사항</strong>: 코드 실행 자동 테스트가 없으므로, 팀 환경에서 포크 후 활용 시 Phase별 smoke test CI를 추가하는 것을 권장한다. 또한 Python 의존성의 버전 고정(<code>requirements.txt</code>에 <code>&gt;=</code> 범위 지정)이 재현성 문제를 유발할 수 있으므로 <code>pip freeze</code> 기반 락 파일 추가를 검토해야 한다.</li>
+</ul>
+<hr />
+<h2 id="tech-stack-summary">기술 스택 요약 (Tech Stack Summary)</h2>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Python 3.12+, TypeScript (Node 20+), Rust (edition 2021), Julia</td>
+</tr>
+<tr>
+<td>AI/ML 라이브러리</td>
+<td>PyTorch 2.0+, HuggingFace Transformers 4.30+, scikit-learn 1.3+, anthropic 0.25+, openai 1.0+</td>
+</tr>
+<tr>
+<td>빌드</td>
+<td>Node.js (<code>site/build.js</code>), Python scripts</td>
+</tr>
+<tr>
+<td>배포</td>
+<td>Vercel (정적 사이트, <code>vercel.json</code> 설정)</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>GitHub Actions (<code>curriculum.yml</code>)</td>
+</tr>
+<tr>
+<td>코드 품질</td>
+<td><code>audit_lessons.py</code> (커스텀 불변성 검사), CodeRabbit AI 리뷰</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td>MIT (Copyright 2026 Rohit Ghumare)</td>
+</tr>
+<tr>
+<td>보안 도구</td>
+<td>GitHub Actions SHA 핀 (공급망 보안), <code>.gitignore</code> 시크릿 제외</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>이 보고서는 로컬 파일 시스템 분석을 기반으로 작성되었으며, 실시간 GitHub API 데이터는 포함되지 않습니다.</em></p></div>
     
   </div>
 

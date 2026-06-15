@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>teslamate-org/teslamate - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/teslamate-org/teslamate" target="_blank" rel="noopener">teslamate-org/teslamate</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A self-hosted data logger for your Tesla 🚘 [main maintainer=@JakobLichterfeld]</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Elixir</span>
+      <span class="badge badge-stars">★ 8185</span>
+      <span class="badge badge-stars">+35 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>Now I have enough information to compile the full analysis report.</p>
+<hr />
+<p>분석일: 2026-06-16
+분석 대상: <code>/tmp/github-dashboard-analysis/teslamate-org_teslamate</code></p>
+<hr />
+<h1 id="teslamate-review-source">TeslaMate — 소스 코드 분석 보고서 (REVIEW-Source)</h1>
+<p><strong>Analysis Date / 분석일:</strong> 2026-06-16
+<strong>Target Path / 분석 경로:</strong> <code>/tmp/github-dashboard-analysis/teslamate-org_teslamate</code>
+<strong>Current Version / 현재 버전:</strong> 4.1.0-dev (latest release: 4.0.1 @ 2026-06-14)</p>
+<hr />
+<h2 id="1-summary-table">1. 분석 요약표 (Summary Table)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>Tesla 차량의 주행·충전·배터리 상태 데이터를 자가 호스팅으로 수집·저장·시각화하는 오픈소스 데이터 로거. Tesla 공식 앱 대비 고정밀 데이터 기록 및 Grafana 대시보드 제공.</td>
+<td>★★★★★ 명확하고 집중적인 목적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 레포(모노레포에 가까우나 단일 앱). <code>lib/</code> (Elixir 코드), <code>test/</code>, <code>priv/repo/migrations/</code>, <code>grafana/</code>, <code>assets/</code>, <code>website/</code>, <code>nix/</code>, <code>.github/</code> 로 역할이 명확히 분리됨.</td>
+<td>★★★★☆ 구조가 깔끔하나 운영 자산과 코드가 같은 레포에 공존</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Elixir 1.17+(실제 빌드는 1.19.5/OTP-28), Phoenix 1.7 + LiveView 0.20, PostgreSQL + Ecto 3, MQTT(Tortoise311), Bulma CSS/Leaflet.js/esbuild, Docker 멀티아치(amd64/arm64), Nix devenv.</td>
+<td>★★★★★ 검증된 스택, OTP 생태계 강점</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>TeslaMate.Application</code> (OTP Application 콜백), <code>TeslaMateWeb.Endpoint</code> (Phoenix HTTP), <code>entrypoint.sh</code> (Docker CMD). DB 마이그레이션을 엔트리포인트에서 자동 실행.</td>
+<td>★★★★☆ 표준적 Phoenix 부트스트랩</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>OTP Supervisor 트리 + GenStateMachine(차량별 상태기계). 3개 모듈 경계: <code>TeslaApi</code>(외부 API 클라이언트), <code>TeslaMate</code>(비즈니스 로직 + 데이터), <code>TeslaMateWeb</code>(웹/LiveView). Phoenix PubSub 기반 실시간 이벤트. AES-256-GCM으로 API 토큰 암호화.</td>
+<td>★★★★★ 견고한 OTP 패턴, 명확한 레이어 분리</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>PostgreSQL(PostGIS 불포함, 순수 Postgres). Ecto 마이그레이션 100개로 v1 초기부터 스키마 진화 추적 가능. AES-GCM 암호화 필드(cloak_ecto). SRTM 고도 캐시(파일).</td>
+<td>★★★★☆ 견고하나 공간 쿼리는 Raw SQL에 의존</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker 멀티스테이지(빌더 Elixir 1.19.5 → debian:trixie-slim), 멀티아치(amd64/arm64), tini init, 비루트 유저(nonroot UID 10000). Nix flake + NixOS 모듈 제공. GitHub Actions로 태그 시 자동 DockerHub/GHCR 푸시.</td>
+<td>★★★★★ 보안·이식성 모두 우수</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>41개 테스트 파일, ExCoveralls 커버리지, main 브랜치 push 시 coveralls.io 리포트. 테스트 시 실 PostgreSQL 서비스 컨테이너 사용(모킹 최소화). Dialyzer(타입 정적분석), Credo(코드 스타일) CI 통합.</td>
+<td>★★★★☆ 통합 테스트 중심의 신뢰성 있는 구성, 커버리지 목표치 미설정</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 존재(네트워크 레벨 신뢰 모델 명시). OSV-Scanner 주간 스케줄+PR 차단. Dependabot 월간 전 생태계(mix/npm/docker/actions). CLA 서명 필수. AES-256-GCM 토큰 암호화. 빌트인 인증 없음(의도된 설계).</td>
+<td>★★★★☆ 의도적 무인증 모델로 배포 보안에 사용자 책임 전가</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>CHANGELOG.md 3000줄 이상, v1부터 v4.1까지 수년간 꾸준한 릴리스. OpenSSF Best Practices 배지 취득. 기여자 CLA 자동화, 다양한 CI 워크플로우, 스펠체크, 다국어(gettext). 활발한 커뮤니티(Docker pulls 수백만).</td>
+<td>★★★★★ 성숙한 오픈소스 프로젝트</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2">2. 상세 분석</h2>
+<h3 id="step-1-purpose-scope">Step 1. 목적과 범위 (Purpose &amp; Scope)</h3>
+<p>TeslaMate는 <strong>Tesla 차량 소유자를 위한 자가 호스팅 텔레메트리 로거</strong>다. Tesla 공식 앱이 제공하지 않는 고해상도 데이터(위치, 속도, 에너지 소비, 배터리 건강도, 흡혈 방전 등)를 Tesla Owner API로 폴링하여 PostgreSQL에 저장하고, 동봉된 Grafana 대시보드 21개로 시각화한다. MQTT 퍼블리시를 통해 Home Assistant·Node-RED·Telegram과의 통합도 지원한다.</p>
+<ul>
+<li><strong>타입:</strong> 애플리케이션 (셀프호스팅 SaaS 형태로 배포)</li>
+<li><strong>대상 사용자:</strong> Tesla 차량 소유자, 홈오토메이션 애호가, 데이터 분석 관심자</li>
+<li><strong>해결 문제:</strong> 공식 앱 대비 고정밀 로깅, 뱀파이어 드레인 최소화, 장기 배터리 건강도 추적, 다차량 관리</li>
+</ul>
+<hr />
+<h3 id="step-2-repository-structure">Step 2. 저장소 구조 분석 (Repository Structure)</h3>
+<pre><code>teslamate-org_teslamate/
+├── lib/
+│   ├── tesla_api/          # Tesla 외부 API 클라이언트 (Auth, Stream, Vehicle)
+│   ├── tesla_api.ex
+│   ├── teslamate/          # 핵심 비즈니스 로직
+│   │   ├── vehicles/       # 차량별 GenStateMachine
+│   │   ├── log/            # Ecto 스키마 (Car, Drive, Charge 등)
+│   │   ├── mqtt/           # MQTT 퍼블리셔/구독자
+│   │   ├── locations/      # 지오펜스, 주소 조회
+│   │   ├── import/         # TeslaFi 임포트
+│   │   ├── auth/, settings/
+│   │   └── vault.ex        # AES-GCM 암호화
+│   ├── teslamate_web/      # Phoenix 웹 레이어
+│   │   ├── live/           # Phoenix LiveView (설정, 지오펜스, 충전비용 등)
+│   │   ├── controllers/    # CarController, DriveController
+│   │   └── plugs/
+├── priv/repo/migrations/   # 100개 Ecto 마이그레이션 (2019~)
+├── grafana/
+│   ├── dashboards/         # 21개 Grafana 대시보드 JSON
+│   ├── datasource.yml
+│   └── Dockerfile
+├── assets/                 # 프론트엔드 (Bulma, Leaflet, esbuild)
+├── website/                # Docusaurus 문서 사이트
+├── nix/                    # Nix 플레이크 모듈
+├── test/                   # 41개 테스트 파일
+├── config/                 # Elixir 환경별 설정
+├── .github/workflows/      # 15개 CI 워크플로우
+├── Dockerfile
+├── entrypoint.sh
+├── mix.exs / mix.lock
+└── CHANGELOG.md / SECURITY.md / TRADEMARK.md
+</code></pre>
+<p><strong>구조 특성:</strong>
+- 기능(도메인) 지향 구조 — <code>vehicles</code>, <code>log</code>, <code>mqtt</code>, <code>locations</code> 등이 명확한 경계를 가짐
+- 운영 자산(grafana 대시보드, Dockerfile)과 소스코드가 단일 레포에 공존하는 실용적 모노레포
+- 외부 API 클라이언트(<code>tesla_api</code>)가 별도 네임스페이스로 분리된 점이 특기할 만함</p>
+<hr />
+<h3 id="step-3-software-stack">Step 3. 소프트웨어 스택 (Software Stack)</h3>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Elixir</td>
+<td>~1.17 (Dockerfile: 1.19.5)</td>
+</tr>
+<tr>
+<td>런타임</td>
+<td>Erlang/OTP</td>
+<td>28</td>
+</tr>
+<tr>
+<td>빌드</td>
+<td>Mix</td>
+<td>-</td>
+</tr>
+<tr>
+<td>웹 프레임워크</td>
+<td>Phoenix</td>
+<td>~1.7.0</td>
+</tr>
+<tr>
+<td>실시간 UI</td>
+<td>Phoenix LiveView</td>
+<td>~0.20.17</td>
+</tr>
+<tr>
+<td>ORM</td>
+<td>Ecto SQL</td>
+<td>~3.0</td>
+</tr>
+<tr>
+<td>데이터베이스</td>
+<td>PostgreSQL</td>
+<td>18 (CI), 실사용 권고 최신</td>
+</tr>
+<tr>
+<td>HTTP 클라이언트</td>
+<td>Tesla + Finch</td>
+<td>1.14 / 0.20</td>
+</tr>
+<tr>
+<td>MQTT</td>
+<td>Tortoise311</td>
+<td>~0.12</td>
+</tr>
+<tr>
+<td>암호화</td>
+<td>Cloak.Ecto (AES-256-GCM)</td>
+<td>~1.3</td>
+</tr>
+<tr>
+<td>상태기계</td>
+<td>GenStateMachine</td>
+<td>~3.0</td>
+</tr>
+<tr>
+<td>회로 차단기</td>
+<td>Fuse</td>
+<td>~2.5</td>
+</tr>
+<tr>
+<td>지형 데이터</td>
+<td>SRTM</td>
+<td>~0.8.0</td>
+</tr>
+<tr>
+<td>프론트엔드 CSS</td>
+<td>Bulma</td>
+<td>^1.0.4</td>
+</tr>
+<tr>
+<td>지도</td>
+<td>Leaflet.js</td>
+<td>^1.9.4</td>
+</tr>
+<tr>
+<td>번들러</td>
+<td>esbuild + SASS</td>
+<td>최신</td>
+</tr>
+<tr>
+<td>Node.js</td>
+<td>-</td>
+<td>20 (<code>.node-version</code>)</td>
+</tr>
+<tr>
+<td>컨테이너</td>
+<td>Docker (멀티스테이지)</td>
+<td>debian:trixie-slim</td>
+</tr>
+<tr>
+<td>아키텍처</td>
+<td>linux/amd64, linux/arm64</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Nix</td>
+<td>flake (devenv)</td>
+<td>nixos-26.05</td>
+</tr>
+<tr>
+<td>시각화</td>
+<td>Grafana</td>
+<td>별도 Docker 이미지</td>
+</tr>
+<tr>
+<td>i18n</td>
+<td>Gettext + ExCldr</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="step-4-architecture">Step 4. 아키텍처 분석 (Architecture)</h3>
+<h4 id="41">4.1 진입점</h4>
+<ul>
+<li><strong>OTP 앱 진입:</strong> <code>TeslaMate.Application.start/2</code> — 슈퍼바이저 트리 구동</li>
+<li><strong>HTTP 서버:</strong> <code>TeslaMateWeb.Endpoint</code> (Phoenix/Cowboy, 포트 4000)</li>
+<li><strong>Docker:</strong> <code>entrypoint.sh</code> → DB 마이그레이션 자동 실행 후 <code>bin/teslamate start</code></li>
+</ul>
+<h4 id="42">4.2 슈퍼바이저 트리</h4>
+<pre><code>TeslaMate.Supervisor (one_for_one)
+├── TeslaMate.Repo           # Ecto PostgreSQL 커넥션 풀
+├── TeslaMate.Vault          # AES-GCM 암호화 서비스
+├── TeslaMate.HTTP           # Finch HTTP 클라이언트 풀
+├── TeslaMate.Api            # Tesla Owner API 래퍼
+├── TeslaMate.Updater        # 앱 버전 업데이트 체커
+├── Phoenix.PubSub           # 내부 이벤트 버스
+├── TeslaMateWeb.Endpoint    # Phoenix HTTP 엔드포인트
+├── TeslaMate.Terrain        # SRTM 고도 데이터 캐시
+├── TeslaMate.Vehicles       # 차량 슈퍼바이저
+│   └── Vehicle (GenStateMachine) × N  # 차량당 1 프로세스
+├── TeslaMate.Mqtt (선택적)  # MQTT 브로커 연결
+└── TeslaMate.Repair         # 데이터 수리/정합성 작업
+</code></pre>
+<h4 id="43">4.3 아키텍처 패턴</h4>
+<ul>
+<li><strong>Domain-Driven Layering:</strong> <code>TeslaApi</code>(인프라/외부) → <code>TeslaMate</code>(도메인) → <code>TeslaMateWeb</code>(프레젠테이션)</li>
+<li><strong>State Machine per Vehicle:</strong> 각 차량이 독립적인 <code>GenStateMachine</code> 프로세스 — <code>online</code>, <code>asleep</code>, <code>driving</code>, <code>charging</code> 등의 상태를 OTP 방식으로 관리. 상태 전이 실패가 다른 차량에 영향을 미치지 않음.</li>
+<li><strong>Pre-Online Check Pattern:</strong> MCU2 차량의 가짜 온라인 이벤트를 스트리밍 API의 <code>power=nil</code> 신호로 구분하는 섬세한 로직 (<code>pre_online_check</code> 필드).</li>
+<li><strong>Phoenix LiveView:</strong> 서버 렌더링 실시간 UI — 별도 API/GraphQL 없이 LiveView가 상태 동기화 담당</li>
+<li><strong>Circuit Breaker:</strong> <code>fuse</code> 라이브러리로 외부 API 과부하 방지</li>
+</ul>
+<h4 id="44">4.4 데이터 흐름</h4>
+<pre><code>Tesla Owner API ─→ TeslaApi.Stream (WebSocket)
+                         │
+                    Vehicle (GenStateMachine)
+                         │
+              ┌──────────┼──────────┐
+              ▼          ▼          ▼
+          TeslaMate.Log  MQTT   Phoenix PubSub
+          (PostgreSQL)  Broker   (LiveView)
+              │
+         Grafana 대시보드
+</code></pre>
+<hr />
+<h3 id="step-5-quality-testing">Step 5. 품질 및 테스트 (Quality &amp; Testing)</h3>
+<h4 id="51">5.1 테스트 구성</h4>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>파일 수</th>
+<th>특징</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>비즈니스 로직 테스트</td>
+<td>~28개</td>
+<td><code>teslamate/</code> 네임스페이스, 실 DB 사용</td>
+</tr>
+<tr>
+<td>웹/LiveView 테스트</td>
+<td>~10개</td>
+<td><code>teslamate_web/</code> 네임스페이스</td>
+</tr>
+<tr>
+<td>기타 지원</td>
+<td>3개</td>
+<td>fixtures, support, test_helper</td>
+</tr>
+</tbody>
+</table>
+<ul>
+<li><strong>통합 테스트 중심:</strong> CI에서 <code>postgres:18-trixie</code> 서비스 컨테이너를 직접 기동하여 실 DB 대상 테스트 수행</li>
+<li><strong>모킹:</strong> <code>mock</code> 라이브러리가 <code>only: :test</code> 의존성으로 포함되나 최소한으로 사용</li>
+<li><strong>커버리지:</strong> ExCoveralls 설정 존재, <code>minimum_coverage: 0</code>으로 하한선 미설정 (개선 여지)</li>
+</ul>
+<h4 id="52-cicd">5.2 CI/CD 워크플로우</h4>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>devops.yml</code></td>
+<td>메인 오케스트레이터 (PR 및 main push 시 하위 워크플로우 체인)</td>
+</tr>
+<tr>
+<td><code>elixir_test.yml</code></td>
+<td>테스트 실행 + Coveralls 리포트</td>
+</tr>
+<tr>
+<td><code>elixir_dep_verification_and_static_analysis.yml</code></td>
+<td>Dialyzer + Credo + 미사용 의존성 + POT 파일 검증</td>
+</tr>
+<tr>
+<td><code>ensure_linting.yml</code></td>
+<td>treefmt (Nix 기반 포매터) CI 모드</td>
+</tr>
+<tr>
+<td><code>spell_check.yml</code></td>
+<td>typos 오탈자 검사</td>
+</tr>
+<tr>
+<td><code>osv-scanner.yml</code></td>
+<td>OSV 취약점 스캔 (주간 스케줄 + PR 차단)</td>
+</tr>
+<tr>
+<td><code>buildx.yml</code></td>
+<td>Docker 멀티아치 빌드 및 DockerHub/GHCR 푸시</td>
+</tr>
+<tr>
+<td><code>stale.yml</code></td>
+<td>비활성 이슈/PR 자동 정리</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주목할 CI 설계:</strong>
+- <code>check_paths.yml</code>로 <code>.github/</code> 경로 변경 PR은 일부 워크플로우 스킵 — 워크플로우 자체 변경이 무한 트리거 방지
+- 모든 GitHub Actions의 커밋 SHA 핀(예: <code>actions/checkout@df4cb1c069...</code>) — 공급망 공격 방어</p>
+<h4 id="53">5.3 정적 분석</h4>
+<ul>
+<li><strong>Dialyzer:</strong> PLT 캐시를 CI 캐시에 저장하여 재사용. <code>mix dialyzer --format github</code></li>
+<li><strong>Credo:</strong> <code>.credo.exs</code> 상세 설정 (8852바이트)</li>
+<li><strong>mix compile --warnings-as-errors:</strong> 경고를 빌드 실패로 처리</li>
+</ul>
+<hr />
+<h3 id="step-6-security-supply-chain">Step 6. 보안 및 공급망 (Security &amp; Supply Chain)</h3>
+<h4 id="61">6.1 보안 정책</h4>
+<p><code>SECURITY.md</code>에 <strong>네트워크 레벨 신뢰 모델</strong>이 명시:
+- 빌트인 인증 없음 — VPN, Cloudflare Tunnel, Tailscale, 리버스 프록시 등을 통한 외부 보호 필수
+- 인증 없는 엔드포인트 접근은 의도된 설계로 취약점 신고 대상 외
+- 보안 연락처: <code>security@teslamate.org</code></p>
+<h4 id="62">6.2 자격증명 암호화</h4>
+<p><code>TeslaMate.Vault</code> (cloak_ecto):
+- <strong>알고리즘:</strong> AES-256-GCM, 12바이트 랜덤 IV
+- <strong>키 관리:</strong> 환경변수 <code>ENCRYPTION_KEY</code> → 없으면 tmp 파일 → 없으면 랜덤 생성(재시작 시 손실 경고)
+- <strong>암호화 대상:</strong> <code>TeslaMate.Auth.Tokens</code> (Tesla OAuth 토큰)</p>
+<h4 id="63">6.3 공급망 보안</h4>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>범위</th>
+<th>주기</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Dependabot</td>
+<td>mix, npm(/assets), npm(/website), docker(/, /grafana), GitHub Actions</td>
+<td>월간</td>
+</tr>
+<tr>
+<td>OSV-Scanner (Google)</td>
+<td>전체 레포 재귀 스캔</td>
+<td>주간 + PR 차단</td>
+</tr>
+<tr>
+<td>GitHub Actions SHA 핀</td>
+<td>모든 외부 액션 커밋 SHA 고정</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<h4 id="64">6.4 라이선스</h4>
+<ul>
+<li><strong>메인 라이선스:</strong> AGPL-3.0 (강한 Copyleft — 네트워크 서비스로 제공 시에도 소스 공개 의무)</li>
+<li><strong>CLA 의무:</strong> 모든 기여자 서명 필수 (cla-assistant.io 자동화)</li>
+<li><strong>트레이드마크 정책:</strong> <code>TRADEMARK.md</code> 별도 존재 — TeslaMate 브랜드/로고 사용 제한</li>
+<li><strong>주요 의존성 라이선스:</strong> Apache 2.0(대부분), MIT — AGPL과 호환</li>
+</ul>
+<h4 id="65-docker">6.5 Docker 보안</h4>
+<ul>
+<li>비루트 사용자 (<code>nonroot</code>, UID 10000 / GID 10001)</li>
+<li><code>tini</code> init 프로세스 — 좀비 프로세스 방지</li>
+<li>멀티스테이지 빌드 — 빌드 도구가 최종 이미지에 포함되지 않음</li>
+<li><code>apt-get clean &amp;&amp; rm -rf /var/lib/apt/lists/*</code> — 이미지 크기 최소화</li>
+</ul>
+<hr />
+<h3 id="step-7-documentation-operational-maturity">Step 7. 문서 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h3>
+<h4 id="71">7.1 문서</h4>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>충실 (기능 목록, 스크린샷, 라이선스 설명, 보안 경고)</td>
+</tr>
+<tr>
+<td>docs.teslamate.org</td>
+<td>Docusaurus 기반 전용 문서 사이트 (<code>website/</code>)</td>
+</tr>
+<tr>
+<td>CONTRIBUTING</td>
+<td>간결 (외부 docs로 링크)</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>보안 모델 및 연락처 명시</td>
+</tr>
+<tr>
+<td>TRADEMARK.md</td>
+<td>상표 정책 상세 기술</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>3000줄, v1~v4.1 전 버전 기록 (2019~2026)</td>
+</tr>
+</tbody>
+</table>
+<h4 id="72">7.2 커뮤니티 및 관리</h4>
+<ul>
+<li><strong>OpenSSF Best Practices 배지</strong> 취득 (프로젝트 ID 10859)</li>
+<li><strong>GitHub 이슈 템플릿:</strong> <code>bug_report.yml</code> (체크리스트, 중복 확인 강제)</li>
+<li><strong>Stale bot:</strong> 비활성 이슈/PR 자동 정리</li>
+<li><strong>CLA 자동화:</strong> cla-assistant.io</li>
+</ul>
+<h4 id="73">7.3 릴리스 전략</h4>
+<ul>
+<li><strong>버전 관리:</strong> <code>VERSION</code> 파일 + Git 태그(<code>v*</code>) 기반 Docker 빌드 자동화</li>
+<li><strong>배포 주기:</strong> 활발 (2026년만 v2.0, v2.1.0, v2.1.1, v2.2.0, v3.0.0, v3.1.0, v4.0.0, v4.0.1 → 6개월 내 8회 릴리스)</li>
+<li><strong>야간 빌드:</strong> <code>buildx.yml</code>이 매일 03:00 UTC 스케줄로도 실행됨</li>
+</ul>
+<h4 id="74">7.4 다국어 지원</h4>
+<p><code>priv/gettext/</code> 경로에 다수 언어 PO 파일 존재, CI에서 POT 파일 최신성 검증.</p>
+<hr />
+<h2 id="3-strengths">3. 강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>OTP 기반 결함 격리:</strong> 차량별 <code>GenStateMachine</code> 프로세스 + Supervisor 전략으로, 특정 차량의 API 오류가 다른 차량이나 전체 시스템에 영향을 미치지 않는 고가용 설계.</p>
+</li>
+<li>
+<p><strong>정교한 차량 상태 관리:</strong> <code>pre_online_check</code> 패턴으로 MCU2 차량의 허위 온라인 이벤트를 스트리밍 API로 구분 — Tesla API의 실제 특성에 맞춘 도메인 지식이 코드에 반영.</p>
+</li>
+<li>
+<p><strong>포괄적 CI 파이프라인:</strong> Dialyzer(타입), Credo(스타일), treefmt(포매팅), typos(오탈자), OSV-Scanner(취약점), 실 DB 통합 테스트, 커버리지 리포트까지 단일 레포에서 완결.</p>
+</li>
+<li>
+<p><strong>공급망 보안 우수:</strong> 모든 GitHub Actions SHA 핀 + OSV-Scanner PR 차단 + Dependabot 전 생태계 커버 — 오픈소스 프로젝트로서 이례적으로 높은 수준.</p>
+</li>
+<li>
+<p><strong>운영 성숙도:</strong> 2019년부터 100개 마이그레이션 + 3000줄 CHANGELOG + OpenSSF 배지 + CLA 자동화 — 장기 유지보수 의지와 커뮤니티 신뢰도 확립.</p>
+</li>
+</ol>
+<hr />
+<h2 id="4-risks-improvements">4. 위험 / 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>빌트인 인증 부재:</strong> 네트워크 경계에 전적으로 의존하는 보안 모델은 설정 실수 시 모든 사용자 데이터(주행 위치, 충전 기록) 노출 위험. VPN/Tailscale 설정 가이드를 문서화했지만, 앱 레벨 인증 옵션(기본 비활성화 옵션이라도) 추가가 심층 방어 관점에서 권고됨.</p>
+</li>
+<li>
+<p><strong>커버리지 하한선 미설정:</strong> <code>coveralls.json</code>의 <code>"minimum_coverage": 0</code> — CI가 커버리지 하락을 감지하지 않음. 단계적 목표치(예: 70%) 설정으로 회귀 방지 강화 필요.</p>
+</li>
+<li>
+<p><strong>암호화 키 관리 취약점:</strong> <code>ENCRYPTION_KEY</code> 미설정 시 재시작마다 새 키 생성 → Tesla 토큰 재입력 필요. 운영 환경에서 흔한 실수이며, 경고 메시지가 있으나 키 로테이션이나 시크릿 관리 통합(Vault, k8s Secrets 등)은 미지원.</p>
+</li>
+<li>
+<p><strong>Tesla API 의존성 단일 실패점:</strong> Tesla 공식 API 변경/인증 방식 변경 시 전체 기능 장애. v4.0.x에서 리프레시 토큰 이슈 핫픽스 경험이 이를 방증. API 변경 감지 자동화 또는 캐내리 모니터링 부재.</p>
+</li>
+<li>
+<p><strong>공간 데이터 처리 제한:</strong> 위치 데이터 저장 및 쿼리에 PostGIS 없이 순수 Postgres를 사용 — 복잡한 지오펜스 쿼리와 지도 집계는 Raw SQL 의존. 향후 확장 시 병목 가능.</p>
+</li>
+</ol>
+<hr />
+<h2 id="5-recommendation">5. 도입 권고 (Recommendation)</h2>
+<p><strong>기술 도입 / 참조 아키텍처 벤치마킹 관점:</strong></p>
+<p>TeslaMate는 <strong>Elixir + OTP 생태계의 실전 레퍼런스</strong>로서 높은 가치를 가진다. 특히 다음 케이스에 권고:</p>
+<ul>
+<li><strong>IoT 데이터 로거 설계 참조:</strong> 디바이스(차량)당 독립 GenStateMachine + PubSub 패턴은 수십~수백 개 엔드포인트를 관리하는 IoT 시스템의 좋은 벤치마크.</li>
+<li><strong>Tesla 차량 데이터 분석:</strong> 자가 호스팅 환경에서 개인 Tesla 데이터를 완전히 제어하고 싶은 사용자에게 즉시 운영 가능한 수준.</li>
+<li><strong>오픈소스 운영 성숙도 학습:</strong> OpenSSF Best Practices, CLA 자동화, Actions SHA 핀, OSV-Scanner 통합 등은 오픈소스 프로젝트 운영의 모범 사례로 인용 가능.</li>
+</ul>
+<p><strong>주의사항:</strong>
+- 상업적 파생물에는 AGPL-3.0의 <strong>네트워크 서비스 조항</strong>이 적용되므로, SaaS 형태로 제공 시 소스 공개 의무 발생.
+- 빌트인 인증이 없으므로 퍼블릭 인터넷 직접 노출은 <strong>절대 금지</strong>. 반드시 VPN/리버스 프록시 뒤에 배치 필요.
+- Tesla API는 비공식 API로 언제든 변경될 수 있으며, 이는 서비스 중단 위험 상존.</p>
+<p><strong>종합 평가: ★★★★☆</strong> (4.5/5) — OTP 설계 우수성과 운영 성숙도가 뛰어나며, 인증 부재와 외부 API 의존이 주요 리스크.</p>
+<hr />
+<p><em>이 보고서는 2026-06-16 기준 소스 코드 정적 분석을 기반으로 작성되었습니다. 실행 환경 테스트 및 동적 분석은 포함되지 않았습니다.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>teslamate-org/teslamate</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/teslamate-org/teslamate" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
