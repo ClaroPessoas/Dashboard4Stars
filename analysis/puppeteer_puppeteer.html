@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>puppeteer/puppeteer - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/puppeteer/puppeteer" target="_blank" rel="noopener">puppeteer/puppeteer</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">JavaScript API for Chrome and Firefox</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 94830</span>
+      <span class="badge badge-stars">+80 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-17
+분석 대상: /tmp/github-dashboard-analysis/puppeteer_puppeteer</p>
+<hr />
+<h1 id="puppeteer">Puppeteer 오픈소스 분석 보고서</h1>
+<p><strong>REVIEW-Source.md</strong> | 단일 프로젝트 분석</p>
+<hr />
+<h2 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h2>
+<p><strong>Puppeteer</strong>는 Chrome/Firefox 브라우저를 DevTools Protocol(CDP) 또는 WebDriver BiDi 프로토콜로 프로그래밍 방식으로 제어하는 <strong>Node.js 고수준 API 라이브러리</strong>다. Google Chrome 팀이 관리하는 공식 오픈소스 프로젝트로, 주요 사용 사례는 다음과 같다:</p>
+<ul>
+<li><strong>웹 스크래핑 / 자동화</strong>: 헤드리스 브라우저 기반 콘텐츠 추출</li>
+<li><strong>E2E 테스트</strong>: 브라우저 수준 UI 자동화 테스트</li>
+<li><strong>PDF/Screenshot 생성</strong>: 서버사이드 렌더링 캡처</li>
+<li><strong>성능 분석</strong>: DevTools API를 통한 타이밍·리소스 측정</li>
+<li><strong>MCP(Model Context Protocol) 통합</strong>: LLM 에이전트의 브라우저 제어</li>
+</ul>
+<p><strong>대상 사용자</strong>: 웹 자동화가 필요한 개발자, QA 엔지니어, DevOps/인프라 팀, AI 에이전트 개발자</p>
+<hr />
+<h2 id="2">2. 프로젝트 요약 테이블</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>Chrome/Firefox 헤드리스 브라우저 제어 고수준 Node.js API. CDP 및 WebDriver BiDi 듀얼 프로토콜 지원</td>
+<td>★★★★★ 명확하고 독보적인 포지셔닝</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>npm 워크스페이스 기반 모노레포. 5개 패키지(puppeteer, puppeteer-core, browsers, ng-schematics, testserver)와 tools/, test/, website/ 분리</td>
+<td>★★★★★ 관심사 분리가 명확</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>TypeScript 6, Node.js ≥22.12, ESM, Wireit, Hereby, Rollup, ESLint 9 flat config, Mocha 11, Prettier, Docusaurus</td>
+<td>★★★★★ 최신 생태계 선도적 채택</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>puppeteer</code> (브라우저 번들), <code>puppeteer-core</code> (라이브러리 전용). CLI bin: <code>lib/puppeteer/node/cli.js</code></td>
+<td>★★★★☆ 두 패키지 진입점 구분이 명확</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>프로토콜 레이어(bidi/, cdp/)와 공개 API 레이어(api/)의 2단 분리. 이벤트 기반 통신, 의존성 방향 단방향 유지</td>
+<td>★★★★★ 헥사고날 유사 구조, 교체 가능한 프로토콜 구현</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>상태는 인메모리(브라우저 세션 객체). 영속 저장소 없음. 테스트 픽스처·골든파일로 회귀 관리</td>
+<td>★★★★☆ 라이브러리 특성상 적합한 설계</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>NPM 퍼블리시(OIDC 프로버넌스) + Docker 이미지(ghcr.io). release-please 자동화</td>
+<td>★★★★★ 공급망 보안 고려한 배포</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Mocha 기반 단위·통합·E2E. CDP/BiDi/헤드리스/헤드풀 행렬 테스트. TestExpectations.json 플래키 관리</td>
+<td>★★★★★ 업계 최고 수준의 테스트 인프라</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 명시, Scorecards 분석 CI, NPM 프로버넌스, 비루트 Docker 유저(pptruser)</td>
+<td>★★★★☆ Dependabot/Renovate 부재가 유일 약점</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v25.1.0, CHANGELOG 6000+ 라인, 릴리스 자동화, Docusaurus 버전 문서, 활성 커뮤니티</td>
+<td>★★★★★ 엔터프라이즈급 오픈소스 성숙도</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="3">3. 상세 분석</h2>
+<h3 id="3-1">3-1. 리포지토리 구조</h3>
+<pre><code>puppeteer/
+├── packages/
+│   ├── puppeteer/           # 사용자용: 브라우저 자동 다운로드 포함
+│   ├── puppeteer-core/      # 라이브러리 전용: 브라우저 없음
+│   │   └── src/
+│   │       ├── api/         # 공개 API 클래스 (Browser, Page, Frame 등)
+│   │       ├── bidi/        # WebDriver BiDi 프로토콜 구현
+│   │       ├── cdp/         # Chrome DevTools Protocol 구현
+│   │       ├── common/      # 공유 유틸, 이벤트, 쿼리 핸들러
+│   │       ├── injected/    # 페이지에 주입되는 스크립트
+│   │       └── node/        # Node.js 전용 브라우저 실행 로직
+│   ├── browsers/            # @puppeteer/browsers 다운로드·실행 관리
+│   ├── ng-schematics/       # Angular CLI 통합 스키매틱
+│   └── testserver/          # 테스트용 HTTP/HTTPS 서버
+├── tools/
+│   ├── docgen/              # TSDoc → Markdown API 문서 생성기
+│   ├── doctest/             # 문서 코드 예제 실행 테스터
+│   ├── mocha-runner/        # CDP/BiDi 전환 가능한 Mocha 커스텀 러너
+│   └── eslint/              # Puppeteer 전용 ESLint 플러그인
+├── test/                    # E2E·통합 테스트 (TestExpectations.json 포함)
+├── website/                 # Docusaurus 문서 사이트
+├── docker/                  # Dockerfile, 패키지 번들 스크립트
+└── examples/                # 사용 예제
+</code></pre>
+<p><strong>구조 특징</strong>: 코드(packages/)와 운영 자산(tools/, .github/)이 명확히 분리되어 있으며, 기능 지향과 레이어 지향이 혼합된 하이브리드 구조다.</p>
+<hr />
+<h3 id="3-2">3-2. 소프트웨어 스택</h3>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>TypeScript</td>
+<td>6.0.3</td>
+</tr>
+<tr>
+<td>런타임</td>
+<td>Node.js</td>
+<td>≥22.12.0 (.nvmrc: v24.15.0)</td>
+</tr>
+<tr>
+<td>모듈 시스템</td>
+<td>ESM (type: "module")</td>
+<td>-</td>
+</tr>
+<tr>
+<td>빌드 오케스트레이터</td>
+<td>Wireit</td>
+<td>최신</td>
+</tr>
+<tr>
+<td>빌드 태스크</td>
+<td>Hereby</td>
+<td>최신</td>
+</tr>
+<tr>
+<td>번들러</td>
+<td>Rollup (IIFE), esbuild</td>
+<td>최신</td>
+</tr>
+<tr>
+<td>테스트 프레임워크</td>
+<td>Mocha</td>
+<td>11.7.6</td>
+</tr>
+<tr>
+<td>린터</td>
+<td>ESLint</td>
+<td>9.39.4 (flat config)</td>
+</tr>
+<tr>
+<td>포매터</td>
+<td>Prettier</td>
+<td>3.8.3</td>
+</tr>
+<tr>
+<td>API 추출</td>
+<td>@microsoft/api-extractor</td>
+<td>-</td>
+</tr>
+<tr>
+<td>문서</td>
+<td>Docusaurus</td>
+<td>3.x</td>
+</tr>
+<tr>
+<td>브라우저 프로토콜</td>
+<td>CDP + WebDriver BiDi</td>
+<td>-</td>
+</tr>
+<tr>
+<td>주요 의존성</td>
+<td>chromium-bidi, devtools-protocol, ws</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="3-3">3-3. 아키텍처</h3>
+<h4 id="_1">핵심 설계 원칙: 프로토콜 추상화 레이어</h4>
+<pre><code>┌─────────────────────────────────────────┐
+│          Public API Layer               │
+│  Browser, BrowserContext, Page, Frame   │
+│  ElementHandle, JSHandle, Locator...    │
+│           (api/ directory)              │
+└──────────────┬──────────────────────────┘
+               │  implements
+    ┌──────────┴──────────┐
+    │                     │
+┌───▼──────┐       ┌──────▼────┐
+│  CDP     │       │  BiDi     │
+│ (cdp/)   │       │ (bidi/)   │
+│ Chrome   │       │ Chrome +  │
+│ specific │       │ Firefox   │
+└──────────┘       └───────────┘
+</code></pre>
+<ul>
+<li><strong>프로토콜 레이어 교체 가능</strong>: <code>puppeteer-core</code>의 <code>cdp/</code>와 <code>bidi/</code> 디렉토리가 동일한 <code>api/</code> 추상 클래스를 구현하므로, Chrome DevTools Protocol과 WebDriver BiDi를 런타임에 선택 가능</li>
+<li><strong>이벤트 기반 통신</strong>: <code>EventEmitter</code> 기반의 단방향 의존성 흐름</li>
+<li><strong>Locator 패턴</strong>: CSS, ARIA, XPath, 커스텀 쿼리 핸들러를 통합하는 <code>common/</code> 레이어의 쿼리 핸들러 시스템</li>
+<li><strong>주입 스크립트 분리</strong>: <code>injected/</code> 디렉토리에 브라우저 컨텍스트에서 실행될 코드 별도 관리</li>
+</ul>
+<hr />
+<h3 id="3-4">3-4. 테스트 시스템</h3>
+<h4 id="ci-githubworkflowsciyml">CI 매트릭스 (<code>.github/workflows/ci.yml</code>)</h4>
+<table>
+<thead>
+<tr>
+<th>브라우저</th>
+<th>모드</th>
+<th>프로토콜</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Chrome</td>
+<td>Headless</td>
+<td>CDP</td>
+</tr>
+<tr>
+<td>Chrome</td>
+<td>Headless</td>
+<td>BiDi</td>
+</tr>
+<tr>
+<td>Chrome</td>
+<td>Headful</td>
+<td>CDP</td>
+</tr>
+<tr>
+<td>Chrome</td>
+<td>Pipe</td>
+<td>CDP</td>
+</tr>
+<tr>
+<td>Chrome Headless Shell</td>
+<td>Headless</td>
+<td>CDP</td>
+</tr>
+<tr>
+<td>Firefox</td>
+<td>Headless</td>
+<td>BiDi</td>
+</tr>
+<tr>
+<td>Firefox</td>
+<td>Headful</td>
+<td>BiDi</td>
+</tr>
+</tbody>
+</table>
+<p><strong>테스트 인프라 특징</strong>:
+- <code>TestExpectations.json</code> (89KB): 플랫폼·브라우저별 테스트 스킵/플래키 관리
+- <code>deflake.yml</code> 워크플로우: 불안정 테스트 자동 감지
+- <code>daily.yml</code>: 매일 전체 테스트 스위트 실행
+- 골든 파일 비교: <code>test/golden-chrome/</code>, <code>test/golden-firefox/</code>
+- 타입 정의 테스트: <code>test-d/</code> (tsd 사용)
+- 문서 코드 예제 테스트: <code>tools/doctest/</code></p>
+<hr />
+<h3 id="3-5">3-5. 보안 및 공급망</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>✅ 존재 (Chromium 보안 프로세스 준용)</td>
+</tr>
+<tr>
+<td>NPM 프로버넌스</td>
+<td>✅ OIDC 기반 publish (<code>--provenance</code>)</td>
+</tr>
+<tr>
+<td>Scorecards CI</td>
+<td>✅ <code>scorecards-analysis.yml</code> 워크플로우</td>
+</tr>
+<tr>
+<td>라이선스 검증</td>
+<td>✅ <code>tools/validate-licenses.ts</code> + CI 통합</td>
+</tr>
+<tr>
+<td>Docker 비루트 실행</td>
+<td>✅ <code>pptruser</code> (UID 10042)</td>
+</tr>
+<tr>
+<td>Dependabot</td>
+<td>❌ 미설정</td>
+</tr>
+<tr>
+<td>Renovate</td>
+<td>❌ 미설정</td>
+</tr>
+<tr>
+<td>브라우저 버전 고정</td>
+<td>✅ <code>versions.json</code> 수동 관리 + 자동화 워크플로우</td>
+</tr>
+<tr>
+<td>시크릿 관리</td>
+<td>GitHub Actions Secrets (코드베이스에 하드코딩 없음)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>라이선스</strong>: Apache-2.0 (puppeteer, puppeteer-core), MIT (일부 의존성)</p>
+<hr />
+<h3 id="3-6">3-6. 문서 및 운영 성숙도</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README</td>
+<td>✅ 우수</td>
+<td>설치, 예제, MCP 통합 안내 포함</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅ 존재</td>
+<td>-</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>✅ 존재</td>
+<td>-</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>✅ 6191줄, 308KB</td>
+<td>release-please 자동 생성</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td>❌ 미존재</td>
+<td>아키텍처 결정 기록 없음</td>
+</tr>
+<tr>
+<td>API 문서</td>
+<td>✅ Docusaurus + TSDoc</td>
+<td>버전별 문서 관리</td>
+</tr>
+<tr>
+<td>이슈/PR 템플릿</td>
+<td>✅ GitHub 템플릿 존재</td>
+<td>-</td>
+</tr>
+<tr>
+<td>Stale 관리</td>
+<td>✅ <code>stale.yml</code> 워크플로우</td>
+<td>-</td>
+</tr>
+<tr>
+<td>릴리스 자동화</td>
+<td>✅ release-please + conventional commits</td>
+<td>-</td>
+</tr>
+<tr>
+<td>커뮤니티 활동</td>
+<td>✅ 활성 (Google Chrome 팀 주도)</td>
+<td>-</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-strengths">4. 강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>듀얼 프로토콜 추상화 아키텍처</strong>: <code>api/</code> 레이어가 CDP와 WebDriver BiDi를 모두 지원하도록 설계되어, Chrome과 Firefox를 단일 API로 제어 가능. 향후 새 프로토콜 추가 시 기존 API 변경 불필요한 확장성 보유</p>
+</li>
+<li>
+<p><strong>엔터프라이즈급 CI/CD 인프라</strong>: 7개 브라우저×모드 조합의 매트릭스 테스트, 일일 테스트, 플래키 감지 워크플로우, OIDC 기반 NPM 프로버넌스 퍼블리시까지 공급망 보안을 고려한 완전 자동화 파이프라인</p>
+</li>
+<li>
+<p><strong>Wireit 기반 증분 빌드 캐싱</strong>: 모노레포 환경에서 변경된 패키지만 재빌드하는 Wireit 태스크 오케스트레이션으로 개발 생산성 및 CI 효율 극대화</p>
+</li>
+<li>
+<p><strong>TypeScript 엄격 모드 + API Extractor</strong>: <code>noUncheckedIndexedAccess</code>, <code>strictNullChecks</code> 등 최고 수준의 타입 안전성과 <code>@microsoft/api-extractor</code>를 통한 공개 API 표면 명시적 관리로 하위 호환성 보장</p>
+</li>
+<li>
+<p><strong>문서-코드 일관성 보장</strong>: <code>tools/doctest/</code>가 README·문서의 코드 예제를 실제 실행하여 검증함으로써 문서가 항상 동작하는 코드임을 CI에서 보증</p>
+</li>
+</ol>
+<hr />
+<h2 id="5-risks-improvements">5. 위험 / 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>의존성 자동 갱신 미설정</strong>: Dependabot 또는 Renovate가 없어 <code>devtools-protocol</code>, <code>chromium-bidi</code> 등 주요 의존성의 취약점 패치가 수동 관리에 의존. 특히 <code>ws</code> (WebSocket 라이브러리)와 같은 전이 의존성의 취약점 노출 위험 존재</p>
+</li>
+<li>
+<p><strong>Node.js ≥22 요구 조건</strong>: <code>package.json</code>의 <code>engines.node &gt;= 22.12.0</code> 조건이 엔터프라이즈 환경의 도입 장벽이 될 수 있음. LTS 사이클에 맞춘 지원 정책 명문화 필요</p>
+</li>
+<li>
+<p><strong>Page.ts의 과도한 크기 (103KB)</strong>: <code>api/Page.ts</code>가 103KB에 달해 단일 파일에 과도한 책임이 집중됨. 유지보수 복잡도와 PR 충돌 위험이 높으며, 도메인별 분리 리팩토링이 장기적으로 필요</p>
+</li>
+<li>
+<p><strong>ADR(Architecture Decision Record) 부재</strong>: BiDi 전환, ESM 전환, Node 22 요구 조건 등 주요 아키텍처 결정의 근거가 코드나 CHANGELOG에만 분산되어 있고 체계적으로 문서화되지 않아 신규 기여자의 맥락 파악이 어려움</p>
+</li>
+<li>
+<p><strong>TestExpectations.json 증가 부채</strong>: 89KB에 달하는 테스트 기대값 파일이 플랫폼별 스킵 항목 누적으로 계속 증가하는 구조. 주기적 정리 정책 없이는 테스트 신뢰성 지표가 희석될 위험</p>
+</li>
+</ol>
+<hr />
+<h2 id="6-adoption-recommendation">6. 도입 권고 (Adoption Recommendation)</h2>
+<h3 id="_2">기술 도입 관점</h3>
+<p><strong>강력 권고</strong>: 브라우저 자동화 프로젝트의 사실상 표준 라이브러리. Google Chrome 팀의 직접 유지관리로 DevTools Protocol 최신 기능의 즉각적 지원이 보장된다. WebDriver BiDi 지원으로 Selenium/WebDriver 기반 프로젝트의 마이그레이션 경로도 제공한다.</p>
+<h3 id="_3">아키텍처 벤치마킹 관점</h3>
+<p><strong>참고 권장</strong>: 모노레포 구성(Wireit + npm workspaces), 듀얼 프로토콜 추상화 패턴, CI 매트릭스 설계, 문서 코드 테스트(<code>doctest</code>) 방식은 유사 규모의 오픈소스 라이브러리 설계 시 참고할 수 있는 우수 사례다.</p>
+<h3 id="_4">보안 검토 관점</h3>
+<p><strong>조건부 적합</strong>: OIDC 프로버넌스와 Scorecards 분석은 공급망 보안 요구사항을 충족하나, Dependabot/Renovate 미설정으로 인한 의존성 취약점 모니터링 공백을 도입 조직에서 자체 보완해야 한다.</p>
+<h3 id="_5">기여 준비도 관점</h3>
+<p><strong>준비 완료</strong>: CONTRIBUTING.md, 코드 스타일 자동화(ESLint + Prettier), conventional commit 검증, 이슈/PR 템플릿, Stale 관리까지 갖춰진 성숙한 기여 환경이다. 다만 복잡한 테스트 매트릭스와 로컬 브라우저 환경 설정이 초기 기여의 진입 장벽으로 작용할 수 있다.</p>
+<hr />
+<p><em>분석 기준: 코드베이스 직접 검사 (README, package.json, tsconfig, CI workflows, 소스 구조, CHANGELOG, SECURITY.md, Docker 설정 등)</em>
+<em>분석일: 2026-06-17</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>puppeteer/puppeteer</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/puppeteer/puppeteer" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

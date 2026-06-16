@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-16 02:00:09 KST",
+  "generated_at": "2026-06-17 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 3,
+  "total_targets": 1,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,65 +17,37 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 2,
+      "selected": 1,
       "skipped_existing_analysis": 3,
-      "skipped_duplicate": 0
+      "skipped_duplicate": 1
     },
     "weekly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 5,
-      "skipped_duplicate": 0
+      "skipped_existing_analysis": 4,
+      "skipped_duplicate": 1
     },
     "monthly": {
       "candidates": 5,
-      "selected": 1,
-      "skipped_existing_analysis": 3,
-      "skipped_duplicate": 1
+      "selected": 0,
+      "skipped_existing_analysis": 5,
+      "skipped_duplicate": 0
     }
   },
   "targets": [
     {
-      "rank": 2,
-      "name": "teslamate",
-      "full_name": "teslamate-org/teslamate",
-      "owner": "teslamate-org",
-      "description": "A self-hosted data logger for your Tesla 🚘 [main maintainer=@JakobLichterfeld]",
-      "url": "https://github.com/teslamate-org/teslamate",
-      "stars": 8185,
-      "forks": 944,
-      "language": "Elixir",
-      "stars_gained": "35 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
-      "rank": 4,
-      "name": "meshery",
-      "full_name": "meshery/meshery",
-      "owner": "meshery",
-      "description": "Meshery, the cloud native manager",
-      "url": "https://github.com/meshery/meshery",
-      "stars": 10575,
-      "forks": 3431,
-      "language": "TypeScript",
-      "stars_gained": "227 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
       "rank": 5,
-      "name": "ai-engineering-from-scratch",
-      "full_name": "rohitg00/ai-engineering-from-scratch",
-      "owner": "rohitg00",
-      "description": "Learn it. Build it. Ship it for others.",
-      "url": "https://github.com/rohitg00/ai-engineering-from-scratch",
-      "stars": 32901,
-      "forks": 5387,
-      "language": "Python",
-      "stars_gained": "24,741 stars this month",
+      "name": "puppeteer",
+      "full_name": "puppeteer/puppeteer",
+      "owner": "puppeteer",
+      "description": "JavaScript API for Chrome and Firefox",
+      "url": "https://github.com/puppeteer/puppeteer",
+      "stars": 94830,
+      "forks": 9448,
+      "language": "TypeScript",
+      "stars_gained": "80 stars today",
       "topics": [],
-      "period": "monthly"
+      "period": "daily"
     }
   ]
 }
