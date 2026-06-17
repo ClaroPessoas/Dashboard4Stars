@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-17 02:00:09 KST",
+  "generated_at": "2026-06-18 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 1,
+  "total_targets": 2,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,15 +17,15 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 1,
+      "selected": 2,
       "skipped_existing_analysis": 3,
-      "skipped_duplicate": 1
+      "skipped_duplicate": 0
     },
     "weekly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 4,
-      "skipped_duplicate": 1
+      "skipped_existing_analysis": 5,
+      "skipped_duplicate": 0
     },
     "monthly": {
       "candidates": 5,
@@ -36,16 +36,30 @@
   },
   "targets": [
     {
-      "rank": 5,
-      "name": "puppeteer",
-      "full_name": "puppeteer/puppeteer",
-      "owner": "puppeteer",
-      "description": "JavaScript API for Chrome and Firefox",
-      "url": "https://github.com/puppeteer/puppeteer",
-      "stars": 94830,
-      "forks": 9448,
-      "language": "TypeScript",
-      "stars_gained": "80 stars today",
+      "rank": 1,
+      "name": "codebase-memory-mcp",
+      "full_name": "DeusData/codebase-memory-mcp",
+      "owner": "DeusData",
+      "description": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph — average repo in milliseconds. 158 languages, sub-ms queries, 99% fewer tokens. Single static binary, zero dependencies.",
+      "url": "https://github.com/DeusData/codebase-memory-mcp",
+      "stars": 4716,
+      "forks": 454,
+      "language": "C",
+      "stars_gained": "718 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 2,
+      "name": "iroh",
+      "full_name": "n0-computer/iroh",
+      "owner": "n0-computer",
+      "description": "IP addresses break, dial keys instead. Modular networking stack in Rust.",
+      "url": "https://github.com/n0-computer/iroh",
+      "stars": 9555,
+      "forks": 446,
+      "language": "Rust",
+      "stars_gained": "422 stars today",
       "topics": [],
       "period": "daily"
     }

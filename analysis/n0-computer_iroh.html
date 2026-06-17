@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>n0-computer/iroh - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/n0-computer/iroh" target="_blank" rel="noopener">n0-computer/iroh</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">IP addresses break, dial keys instead. Modular networking stack in Rust.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Rust</span>
+      <span class="badge badge-stars">★ 9555</span>
+      <span class="badge badge-stars">+422 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-18
+분석 대상: <code>/tmp/github-dashboard-analysis/n0-computer_iroh</code></p>
+<hr />
+<h1 id="iroh-n0-computeriroh">iroh (n0-computer/iroh) — 소스 코드 분석 보고서</h1>
+<blockquote>
+<p><strong>Source Analysis Report</strong> | Target: <code>n0-computer/iroh</code> | Version: <code>1.0.0</code> (released 2026-06-15)</p>
+</blockquote>
+<hr />
+<h2 id="summary-table">분석 요약표 / Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>공개키(Ed25519) 기반 P2P QUIC 연결 라이브러리. 홀펀칭과 릴레이 폴백을 통해 임의 네트워크 환경에서 직접 연결을 제공. "dialing by public key"</td>
+<td>★★★★★ 명확하고 독창적인 문제 정의</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>Cargo 워크스페이스 모노레포. <code>iroh</code>(핵심 라이브러리), <code>iroh-base</code>(기반 타입), <code>iroh-dns</code>(DNS 탐색), <code>iroh-dns-server</code>(pkarr/DNS 서버), <code>iroh-relay</code>(릴레이 서버+클라이언트) 5개 크레이트</td>
+<td>★★★★★ 관심사 분리 우수</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Rust 2024 edition, MSRV 1.91, Tokio 비동기 런타임, QUIC(noq/quinn 포크), rustls(ring or aws-lc-rs), ed25519-dalek, hickory-resolver, axum(릴레이 서버), redb(DNS 서버 저장소), WASM 지원</td>
+<td>★★★★☆ 견고한 스택, 일부 RC 의존성</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>iroh::Endpoint</code> (라이브러리) / <code>iroh-relay/src/main.rs</code> (릴레이 서버 바이너리) / <code>iroh-dns-server/src/main.rs</code> (DNS 서버 바이너리)</td>
+<td>★★★★★ 명확한 진입점</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>액터 기반 비동기 아키텍처. <code>Endpoint → Socket → Transports(IP/Relay/Custom) → RemoteMap → RemoteStateActor</code>. ALPN 기반 프로토콜 라우팅(<code>Router/ProtocolHandler</code>). 커스텀 트랜스포트 플러그인 지원</td>
+<td>★★★★★ 계층화·확장 우수</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>영속 저장소 없음(순수 네트워킹 라이브러리). DNS 서버만 redb(embedded key-value) 사용. 인메모리 상태 관리</td>
+<td>★★★★★ 명확한 역할 분리</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker(multi-stage alpine 빌드), GitHub Actions 릴리즈 워크플로, ansible 배포 스크립트 존재. 릴레이/DNS 서버는 컨테이너 또는 바이너리 배포. EXPOSE 80/443/3478/udp/9090(메트릭스)</td>
+<td>★★★★☆ 인프라 성숙, k8s 헬름 차트 없음</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>유닛 테스트(인라인 <code>#[test]</code>), 통합 테스트(<code>iroh/tests/integration.rs</code>), 네트워크 시뮬레이션 테스트(<code>patchbay</code> — NAT/degrade/switch-uplink 시나리오), cargo-nextest 사용, Wine(Windows 에뮬레이션) 테스트, 다중 OS 매트릭스(Ubuntu/macOS-arm)</td>
+<td>★★★★★ 네트워크 시뮬레이션 수준 매우 높음</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>rustls 전용(openssl/native-tls 금지 — deny.toml), ed25519 공개키 인증, 엔드-투-엔드 QUIC 암호화, Dependabot(주간 Cargo+Actions+Docker), cargo-deny 라이선스/어드바이저리 체크, RUSTSEC 어드바이저리 명시적 무시 2건</td>
+<td>★★★★☆ 기반 보안 견고, SECURITY.md 부재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v1.0.0 방금 출시(2026-06-15). 활발한 커밋 이력, 체계적인 CHANGELOG(git-cliff), CONTRIBUTING+CoC+PR 템플릿, 브레이킹 체인지 관련 다운스트림 체크리스트 포함 PR 템플릿, Discord 커뮤니티</td>
+<td>★★★★☆ 성숙한 오픈소스 거버넌스</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-strengths">1. 강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>홀펀칭 + 릴레이 폴백의 투명한 통합</strong>
+   <code>Endpoint</code>가 NAT 관통을 자동 시도하고 실패 시 릴레이로 투명하게 폴백한다. <code>noq</code>(독자 QUIC 스택 포크)를 통해 QUIC 레벨까지 최적화 가능한 구조를 유지한다. 네트워크 경로 RTT 기반 경로 선택(<code>BiasedRttPathSelector</code>) 및 커스텀 <code>PathSelector</code> 플러그인을 지원한다.</p>
+</li>
+<li>
+<p><strong>공개키 기반 주소 추상화와 확장 가능한 주소 탐색</strong>
+   <code>EndpointId</code>(Ed25519 공개키)만으로 연결이 가능한 고수준 API를 제공한다. DNS(Pkarr), mDNS, DHT, 인메모리 등 다양한 <code>AddressLookup</code> 구현을 플러그인 방식으로 조합할 수 있다.</p>
+</li>
+<li>
+<p><strong>네트워크 시뮬레이션 기반 테스트 인프라</strong>
+   <code>patchbay</code> 크레이트를 통해 NAT 유형 시뮬레이션, 링크 성능 저하, 업링크 전환 등 실제 네트워크 환경을 Linux 네임스페이스 수준에서 재현한다. 이는 P2P 라이브러리에서 매우 드문 수준의 테스트 성숙도다.</p>
+</li>
+<li>
+<p><strong>WASM 브라우저 지원</strong>
+   <code>cfg(all(target_family = "wasm", target_os = "unknown"))</code> 분기로 브라우저 환경을 지원한다. IP 트랜스포트 대신 릴레이 기반으로 동작하며, WebAssembly 타깃 빌드를 CI에서 검증한다.</p>
+</li>
+<li>
+<p><strong>커스텀 트랜스포트 플러그인 시스템</strong>
+   <code>unstable-custom-transports</code> 피처로 Tor, BLE 등 완전히 새로운 트랜스포트를 동일한 <code>Endpoint</code> API에 플러그인할 수 있다. <code>TRANSPORTS.md</code>에 공개 등록 테이블을 유지한다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="2-risks-improvement-areas">2. 위험 / 개선 필요 사항 (Risks &amp; Improvement Areas)</h2>
+<ol>
+<li>
+<p><strong>RC(Release Candidate) 상태 핵심 의존성</strong>
+   <code>ed25519-dalek = "=3.0.0-rc.0"</code>, <code>curve25519-dalek = "=5.0.0-rc.0"</code> 등 암호화 핵심 라이브러리가 RC 버전에 정확히 고정(<code>=</code>)되어 있다. 이는 보안 패치 적용이 수동 작업이며, 상위 호환 버전으로의 전환 전까지 알려진 취약점에 노출될 수 있다는 위험을 수반한다.</p>
+</li>
+<li>
+<p><strong>SECURITY.md 부재</strong>
+   보안 취약점 신고 경로(Responsible Disclosure Policy)가 없다. 오픈소스 생태계 통합 시 GitHub Security Advisories 연동 및 명시적 보안 정책 문서가 필요하다.</p>
+</li>
+<li>
+<p><strong>RUSTSEC 어드바이저리 명시적 무시</strong>
+   <code>deny.toml</code>에서 <code>RUSTSEC-2024-0436</code>(paste → netlink-packet-core), <code>RUSTSEC-2023-0089</code>(postcard → heapless → atomic-polyfill)를 무시한다. 후자는 유지보수 중단 크레이트 문제로 추적이 필요하다.</p>
+</li>
+<li>
+<p><strong>릴레이 서버 컨테이너 권한 문제</strong>
+   <code>docker/Dockerfile</code>에서 주석("Change ownership to distroless-provided nonroot user")과 실제 <code>USER</code> 지시어가 불일치한다 — <code>COPY --from=rust_builder</code>에 <code>--chown</code> 옵션이 없고 <code>USER</code> 설정도 없어 릴레이 바이너리가 root로 실행될 수 있다.</p>
+</li>
+<li>
+<p><strong><code>unstable-*</code> 피처 API의 SemVer 비보장</strong>
+   <code>unstable-custom-transports</code>, <code>unstable-net-report</code> 피처는 v1.0에서도 SemVer 보장이 없다. 이 기능에 의존하는 하위 프로젝트(iroh-blobs, iroh-gossip 등)는 마이너 릴리즈에서도 브레이킹 체인지에 노출된다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="3-adoption-recommendation">3. 도입 권고 (Adoption Recommendation)</h2>
+<p><strong>결론: 신중한 조기 도입 적합 (Cautious Early Adoption)</strong></p>
+<p>iroh는 P2P 네트워킹 라이브러리 분야에서 가장 성숙한 Rust 오픈소스 프로젝트 중 하나다. v1.0.0 출시와 함께 공개 API 안정성이 선언되었으며, 네트워크 시뮬레이션 기반 테스트 인프라, 체계적인 CHANGELOG, 활발한 커뮤니티가 프로덕션 도입 기반을 뒷받침한다.</p>
+<p>다만 다음 조건을 권고한다:</p>
+<ul>
+<li><strong>암호화 의존성 GA 릴리즈 확인 후 도입</strong>: <code>ed25519-dalek</code> 및 <code>curve25519-dalek</code>의 정식 stable 릴리즈 이후 의존성 업데이트를 확인하고 도입한다.</li>
+<li><strong>릴레이/DNS 서버 운영 시 Docker 보안 강화</strong>: 컨테이너 non-root 실행 설정을 별도 패치하거나 이슈 트래킹 후 사용한다.</li>
+<li><strong><code>unstable-*</code> 피처 의존 회피</strong>: 안정화된 API 범위 내에서 설계한다.</li>
+<li><strong>아키텍처 벤치마킹</strong>: 홀펀칭 P2P 연결, WebRTC 대체, 분산 시스템 노드 간 안전 통신 등의 사용 사례에 강력히 권고한다.</li>
+</ul>
+<hr />
+<p><em>분석 기준일: 2026-06-18 | 분석 대상 커밋: <code>255a939</code> (main branch)</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>n0-computer/iroh</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/n0-computer/iroh" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DeusData/codebase-memory-mcp - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank" rel="noopener">DeusData/codebase-memory-mcp</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph — average repo in milliseconds. 158 languages, sub-ms queries, 99% fewer tokens. Single static binary, zero dependencies.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">C</span>
+      <span class="badge badge-stars">★ 4716</span>
+      <span class="badge badge-stars">+718 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 최종 분석 보고서를 작성합니다.</p>
+<hr />
+<h1 id="codebase-memory-mcp-review-source">codebase-memory-mcp — 소스 분석 보고서 (REVIEW-Source)</h1>
+<p><strong>분석일:</strong> 2026-06-18
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/DeusData_codebase-memory-mcp</code>
+<strong>현재 버전:</strong> v0.8.1
+<strong>라이선스:</strong> MIT</p>
+<hr />
+<h2 id="_1">분석 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 코딩 에이전트용 코드베이스 지식 그래프 MCP 서버. tree-sitter AST + Hybrid LSP로 158개 언어를 파싱하여 함수·클래스·호출체인 등을 SQLite 그래프로 구축하고, 14개 MCP 도구로 질의. 99% 토큰 절감 주장</td>
+<td>★★★★★ — 명확하고 독창적인 문제 정의</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>src/</code>(핵심 C 소스), <code>internal/cbm/</code>(tree-sitter 문법 158개 + 추출엔진), <code>vendored/</code>(SQLite·mimalloc·yyjson·xxhash 등), <code>tests/</code>(90+파일 114K LOC), <code>graph-ui/</code>(React/Three.js), <code>pkg/</code>(npm·PyPI·AUR·Homebrew 등 8개 채널), <code>scripts/</code>(빌드·테스트·보안 감사), <code>.github/workflows/</code>(13개 워크플로우)</td>
+<td>★★★★☆ — 기능 기반 모듈 분리 명확. graph-ui가 src와 다소 독립적</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>런타임: <strong>순수 C (C11)</strong>, 단일 정적 바이너리. UI: TypeScript 5.7 / React 19 / Three.js / Vite. 저장소: SQLite 3.51.3 (FTS5, WAL). 벤더: mimalloc 3.3.2, yyjson 0.12, LZ4 1.10, zstd 1.5.7, TRE 0.8, xxhash 0.8.3, nomic 임베딩. 빌드: make + Nix flake. 배포: 멀티 플랫폼(macOS arm64/amd64, Linux arm64/amd64, Windows amd64)</td>
+<td>★★★★★ — 외부 런타임 의존성 제로. 공급망 최소화</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>src/main.c</code> — MCP stdio 서버(기본), CLI 서브커맨드(<code>cli &lt;tool&gt; &lt;json&gt;</code>), <code>--version</code>, <code>--help</code>, <code>--ui</code>, <code>--port</code> 플래그. SIGTERM/SIGINT 처리, 부모 프로세스 감시 스레드(watchdog), 배경 watcher 스레드</td>
+<td>★★★★★ — 단일 진입점, 모드 분기 명확</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>2레이어: ①tree-sitter pass(158개 언어 구문 분석) → ②Hybrid LSP pass(9개 언어 타입 추론). 멀티패스 파이프라인(definitions→calls→usages→HTTP links→LSP→K8s→similarity). Cypher 서브셋 파서(read-only openCypher). RAM-first(LZ4 압축 인메모리 SQLite → 완료 후 단일 덤프). Foundation 레이어(아레나 할당기·스레드·플랫폼 추상화)</td>
+<td>★★★★★ — 계층 분리 우수. 파이프라인 패스 구조 확장 용이</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLite WAL 모드 (ACID 보장). <code>~/.cache/codebase-memory-mcp/</code>에 영속화. FTS5 (<code>cbm_camel_split</code> 토크나이저). 그래프 스냅샷 <code>.codebase-memory/graph.db.zst</code> (zstd 압축, 팀 공유 지원). 노드 13종·엣지 18종 이상</td>
+<td>★★★★☆ — 단일 SQLite, 분산 미지원이나 도구 성격상 적합</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>GitHub Actions 13개 워크플로우. 릴리즈 파이프라인: lint→test→build→smoke/soak→draft→VirusTotal→publish. npm(provenance 포함), PyPI, Homebrew, Scoop, Winget, Chocolatey, AUR, go install. SLSA Level 3 + Sigstore cosign + SHA-256 체크섬. server.json via MCP Registry</td>
+<td>★★★★★ — 산업 최고 수준의 릴리즈 파이프라인</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>5,604개 테스트 케이스(README 배지). 90+개 C 테스트 파일(114K LOC). ASan + UBSan 빌드. 유닛·통합·LSP·파이프라인·보안·성능 계층. 스모크 테스트(바이너리별), 소크 테스트(4시간, 매주 일요일 새벽). 멀티플랫폼(Linux x86/ARM, macOS Intel/AS, Windows). 퍼즈 테스트(60초). DCO 정책(미서명 커밋 CI 차단)</td>
+<td>★★★★★ — 테스트 심도 및 폭 매우 우수</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 존재. 8레이어 보안 감사(정적 화이트리스트·바이너리 문자열·네트워크 이그레스·설치 감사·UI 감사·MCP 퍼즈·vendored 무결성). CodeQL SAST(PR마다). OpenSSF Scorecard(주간). SBOM(SPDX-2.3). VirusTotal(72+ 엔진). 쉘 인젝션 방어, SQLite 권한자, CORS localhost 제한, <code>realpath()</code> 경로 경계 검사</td>
+<td>★★★★★ — 오픈소스 프로젝트 중 최고 수준</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v0.8.1(2025년 C 재작성, 이전 Go 버전 대비). arXiv 논문(2603.27277). 158개 언어 지원. 31개 실제 저장소 벤치마크(83% 답변 품질, 10× 토큰 절감). 포괄적 README(35K자). CONTRIBUTING·CODE_OF_CONDUCT·DCO·PR 템플릿·이슈 템플릿 완비. Dependabot(GitHub Actions). 주간 소크 테스트</td>
+<td>★★★★☆ — 매우 성숙. 기여자 다양성 불분명</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="step-1">Step 1. 목적 및 범위</h3>
+<p>codebase-memory-mcp는 AI 코딩 에이전트(Claude Code, Codex CLI, Gemini CLI 등 11개)를 위한 <strong>MCP(Model Context Protocol) 서버</strong>다. 핵심 가치는 다음 두 가지다:</p>
+<ol>
+<li><strong>코드베이스를 지식 그래프로 변환</strong>: tree-sitter AST 분석으로 함수·클래스·임포트·호출체인을 그래프 노드/엣지로 추출하고 SQLite에 영속화.</li>
+<li><strong>에이전트 토큰 비용 절감</strong>: 파일별 Grep/Read 탐색 대비 99.2% 토큰 절감 주장(~412,000 → ~3,400 토큰). arXiv 논문으로 학술 검증.</li>
+</ol>
+<p>타깃 사용자는 MCP 호환 AI 코딩 에이전트를 사용하는 개발자이며, 도구 성격은 <strong>정적 바이너리 MCP 서버 + CLI 도구</strong>다.</p>
+<hr />
+<h3 id="step-2">Step 2. 저장소 구조</h3>
+<pre><code>.
+├── src/                   ← 핵심 C11 소스 (MCP·파이프라인·저장소·Cypher 등)
+│   ├── main.c             ← 단일 진입점
+│   ├── mcp/               ← MCP JSON-RPC 2.0 서버 (14 도구)
+│   ├── pipeline/          ← 멀티패스 인덱싱 (pass_*.c 25개)
+│   ├── store/             ← SQLite 그래프 저장소
+│   ├── cypher/            ← Cypher 쿼리 파서/플래너/실행기
+│   ├── discover/          ← 파일 탐색 (.gitignore, .cbmignore)
+│   ├── watcher/           ← 배경 git 기반 자동 재인덱스
+│   ├── cli/               ← 설치/업데이트/설정 CLI
+│   ├── ui/                ← 내장 HTTP 서버 + 3D 그래프 UI
+│   ├── foundation/        ← 플랫폼 추상화 (스레드·메모리·로그·해시테이블)
+│   ├── semantic/          ← BM25/벡터 시맨틱 검색
+│   └── simhash/           ← MinHash/SimHash 코드 유사도
+├── internal/cbm/          ← tree-sitter 158개 문법 + 추출 엔진
+│   ├── grammar_*.c        ← 각 언어 문법 (158개)
+│   ├── extract_*.c        ← 정의·임포트·호출 추출기
+│   └── lsp/               ← Hybrid LSP 타입 해석 (9개 언어)
+├── vendored/              ← 외부 C 라이브러리 (소스 포함)
+│   ├── sqlite3/, mimalloc/, yyjson/, xxhash/, tre/, nomic/
+├── tests/                 ← 모든 C 테스트 파일 (90+개, 114K LOC)
+├── graph-ui/              ← React 19 / Three.js 3D 시각화 UI
+├── pkg/                   ← 배포 패키지 (npm, PyPI, AUR, Homebrew 등 8개)
+├── scripts/               ← 빌드·테스트·린트·보안 감사 스크립트
+├── docs/                  ← 문서·벤치마크·평가계획
+└── .github/workflows/     ← CI/CD 워크플로우 13개
+</code></pre>
+<p><strong>아키텍처 스타일</strong>: 기능 기반(Function-Oriented). 각 디렉터리가 단일 책임을 가짐. 단일 저장소(monorepo) 구조이나 graph-ui는 독립 빌드 단위.</p>
+<hr />
+<h3 id="step-3">Step 3. 기술 스택</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>핵심 언어</strong></td>
+<td>C11 (gcc/clang, ASan+UBSan 테스트 빌드)</td>
+</tr>
+<tr>
+<td><strong>UI 언어</strong></td>
+<td>TypeScript 5.7, React 19, Three.js 0.183</td>
+</tr>
+<tr>
+<td><strong>빌드</strong></td>
+<td>GNU Make (Makefile.cbm), Nix flake (선택적), scripts/build.sh</td>
+</tr>
+<tr>
+<td><strong>저장소</strong></td>
+<td>SQLite 3.51.3 (FTS5, WAL, in-memory → 덤프)</td>
+</tr>
+<tr>
+<td><strong>메모리 관리</strong></td>
+<td>mimalloc 3.3.2 (Microsoft) — 기본 할당자 대체</td>
+</tr>
+<tr>
+<td><strong>JSON</strong></td>
+<td>yyjson 0.12.0 (고성능 C 라이브러리)</td>
+</tr>
+<tr>
+<td><strong>해싱</strong></td>
+<td>xxhash 0.8.3, wyhash</td>
+</tr>
+<tr>
+<td><strong>압축</strong></td>
+<td>LZ4 1.10.0 (인덱싱 중), zstd 1.5.7 (스냅샷 저장)</td>
+</tr>
+<tr>
+<td><strong>정규식</strong></td>
+<td>TRE 0.8.0 (POSIX 호환)</td>
+</tr>
+<tr>
+<td><strong>임베딩</strong></td>
+<td>Nomic embed-code (int8 양자화, 768차원, 바이너리 내장)</td>
+</tr>
+<tr>
+<td><strong>UI 빌드</strong></td>
+<td>Vite 6.4, Tailwind CSS 4, vitest</td>
+</tr>
+<tr>
+<td><strong>플랫폼</strong></td>
+<td>macOS arm64/amd64, Linux arm64/amd64, Windows amd64</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="step-4">Step 4. 아키텍처 분석</h3>
+<p><strong>진입점</strong>: <code>src/main.c</code> — 단일 main() 함수가 인수 파싱 후 MCP stdio 서버 또는 CLI 모드로 분기. 시그널 핸들러(SIGTERM/SIGINT), 부모 프로세스 watchdog 스레드, 배경 watcher 스레드를 초기화.</p>
+<p><strong>핵심 데이터 흐름</strong>:</p>
+<pre><code>파일 시스템 → discover(gitignore 계층) → pipeline(멀티패스)
+    → pass_definitions.c  (함수·클래스·타입 노드 생성)
+    → pass_calls.c        (호출 엣지 추출)
+    → pass_lsp_cross.c    (Hybrid LSP 타입 해석 → RESOLVED_CALLS 정제)
+    → pass_infrascan.c    (Dockerfile·K8s·Kustomize)
+    → pass_similarity.c   (MinHash LSH 유사 코드 탐지)
+    → pass_semantic.c     (Nomic 벡터 임베딩)
+    → store(in-memory SQLite) → 완료 시 단일 덤프
+    → watcher(배경 스레드, git 폴링) → 증분 재인덱싱
+    → MCP 서버(14 도구 JSON-RPC 2.0) → 에이전트 클라이언트
+</code></pre>
+<p><strong>Hybrid LSP 2레이어</strong>:
+- Layer 1: tree-sitter syntactic pass (158개 언어 전체)
+- Layer 2: 타입 인식 pass (Python·TS/JS·PHP·C#·Go·C/C++·Java·Kotlin·Rust 9개 언어)</p>
+<p><strong>Cypher 서브셋</strong>: <code>src/cypher/cypher.c</code> — 독자 구현 read-only openCypher 파서. MATCH·WHERE·WITH·RETURN·UNION 지원. SQLite SQL로 변환 실행.</p>
+<p><strong>아키텍처 패턴</strong>: 파이프라인 패턴(pass_*.c 각각 독립 패스). 계층 분리(foundation ↔ pipeline ↔ store ↔ mcp). 이벤트 기반은 아니며 순차적 인덱싱 + 배경 watcher 모델.</p>
+<hr />
+<h3 id="step-5">Step 5. 품질 및 테스트 시스템</h3>
+<p><strong>테스트 구성</strong>:
+| 유형 | 파일 | 특징 |
+|------|------|------|
+| 단위 테스트 | <code>test_arena.c</code>, <code>test_hash_table.c</code>, <code>test_lz4.c</code> 등 | 개별 컴포넌트 검증 |
+| 통합 테스트 | <code>test_pipeline.c</code> (5,923 LOC), <code>test_integration.c</code> | 전체 파이프라인 |
+| LSP 테스트 | <code>test_c_lsp.c</code> (15,930 LOC!), <code>test_py_lsp.c</code>, <code>test_ts_lsp.c</code> 등 | 언어별 타입 해석 |
+| MCP 프로토콜 | <code>test_mcp.c</code> (2,108 LOC) | JSON-RPC 23개 적대적 페이로드 |
+| 보안 테스트 | <code>test_security.c</code> | 인젝션 방어 검증 |
+| 성능 테스트 | 소크 테스트, <code>test_cs_lsp_bench.c</code> | 타이밍 어서션 |
+| 퍼즈 테스트 | <code>scripts/security-fuzz.sh</code> | MCP 서버 + Cypher 파서 60초 |
+| 쉘 테스트 | <code>tests/smoke_guard.sh</code>, <code>tests/scale_contract.sh</code> | 바이너리 레벨 검증 |</p>
+<p><strong>CI 플랫폼</strong>: Ubuntu latest (x86), Ubuntu 24.04-ARM, macOS 14 (AS), macOS 15 Intel, Windows (MSYS2/CLANG64) — 5개 플랫폼 동시 실행.</p>
+<p><strong>린트 도구</strong>: clang-tidy (전체 활성화, WarningsAsErrors), cppcheck 2.20.0, clang-format 20. 모든 위반 시 빌드 실패.</p>
+<p><strong>릴리즈 사이클</strong>: semantic versioning (v0.8.x). 릴리즈는 <code>workflow_dispatch</code> 수동 트리거, draft 상태로 생성 후 VirusTotal 스캔 통과 후 publish. 야간 소크(4시간, 매주 일요일).</p>
+<hr />
+<h3 id="step-6">Step 6. 보안 및 공급망</h3>
+<p><strong>보안 정책</strong>: SECURITY.md 존재. 책임있는 공개(비공개 이메일). 48시간 내 응답, 7일 내 수정 타임라인 약속.</p>
+<p><strong>빌드 보안 (8레이어)</strong>:
+1. 정적 화이트리스트: <code>system()</code>/<code>popen()</code>/<code>fork()</code> 등 위험 함수 호출 전수 검토
+2. 바이너리 문자열 감사: URL·자격증명·위험 명령 패턴 탐지
+3. 네트워크 이그레스: strace 기반 아웃바운드 연결 모니터링
+4. 설치 감사: 출력 경로·내용 검증
+5. 스모크 테스트 강화: 잔여 프로세스, 버전 무결성
+6. UI 감사: 외부 도메인·CORS·eval/iframe
+7. MCP 견고성: 23개 적대적 JSON-RPC 페이로드
+8. vendored 무결성: SHA-256 체크섬, 위험 함수 스캔</p>
+<p><strong>릴리즈 보안</strong>:
+- SLSA Level 3 (GitHub Actions 암호화 증명)
+- Sigstore cosign 키없는 서명
+- SBOM (SPDX-2.3 + CycloneDX 증명)
+- VirusTotal 72+ 엔진 (0 탐지 필수)
+- OpenSSF Scorecard (주간)</p>
+<p><strong>코드 레벨 방어</strong>:
+- <code>cbm_validate_shell_arg()</code>: 쉘 메타문자 거부
+- SQLite 권한자: ATTACH/DETACH 차단 (SQL 인젝션 방지)
+- CORS: localhost 한정
+- <code>realpath()</code> 경계 검사: 프로젝트 루트 외 파일 읽기 방지</p>
+<p><strong>Dependabot</strong>: GitHub Actions만 커버 (주간). vendored C 라이브러리는 수동 관리.</p>
+<p><strong>라이선스 게이트</strong>: CI에서 ScanCode Toolkit으로 자동 라이선스 준수 검사. 위반 시 빌드 실패.</p>
+<p><strong>라이선스 호환성</strong>:
+| 라이선스 | 사용 컴포넌트 |
+|----------|---------------|
+| MIT | 프로젝트 본체, tree-sitter, mimalloc, yyjson, verstable, 158개 문법 대부분 |
+| Public Domain / blessing | SQLite3 |
+| BSD-2-Clause | xxhash, TRE, LZ4 |
+| BSD-3-Clause | zstd |
+| Apache-2.0 | nomic 임베딩, jinja2/just 문법 |
+| 0BSD | simplecpp |
+| CC0-1.0 | clojure/fennel 문법 |
+| Unlicense | wyhash |</p>
+<p>모든 라이선스 MIT와 호환.</p>
+<hr />
+<h3 id="step-7">Step 7. 문서 및 운영 성숙도</h3>
+<p><strong>README</strong>: 35K 자 대규모 문서. 빠른 시작(원라인 설치), 전체 MCP 도구 목록, Hybrid LSP 상세 설명, 성능 벤치마크 표, 11개 에이전트별 설정, 문제 해결 가이드 완비.</p>
+<p><strong>기여 문서</strong>: CONTRIBUTING.md — 빌드 방법, 테스트 실행, 린트, 보안 감사, DCO 설명, 커밋 형식(conventional commits), PR 가이드라인(이슈 선행 필수, 500라인 이하 권장).</p>
+<p><strong>커뮤니티 문서</strong>: CODE_OF_CONDUCT.md, DCO 파일, THIRD_PARTY.md (각 벤더드 라이브러리 상세 출처).</p>
+<p><strong>이슈/PR 템플릿</strong>: 버그 리포트(버전·플랫폼·재현 단계), 피처 요청, PR 체크리스트(DCO 서명·테스트·린트).</p>
+<p><strong>릴리즈 노트</strong>: 자동 생성(GitHub Release notes from commits). 별도 CHANGELOG.md 없음.</p>
+<p><strong>학술 검증</strong>: arXiv 논문 (2603.27277) — 31개 실제 저장소 평가, 83% 답변 품질, 10× 토큰 절감.</p>
+<p><strong>커뮤니티 활동</strong>: 단일 유지관리자 (martin.vogel.tech@gmail.com) 추정. 최근 커밋 활성. good first issue 라벨 존재.</p>
+<hr />
+<h2 id="_3">강점</h2>
+<ol>
+<li>
+<p><strong>산업 최고 수준의 릴리즈 보안 파이프라인</strong>
+   SLSA Level 3 증명 + Sigstore keyless 서명 + VirusTotal 72+ 엔진 + CodeQL SAST + OpenSSF Scorecard + SBOM을 모두 갖춘 오픈소스 도구는 극히 드물다. draft → verify → publish 패턴으로 중간 상태 배포를 원천 차단.</p>
+</li>
+<li>
+<p><strong>탁월한 테스트 심도와 범위</strong>
+   5,604개 케이스, 90+ 파일, 114K LOC의 테스트 코드. ASan+UBSan 빌드, 퍼즈 테스트, 4시간 주간 소크 테스트, 5개 플랫폼 CI. <code>test_c_lsp.c</code> 단일 파일만 15,930 LOC — 언어 지원 품질에 대한 진지한 투자.</p>
+</li>
+<li>
+<p><strong>공급망 최소화 및 완전 벤더링</strong>
+   모든 C 의존성이 소스 형태로 vendored되어 컴파일 타임에 정적 링크. 런타임 의존성 제로, 패키지 관리자 없음. 라이선스 게이트 CI 자동화로 라이선스 위반 즉시 차단.</p>
+</li>
+<li>
+<p><strong>아키텍처적 확장성</strong>
+   멀티패스 파이프라인(pass_*.c)이 각 독립 패스로 구성되어 새 언어·인프라 타입 추가 시 기존 코드 변경 최소화. CONTRIBUTING.md에 인프라 언어 추가 패턴이 상세히 문서화.</p>
+</li>
+<li>
+<p><strong>학술적 검증과 실용성의 결합</strong>
+   arXiv 논문(31개 저장소, 83% 품질, 10× 토큰 절감)으로 학술 검증을 갖추면서, 동시에 원라인 설치와 8개 패키지 매니저 배포를 통해 실용적 접근성 확보. docs/BENCHMARK.md에 63개 언어 상세 점수표 공개.</p>
+</li>
+</ol>
+<hr />
+<h2 id="_4">위험 / 개선 필요 사항</h2>
+<ol>
+<li>
+<p><strong>단일 유지관리자 리스크 (버스 팩터 = 1)</strong>
+   SECURITY.md의 연락처(martin.vogel.tech@gmail.com)가 개인 이메일이며, 기여자 다양성이 확인되지 않는다. 프로젝트 규모(5,604 테스트, 158개 언어, 9개 Hybrid LSP)에 비해 지속성 리스크가 높다. GitHub Sponsors 또는 조직화 계획이 문서화되어 있지 않다.</p>
+</li>
+<li>
+<p><strong>vendored C 라이브러리 자동 업데이트 부재</strong>
+   Dependabot이 GitHub Actions만 커버하고, vendored/의 C 라이브러리(SQLite, mimalloc, yyjson, TRE 등)는 수동 관리다. 이 라이브러리들에서 CVE가 발생해도 자동 알림이 없다. <code>scripts/vendored-checksums.txt</code>로 무결성은 검증하지만 버전 추적은 사람 의존.</p>
+</li>
+<li>
+<p><strong>Nix flake 버전 불일치</strong>
+   <code>flake.nix</code>의 <code>version = "0.6.0"</code>이 현재 릴리즈 v0.8.1과 두 메이저 버전 차이. Nix 사용자는 잘못된 버전 메타데이터를 받는다. 릴리즈 파이프라인에서 flake.nix 버전 동기화가 누락된 것으로 보인다.</p>
+</li>
+<li>
+<p><strong>graph-ui 테스트 범위 부족</strong>
+   <code>graph-ui/</code>는 React 19 + Three.js 3D 시각화이나 <code>src/App.tsx</code> 단일 파일 구조로 매우 초기적이다. <code>package.json</code>에 vitest 설정이 있으나 실제 테스트 파일이 확인되지 않는다. UI 컴포넌트 품질이 코어 C 엔진 대비 현저히 낮다.</p>
+</li>
+<li>
+<p><strong>CHANGELOG 부재 및 버전 관리 인프라 일부 취약</strong>
+   공식 CHANGELOG.md가 없고 릴리즈 노트는 커밋 메시지 자동 생성에 의존. 과거 0.8.0 릴리즈 실패(pkg/npm 버전 미동기) 이력이 release.yml 주석에 기록되어 있으며, 버전 동기화 단계가 워크플로우에 사후 추가된 형태. 더 견고한 버전 관리 전략이 필요.</p>
+</li>
+</ol>
+<hr />
+<h2 id="_5">도입 권고</h2>
+<p><strong>기술 도입 (AI 에이전트 코드 인텔리전스 레이어로서)</strong>:
+<strong>강력 권고</strong> — 단일 정적 바이너리로 설치 마찰이 없고, 158개 언어 지원, 10× 토큰 절감의 실측 성능, arXiv 학술 검증을 모두 갖춘 도구는 현재 MCP 생태계에서 보기 드물다. 특히 Claude Code, Codex CLI, Gemini CLI 등 다수 에이전트를 혼용하는 환경에서 즉시 가치를 제공한다.</p>
+<p><strong>보안 심사용 레퍼런스로서</strong>:
+<strong>참조 권고</strong> — 8레이어 빌드 보안 감사, SLSA3, Sigstore, VirusTotal 파이프라인, CodeQL+OpenSSF Scorecard 조합은 오픈소스 C 도구의 보안 실천 모범 사례로 사용 가능하다. 특히 MCP 도구 생태계에서 사용자 코드베이스에 접근하는 도구의 신뢰 검증 모델로서 참조할 만하다.</p>
+<p><strong>기여 및 포크 시</strong>:
+- DCO 서명 필수(CI 자동 강제)
+- 이슈 선행 없는 PR은 클로즈됨 — 반드시 issue 먼저 오픈
+- C11 코드만 수용(Go PR는 거부). clang-tidy 전체 활성화 준수 필요
+- vendored 라이브러리 추가 시 <code>scripts/security-allowlist.txt</code> 업데이트 필수</p>
+<p><strong>주의 사항</strong>:
+- 단일 유지관리자 리스크 인지 필요. 장기 의존 전 fork 전략 고려
+- <code>~/.config</code> 및 에이전트 설정 파일 자동 수정 행위에 대해 조직 보안 정책과 사전 검토 권장
+- Windows 환경에서 SmartScreen 경고 발생 가능 — checksums.txt + SLSA 검증으로 신뢰 확인 필요</p>
+<hr />
+<p><em>분석일: 2026-06-18 | 분석 버전: v0.8.1 (server.json 기준) | 분석 도구: 소스 코드 직접 검토</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>DeusData/codebase-memory-mcp</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/DeusData/codebase-memory-mcp" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
