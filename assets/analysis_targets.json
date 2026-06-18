@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-18 02:00:09 KST",
+  "generated_at": "2026-06-19 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -18,8 +18,8 @@
     "daily": {
       "candidates": 5,
       "selected": 2,
-      "skipped_existing_analysis": 3,
-      "skipped_duplicate": 0
+      "skipped_existing_analysis": 2,
+      "skipped_duplicate": 1
     },
     "weekly": {
       "candidates": 5,
@@ -30,36 +30,36 @@
     "monthly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 5,
-      "skipped_duplicate": 0
+      "skipped_existing_analysis": 4,
+      "skipped_duplicate": 1
     }
   },
   "targets": [
     {
       "rank": 1,
-      "name": "codebase-memory-mcp",
-      "full_name": "DeusData/codebase-memory-mcp",
-      "owner": "DeusData",
-      "description": "High-performance code intelligence MCP server. Indexes codebases into a persistent knowledge graph — average repo in milliseconds. 158 languages, sub-ms queries, 99% fewer tokens. Single static binary, zero dependencies.",
-      "url": "https://github.com/DeusData/codebase-memory-mcp",
-      "stars": 4716,
-      "forks": 454,
-      "language": "C",
-      "stars_gained": "718 stars today",
+      "name": "timesfm",
+      "full_name": "google-research/timesfm",
+      "owner": "google-research",
+      "description": "TimesFM (Time Series Foundation Model) is a pretrained time-series foundation model developed by Google Research for time-series forecasting.",
+      "url": "https://github.com/google-research/timesfm",
+      "stars": 22739,
+      "forks": 2188,
+      "language": "Python",
+      "stars_gained": "858 stars today",
       "topics": [],
       "period": "daily"
     },
     {
-      "rank": 2,
-      "name": "iroh",
-      "full_name": "n0-computer/iroh",
-      "owner": "n0-computer",
-      "description": "IP addresses break, dial keys instead. Modular networking stack in Rust.",
-      "url": "https://github.com/n0-computer/iroh",
-      "stars": 9555,
-      "forks": 446,
-      "language": "Rust",
-      "stars_gained": "422 stars today",
+      "rank": 5,
+      "name": "GLM-5",
+      "full_name": "zai-org/GLM-5",
+      "owner": "zai-org",
+      "description": "GLM-5: From Vibe Coding to Agentic Engineering",
+      "url": "https://github.com/zai-org/GLM-5",
+      "stars": 3990,
+      "forks": 425,
+      "language": "",
+      "stars_gained": "286 stars today",
       "topics": [],
       "period": "daily"
     }

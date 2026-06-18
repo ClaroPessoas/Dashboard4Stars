@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>google-research/timesfm - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/google-research/timesfm" target="_blank" rel="noopener">google-research/timesfm</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">TimesFM (Time Series Foundation Model) is a pretrained time-series foundation model developed by Google Research for time-series forecasting.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 22739</span>
+      <span class="badge badge-stars">+858 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>분석 보고서가 <code>.review/REVIEW-Source.md</code>에 저장되었습니다. 아래는 보고서 전문입니다.</p>
+<hr />
+<h1 id="timesfm-source-analysis-report">TimesFM — 소스 분석 보고서 / Source Analysis Report</h1>
+<p><strong>분석일 (Analysis Date):</strong> 2026-06-19<br />
+<strong>분석 대상 (Target):</strong> <code>/tmp/github-dashboard-analysis/google-research_timesfm</code><br />
+<strong>분석 버전 (Analyzed Version):</strong> <code>2.0.1</code> (PyPI), 최신 모델 TimesFM 2.5</p>
+<hr />
+<h2 id="8-a-single-project-analysis-table">8-A. 단일 프로젝트 분석표 / Single-Project Analysis Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>시계열 예측을 위한 사전학습 파운데이션 모델(TimesFM). 별도 훈련 없이 임의의 단변량 시계열을 제로샷으로 예측. ICML 2024 발표, Google Research 개발. / Pretrained foundation model for zero-shot univariate time-series forecasting. ICML 2024 paper, by Google Research.</td>
+<td>★★★★★ — 명확하고 혁신적인 목적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>src/timesfm/</code> (핵심 소스), <code>tests/</code> (단위 테스트), <code>timesfm-forecasting/</code> (Agent Skill·예제·스크립트·레퍼런스), <code>v1/</code> (v1.0/v2.0 아카이브), <code>.github/workflows/</code> (CI/CD). 단일 리포, src-layout 패키지 구조. / Single repo, src-layout. Core at <code>src/timesfm/</code>, tests at <code>tests/</code>, agent skill + examples at <code>timesfm-forecasting/</code>, archived v1/v2 at <code>v1/</code>.</td>
+<td>★★★★☆ — 깔끔한 분리; v1 아카이브가 루트를 약간 혼잡하게 함</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python ≥ 3.10, <code>setuptools</code> + <code>uv</code>, NumPy ≥ 1.26.4, HuggingFace Hub, SafeTensors. 선택적: <code>torch ≥ 2.0.0</code> 또는 <code>flax/jax</code>, <code>scikit-learn</code> (XReg). 린터: <code>ruff</code>. 테스트: <code>pytest</code>. / Python ≥ 3.10, uv, NumPy, HuggingFace Hub, SafeTensors. Optional: PyTorch or Flax/JAX backends. Linter: ruff. Tests: pytest.</td>
+<td>★★★★★ — 최신 툴체인, 듀얼 백엔드 지원</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>timesfm/__init__.py</code> — <code>ForecastConfig</code>, <code>TimesFM_2p5_200M_torch</code>, <code>TimesFM_2p5_200M_flax</code> 노출. <code>from_pretrained() → compile() → forecast()</code> 3단계 API. / <code>__init__.py</code> exposes two model classes. Three-step API: <code>from_pretrained()</code> → <code>compile()</code> → <code>forecast()</code>.</td>
+<td>★★★★★ — 직관적이고 일관된 API</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>패치 기반 디코더-온리 Transformer (200M 파라미터, 20 레이어, 16 헤드, 1280 dims, 컨텍스트 최대 16,384). 추상 베이스 클래스(<code>TimesFM_2p5</code>) + 프레임워크별 구현(Torch/Flax). Frozen dataclass config로 설정 중앙화. KV-캐시 autoregressive 디코딩. XReg 공변량 지원. / Patch-based decoder-only Transformer. Abstract base + PyTorch/Flax implementations. Frozen dataclass configs. KV-cache AR decoding. XReg covariate support.</td>
+<td>★★★★★ — 잘 설계된 이중 백엔드 아키텍처</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>입력: 1D NumPy 배열 목록. <code>strip_leading_nans</code> + <code>linear_interpolation</code> 전처리. RevIN 스타일 런닝-스탯 정규화. SafeTensors(PyTorch) / Orbax(Flax) 체크포인트, HuggingFace Hub 배포. DB 없음. / List of 1D NumPy arrays. leading-NaN strip + linear interpolation preprocessing. Running-stat RevIN. Weights from HuggingFace Hub. No database.</td>
+<td>★★★★☆ — 간결한 입력 파이프라인; 멀티변량 미지원</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI 패키지 (<code>timesfm[torch/flax/xreg]</code>). BigQuery ML, Google Sheets, Vertex AI 1st-party 통합. Docker/K8s 설정 없음. 수동 PyPI 릴리스(GitHub Actions <code>workflow_dispatch</code>). / PyPI package with extras. First-party integrations in BigQuery/Sheets/Vertex AI. No Docker/K8s. Manual PyPI publish via workflow_dispatch.</td>
+<td>★★★★☆ — 엔터프라이즈 통합 탁월; 컨테이너 미포함</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td><code>tests/</code>에 pytest 5개 파일: 레이어 단위(ResidualBlock, RMSNorm, RFF), config 불변성, NaN 유틸, 모델 로딩. <strong>CI는 빌드만 수행하며 pytest 미실행.</strong> 커버리지 미측정. Flax 레이어 테스트 없음. / 5 pytest files covering layers, configs, NaN utils, model loading. CI builds but does NOT run tests. No coverage. No Flax layer tests.</td>
+<td>★★★☆☆ — 테스트 존재하나 CI 미실행·커버리지 미측정</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 없음. Dependabot/Renovate 미설정. SBOM 없음. SafeTensors로 pickle 취약점 회피. PyPI 토큰은 GitHub Secret 사용. Apache-2.0 라이선스(호환성 양호). / No SECURITY.md, no Dependabot/Renovate, no SBOM. SafeTensors avoids pickle deserialization attacks. PyPI token in GitHub Secret. Apache-2.0.</td>
+<td>★★★☆☆ — 안전한 기본값이나 공식 보안 프로세스 부재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>Google Research 공식 릴리스. ICML 2024 논문. BigQuery·Sheets·Vertex 통합. v1→v2→v2.5 세 세대 발전. 커뮤니티 기여자 명시. 상세 SKILL.md 포함. CONTRIBUTING·CODE_OF_CONDUCT·CHANGELOG 없음. / Official Google Research release, ICML 2024, enterprise integrations. Three model generations. SKILL.md shipped. No CONTRIBUTING/CHANGELOG.</td>
+<td>★★★★☆ — 연구 코드에서 프로덕션으로 성숙 중</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-strengths">1. 강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>듀얼 프레임워크 아키텍처</strong> — PyTorch와 Flax(JAX) 두 백엔드를 단일 추상 기반 클래스와 frozen dataclass config 위에 구현. 새 백엔드 추가가 설정 교환만으로 가능하며, CPU/GPU/TPU 환경 선택권을 제공. <code>src/timesfm/configs.py:21–106</code> 참조.</p>
+</li>
+<li>
+<p><strong>안전하고 간결한 3단계 API</strong> — <code>from_pretrained() → compile() → forecast()</code>. HuggingFace Hub와 <code>PyTorchModelHubMixin</code> 통합으로 체크포인트 다운로드/업로드 내장. ForecastConfig는 frozen dataclass로 컴파일 후 설정 변경을 구조적으로 차단. <code>src/timesfm/timesfm_2p5/timesfm_2p5_torch.py:266–279</code> 참조.</p>
+</li>
+<li>
+<p><strong>프로덕션 수준의 예측 품질 플래그</strong> — <code>force_flip_invariance</code>, <code>fix_quantile_crossing</code>, <code>use_continuous_quantile_head</code>, <code>infer_is_positive</code>, <code>normalize_inputs</code> 등 수치적 품질 보정 기능이 <code>ForecastConfig</code> 레벨에서 토글 가능하며, 구현 내부에 숨겨져 있지 않음.</p>
+</li>
+<li>
+<p><strong>Agent Skill 생태계 통합</strong> — <code>timesfm-forecasting/SKILL.md</code>는 <a href="https://agentskills.io">Agent Skills</a> 표준 준수 공식 스킬. 시스템 사전 검사 스크립트, 배치 예측 CLI, 3가지 예제(온도 예측·이상 탐지·공변량 예측), LoRA 파인튜닝 예제 포함. AI 에이전트 및 일반 사용자 모두에게 즉시 사용 가능.</p>
+</li>
+<li>
+<p><strong>SafeTensors 기반 안전한 체크포인트</strong> — Pickle 기반 <code>.pt</code> 파일 대신 SafeTensors 사용. 임의 코드 실행(deserialization attack) 취약점을 구조적으로 차단. <code>src/timesfm/timesfm_2p5/timesfm_2p5_torch.py:80</code> 참조.</p>
+</li>
+</ol>
+<hr />
+<h2 id="2-risks-areas-for-improvement">2. 위험 / 개선 필요 사항 (Risks / Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>CI가 테스트를 실행하지 않음</strong> — <code>.github/workflows/main.yml</code>은 <code>python -m build</code>만 실행하고 <code>pytest</code>를 호출하지 않는다. 테스트 파일이 5개 존재해도 PR 병합 시 자동 검증이 없어 회귀 방어 효과가 없다. <strong>즉시 수정 필요</strong>: <code>uv run pytest tests/</code> 스텝 추가.</p>
+</li>
+<li>
+<p><strong>보안 정책 및 취약점 관리 부재</strong> — <code>SECURITY.md</code> 없음, Dependabot/Renovate 미설정, SBOM 없음. 의존성 취약점에 대한 자동 알림 채널이 없다. 체크포인트 파일에 대한 서명 검증도 없음.</p>
+</li>
+<li>
+<p><strong>Flax 레이어 테스트 미비</strong> — <code>src/timesfm/torch/</code> 레이어는 단위 테스트 존재하나, <code>src/timesfm/flax/</code>의 동등 레이어(<code>dense.py</code>, <code>transformer.py</code>, <code>normalization.py</code>, <code>util.py</code>)는 테스트가 없다. Flax 백엔드 회귀가 런타임에만 드러난다.</p>
+</li>
+<li>
+<p><strong>커뮤니티 기여 프레임워크 부재</strong> — <code>CONTRIBUTING.md</code>, <code>CODE_OF_CONDUCT.md</code>, 구조화된 <code>CHANGELOG.md</code> 없음. README의 날짜별 업데이트 로그가 CHANGELOG를 비공식 대체하고 있으나 semantic versioning과 연계되지 않는다.</p>
+</li>
+<li>
+<p><strong>XReg의 JAX 하드 의존성 혼재</strong> — <code>xreg_lib.py</code>는 <code>[xreg]</code> 선택 의존성으로 분류되지만 내부에서 JAX를 임포트한다. PyTorch 전용 사용자가 <code>forecast_with_covariates()</code>를 사용하려면 예상치 못하게 JAX까지 설치해야 한다. <code>src/timesfm/utils/xreg_lib.py:20–28</code> 참조.</p>
+</li>
+</ol>
+<hr />
+<h2 id="3-adoption-recommendation">3. 도입 권고 (Adoption Recommendation)</h2>
+<h3 id="technology-adoption">기술 도입 판단 / Technology Adoption</h3>
+<p><strong>강력 권고 (Highly Recommended)</strong> — 단변량 시계열 제로샷 예측이 필요한 모든 프로젝트에 대해 TimesFM 2.5는 2026년 현재 오픈소스 파운데이션 모델 중 최선의 선택이다.</p>
+<table>
+<thead>
+<tr>
+<th>사용 시나리오</th>
+<th>권고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>연구/실험 (단변량 예측)</td>
+<td>✅ 즉시 도입 가능</td>
+</tr>
+<tr>
+<td>BigQuery / Vertex AI 환경</td>
+<td>✅ Google 관리 엔드포인트 활용 권장</td>
+</tr>
+<tr>
+<td>에이전트 기반 자동화</td>
+<td>✅ SKILL.md로 즉시 통합 가능</td>
+</tr>
+<tr>
+<td>멀티변량(multivariate) 예측</td>
+<td>⚠️ XReg로 간접 지원만 가능 — 대안 검토 필요</td>
+</tr>
+<tr>
+<td>규제 환경(금융·의료)</td>
+<td>⚠️ 보안 정책 보강(SBOM, Dependabot) 후 도입 권장</td>
+</tr>
+</tbody>
+</table>
+<p><strong>프로덕션 도입 전 단기 조치 (Short-term hardening before production):</strong>
+1. CI <code>main.yml</code>에 <code>pytest tests/</code> 스텝 추가 (1시간 작업)
+2. Dependabot 설정 추가 (<code>/.github/dependabot.yml</code>)
+3. Flax 레이어 기본 단위 테스트 작성</p>
+<p><strong>Overall verdict (English):</strong> Adopt with minor hardening. The ICML 2024 research provenance, three model generations, Google enterprise integrations (BigQuery, Sheets, Vertex AI), and thoughtful dual-backend API design make TimesFM 2.5 the reference choice for open-source time-series forecasting. The primary gap is that CI never runs the existing test suite — a one-line fix that would immediately strengthen the quality guarantee.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>google-research/timesfm</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/google-research/timesfm" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
