@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>tursodatabase/turso - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/tursodatabase/turso" target="_blank" rel="noopener">tursodatabase/turso</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Turso is an in-process SQL database, compatible with SQLite.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Rust</span>
+      <span class="badge badge-stars">★ 20176</span>
+      <span class="badge badge-stars">+774 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>Now I have enough information to compile the comprehensive analysis report.</p>
+<hr />
+<h1 id="turso-database-tursodatabaseturso">Turso Database (tursodatabase/turso) — 소스 분석 보고서</h1>
+<p><strong>분석일: 2026-06-21</strong>
+<strong>분석 대상 경로: <code>/tmp/github-dashboard-analysis/tursodatabase_turso</code></strong>
+<strong>출력 파일: <code>.review/REVIEW-Source.md</code></strong></p>
+<hr />
+<h2 id="_1">구조적 분석 요약 테이블</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>SQLite를 Rust로 완전히 재작성한 임베디드 SQL 데이터베이스. SQLite 파일 포맷 및 SQL 방언 호환성 유지하면서 MVCC, CDC, io_uring, 다중 언어 바인딩, 클라우드 동기화 등 확장 기능 추가. BETA 상태.</td>
+<td>★★★★★ — 명확하고 측정 가능한 목표</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>40+ crate Cargo workspace 모노레포. <code>core/</code>, <code>parser/</code>, <code>cli/</code>, <code>bindings/</code>, <code>extensions/</code>, <code>testing/</code>, <code>sync/</code>, <code>sdk-kit/</code>, <code>perf/</code>, <code>tools/</code>, <code>serverless/</code> 등 기능 도메인별 분리. 코드와 운영 자산(Docker, Nix, scripts) 혼재하나 정돈되어 있음.</td>
+<td>★★★★☆ — 도메인 지향적·명확한 경계</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Rust 1.88 (toolchain 고정). PyO3(Python), NAPI-RS(JS/WASM), JNI(Java), CGO(Go), FRB(.NET). 빌드: Cargo, Makefile, uv(Python). 비동기 I/O: io_uring(Linux), IOCP(Windows 실험적). FTS: tantivy. 암호화: AEGIS.</td>
+<td>★★★★★ — 현대적이고 적합한 스택</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>cli/</code> → <code>tursodb</code> REPL. <code>core/lib.rs</code> → <code>Database</code> API. <code>bindings/rust/</code> → 공개 Rust crate. <code>sqlite3/</code> → C API 호환 레이어. <code>serverless/javascript/</code> → JS serverless.</td>
+<td>★★★★☆ — 다양한 진입점 잘 정의됨</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>파이프라인: SQL → 파서(recursive descent, 13k LOC) → AST → 컴파일러(translate/) → VDBE 바이트코드 인터프리터(17k LOC) → 스토리지 엔진(B-tree, 13k LOC) + WAL. 비동기 상태 머신 기반 IO. MVCC 레이어 분리.</td>
+<td>★★★★★ — SQLite 아키텍처 정밀 모델링</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLite 호환 파일 포맷(B-tree/WAL). 인메모리 모드 지원. MVCC(실험적). 암호화-at-rest(실험적). 멀티프로세스 WAL 공유(<code>.tshm</code> 사이드카). Turso Cloud 동기화(<code>sync/engine</code>).</td>
+<td>★★★★☆ — 견고하나 MVCC·암호화는 WIP</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>cargo-dist 기반 자동 릴리즈. Docker(<code>Dockerfile.cli</code>). Nix flake(<code>flake.nix</code>). NPM 패키징(<code>npx turso</code>). PyPI(<code>pyturso</code>). Maven Central(Java). crates.io(Rust). nuget(.NET).</td>
+<td>★★★★★ — 다채널 배포 전략</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td><code>.sqltest</code>(250개+), TCL 호환성 테스트(SQLite TCL suite), Rust 단위/통합, fuzz, 결정론적 시뮬레이터(fault injection), differential oracle(SQLancer), Elle(선형화 일관성 검증), Antithesis(상용 chaos 플랫폼). CI: 30개+ GitHub Actions 워크플로우.</td>
+<td>★★★★★ — 산업 최고 수준의 테스트 계층</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>cargo-deny</code>로 라이선스·취약 의존성 관리. Fossier PR 스팸 탐지. 암호화(AEGIS). CI에서 시크릿 관리(GitHub Secrets). SECURITY.md 부재. dependabot/renovate 미사용(fossier 대체).</td>
+<td>★★★☆☆ — 실용적이나 취약점 공시 정책 부재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 0.7.0-pre.10 (BETA). 활발한 커뮤니티(Discord 2개 채널). CHANGELOG에 릴리즈당 20명+ 기여자. 월간 릴리즈 주기. AI 에이전트 친화적 문서(AGENTS.md, CLAUDE.md). CONTRIBUTING.md, PR 템플릿, NOTICE.md 완비. TLA+ 형식 명세(<code>tlaplus/</code>) 존재.</td>
+<td>★★★★☆ — BETA이나 운영 성숙도 매우 높음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="1">1. 목적 및 범위</h3>
+<p>Turso Database는 SQLite를 Rust로 처음부터 재작성한 임베디드 SQL 데이터베이스 엔진이다. 대상 사용자는 SQLite를 임베디드 DB로 사용하면서 성능(MVCC, io_uring), 안전성(Rust 메모리 안전), 다중 언어 지원, 클라우드 동기화가 필요한 애플리케이션 개발자다. 라이브러리, CLI 도구, 서버리스 런타임, 다국어 바인딩을 동시에 제공하는 복합 플랫폼이다.</p>
+<p>핵심 차별점:
+- SQLite 파일 포맷·C API 100% 호환 목표(현재 부분 구현, <code>COMPAT.md</code> 추적)
+- <code>BEGIN CONCURRENT</code> MVCC로 쓰기 처리량 향상
+- 6개 언어(Go, JS, Java, .NET, Python, Rust) + WASM 바인딩
+- Turso Cloud와의 증분 동기화(<code>sync/engine</code>)
+- Change Data Capture(CDC) 내장</p>
+<h3 id="2">2. 리포지터리 구조</h3>
+<pre><code>tursodatabase_turso/
+├── core/              # DB 엔진 (translate/, storage/, vdbe/, io/, mvcc/, vector/, json/)
+├── parser/            # SQL 파서 (lexer, AST, recursive descent)
+├── cli/               # tursodb REPL + MCP 서버 + 동기화 서버
+├── bindings/          # go, javascript, java, dotnet, python, rust, tcl, react-native
+├── extensions/        # core, crypto, csv, fuzzy, ipaddr, regexp, completion
+├── testing/           # simulator, concurrent-simulator, differential-oracle, sqltests, ...
+├── sync/              # engine, sdk-kit (Turso Cloud 동기화)
+├── sdk-kit/           # 고수준 SDK 추상화 레이어 + C bindings
+├── serverless/        # JavaScript serverless 런타임
+├── perf/              # throughput, memory, encryption, latency 벤치마크
+├── fuzz/              # libFuzzer 퍼즈 테스트
+├── tlaplus/           # TLA+ 형식 명세 (SQLite WAL 트랜잭션 모델)
+├── tools/             # dbhash 유틸리티
+└── docs/              # 매뉴얼, API 참조, 에이전트 가이드
+</code></pre>
+<p>도메인 지향 구조로 코드 탐색이 직관적이다. <code>testing/</code> 내 다양한 테스트 방법론이 디렉터리별로 분리되어 있다.</p>
+<h3 id="3">3. 소프트웨어 스택</h3>
+<table>
+<thead>
+<tr>
+<th>계층</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Rust 1.88 (toolchain 고정, MSRV 1.73)</td>
+</tr>
+<tr>
+<td>빌드</td>
+<td>Cargo workspace, Makefile, cargo-dist, dist-workspace.toml</td>
+</tr>
+<tr>
+<td>패키지 관리</td>
+<td>Cargo, uv(Python), npm/napi-rs(JS)</td>
+</tr>
+<tr>
+<td>비동기 I/O</td>
+<td>tokio/io_uring(Linux), IOCP(Windows 실험적), 자체 상태 머신</td>
+</tr>
+<tr>
+<td>FTS 엔진</td>
+<td>tantivy</td>
+</tr>
+<tr>
+<td>암호화</td>
+<td>AEGIS (pure-rust feature 포함)</td>
+</tr>
+<tr>
+<td>Python 바인딩</td>
+<td>PyO3</td>
+</tr>
+<tr>
+<td>JS 바인딩</td>
+<td>NAPI-RS, WebAssembly</td>
+</tr>
+<tr>
+<td>Java 바인딩</td>
+<td>JNI</td>
+</tr>
+<tr>
+<td>.NET 바인딩</td>
+<td>flutter_rust_bridge(FRB)</td>
+</tr>
+<tr>
+<td>Go 바인딩</td>
+<td>CGO</td>
+</tr>
+<tr>
+<td>Nix</td>
+<td>flake.nix (재현 가능 개발 환경)</td>
+</tr>
+<tr>
+<td>컨테이너</td>
+<td>Docker (CLI, Antithesis 워크로드)</td>
+</tr>
+<tr>
+<td>라이선스 관리</td>
+<td>cargo-deny + 수동 <code>NOTICE.md</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="4">4. 아키텍처</h3>
+<p><strong>실행 파이프라인:</strong></p>
+<pre><code>SQL 텍스트
+  └─ parser/src/parser.rs  [13k LOC, recursive descent]
+       └─ AST
+           └─ core/translate/  [AST → VDBE 바이트코드, optimizer/ 포함]
+                └─ VDBE 바이트코드
+                    └─ core/vdbe/execute.rs  [17k LOC 인터프리터]
+                         └─ core/storage/  [btree.rs 13k, wal.rs, pager.rs]
+                              └─ core/io/  [비동기 상태 머신: unix, io_uring, windows]
+</code></pre>
+<p><strong>핵심 설계 원칙:</strong>
+- <strong>비동기 상태 머신</strong>: <code>IOResult&lt;T&gt;</code> 타입으로 재진입 가능한 비동기 연산 표현. OS 스레드 차단 없이 I/O 완료를 상태 머신 전이로 처리.
+- <strong>SQLite VDBE 호환</strong>: 오피코드 수준에서 SQLite와 비교 검증(<code>EXPLAIN</code> 출력 차이 비교).
+- <strong>MVCC 분리</strong>: <code>core/mvcc/</code> 디렉터리가 메인 스토리지와 별도 계층으로 격리. 실험적 <code>BEGIN CONCURRENT</code> 지원.
+- <strong>확장성</strong>: <code>ExtensionApi</code> 트레이트로 스칼라/집계/가상 테이블 함수 플러그인 가능.
+- <strong>멀티 프로세스</strong>: <code>.tshm</code> 사이드카 파일을 통한 크로스프로세스 WAL 공유(초기 구현 단계).</p>
+<p><strong>레이어 분리:</strong>
+- 프레젠테이션: <code>cli/</code> (REPL, MCP 서버)
+- 비즈니스 로직: <code>core/translate/</code> + <code>core/vdbe/</code>
+- 데이터 접근: <code>core/storage/</code> + <code>core/io/</code>
+- 도메인 확장: <code>extensions/</code>, <code>sync/</code>, <code>sdk-kit/</code></p>
+<h3 id="5">5. 테스트 품질</h3>
+<p><strong>다층적 테스트 전략 (산업 최고 수준):</strong></p>
+<table>
+<thead>
+<tr>
+<th>테스트 유형</th>
+<th>도구/위치</th>
+<th>목적</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>.sqltest</code></td>
+<td><code>testing/sqltests/tests/</code> (250개+)</td>
+<td>SQL 호환성 회귀 테스트</td>
+</tr>
+<tr>
+<td>TCL 호환</td>
+<td><code>testing/</code> + SQLite TCL suite</td>
+<td>SQLite 완전 호환 검증</td>
+</tr>
+<tr>
+<td>Rust 통합</td>
+<td><code>tests/</code></td>
+<td>복잡한 시나리오 회귀</td>
+</tr>
+<tr>
+<td>결정론적 시뮬레이터</td>
+<td><code>testing/simulator/</code></td>
+<td>I/O 순서 제어, 장애 주입</td>
+</tr>
+<tr>
+<td>동시성 시뮬레이터</td>
+<td><code>testing/concurrent-simulator/</code></td>
+<td>MVCC 동시성 정확성</td>
+</tr>
+<tr>
+<td>Differential Oracle</td>
+<td><code>testing/differential-oracle/</code></td>
+<td>SQLite vs Turso 출력 비교</td>
+</tr>
+<tr>
+<td>SQLancer</td>
+<td><code>testing/sqlancer/</code></td>
+<td>무작위 SQL 생성 버그 탐지</td>
+</tr>
+<tr>
+<td>Elle</td>
+<td><code>.github/workflows/elle.yml</code></td>
+<td>선형화 일관성(CRDT) 검증</td>
+</tr>
+<tr>
+<td>Antithesis</td>
+<td><code>.github/workflows/antithesis.yml</code></td>
+<td>상용 카오스 엔지니어링 플랫폼</td>
+</tr>
+<tr>
+<td>fuzz</td>
+<td><code>fuzz/</code></td>
+<td>libFuzzer 경계 케이스 탐지</td>
+</tr>
+<tr>
+<td>TLA+</td>
+<td><code>tlaplus/</code></td>
+<td>WAL 트랜잭션 모델 형식 검증</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CI 파이프라인 (30개+ 워크플로우):</strong>
+- <code>rust.yml</code>: 빌드, 포맷, lint, 라이선스 검사, 크로스 플랫폼 테스트
+- <code>conformance.yml</code>, <code>sqltest.yml</code>: SQL 호환성
+- <code>elle.yml</code>: 야간 선형화 검사 (nightly 3AM UTC)
+- <code>codspeed.yml</code>, <code>rust_perf.yml</code>: 성능 회귀 탐지
+- <code>fuzz.yml</code>: 퍼즈 테스트
+- <code>stack-sizes.yml</code>: 스택 크기 모니터링</p>
+<p><strong>릴리즈 주기</strong>: SemVer 기반, cargo-dist 자동화. 현재 0.7.0-pre.10 (BETA). 약 월간 마이너 릴리즈.</p>
+<h3 id="6">6. 보안 및 공급망</h3>
+<p><strong>강점:</strong>
+- <code>cargo-deny</code> (<code>deny.toml</code>): MIT, Apache-2.0, BSD 등 허용 라이선스 명시적 화이트리스트. GPL 계열 전면 차단. CI에서 자동 검사.
+- <code>NOTICE.md</code>: 타사 의존성 라이선스 수동 추적 및 <code>licenses/</code> 디렉터리 보존.
+- Fossier(<code>fossier.toml</code>): PR 기여자 신뢰도 자동 평가 (스팸/봇 방지).
+- 시크릿 관리: GitHub Secrets 사용, <code>.env</code> 커밋 금지 정책 문서화.
+- 암호화: AEGIS 기반 at-rest 암호화 (실험적).</p>
+<p><strong>미흡 사항:</strong>
+- <code>SECURITY.md</code> 부재: 취약점 공시(responsible disclosure) 정책 없음.
+- dependabot/renovate 미설정: 자동 의존성 업그레이드 PR 없음. fossier는 PR 스팸 필터이지, 의존성 관리 도구가 아님.
+- SBOM(Software Bill of Materials) 생성 자동화 없음.
+- 아티팩트 서명(sigstore, cosign 등) 미적용.</p>
+<h3 id="7">7. 문서 및 운영 성숙도</h3>
+<p><strong>문서 품질 (매우 우수):</strong>
+- <code>README.md</code>: 빠른 시작, 기능 목록, 언어별 예시, 로드맵.
+- <code>COMPAT.md</code>: SQLite 호환성 상태를 항목별로 ✅/🚧 표시.
+- <code>CONTRIBUTING.md</code>: 빌드, 테스트, 디버깅, 바인딩, 릴리즈 과정 상세 안내.
+- <code>docs/agent-guides/</code>: AI 에이전트를 위한 전문 가이드 세트 (testing, code-quality, debugging, pr-workflow, transaction-correctness, storage-format, async-io-model, mvcc).
+- <code>AGENTS.md</code> + <code>CLAUDE.md</code>: AI 코딩 에이전트 맞춤 가이드라인 — 독특한 운영 성숙도 지표.
+- <code>CHANGELOG.md</code>: 릴리즈별 상세 변경 이력, 기여자 명시.
+- PR 템플릿: AI 사용 공시 섹션 포함 (혁신적인 투명성 정책).</p>
+<p><strong>커뮤니티:</strong>
+- Discord 2개 채널 (개발자용/사용자용).
+- CHANGELOG 한 릴리즈에 20명+ 기여자.
+- GitHub Actions <code>stale.yml</code>로 오래된 이슈 자동 관리.
+- Labeler(<code>labeler.yml</code>)로 PR/이슈 자동 레이블링.</p>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>산업 최고 수준의 테스트 계층</strong>: <code>.sqltest</code>, TCL suite, 결정론적 시뮬레이터, differential oracle, Antithesis 카오스 플랫폼, Elle 선형화 검증, TLA+ 형식 명세까지 — 동등한 오픈소스 임베디드 DB 프로젝트 중 이 수준의 테스트 다양성을 갖춘 경우는 드물다.</p>
+</li>
+<li>
+<p><strong>AI 에이전트 친화적 개발 인프라</strong>: <code>AGENTS.md</code>, <code>CLAUDE.md</code>, <code>docs/agent-guides/</code> 등 AI 코딩 에이전트를 1등급 기여자로 취급하는 문서 체계. PR 템플릿의 "AI 사용 공시" 섹션은 책임 있는 AI 활용 문화를 정착시킨다.</p>
+</li>
+<li>
+<p><strong>SQLite 호환성에 대한 엄격한 검증 문화</strong>: <code>COMPAT.md</code>의 항목별 추적, <code>scripts/diff.sh</code>로 즉시 비교, TCL 호환 테스트 CI 통합까지 — "SQLite 호환 = 버그" 원칙이 코드베이스 전반에 제도화되어 있다.</p>
+</li>
+<li>
+<p><strong>포괄적 다중 언어 바인딩</strong>: Go, JS, Java, .NET, Python, Rust + WASM 동시 지원. 각 바인딩에 전용 CI 워크플로우(<code>go.yml</code>, <code>java.yml</code>, <code>python.yml</code>, <code>napi.yml</code>, <code>dotnet-test.yml</code>)가 있어 회귀를 즉시 탐지한다.</p>
+</li>
+<li>
+<p><strong>운영 성숙도와 생태계 완비</strong>: cargo-dist 배포, NPM 패키지(<code>npx turso</code>), PyPI, Maven Central, crates.io 동시 퍼블리시. Nix flake로 재현 가능 개발 환경. Fossier로 공급망 무결성 강화.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험/개선 필요 사항 (Risks / Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>SECURITY.md 부재</strong>: 취약점 보고 채널과 공시 정책(responsible disclosure policy)이 없다. 프로덕션 데이터베이스를 표방하면서도 보안 취약점 처리 절차가 공개되지 않은 것은 기업 도입 시 장애가 된다.</p>
+</li>
+<li>
+<p><strong>MVCC·암호화 등 핵심 기능의 실험적 상태</strong>: <code>BEGIN CONCURRENT</code>, 암호화-at-rest, 멀티프로세스 WAL, WITHOUT ROWID, 전문 검색 등 주요 기능이 모두 "experimental" 레이블이다. BETA 전체 상태와 맞물려 프로덕션 채택 타임라인이 불명확하다.</p>
+</li>
+<li>
+<p><strong>자동 의존성 업데이트 미흡</strong>: dependabot이나 renovate가 구성되어 있지 않다. 수십 개의 Cargo 의존성이 수동으로 관리되며, <code>Cargo.lock</code>의 오래된 패치 버전이 알려진 CVE를 내포할 위험이 있다.</p>
+</li>
+<li>
+<p><strong>대형 단일 파일 집중</strong>: <code>core/vdbe/execute.rs</code> (17,415 LOC), <code>core/storage/btree.rs</code> (12,817 LOC), <code>parser/src/parser.rs</code> (13,029 LOC)이 각각 단일 파일에 집중되어 있다. 리뷰 부담, 병합 충돌 빈도, 새 기여자 온보딩 난이도를 높인다.</p>
+</li>
+<li>
+<p><strong>SBOM 및 아티팩트 서명 부재</strong>: cargo-dist 기반 릴리즈에 sigstore/cosign 서명이나 SBOM 자동 생성이 없다. 공급망 보안 표준(SLSA)에 대한 대응이 미흡하다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 도입 관점</strong>: SQLite를 임베디드 DB로 사용하는 Rust 기반 프로젝트에는 즉시 평가 가치가 있다. 단, MVCC·암호화·FTS는 BETA 상태임을 인지하고 안정화된 핵심 SQL 기능 범위 내에서 먼저 도입을 검토할 것.</p>
+<p><strong>아키텍처 벤치마킹 관점</strong>: 결정론적 I/O 상태 머신, differential oracle 테스트, TLA+ 명세를 통한 형식 검증, AI 에이전트 친화적 문서 구조는 다른 시스템 소프트웨어 프로젝트가 참조할 수 있는 모범 사례다.</p>
+<p><strong>보안 검토 관점</strong>: cargo-deny 라이선스 관리와 Fossier PR 필터링은 채택할 만하나, SECURITY.md 작성과 dependabot/renovate 도입을 선행 조건으로 요구해야 한다.</p>
+<p><strong>기여 준비도</strong>: CONTRIBUTING.md, AGENTS.md, PR 템플릿, 자동화된 CI 피드백 루프가 잘 갖춰져 있어 새 기여자 온보딩 비용이 낮다. AI 에이전트 기여를 공식적으로 지원하는 몇 안 되는 오픈소스 프로젝트 중 하나로, AI-assisted contribution 패턴을 실험하기에 적합하다.</p>
+<p><strong>종합 판정</strong>: 🟡 <strong>조건부 도입 권고</strong> — 핵심 SQL 워크로드에는 평가 가치가 충분하나, BETA 딱지와 SECURITY.md 부재, 일부 핵심 기능의 실험적 상태를 감안해 프로덕션 크리티컬 데이터에는 Stable 릴리즈 이후 적용을 권장한다.</p>
+<hr />
+<p><em>Report generated by analysis-source skill | 분석 도구: analysis-source skill</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>tursodatabase/turso</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/tursodatabase/turso" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
