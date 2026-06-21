@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-21 02:00:09 KST",
+  "generated_at": "2026-06-22 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 3,
+  "total_targets": 1,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,8 +17,8 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 3,
-      "skipped_existing_analysis": 2,
+      "selected": 0,
+      "skipped_existing_analysis": 5,
       "skipped_duplicate": 0
     },
     "weekly": {
@@ -29,53 +29,25 @@
     },
     "monthly": {
       "candidates": 5,
-      "selected": 0,
-      "skipped_existing_analysis": 4,
+      "selected": 1,
+      "skipped_existing_analysis": 3,
       "skipped_duplicate": 1
     }
   },
   "targets": [
     {
-      "rank": 2,
-      "name": "penpot",
-      "full_name": "penpot/penpot",
-      "owner": "penpot",
-      "description": "Penpot: The open-source design tool for design and code collaboration",
-      "url": "https://github.com/penpot/penpot",
-      "stars": 51083,
-      "forks": 3291,
-      "language": "Clojure",
-      "stars_gained": "424 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
-      "rank": 3,
-      "name": "OpenMontage",
-      "full_name": "calesthio/OpenMontage",
-      "owner": "calesthio",
-      "description": "World's first open-source, agentic video production system. 12 pipelines, 52 tools, 500+ agent skills. Turn your AI coding assistant into a full video production studio.",
-      "url": "https://github.com/calesthio/OpenMontage",
-      "stars": 6805,
-      "forks": 1134,
-      "language": "Python",
-      "stars_gained": "677 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
       "rank": 4,
-      "name": "turso",
-      "full_name": "tursodatabase/turso",
-      "owner": "tursodatabase",
-      "description": "Turso is an in-process SQL database, compatible with SQLite.",
-      "url": "https://github.com/tursodatabase/turso",
-      "stars": 20176,
-      "forks": 1037,
-      "language": "Rust",
-      "stars_gained": "774 stars today",
+      "name": "DeepSeek-Reasonix",
+      "full_name": "esengine/DeepSeek-Reasonix",
+      "owner": "esengine",
+      "description": "DeepSeek-native AI coding agent for your terminal. Engineered around prefix-cache stability — leave it running.",
+      "url": "https://github.com/esengine/DeepSeek-Reasonix",
+      "stars": 23525,
+      "forks": 1420,
+      "language": "Go",
+      "stars_gained": "18,518 stars this month",
       "topics": [],
-      "period": "daily"
+      "period": "monthly"
     }
   ]
 }

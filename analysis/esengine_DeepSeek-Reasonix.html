@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>esengine/DeepSeek-Reasonix - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noopener">esengine/DeepSeek-Reasonix</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">DeepSeek-native AI coding agent for your terminal. Engineered around prefix-cache stability — leave it running.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">monthly trending</span>
+      <span class="badge badge-lang">Go</span>
+      <span class="badge badge-stars">★ 23525</span>
+      <span class="badge badge-stars">+18,518 stars this month</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 수집한 정보를 바탕으로 종합 분석 보고서를 작성합니다.</p>
+<hr />
+<h1 id="reasonix-esenginedeepseek-reasonix">Reasonix (esengine/DeepSeek-Reasonix) — 소스 분석 보고서</h1>
+<p><strong>분석일:</strong> 2026-06-22<br />
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/esengine_DeepSeek-Reasonix</code><br />
+<strong>출력 파일 경로:</strong> <code>.review/REVIEW-Source.md</code> (OUTPUT INSTRUCTION에 따라 직접 출력)</p>
+<hr />
+<h2 id="8-a">8-A. 단일 프로젝트 보고서</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>DeepSeek 특화 터미널 기반 AI 코딩 에이전트. Config·Plugin 중심 하네스로, 단일 정적 Go 바이너리를 DeepSeek의 prefix 캐시에 최적화하여 장기 세션의 토큰 비용을 최소화하는 것이 핵심 목표. 대상 사용자는 DeepSeek 또는 OpenAI 호환 LLM을 활용하는 개발자.</td>
+<td>★★★★★ — 목표가 명확하고, 제품 설계 철학(캐시 우선)이 코드·CI·PR 리뷰 프로세스 전반에 일관되게 반영되어 있음</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>루트에 Go 모듈(CLI 커널) + <code>desktop/</code> 하위 Go 모듈(Wails 데스크탑)의 <strong>준-모노레포</strong> 구조. 주요 디렉터리: <code>cmd/</code> (진입점), <code>internal/</code> (45개 패키지), <code>desktop/</code> (별도 모듈), <code>npm/</code> (바이너리 래퍼), <code>docs/</code>, <code>scripts/</code>, <code>benchmarks/</code>, <code>workers/</code>, <code>site/</code>. 코드와 운영 자산이 명확히 분리됨.</td>
+<td>★★★★☆ — 구조가 잘 정리되어 있으나, <code>desktop/</code> 별도 모듈 + 루트 모듈 혼재가 CI 복잡도를 높임</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td><strong>언어:</strong> Go 1.25 (툴체인 1.26.4). <strong>TUI:</strong> Bubble Tea v2 + Lipgloss v2 (charm.land). <strong>TOML:</strong> BurntSushi/toml. <strong>구문 강조:</strong> alecthomas/chroma v2. <strong>데스크탑:</strong> Wails v2 (WebView 기반). <strong>OS 키링:</strong> zalando/go-keyring + danieljoos/wincred. <strong>봇 SDK:</strong> larksuite/oapi-sdk-go v3. <strong>빌드:</strong> Make + GoReleaser v2. <strong>배포:</strong> npm(바이너리 래퍼), Homebrew tap, GitHub Releases.</td>
+<td>★★★★★ — CGO 의존성 없음(<code>CGO_ENABLED=0</code>), 순수 Go 의존성 최소화 원칙 엄수. TOML 파서만이 유일한 허용 외부 런타임 의존성</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>cmd/reasonix/main.go</code> — blank-import로 빌트인 Provider(<code>provider/openai</code>) 및 Tool(<code>tool/builtin</code>)을 자동 등록 후 CLI 서브커맨드 라우팅. 데스크탑: <code>desktop/main.go</code>. 봇: <code>internal/botruntime/</code>. HTTP/SSE: <code>internal/serve/</code>.</td>
+<td>★★★★★ — 진입점과 비즈니스 로직이 명확히 분리. <code>main.go</code>는 조립만 담당</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td><strong>Hexagonal/Port-Adapter</strong> 패턴 적용. <code>control.Controller</code>가 모든 프론트엔드(TUI, WebView, HTTP/SSE)를 구동하는 단일 오케스트레이터. 의존 방향: <code>cli → {agent, plugin, config} → {tool, provider}</code>. <code>Provider</code> / <code>Tool</code> 인터페이스 + Registry 기반. Agent 루프: Request 빌드 → <code>provider.Stream</code> → 텍스트 스트리밍 → tool call 실행 → 반복. Plan Mode / 두-모델 협업(executor + planner) 지원. MCP 클라이언트(stdio + HTTP 트랜스포트). 메모리 계층: <code>REASONIX.md</code> 계층 + auto-memory(frontmatter). 체크포인트/되감기 시스템. LSP 클라이언트.</td>
+<td>★★★★★ — 명확한 계층 분리, 사이클 없는 패키지 의존성, Controller 단일 진실 소스 패턴이 모든 프론트엔드에 일관성 보장</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>별도 DB 없음. 상태는 메모리 내 <code>[]Message</code> 세션 + 로컬 파일 시스템(설정 TOML, auto-memory frontmatter, 체크포인트 스냅샷). 캐시: DeepSeek prefix 캐시(외부 서비스). OS 키링(자격증명). CodeGraph(tree-sitter 기반 심볼/콜 그래프, 로컬 캐시).</td>
+<td>★★★★☆ — DB 의존성 없어 배포가 단순. 체크포인트 충돌이나 대용량 세션의 메모리 압박은 미검증 영역</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>6-target 크로스 컴파일(darwin/linux/windows × amd64/arm64), GoReleaser로 자동화. npm 패키지(바이너리 래퍼, <code>optionalDependencies</code>로 플랫폼별 바이너리 선택), Homebrew tap(<code>esengine/reasonix</code>), GitHub Releases + SHA256SUMS. Windows: SignPath Foundation 코드 서명. 별도 태그 네임스페이스로 CLI·npm·desktop 릴리스 파이프라인 분리(<code>v*</code>, <code>npm-v*</code>, <code>desktop-v*</code>).</td>
+<td>★★★★★ — 릴리스 자동화·서명·체크섬·멀티채널(npm/brew/binary)이 모두 갖춰진 성숙한 배포 체계</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>내부 테스트 파일 298개 (프로덕션 파일 255개). 단위 + 통합 + E2E(<code>*_e2e_test.go</code>) 혼합. Race detector 전용 CI 잡(<code>-race</code>). goroutine 누수 감지(<code>go.uber.org/goleak</code>). 캐시 안정성 전용 가드 테스트(<code>TestCacheHit*</code>, <code>REASONIX_RELEASE_CACHE_GUARD</code>). SSRF 방어 테스트(<code>webfetch_ssrf_test.go</code>). 커버리지 아티팩트 업로드.</td>
+<td>★★★★★ — 테스트 파일 수가 프로덕션 코드를 초과하는 드문 사례. 캐시·경쟁 조건·goroutine 누수를 CI에서 명시적으로 검증</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md <strong>없음</strong>. CodeQL(Go/JS/Actions, 주 1회 스케줄 + push/PR). govulncheck(CI, informational). Dependabot(gomod×2, npm×2, Actions - 주 1회). 샌드박스: macOS Seatbelt(sandbox-exec) 구현, Linux/Windows는 미구현(pass-through). SSRF 방어(webfetch). 비밀 관리: <code>api_key_env</code> 환경 변수, 설정 파일 비기록, OS 키링 우선. Windows 코드 서명.</td>
+<td>★★★☆☆ — 공급망 보안(SBOM 없음)·SECURITY.md 부재·Linux/Windows 샌드박스 미구현이 약점. 나머지는 강건함</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v1.0.0 출시 2026-06-03 (약 3주). 레거시 TypeScript 0.x → Go 완전 재작성. PR 4977개 머지. 기여자 9명+ 명시적 감사, GitHub Discussions + Discord 커뮤니티. 두 명의 CODEOWNERS. 이중 언어(EN + zh-CN) 문서. Conventional Commits. oosmetrics Agents/LLMs/CLI 카테고리 Top-3.</td>
+<td>★★★★☆ — 커뮤니티 활성도·문서·프로세스는 성숙하나, 1.0 정식 출시 이후 아직 3주로 장기 안정성 검증은 초기 단계</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>캐시 우선 설계의 일관성</strong> — DeepSeek prefix 캐시 히트율을 제품 동작으로 취급하여 CI(<code>REASONIX_RELEASE_CACHE_GUARD</code>), PR 메타데이터(<code>Cache-impact:</code>, <code>Cache-guard:</code>), 전용 가드 테스트(<code>TestCacheHit*</code>)까지 전 레이어에서 검증. 이런 수준의 성능 불변식 관리는 업계에서 드뭄.</p>
+</li>
+<li>
+<p><strong>Transport-Agnostic Controller 패턴</strong> — <code>control.Controller</code> 하나가 TUI·WebView·HTTP/SSE 모든 프론트엔드를 동일하게 구동. 새 프론트엔드 추가 시 Controller 코드 수정 없이 어댑터만 추가하면 되는 진정한 핵사고날 구조.</p>
+</li>
+<li>
+<p><strong>CGO-Free 단일 정적 바이너리</strong> — 의존성 없이 6개 플랫폼 타깃을 크로스 컴파일, npm 래퍼로 <code>npm i -g reasonix</code> 한 줄 설치. 기업 환경의 배포 마찰을 최소화.</p>
+</li>
+<li>
+<p><strong>테스트 밀도와 다양성</strong> — 프로덕션 255파일 대비 테스트 298파일, goroutine leak 감지, race detector 전용 CI 잡, SSRF 방어 테스트, 캐시 안정성 E2E 등 단순 커버리지 수치를 넘어선 품질 검증.</p>
+</li>
+<li>
+<p><strong>릴리스 파이프라인 성숙도</strong> — CLI·npm·데스크탑 3개 릴리스 채널이 독립 태그 네임스페이스로 분리, GoReleaser + SHA256SUMS + Windows 코드 서명 + Homebrew tap 자동화가 한 번의 태그 push로 완결.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험 / 개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>SECURITY.md 부재</strong> — 취약점 신고 채널이 명시되지 않음. GitHub Private Vulnerability Reporting 또는 security@ 이메일 정책이 없어 보안 연구자가 책임 공시 경로를 찾지 못할 위험.</p>
+</li>
+<li>
+<p><strong>Linux/Windows 샌드박스 미구현</strong> — <code>sandbox</code> 패키지가 macOS Seatbelt만 구현하고 Linux(<code>seccomp</code>/<code>namespaces</code>)/Windows는 pass-through. 악성 코드나 실수로 인한 bash 명령이 Linux·Windows에서 호스트 파일 시스템에 무제한 접근 가능.</p>
+</li>
+<li>
+<p><strong>SBOM(Software Bill of Materials) 없음</strong> — GoReleaser 릴리스 아카이브에 SBOM이 포함되지 않음. 기업 도입 시 공급망 감사 요건 충족이 어려울 수 있음.</p>
+</li>
+<li>
+<p><strong>desktop/ 모듈 CGO 의존성</strong> — 루트 모듈의 <code>CGO_ENABLED=0</code> 보장과 달리, Wails 기반 <code>desktop/</code>은 WebKitGTK 등 네이티브 의존성을 가짐. 별도 모듈로 격리되었으나, CI에서 Linux 22.04 핀과 WebKit 버전 고정으로 인한 빌드 취약성이 존재.</p>
+</li>
+<li>
+<p><strong>v1.0.0 출시 직후 장기 안정성 미검증</strong> — 2026-06-03 출시 후 약 3주. API 안정성, 대규모 세션에서의 메모리 압박, Windows CodeGraph 자동 fetch 미검증(릴리스 노트에 직접 명시) 등 실사용 엣지 케이스가 충분히 수렴되지 않은 상태.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>결론: 조건부 도입 권고 (Conditional Adoption)</strong></p>
+<p><strong>기술 도입·아키텍처 벤치마킹:</strong> 강력 권고. Config·Plugin 중심의 핵사고날 구조, 캐시 우선 LLM 에이전트 설계, CGO-free 다중 채널 배포 패턴은 유사 AI 코딩 에이전트 또는 CLI 도구 설계 시 직접 참조할 수 있는 모범 사례.</p>
+<p><strong>보안 검토 관점:</strong> SECURITY.md 추가, Linux 샌드박스(<code>seccomp</code> 또는 <code>landlock</code>) 구현, SBOM 생성이 선행되어야 기업 보안 심사 통과 가능. 현재는 macOS 단일 플랫폼 샌드박스에 의존.</p>
+<p><strong>실무 도입 타이밍:</strong> v1.0.0 출시 직후(3주)로 프로덕션 안정성이 충분히 검증되지 않음. 3~6개월 실사용 피드백 수렴 후(<code>~v1.1.x</code>) 도입이 안전. 개인·소규모 팀은 즉시 사용 가능하나, 엔터프라이즈 환경은 대기 권고.</p>
+<p><strong>기여 준비도:</strong> CONTRIBUTING.md·SPEC.md·REASONIX.md가 충실하며 PR 프로세스(Cache-impact 메타데이터 등)가 명확히 정의되어 있어 외부 기여 진입 장벽이 낮음.</p>
+<hr />
+<h2 id="tech-stack-summary">부록: 기술 스택 요약 (Tech Stack Summary)</h2>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Go 1.25+ (toolchain 1.26.4)</td>
+</tr>
+<tr>
+<td>TUI 프레임워크</td>
+<td>Bubble Tea v2 + Lipgloss v2 (charm.land)</td>
+</tr>
+<tr>
+<td>설정 파싱</td>
+<td>BurntSushi/toml v1.6</td>
+</tr>
+<tr>
+<td>구문 강조</td>
+<td>alecthomas/chroma v2</td>
+</tr>
+<tr>
+<td>데스크탑</td>
+<td>Wails v2 (WebView, CGO 필요)</td>
+</tr>
+<tr>
+<td>LLM 프로토콜</td>
+<td>OpenAI-compatible <code>/chat/completions</code> (streaming)</td>
+</tr>
+<tr>
+<td>MCP 프로토콜</td>
+<td>JSON-RPC 2.0 over stdio / Streamable HTTP</td>
+</tr>
+<tr>
+<td>봇 SDK</td>
+<td>larksuite/oapi-sdk-go v3 (Feishu/Lark)</td>
+</tr>
+<tr>
+<td>코드 인텔리전스</td>
+<td>CodeGraph (tree-sitter, 외부 바이너리, 로컬 캐시)</td>
+</tr>
+<tr>
+<td>OS 키링</td>
+<td>zalando/go-keyring + danieljoos/wincred</td>
+</tr>
+<tr>
+<td>빌드</td>
+<td>Make + GoReleaser v2</td>
+</tr>
+<tr>
+<td>정적 분석</td>
+<td>golangci-lint v2 (errcheck, staticcheck, unused, …)</td>
+</tr>
+<tr>
+<td>취약점 검사</td>
+<td>govulncheck + CodeQL</td>
+</tr>
+<tr>
+<td>공급망</td>
+<td>Dependabot (weekly, grouped)</td>
+</tr>
+<tr>
+<td>릴리스</td>
+<td>npm + Homebrew tap + GitHub Releases + SignPath (Windows)</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td>MIT</td>
+</tr>
+</tbody>
+</table></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>esengine/DeepSeek-Reasonix</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/esengine/DeepSeek-Reasonix" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
