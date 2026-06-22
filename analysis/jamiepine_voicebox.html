@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>jamiepine/voicebox - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/jamiepine/voicebox" target="_blank" rel="noopener">jamiepine/voicebox</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">The open-source AI voice studio. Clone, dictate, create.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 32004</span>
+      <span class="badge badge-stars">+508 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-23
+분석 대상: <code>/tmp/github-dashboard-analysis/jamiepine_voicebox</code></p>
+<hr />
+<h1 id="voicebox-review-sourcemd">Voicebox — 소스 코드 분석 리포트 (REVIEW-Source.md)</h1>
+<blockquote>
+<p><strong>Voicebox</strong> is a local-first AI voice studio combining TTS, STT, global dictation, voice personas, a multi-track story editor, and an MCP server — all running on-device. Version 0.5.0 (MIT).</p>
+</blockquote>
+<hr />
+<h2 id="8-a-structured-analysis-table">8-A. 구조화 분석 표 / Structured Analysis Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적 (Purpose)</strong></td>
+<td>로컬 AI 음성 스튜디오. 7종 TTS 엔진(Qwen3, Chatterbox, LuxTTS, Kokoro, TADA 등), Whisper 기반 STT, 글로벌 딕테이션, Personas(로컬 LLM), Stories 멀티트랙 편집기, Claude/Cursor 등 에이전트용 MCP 서버를 단일 앱으로 제공. 개인 및 크리에이터 대상 프라이버시 우선(on-device) 설계.</td>
+<td>★★★★★ — 명확하고 폭넓은 문제 영역 정의, 차별화된 MCP 통합</td>
+</tr>
+<tr>
+<td><strong>구조 (Structure)</strong></td>
+<td>Bun 모노레포. <code>app/</code>(공유 React), <code>tauri/</code>(데스크톱 네이티브), <code>web/</code>(웹 배포), <code>landing/</code>(마케팅 Next.js), <code>backend/</code>(FastAPI Python), <code>scripts/</code>, <code>docs/</code>, <code>data/</code>, <code>.github/</code>. 코드·배포·문서 명확히 분리.</td>
+<td>★★★★☆ — 구조 명확, 단 app/web 간 코드 공유 경계가 다소 암묵적</td>
+</tr>
+<tr>
+<td><strong>스택 (Stack)</strong></td>
+<td>React 18 + TypeScript 5.6 + Vite 5 + Tailwind CSS 4 + Zustand + TanStack Router/Query; Tauri 2.0(Rust); FastAPI + SQLite + SQLAlchemy + Alembic; PyInstaller 바이너리; Bun 1.3.8+; Biome 2(TS 린트/포맷), Ruff(Python); GitHub Actions CI.</td>
+<td>★★★★★ — 현대적이고 경량화된 선택, Electron 대신 Tauri로 네이티브 성능 확보</td>
+</tr>
+<tr>
+<td><strong>진입점 (Entry Points)</strong></td>
+<td>Frontend: <code>app/src/main.tsx</code>; Python 서버: <code>backend/main.py</code>(uvicorn); Rust: <code>tauri/src-tauri/src/</code>(글로벌 핫키·오디오 I/O); MCP: <code>backend/mcp_server/</code>; Web 단독: <code>web/src/</code>; Landing: <code>landing/</code> (Next.js)</td>
+<td>★★★★☆ — 역할별 진입점 분리 양호, Tauri↔backend 프로세스 라이프사이클 관리 복잡도 존재</td>
+</tr>
+<tr>
+<td><strong>아키텍처 (Architecture)</strong></td>
+<td>프론트엔드: Zustand 전역 스토어 + React Query(서버 상태) 계층 분리. 백엔드: Layered(routes → services → backends → utils). TTS 엔진 플러그인 팩토리 패턴, 직렬 GPU 큐(<code>task_queue.py</code>), SSE 실시간 상태 스트리밍, FastMCP HTTP 서버 + stdio 심 이중 MCP.</td>
+<td>★★★★☆ — 관심사 분리 우수, GPU 큐 직렬화로 충돌 방지, SSE 채택 적절</td>
+</tr>
+<tr>
+<td><strong>데이터 (Data)</strong></td>
+<td>SQLite(<code>{data_dir}/voicebox.db</code>) + SQLAlchemy ORM + Alembic 마이그레이션(자동 시작). 모델: Profile, Generation, Capture, Story, Effect. HuggingFace 모델 캐시 별도 볼륨. Docker Compose에서 named volume 분리.</td>
+<td>★★★★☆ — 로컬 단일 파일 DB로 설치 간소화, 대규모 협업/다중 사용자 시나리오엔 한계</td>
+</tr>
+<tr>
+<td><strong>배포 (Deployment)</strong></td>
+<td>데스크톱: Tauri 빌드 → macOS(ARM64 MLX / x86 PyTorch), Windows(CPU + 별도 CUDA 바이너리), Linux(소스 빌드). 웹: Nixpacks Docker 3-스테이지 빌드, docker-compose.yml. 자동 업데이터(cryptographic signing + Apple notarization).</td>
+<td>★★★★★ — 크로스 플랫폼 배포 체계 탁월, CUDA 분리 빌드로 패키지 크기 최적화</td>
+</tr>
+<tr>
+<td><strong>테스트 (Testing)</strong></td>
+<td>Python: pytest + asyncio_mode="auto"(<code>pyproject.toml</code>). CI: 타입체크 + 웹 빌드 스모크 테스트(ubuntu-latest). TS/React: 별도 테스트 러너 설정 미확인(<code>jest</code>, <code>vitest</code> 설정 파일 부재 관찰). 코드 커버리지 도구 미확인.</td>
+<td>★★☆☆☆ — 백엔드 pytest 구조 존재하나 프론트엔드 테스트 인프라 미흡, 커버리지 측정 부재</td>
+</tr>
+<tr>
+<td><strong>보안 (Security)</strong></td>
+<td><code>SECURITY.md</code> 존재(취약점 보고 절차·지원 버전 명시). Docker Compose 포트 <code>127.0.0.1:17493</code>(로컬 바인딩만 노출). Tauri macOS 엔타이틀먼트 최소 권한 명시. 자동 업데이터 서명 적용. Dependabot/Renovate 설정 미확인.</td>
+<td>★★★☆☆ — 기본 보안 정책 존재, 의존성 자동 취약점 스캔(Dependabot 등) 미적용이 아쉬움</td>
+</tr>
+<tr>
+<td><strong>성숙도 (Maturity)</strong></td>
+<td>버전 0.5.0, MIT 라이선스. <code>CHANGELOG.md</code>(62KB) 상세 히스토리. <code>CONTRIBUTING.md</code>(11KB) 완비. <code>docs/PROJECT_STATUS.md</code> 로드맵 관리. <code>.agents/</code> Claude Code 스킬 포함. 커뮤니티 활발(Trendshift 배지). 이슈/PR 템플릿 미확인.</td>
+<td>★★★★☆ — 초기 단계 대비 문서·릴리즈 성숙도 높음, 0.x 버전으로 API 안정성 보장 전 단계</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>로컬 우선 + MCP 에이전트 통합의 차별화</strong>: 7종 TTS 엔진을 on-device로 구동하면서 Claude Code, Cursor 등 AI 에이전트에 직접 음성 I/O를 제공하는 FastMCP HTTP 서버와 stdio 심 이중 구조는 시장에서 희소한 아키텍처다. 프라이버시와 에이전트 워크플로우를 동시에 만족한다.</p>
+</li>
+<li>
+<p><strong>크로스 플랫폼 배포 체계의 완성도</strong>: macOS(ARM64 MLX · x86 PyTorch) / Windows(CPU + CUDA 분리 바이너리) / 웹(Docker 3-스테이지) 를 단일 GitHub Actions 매트릭스로 처리하고, cryptographic signing + Apple notarization + auto-updater까지 완결된 릴리즈 파이프라인은 0.5.0 수준 프로젝트로는 매우 성숙하다.</p>
+</li>
+<li>
+<p><strong>직렬 GPU 큐 + SSE 스트리밍 패턴</strong>: <code>task_queue.py</code>의 직렬 큐로 GPU 경합을 원천 차단하고, Server-Sent Events로 생성 상태를 실시간 전달하는 구조는 단일 사용자 로컬 AI 앱에 적합하며 구현 복잡도 대비 사용자 경험이 탁월하다.</p>
+</li>
+<li>
+<p><strong>현대적 경량 스택 선택</strong>: Electron 대신 Tauri(Rust), webpack 대신 Vite, npm 대신 Bun, ESLint/Prettier 대신 Biome 단일 툴 — 모든 빌드 도구 선택이 2024-2025년 기준 최신 경량화 방향이며, 빌드 속도와 번들 크기 모두 이점이 크다.</p>
+</li>
+<li>
+<p><strong>문서화·기여 가이드의 완성도</strong>: <code>README.md</code>(25KB), <code>CONTRIBUTING.md</code>(11KB), <code>SECURITY.md</code>, <code>CHANGELOG.md</code>(62KB), <code>STYLE_GUIDE.md</code>, <code>PROJECT_STATUS.md</code> 로드맵까지 갖춘 문서 체계는 오픈소스 초기 프로젝트로서 기여자 온보딩 장벽을 크게 낮춘다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험 / 개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>프론트엔드 테스트 인프라 부재</strong>: <code>vitest</code> 또는 <code>jest</code> 설정 파일이 확인되지 않으며, CI 파이프라인도 타입체크·빌드 스모크에 그친다. React 컴포넌트·Zustand 스토어·TanStack Router에 대한 단위/통합 테스트가 없으면 리팩토링 안전망이 없고, 0.5.0→1.0.0 API 안정화 과정에서 회귀 위험이 높다.</p>
+</li>
+<li>
+<p><strong>의존성 취약점 자동 스캔 미적용</strong>: Dependabot/Renovate 설정이 확인되지 않는다. <code>requirements.txt</code>에 70개 이상의 Python 패키지(torch, transformers, diffusers 등 AI 스택)가 있고, Rust 크레이트와 npm 패키지까지 더하면 공급망 위험 노출 면적이 크다. SBOM 생성 및 아티팩트 서명 검증도 명시적으로 확인되지 않는다.</p>
+</li>
+<li>
+<p><strong>models.py 거대 파일 (23K 라인)</strong>: 백엔드의 <code>models.py</code> 파일이 23,000라인에 달한다고 탐색 결과에서 언급된다. Pydantic 스키마와 ORM 모델이 혼재한다면 유지보수성이 급격히 저하되고, IDE 성능·코드 리뷰 난이도가 높아진다. 도메인별 분할 리팩토링이 필요하다.</p>
+</li>
+<li>
+<p><strong>0.x 버전 API 안정성 및 SQLite 확장성 한계</strong>: 현재 0.5.0으로 public API(REST 90개 엔드포인트, MCP 도구)의 하위 호환성이 보장되지 않는다. 또한 SQLite는 단일 사용자 로컬 앱에 적합하나, 향후 팀·서버 배포 시나리오를 고려하면 PostgreSQL 전환 경로 설계가 필요하다.</p>
+</li>
+<li>
+<p><strong>이슈/PR 템플릿 미확인 및 Dependabot 부재</strong>: GitHub 이슈/PR 템플릿 파일(<code>.github/ISSUE_TEMPLATE/</code>, <code>.github/pull_request_template.md</code>)이 탐색에서 확인되지 않았다. 커뮤니티가 성장할수록 일관된 버그 리포트·기능 요청 양식이 트리아지 비용을 절감한다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 채택 / Technology Adoption</strong> — <strong>조건부 추천 (Conditional Recommend)</strong></p>
+<p>Voicebox는 "로컬 AI 음성 처리 + 에이전트 통합"이라는 틈새 영역에서 아키텍처 완성도가 높고, 크로스 플랫폼 배포 파이프라인과 문서화 수준이 0.5.x 프로젝트로서 이례적으로 성숙하다. MCP 서버 통합과 7종 TTS 엔진 플러그인 구조는 벤치마킹 가치가 충분하다.</p>
+<p>다만 <strong>프론트엔드 테스트 인프라 부재</strong>와 <strong>의존성 취약점 자동 스캔 미적용</strong>은 프로덕션 도입 전 반드시 해소해야 할 항목이다. 또한 <code>models.py</code> 거대화 문제는 기여 난이도를 높이므로 도메인 분할을 선행 권고한다.</p>
+<table>
+<thead>
+<tr>
+<th>평가 축</th>
+<th>결론</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>아키텍처 벤치마킹</td>
+<td>✅ 적극 권장 — MCP 이중 전송, 직렬 GPU 큐, 플러그인 TTS 팩토리</td>
+</tr>
+<tr>
+<td>보안 검토 후 채택</td>
+<td>⚠️ Dependabot/SBOM 적용 후 재검토 권고</td>
+</tr>
+<tr>
+<td>기여 준비도</td>
+<td>✅ CONTRIBUTING.md·STYLE_GUIDE·CHANGELOG 완비로 온보딩 가능</td>
+</tr>
+<tr>
+<td>운영 성숙도</td>
+<td>⚠️ 0.x API 변동성, 프론트엔드 테스트 부재 감안 필요</td>
+</tr>
+<tr>
+<td>개인/소규모 도입</td>
+<td>✅ MIT 라이선스, 로컬 설치 간단, Docker 지원</td>
+</tr>
+</tbody>
+</table></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>jamiepine/voicebox</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/jamiepine/voicebox" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

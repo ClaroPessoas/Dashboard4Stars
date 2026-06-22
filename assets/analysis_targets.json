@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-22 02:00:09 KST",
+  "generated_at": "2026-06-23 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 1,
+  "total_targets": 2,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,8 +17,8 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 0,
-      "skipped_existing_analysis": 5,
+      "selected": 2,
+      "skipped_existing_analysis": 3,
       "skipped_duplicate": 0
     },
     "weekly": {
@@ -29,25 +29,39 @@
     },
     "monthly": {
       "candidates": 5,
-      "selected": 1,
-      "skipped_existing_analysis": 3,
-      "skipped_duplicate": 1
+      "selected": 0,
+      "skipped_existing_analysis": 5,
+      "skipped_duplicate": 0
     }
   },
   "targets": [
     {
-      "rank": 4,
-      "name": "DeepSeek-Reasonix",
-      "full_name": "esengine/DeepSeek-Reasonix",
-      "owner": "esengine",
-      "description": "DeepSeek-native AI coding agent for your terminal. Engineered around prefix-cache stability — leave it running.",
-      "url": "https://github.com/esengine/DeepSeek-Reasonix",
-      "stars": 23525,
-      "forks": 1420,
-      "language": "Go",
-      "stars_gained": "18,518 stars this month",
+      "rank": 3,
+      "name": "voicebox",
+      "full_name": "jamiepine/voicebox",
+      "owner": "jamiepine",
+      "description": "The open-source AI voice studio. Clone, dictate, create.",
+      "url": "https://github.com/jamiepine/voicebox",
+      "stars": 32004,
+      "forks": 3922,
+      "language": "TypeScript",
+      "stars_gained": "508 stars today",
       "topics": [],
-      "period": "monthly"
+      "period": "daily"
+    },
+    {
+      "rank": 4,
+      "name": "Anthropic-Cybersecurity-Skills",
+      "full_name": "mukul975/Anthropic-Cybersecurity-Skills",
+      "owner": "mukul975",
+      "description": "754 structured cybersecurity skills for AI agents · Mapped to 5 frameworks: MITRE ATT&CK, NIST CSF 2.0, MITRE ATLAS, D3FEND & NIST AI RMF · agentskills.io standard · Works with Claude Code, GitHub Copilot, Codex CLI, Cursor, Gemini CLI & 20+ platforms · 26 security domains · Apache 2.0",
+      "url": "https://github.com/mukul975/Anthropic-Cybersecurity-Skills",
+      "stars": 18399,
+      "forks": 2189,
+      "language": "Python",
+      "stars_gained": "957 stars today",
+      "topics": [],
+      "period": "daily"
     }
   ]
 }
