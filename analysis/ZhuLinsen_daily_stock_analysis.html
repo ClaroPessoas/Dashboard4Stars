@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ZhuLinsen/daily_stock_analysis - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/ZhuLinsen/daily_stock_analysis" target="_blank" rel="noopener">ZhuLinsen/daily_stock_analysis</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system with multi-source market data, real-time news, decision dashboard, automated notifications, and cost-free scheduled runs.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 46838</span>
+      <span class="badge badge-stars">+1,121 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-24
+분석 대상: /tmp/github-dashboard-analysis/ZhuLinsen_daily_stock_analysis</p>
+<hr />
+<h1 id="zhulinsendaily_stock_analysis">소스 분석 보고서 — ZhuLinsen/daily_stock_analysis</h1>
+<h2 id="_1">항목별 분석 요약</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 기반 주식 지능 분석 시스템. A주·홍콩·미국·일본·한국 주식을 일일 자동 분석하고, WeChat·Feishu·Telegram·Discord·Slack·이메일 등 다채널로 리포트를 푸시함</td>
+<td>★★★★★ 명확한 도메인 타깃, 다시장 커버리지</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>모노레포: <code>src/</code>(코어) · <code>data_provider/</code>(다중 데이터 소스) · <code>api/</code>(FastAPI) · <code>bot/</code>(봇 플랫폼) · <code>apps/dsa-web/</code>(Vue.js) · <code>apps/dsa-desktop/</code>(Electron). 레이어 지향 구조(Layered Architecture)</td>
+<td>★★★★☆ 경계 명확, 규모 증가에 따른 모듈 파일 비대화 주의</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.10+, FastAPI, LiteLLM, SQLAlchemy, Vue.js/TypeScript, Electron, Docker, GitHub Actions. 데이터 소스: efinance·AkShare·Tushare·pytdx·baostock·YFinance·Longbridge·TickFlow</td>
+<td>★★★★★ 현대적 스택, 멀티 프로바이더 추상화 우수</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>main.py</code>(CLI+스케줄러), <code>server.py</code>(FastAPI), <code>webui.py</code>(Web UI 기동 래퍼) — 3개 진입점이 명확히 분리됨</td>
+<td>★★★★★ 관심사 분리 명확</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>레이어드 + 플러그인 아키텍처. 데이터 소스 우선순위 폴백 체인, LiteLLM 멀티 AI 프로바이더, Agent 오케스트레이터(6개 서브디렉터리)</td>
+<td>★★★★☆ 폴백 체인 설계 우수, 일부 핵심 모듈 파일 비대화</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLAlchemy ORM, 레포지토리 패턴. 다중 데이터 소스(8종+) 폴백 체인. 실시간 시세·기본 데이터·뉴스·검색 분리. <code>.env</code> 기반 런타임 구성</td>
+<td>★★★★☆ 폴백 설계 견고, 외부 API 키 의존도 높음</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker 멀티스테이지 빌드(Node.js+Python), GitHub Actions 10개 워크플로우, Docker Compose, Zeabur·클라우드 서버·systemd/Supervisor 지원</td>
+<td>★★★★★ 다양한 배포 경로, 비루트 컨테이너, 헬스체크 완비</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest 기반 50+ 테스트 파일. <code>unit·integration·network</code> 마커 분리. CI에서 오프라인 테스트 강제 수행. LLM 목(stub) 구현</td>
+<td>★★★★☆ 구조 우수, 커버리지 수치 미공개</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>MIT 라이선스, 비루트 Docker 사용자, SECURITY.md 부재 확인, Bandit 정적 분석 구성, <code>.env.example</code>로 시크릿 분리. 의존성 자동 업데이트 정책(dependabot) 미확인</td>
+<td>★★★☆☆ 기본 보안 양호, SECURITY.md·SBOM·dependabot 미확인</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>CHANGELOG 1,900+ 라인, 문서 45+개, 기여 가이드, PR 템플릿, CI 10개 워크플로우, 봇·웹·데스크톱·Docker 멀티 플랫폼. 커뮤니티 파트너십 통합. 2026-06-22 최신 커밋</td>
+<td>★★★★★ 프로덕션급 성숙도, 활발한 유지보수</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-1-purpose-and-scope">Step 1. 목적 및 범위 (Purpose and Scope)</h2>
+<h3 id="_2">한국어</h3>
+<p><strong>daily_stock_analysis</strong>는 A주(중국 본토), 홍콩주, 미국주, 일본주, 한국주를 대상으로 하는 AI 기반 일일 주식 분석 자동화 플랫폼이다. 개인 투자자 및 퀀트 관심 사용자를 주 타깃으로 하며, 다음 문제를 해결한다:</p>
+<ul>
+<li>매일 수백 종목을 인간이 개별 분석하는 시간·노력 비용</li>
+<li>복수 시장(A주·홍콩·미국·ETF·일본·한국)에 걸친 데이터 집계의 복잡성</li>
+<li>여러 AI 모델(DeepSeek·Gemini·Claude·OpenAI·Ollama 등) 간 프로바이더 종속 문제</li>
+<li>분석 결과를 WeChat·Feishu·Telegram·Discord·Slack·이메일 등 다양한 채널로 자동 전달하는 어려움</li>
+</ul>
+<p>분류: <strong>플랫폼형 응용 프로그램(Application Platform)</strong>. 라이브러리가 아닌 자체 실행 가능한 시스템이며, CLI·WebUI·Desktop·Bot·Docker 다양한 소비 방식을 동시에 지원한다.</p>
+<h3 id="english">English</h3>
+<p><strong>daily_stock_analysis</strong> is an AI-powered daily stock analysis automation platform targeting A-shares (China mainland), Hong Kong, US, Japanese, and Korean equities. Its primary users are individual investors and quantitative enthusiasts. It solves: (1) the time cost of manually analyzing hundreds of tickers daily, (2) cross-market data aggregation complexity, (3) AI-provider lock-in across DeepSeek/Gemini/Claude/OpenAI/Ollama, and (4) multi-channel notification delivery (WeChat, Feishu, Telegram, Discord, Slack, Email). It is an <strong>Application Platform</strong>, not a library — runnable directly via CLI, WebUI, Desktop, Bot, or Docker.</p>
+<hr />
+<h2 id="step-2-repository-structure">Step 2. 리포지토리 구조 분석 (Repository Structure)</h2>
+<h3 id="_3">한국어</h3>
+<p>최상위 디렉터리 구조:</p>
+<pre><code>/
+├── src/                   # 코어 비즈니스 로직 (162개 Python 파일)
+│   ├── core/              # 파이프라인, 백테스트 엔진, 거래 캘린더
+│   ├── services/          # 서비스 레이어 (47개 파일) — 알림, 포트폴리오, 히스토리 등
+│   ├── agent/             # 멀티턴 에이전트 프레임워크 (오케스트레이터, 실행기, LLM 어댑터)
+│   ├── llm/               # LLM 백엔드 추상화 레이어
+│   ├── repositories/      # 데이터 접근 레이어 (ORM 추상화)
+│   ├── schemas/           # Pydantic 스키마 / 데이터 계약
+│   ├── notification_sender/ # 알림 채널 구현체
+│   ├── utils/             # 유틸리티 함수
+│   └── *.py               # analyzer, storage, config, market_analyzer, search_service 등 대형 모듈
+├── data_provider/         # 다중 데이터 소스 어댑터 (18개 파일, 8종+ 소스)
+├── api/                   # FastAPI 애플리케이션 (15개 엔드포인트)
+├── bot/                   # 봇 플랫폼 통합 (Feishu, Discord, DingTalk, WeChat)
+├── apps/
+│   ├── dsa-web/           # Vue.js/TypeScript 웹 프론트엔드
+│   └── dsa-desktop/       # Electron 데스크톱 앱
+├── tests/                 # pytest 테스트 스위트 (50+ 파일)
+├── docs/                  # 문서 (45+ 마크다운 파일)
+├── scripts/               # 빌드·CI·유틸리티 스크립트 (20+ 파일)
+├── docker/                # Dockerfile, docker-compose, entrypoint
+├── .github/
+│   ├── workflows/         # CI/CD 파이프라인 (10개 워크플로우)
+│   ├── instructions/      # GitHub Copilot 지침
+│   └── PULL_REQUEST_TEMPLATE.md
+├── main.py                # CLI 메인 진입점
+├── server.py              # FastAPI 서버 진입점
+├── webui.py               # Web UI 기동 래퍼
+├── requirements.txt       # Python 의존성
+├── .env.example           # 환경 변수 템플릿
+├── AGENTS.md              # AI 협업 거버넌스 단일 진실 소스
+└── CLAUDE.md              # AGENTS.md 심볼릭 링크
+</code></pre>
+<p><strong>구조 특성:</strong>
+- <strong>모노레포</strong>: 백엔드·프론트엔드·데스크톱·봇을 단일 레포에서 관리
+- <strong>레이어 지향</strong>: presentation(API/Bot) → service → repository → data_provider
+- <strong>코드와 운영 자산 분리</strong>: <code>scripts/</code>, <code>.github/workflows/</code>, <code>docker/</code>가 명확히 분리됨
+- <strong>일부 대형 파일 존재</strong>: <code>src/core/pipeline.py</code>(161KB), <code>src/core/config_registry.py</code>(177KB), <code>src/notification.py</code>(112KB) 등 단일 파일이 매우 큼 — 향후 분할 고려 필요</p>
+<hr />
+<h2 id="step-3-tech-stack">Step 3. 소프트웨어 스택 (Tech Stack)</h2>
+<h3 id="_4">한국어</h3>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>상세</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Python 3.10+ (백엔드 · 분석 · 봇), TypeScript (웹 프론트엔드)</td>
+</tr>
+<tr>
+<td><strong>웹 프레임워크</strong></td>
+<td>FastAPI + Uvicorn (ASGI)</td>
+</tr>
+<tr>
+<td><strong>데이터 처리</strong></td>
+<td>pandas, numpy, SQLAlchemy (ORM)</td>
+</tr>
+<tr>
+<td><strong>AI/LLM</strong></td>
+<td>LiteLLM 1.80.10+(&lt;2.0) — DeepSeek·Gemini·Claude·OpenAI·Ollama·Anspire·AIHubMix 통합, tiktoken</td>
+</tr>
+<tr>
+<td><strong>데이터 소스</strong></td>
+<td>efinance(동방재부), AkShare, Tushare Pro, pytdx, baostock, YFinance, Longbridge OpenAPI, TickFlow SDK, AlphaVantage, Finnhub, Tencent</td>
+</tr>
+<tr>
+<td><strong>뉴스·검색</strong></td>
+<td>Tavily, SerpAPI, Bocha, Brave, MiniMax, SearXNG, Anspire</td>
+</tr>
+<tr>
+<td><strong>봇 채널</strong></td>
+<td>Feishu(lark-oapi), Discord(discord.py), DingTalk, WeChat, Telegram, Slack, Email, ServerChan</td>
+</tr>
+<tr>
+<td><strong>프론트엔드</strong></td>
+<td>Vue.js 3, TypeScript, Tailwind CSS, Vite, Playwright(E2E)</td>
+</tr>
+<tr>
+<td><strong>데스크톱</strong></td>
+<td>Electron + Vue.js 래퍼</td>
+</tr>
+<tr>
+<td><strong>빌드 도구</strong></td>
+<td>pip, npm/pnpm, Black(포맷), isort, flake8</td>
+</tr>
+<tr>
+<td><strong>컨테이너</strong></td>
+<td>Docker(멀티스테이지), Docker Compose</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>GitHub Actions (10개 워크플로우)</td>
+</tr>
+<tr>
+<td><strong>외부 의존성</strong></td>
+<td>alphasift(private git repo), imgkit(wkhtmltopdf)</td>
+</tr>
+<tr>
+<td><strong>코드 품질</strong></td>
+<td>Black, isort, Bandit, flake8</td>
+</tr>
+</tbody>
+</table>
+<h3 id="english_1">English</h3>
+<p>Backend: Python 3.10+, FastAPI, LiteLLM (multi-provider AI abstraction), SQLAlchemy. Frontend: Vue.js 3 + TypeScript + Vite. Desktop: Electron. Data: pandas/numpy. Deployment: Docker multi-stage, GitHub Actions. The LiteLLM layer is the critical AI abstraction, supporting 15+ model providers. Data source fallback chain (efinance→AkShare→Tushare→pytdx→baostock→YFinance→Longbridge→TickFlow) ensures resilience across market data APIs.</p>
+<hr />
+<h2 id="step-4-architecture">Step 4. 아키텍처 분석 (Architecture)</h2>
+<h3 id="_5">한국어</h3>
+<p><strong>진입점 3개:</strong>
+1. <code>main.py</code> — CLI + 스케줄러: 분석 실행, <code>--schedule</code>, <code>--dry-run</code>, <code>--serve</code>, <code>--market-review</code> 등 플래그 지원
+2. <code>server.py</code> — FastAPI 서버: REST API + 정적 파일 호스팅
+3. <code>webui.py</code> — Web UI 래퍼: <code>python main.py --webui-only</code>와 동일</p>
+<p><strong>레이어 구조:</strong></p>
+<pre><code>[CLI / GitHub Actions]
+        ↓
+[main.py — 오케스트레이터]
+        ↓
+[src/core/pipeline.py — 메인 실행 파이프라인]
+        ↓
+[src/services/ — 비즈니스 서비스 레이어]
+   ├── run_flow.py (분석 실행)
+   ├── alphasift_service.py (종목 스크리닝)
+   ├── alert_service.py (실시간 알림)
+   ├── portfolio_service.py (포트폴리오 관리)
+   ├── history_service.py (리포트 히스토리)
+   └── ...
+        ↓
+[src/repositories/ — 데이터 접근 레이어]
+        ↓
+[data_provider/ — 다중 데이터 소스 폴백 체인]
+   efinance → AkShare → Tushare → pytdx → baostock → YFinance → Longbridge → TickFlow
+</code></pre>
+<p><strong>API 경로:</strong></p>
+<pre><code>[클라이언트 (Web/Desktop/Bot)]
+        ↓
+[api/app.py — FastAPI 앱 팩토리]
+        ↓
+[api/v1/endpoints/ — REST 엔드포인트 15개]
+   analysis, agent, history, stocks, portfolio, 
+   decision_signals, system_config, alerts, auth, ...
+</code></pre>
+<p><strong>Agent 프레임워크:</strong></p>
+<pre><code>src/agent/
+├── orchestrator.py   # 에이전트 조율
+├── executor.py       # 실행 엔진
+├── runner.py         # 실행 루프
+├── llm_adapter.py    # LLM 프로바이더 추상화
+├── chat_context.py   # 대화 컨텍스트 관리
+└── factory.py        # 에이전트 팩토리
+</code></pre>
+<p><strong>아키텍처 패턴:</strong>
+- <strong>레이어드 아키텍처</strong> + <strong>플러그인 패턴</strong> (데이터 소스, AI 프로바이더, 알림 채널 모두 교체 가능)
+- <strong>폴백 체인 패턴</strong> (data_provider 레이어에서 소스 우선순위 강하형 실패 복구)
+- <strong>레지스트리 패턴</strong> (<code>src/core/config_registry.py</code> — 런타임 설정 등록/조회)
+- <strong>커맨드 패턴</strong> (bot/commands/ — 봇 명령어 캡슐화)
+- <strong>어댑터 패턴</strong> (LLM, 데이터 소스, 알림 채널 모두 어댑터로 추상화)</p>
+<p><strong>주요 관찰:</strong>
+- <code>src/core/pipeline.py</code>(161KB), <code>src/core/config_registry.py</code>(177KB), <code>src/services/system_config_service.py</code>(167KB) 등 일부 파일이 단일 파일에 매우 많은 책임을 지고 있음
+- <code>src/analyzer.py</code>(4,068줄), <code>src/storage.py</code>(3,353줄), <code>src/config.py</code>(3,091줄) — 코어 파일 분할이 향후 유지보수성에 영향을 줄 수 있음
+- GenerationBackend Phase 1 추상화(최신 커밋)가 진행 중 — LLM 레이어 구조 개선 흐름 긍정적</p>
+<hr />
+<h2 id="step-5-quality-and-test-system">Step 5. 품질 및 테스트 (Quality and Test System)</h2>
+<h3 id="_6">한국어</h3>
+<p><strong>테스트 구조:</strong></p>
+<table>
+<thead>
+<tr>
+<th>테스트 유형</th>
+<th>마커</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>유닛 테스트</td>
+<td><code>@pytest.mark.unit</code></td>
+<td>순수 오프라인 로직 검증</td>
+</tr>
+<tr>
+<td>통합 테스트</td>
+<td><code>@pytest.mark.integration</code></td>
+<td>외부 네트워크 없이 서비스 수준 검증</td>
+</tr>
+<tr>
+<td>네트워크 테스트</td>
+<td><code>@pytest.mark.network</code></td>
+<td>외부 API 연동 검증 (CI 비차단, 관측용)</td>
+</tr>
+</tbody>
+</table>
+<pre><code>tests/ (50+ 파일)
+├── test_agent_*.py        (7+ 파일, Agent 프레임워크)
+├── test_analysis_*.py     (5+ 파일, 분석 파이프라인)
+├── test_alert_*.py        (3+ 파일, 알림 시스템)
+├── test_alphasift_api.py  (스크리닝 통합)
+├── test_akshare_*.py      (데이터 소스)
+├── conftest.py            (공통 픽스처)
+├── litellm_stub.py        (LLM 목 구현)
+└── longbridge_live_smoke.py (라이브 통합 스모크)
+</code></pre>
+<p><strong>CI 검증 단계 (ci.yml):</strong></p>
+<table>
+<thead>
+<tr>
+<th>검사</th>
+<th>내용</th>
+<th>차단 여부</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ai-governance</td>
+<td>AGENTS.md/CLAUDE.md/skills 자산 일관성 검증</td>
+<td>예</td>
+</tr>
+<tr>
+<td>backend-gate</td>
+<td>py_compile + flake8 critical + 오프라인 pytest</td>
+<td>예</td>
+</tr>
+<tr>
+<td>docker-build</td>
+<td>Docker 이미지 빌드 + 스모크 테스트</td>
+<td>예</td>
+</tr>
+<tr>
+<td>web-gate</td>
+<td>npm lint + build (프론트엔드 변경 시)</td>
+<td>예(조건부)</td>
+</tr>
+<tr>
+<td>network-smoke</td>
+<td>pytest -m network + scripts/test.sh quick</td>
+<td>아니오(관측)</td>
+</tr>
+<tr>
+<td>pr-review</td>
+<td>정적 분석 + AI 리뷰 + 자동 레이블</td>
+<td>아니오(보조)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>코드 품질 도구:</strong>
+- <strong>포맷터</strong>: Black(120자 라인 길이), isort
+- <strong>린터</strong>: flake8(E501/W503/E203/E402 무시)
+- <strong>보안 정적 분석</strong>: Bandit(B101 skip, tests 제외)
+- <strong>타입 검사</strong>: 미확인 (mypy 구성 없음)</p>
+<p><strong>릴리스 전략:</strong>
+- <code>auto-tag.yml</code> — commit 제목에 <code>#patch</code>/<code>#minor</code>/<code>#major</code> 포함 시 자동 버전 태깅
+- annotated tag 강제 사용
+- <code>create-release.yml</code> — GitHub Releases 자동 생성
+- <code>docker-publish.yml</code>, <code>ghcr-dockerhub.yml</code> — Docker Hub/GHCR 이미지 자동 배포
+- <code>desktop-release.yml</code> — Electron 앱 자동 패키징·배포</p>
+<hr />
+<h2 id="step-6-security-and-supply-chain">Step 6. 보안 및 공급망 (Security and Supply Chain)</h2>
+<h3 id="_7">한국어</h3>
+<p><strong>현황:</strong></p>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td><strong>부재</strong></td>
+<td>취약점 신고 경로 미정의</td>
+</tr>
+<tr>
+<td>비루트 컨테이너</td>
+<td>완비</td>
+<td>Docker: <code>dsa</code> 사용자(UID 1000)</td>
+</tr>
+<tr>
+<td>시크릿 관리</td>
+<td><code>.env</code> 기반</td>
+<td>GitHub Actions Secrets 사용, <code>.env.example</code>로 분리</td>
+</tr>
+<tr>
+<td>Bandit</td>
+<td>구성됨</td>
+<td><code>pyproject.toml</code>에서 B101 skip, tests 제외</td>
+</tr>
+<tr>
+<td>dependabot/Renovate</td>
+<td><strong>미확인</strong></td>
+<td><code>.github/dependabot.yml</code> 미발견</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td><strong>부재</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>아티팩트 서명</td>
+<td><strong>미확인</strong></td>
+<td>Docker 이미지 서명 정책 불명</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td>MIT (본 프로젝트)</td>
+<td>의존성 라이선스 호환성 자동 검사 없음</td>
+</tr>
+<tr>
+<td>외부 git 의존성</td>
+<td><code>alphasift</code> (private GitHub)</td>
+<td>공급망 리스크 — 외부 프라이빗 레포 직접 설치</td>
+</tr>
+</tbody>
+</table>
+<p><strong>공급망 리스크 포인트:</strong>
+1. <code>requirements.txt</code>에 <code>alphasift @ git+https://github.com/ZhuLinsen/alphasift.git</code> — 외부 프라이빗 레포 직접 설치. 레포 삭제/이름 변경 시 빌드 실패 가능
+2. 다수의 외부 API 키(<code>TUSHARE_TOKEN</code>, <code>SERPAPI_API_KEY</code>, <code>DISCORD_BOT_TOKEN</code> 등) — GitHub Secrets 관리에 의존
+3. Docker 이미지 기반 이미지(<code>python:3.11-slim-bookworm</code>, <code>node:20-alpine</code>) 버전 고정이 확인되나, 해시 핀닝 미확인
+4. LiteLLM 버전 제약(<code>&gt;=1.80.10,&lt;2.0.0</code>) — 특정 버전 제외(<code>!=1.82.7,!=1.82.8</code>) 존재로 과거 취약/버그 버전 이력 암시</p>
+<hr />
+<h2 id="step-7-documentation-and-operational-maturity">Step 7. 문서화 및 운영 성숙도 (Documentation and Operational Maturity)</h2>
+<h3 id="_8">한국어</h3>
+<p><strong>문서 커버리지:</strong></p>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>존재 여부</th>
+<th>품질</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>✅</td>
+<td>배지·빠른 시작·기능 개요·다중 배포 경로 완비</td>
+</tr>
+<tr>
+<td>README_EN.md</td>
+<td>✅</td>
+<td>영문 번역 제공</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅</td>
+<td>기여 절차·Conventional Commits·CI 설명</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>✅</td>
+<td>1,911줄 상세 버전 히스토리</td>
+</tr>
+<tr>
+<td>PR 템플릿</td>
+<td>✅</td>
+<td>10개 섹션 구조화, 롤백 플랜 강제</td>
+</tr>
+<tr>
+<td>이슈 템플릿</td>
+<td>✅</td>
+<td>Bug Report / Feature Request 분리</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>❌</td>
+<td>취약점 신고 채널 미정의</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td>❌</td>
+<td>아키텍처 결정 레코드 없음</td>
+</tr>
+<tr>
+<td>API 스펙</td>
+<td>부분적</td>
+<td><code>docs/architecture/</code> 존재 확인, OpenAPI 자동 생성</td>
+</tr>
+<tr>
+<td>배포 가이드</td>
+<td>✅</td>
+<td>DEPLOY.md, full-guide.md, deploy-webui-cloud.md</td>
+</tr>
+<tr>
+<td>트러블슈팅</td>
+<td>✅</td>
+<td>FAQ.md + run-diagnostics P0-P3 레벨 가이드</td>
+</tr>
+</tbody>
+</table>
+<p><strong>커뮤니티 활동:</strong>
+- 최신 커밋: 2026-06-22 (분석 기준 2일 전)
+- CHANGELOG 분석 결과 정기적·활발한 릴리스 주기 확인
+- GitHub Discussions 및 이슈 활성화
+- 소규모 파트너십(Anspire, SerpAPI) 통합
+- 일부 기여자 제한적 표시 (주요 유지관리자: ZhuLinsen)</p>
+<p><strong>거버넌스 성숙도:</strong>
+- <code>AGENTS.md</code> — AI 협업 거버넌스의 단일 진실 소스(17KB, 9개 섹션)
+- <code>CLAUDE.md</code> → <code>AGENTS.md</code> 심볼릭 링크 (Claude 생태계 통합)
+- <code>.github/copilot-instructions.md</code> — GitHub Copilot 지침
+- <code>.claude/skills/</code> — 재사용 가능한 협업 스킬 저장
+- <code>scripts/check_ai_assets.py</code> — AI 자산 일관성 자동 검증
+- <code>pr-review.yml</code> — AI 기반 PR 정적 품질 검사 자동화</p>
+<hr />
+<h2 id="step-8">Step 8. 최종 보고서</h2>
+<h3 id="strengths">강점 (Strengths)</h3>
+<ol>
+<li>
+<p><strong>폴백 체인 기반 데이터 레질리언스</strong>: <code>data_provider/</code>에서 efinance→AkShare→Tushare→pytdx→baostock→YFinance→Longbridge→TickFlow의 8단계 우선순위 폴백을 구현. 단일 데이터 소스 장애가 전체 분석 파이프라인을 중단시키지 않는 설계는 실프로덕션 환경에서의 신뢰성을 크게 높임</p>
+</li>
+<li>
+<p><strong>LiteLLM 기반 AI 프로바이더 추상화</strong>: 단일 인터페이스로 DeepSeek·Gemini·Claude·OpenAI·Ollama 등 15+ 모델 프로바이더를 교체 가능. LLM 벤더 종속성(vendor lock-in)을 사전에 차단한 아키텍처적 선택이며, Phase 1 GenerationBackend 추상화(최신 커밋)로 추가 개선 진행 중</p>
+</li>
+<li>
+<p><strong>완성도 높은 CI/CD 파이프라인</strong>: 10개 워크플로우가 AI 거버넌스 검증(<code>ai-governance</code>)부터 오프라인 테스트(<code>backend-gate</code>), Docker 스모크(<code>docker-build</code>), 프론트엔드 빌드(<code>web-gate</code>), 자동 태깅(<code>auto-tag</code>), 데스크톱 패키징(<code>desktop-release</code>)까지 엔드투엔드 자동화. 개발자가 수동으로 처리해야 할 릴리스 단계가 최소화됨</p>
+</li>
+<li>
+<p><strong>멀티 플랫폼·멀티 채널 아키텍처</strong>: CLI·WebUI·Desktop·Bot·Docker 5개 소비 방식, WeChat·Feishu·Telegram·Discord·Slack·이메일 6개 알림 채널, A주·홍콩·미국·일본·한국 5개 시장을 단일 코드베이스에서 지원. 사용자 어댑테이션 비용을 낮추는 플러그인 설계가 인상적</p>
+</li>
+<li>
+<p><strong>체계적인 AI 협업 거버넌스</strong>: <code>AGENTS.md</code>를 단일 진실 소스로 지정하고, <code>CLAUDE.md</code>(심볼릭 링크), <code>.github/copilot-instructions.md</code>, <code>.claude/skills/</code>를 계층적으로 구성. AI 자산 일관성 CI 검사(<code>ai-governance</code> 차단 게이트)까지 자동화된 거버넌스 구조는 다수의 AI 도구 통합 프로젝트에서 참조할 만한 선진 사례</p>
+</li>
+</ol>
+<hr />
+<h3 id="risks-and-areas-for-improvement">위험/개선 필요 사항 (Risks and Areas for Improvement)</h3>
+<ol>
+<li>
+<p><strong>핵심 모듈 파일 비대화 (Monolithic Core Files)</strong>: <code>src/core/pipeline.py</code>(161KB), <code>src/core/config_registry.py</code>(177KB), <code>src/services/system_config_service.py</code>(167KB), <code>src/analyzer.py</code>(4,068줄), <code>src/storage.py</code>(3,353줄), <code>src/config.py</code>(3,091줄)가 단일 파일에 과도한 책임을 집중시키고 있음. 기능 추가 시 메인테이너 병목 및 리뷰 부담이 증가하고, 테스트 격리가 어려워질 위험이 있음</p>
+</li>
+<li>
+<p><strong>SECURITY.md 부재 및 공급망 리스크</strong>: 취약점 신고 채널이 문서화되지 않아, 보안 이슈 발견 시 연락 경로가 불명확함. <code>alphasift</code> 프라이빗 레포를 <code>requirements.txt</code>에 직접 git URL로 설치하는 구조는 공급망 신뢰 검증이 불가능하며, 해당 레포 접근 불가 시 전체 빌드가 실패할 수 있음. dependabot/Renovate 미구성으로 의존성 취약점 자동 탐지 없음</p>
+</li>
+<li>
+<p><strong>정적 타입 검사(Type Checking) 미적용</strong>: <code>mypy</code> 또는 <code>pyright</code> 구성이 미발견. 대규모 Python 코드베이스(458개 파일)에서 타입 힌트만으로는 런타임 타입 오류 예방에 한계가 있음. 특히 AI 프로바이더 응답 처리, 데이터 소스 반환값, API 스키마 직렬화 경계에서 타입 불일치 버그가 잠재할 수 있음</p>
+</li>
+<li>
+<p><strong>테스트 커버리지 가시성 부재</strong>: 50+ 테스트 파일이 존재하나, <code>pytest-cov</code> 구성 및 커버리지 리포트·배지가 미확인. CI에서 커버리지 임계값 강제가 없어, 리팩터링 후 회귀 탐지가 어렵고, 특히 대형 파일(<code>pipeline.py</code>, <code>analyzer.py</code>)의 실제 커버 비율을 알 수 없음</p>
+</li>
+<li>
+<p><strong>외부 API 키 과다 의존 및 로컬 테스트 한계</strong>: <code>.env.example</code> 분석 결과 15개 이상의 외부 API 키가 선택적·필수적으로 요구됨. 신규 기여자가 전체 기능 흐름을 로컬에서 검증하려면 다수의 유료 API 계정이 필요하며, <code>network</code> 마커 테스트가 CI에서 비차단 관측 항목으로만 운영되어 실제 통합 검증이 CI에서 누락될 수 있음</p>
+</li>
+</ol>
+<hr />
+<h3 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h3>
+<p><strong>종합 판정: 도입 권고 (프로덕션 자가 호스팅 또는 벤치마킹 목적)</strong></p>
+<p>daily_stock_analysis는 AI 기반 금융 분석 자동화 플랫폼으로서 다음 용도에 적합하다:</p>
+<ul>
+<li><strong>기술 벤치마킹</strong>: LiteLLM 멀티 프로바이더 추상화, 데이터 소스 폴백 체인, AI 거버넌스 구조(<code>AGENTS.md</code> 기반)는 유사 AI 통합 프로젝트의 아키텍처 참조 사례로 가치가 높음</li>
+<li><strong>개인/팀 자가 호스팅</strong>: GitHub Actions 무료 티어 기반 5분 배포, Docker Compose 지원, 풍부한 문서로 진입 장벽이 낮음</li>
+<li><strong>기여 참여</strong>: 명확한 PR 템플릿, Conventional Commits 가이드, CI 자동화로 오픈소스 기여 경험이 있는 개발자에게 적합</li>
+</ul>
+<p><strong>단, 엔터프라이즈 프로덕션 도입 전 다음 사항 해결을 권고:</strong>
+1. SECURITY.md 작성 및 취약점 신고 채널 공개
+2. dependabot 활성화 및 의존성 취약점 자동 스캔 추가
+3. <code>alphasift</code> 의존성의 공급망 검증 방안 마련(pinned hash 또는 PyPI 배포)
+4. mypy/pyright 점진적 도입으로 타입 안전성 강화
+5. 핵심 모듈(<code>pipeline.py</code>, <code>analyzer.py</code>) 점진적 분할을 통한 유지보수성 개선</p>
+<hr />
+<p><em>분석일: 2026-06-24 | 분석 도구: Claude Sonnet 4.6 + repository exploration | 분석 대상: /tmp/github-dashboard-analysis/ZhuLinsen_daily_stock_analysis</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>ZhuLinsen/daily_stock_analysis</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/ZhuLinsen/daily_stock_analysis" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

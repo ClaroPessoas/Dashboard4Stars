@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>garrytan/gstack - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/garrytan/gstack" target="_blank" rel="noopener">garrytan/gstack</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Use Garry Tan's exact Claude Code setup: 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, Doc Engineer, and QA</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 113864</span>
+      <span class="badge badge-stars">+1,012 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 최종 보고서를 작성합니다.</p>
+<hr />
+<h1 id="gstack">gstack 오픈소스 소프트웨어 분석 보고서</h1>
+<p><strong>분석일:</strong> 2026-06-24
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/garrytan_gstack</code>
+<strong>버전:</strong> v1.58.4.0</p>
+<hr />
+<h2 id="_1">분석 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>Claude Code(및 10개 AI 에이전트)를 위한 AI 엔지니어링 워크플로 프레임워크. <code>/office-hours</code>, <code>/ship</code>, <code>/qa</code>, <code>/review</code>, <code>/cso</code> 등 23개 전문가 역할 슬래시-커맨드 스킬과 지속성 브라우저 데몬(<code>browse</code>)으로 구성. 한 명의 솔로 빌더가 20인 팀 수준으로 제품을 출시할 수 있도록 설계됨.</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>모노레포. 기능 도메인별 디렉터리(<code>browse/</code>, <code>ship/</code>, <code>review/</code>, <code>qa/</code>, <code>cso/</code>, <code>office-hours/</code> 등) + <code>hosts/</code>(10개 AI 에이전트 설정) + <code>lib/</code>(공유 라이브러리) + <code>bin/</code>(CLI 유틸리티 ~30개) + <code>scripts/</code>(빌드/DX 도구) + <code>test/</code>(270개 단위·E2E 테스트). 각 스킬 디렉터리에는 <code>SKILL.md</code>(생성물)와 <code>SKILL.md.tmpl</code>(편집 소스)가 공존.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>TypeScript(Bun ≥1.0 런타임), Playwright/Chromium(헤드리스 브라우저), @anthropic-ai/sdk + claude-agent-sdk, @huggingface/transformers(ONNX 분류기), @ngrok/ngrok(터널), Bun 빌드 컴파일(단일 바이너리 ~58MB), Supabase(gbrain 선택사항), xterm.js(Chrome 확장 PTY)</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>브라우저: <code>browse/src/cli.ts</code> → <code>browse/src/server.ts</code>(Bun.serve 데몬, HTTP+WebSocket). 스킬: <code>SKILL.md</code> 파일들(Claude Code가 직접 로드). 빌드: <code>scripts/build.sh</code>. 설정: <code>./setup</code> 셸 스크립트(전 플랫폼 심링크/복사 배포).</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>브라우저 데몬 패턴(CLI ↔ HTTP ↔ Bun서버 ↔ CDP ↔ Chromium). 듀얼-리스너 터널 아키텍처(로컬/터널 포트 물리 분리). 스킬 생성 파이프라인(<code>.tmpl</code> → resolver 조합 → <code>SKILL.md</code>). gbrain 벡터 메모리 통합(선택사항). 다층 프롬프트 인젝션 방어(L1-L6, ML+규칙 기반 앙상블). 이벤트 소싱 결정 로그(<code>decisions.jsonl</code>).</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>상태 파일: <code>.gstack/browse.json</code>(원자 쓰기, 0o600). 런타임 쿠키: SQLite 직접 접근(Bun 네이티브 DB). 메모리: JSONL 이벤트 소싱(<code>learnings.jsonl</code>, <code>decisions.jsonl</code>, <code>security/attempts.jsonl</code>). Supabase(pgvector, gbrain 옵션). 로컬 파일 기반 — 외부 DB 미필요.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>단일 바이너리 배포(<code>bun build --compile</code>). <code>./setup</code> 스크립트가 플랫폼별 심링크 또는 <code>cp</code>로 스킬 배포. Docker CI 이미지(GHCR, Playwright/Chromium 사전 설치). CI: GitHub Actions + Ubicloud 러너 + GitLab CI 미러(버전 게이트 포함). macOS/Linux/Windows(WSL) 지원.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>3계층 시스템: 무료(정적 검증 &lt;2s) / LLM-as-judge($0.15/run) / E2E via <code>claude -p</code>($4/run 상한). 단위 테스트 270개(<code>test/</code>) + 브라우저 통합 125개(<code>browse/test/</code>). diff 기반 선택적 실행(<code>touchfiles.ts</code>). <code>gate</code> / <code>periodic</code> 2계층 분류. 허메틱 환경 격리(env allowlist, 임시 <code>CLAUDE_CONFIG_DIR</code>). Bun 테스트 러너(preload 전처리로 env 오염 방지).</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>6계층 프롬프트 인젝션 방어(ONNX ML + Haiku 전사록 분류기 + 카나리 인젝션). 로컬호스트 전용 바인딩 + 듀얼-포트 터널 격리. 유니코드 서로게이트 sanitization(CDP 페이지 콘텐츠 → API 직전). 공유 redaction 엔진(30+ 자격증명 패턴, HIGH/MEDIUM/LOW 등급). 파일 퍼미션 강제(0o600). SSE/WebSocket Sec-WebSocket-Protocol 인증. SBOM 없음, Dependabot 설정 미확인.</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v1.58.4.0, 905KB CHANGELOG(수백 릴리스), 단일 저자(Garry Tan) + 커뮤니티 기여. 릴리스 주기 월 수회. CONTRIBUTING.md, ETHOS.md, ARCHITECTURE.md, ADR 문서 완비. 워크스페이스-aware 버전 큐(<code>gstack-next-version</code>). 적극적인 커뮤니티 PR 인입(#1965, #1964 등). 스킬 품질 대시보드(<code>skill:check</code>).</td>
+<td>★★★★☆</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<h3 id="1">1. 정교한 다계층 보안 아키텍처</h3>
+<p>프롬프트 인젝션 방어가 단순 규칙을 넘어 ML(TestSavantAI ONNX, DeBERTa-v3, Claude Haiku 전사록 분류기)과 결정론적 카나리 인젝션을 결합한 6계층 앙상블로 설계되어 있다. 각 계층의 역할과 한계가 코드(<code>THRESHOLDS</code>, <code>combineVerdict</code>)와 문서(<code>CLAUDE.md</code>, <code>ARCHITECTURE.md</code>)에 명확히 기술되어 있다. 물리적 포트 분리로 터널 공격 표면을 사전에 차단한 점도 주목할 만하다.</p>
+<h3 id="2-3-e2e">2. 3계층 테스트 피라미드 + 허메틱 E2E 환경</h3>
+<p>무료 정적 검증(&lt;2초) → LLM 판관 평가($0.15) → 실제 <code>claude -p</code> 세션 E2E($4 상한)의 비용-신뢰도 트레이드오프를 명시적으로 설계했다. <code>test/helpers/hermetic-env.ts</code>가 env allowlist 스크러빙, 격리된 <code>CLAUDE_CONFIG_DIR</code>, MCP 서버 차단을 자동 적용해 로컬 개발자 상태가 CI 결과에 개입하지 않는다. diff 기반 선택적 실행으로 유료 eval 비용을 관리한다.</p>
+<h3 id="3">3. 스킬 생성 파이프라인의 단일 소스 원칙</h3>
+<p><code>SKILL.md</code> 파일들이 <code>.tmpl</code> 템플릿과 <code>scripts/resolvers/</code>(preamble, design, review, gbrain 등) 조합으로 자동 생성된다. <code>/ship</code>, <code>/cso</code>, <code>/spec</code>, <code>/document-release</code> 등 여러 스킬에서 공유되는 redaction taxonomy, jargon 목록, 작성 스타일이 단일 소스에서 파생되어 드리프트를 방지한다.</p>
+<h3 id="4">4. 브라우저 데몬의 실용적 설계</h3>
+<p>CLI → HTTP → Bun 서버 → CDP → Chromium 파이프라인에서 첫 호출 후 100-200ms 응답 레이턴시와 세션 영속성(쿠키, 탭, localStorage)을 구현한다. 랜덤 포트 선택(10000-60000)으로 Conductor 다중 워크스페이스 충돌을 제거하고, 바이너리 버전 불일치 시 자동 재시작해 "오래된 바이너리" 버그를 사전에 차단한다.</p>
+<h3 id="5">5. 이벤트 소싱 기반 결정 메모리</h3>
+<p><code>decisions.jsonl</code> + <code>learnings.jsonl</code>로 교차 세션 결정과 운영 학습을 영속화한다. <code>gstack-decision-search</code>가 keyword + 선택적 gbrain 시맨틱 검색을 지원해 과거 결정을 재토론하는 낭비를 줄인다. gbrain 비활성 시에도 파일 기반 경로가 단독으로 동작하는 점이 핵심 설계 원칙이다.</p>
+<hr />
+<h2 id="risks-areas-for-improvement">위험 / 개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<h3 id="1-bus-factor-1">1. 단일 저자 의존성 (Bus Factor = 1)</h3>
+<p>GitHub 커밋 히스토리(shallow clone 기준)에서 실질적 커미터가 <code>garrytan@gmail.com</code> 한 명이다. 커뮤니티 PR이 존재하지만 코어 아키텍처 변경은 단일 저자에 집중된다. 장기 유지보수와 포크 에코시스템 성장에 구조적 위험이다.</p>
+<h3 id="2-sbom">2. SBOM 및 공급망 보안 도구 부재</h3>
+<p><code>package.json</code>에 <code>dependabot.yml</code>이나 <code>renovate.json</code> 설정이 없다. 904KB CHANGELOG와 270개 테스트의 정교함과 대비되는 공백으로, <code>@huggingface/transformers</code> 등 ML 의존성의 취약점 추적이 자동화되어 있지 않다.</p>
+<h3 id="3-macos-arm64-git">3. macOS arm64 전용 컴파일 바이너리의 git 추적</h3>
+<p><code>browse/dist/</code>, <code>design/dist/</code>의 컴파일 바이너리(~58MB, macOS Mach-O arm64)가 git에 추적되고 있다. <code>CLAUDE.md</code>에 "historical mistake"임이 명시되어 있지만 <code>git rm --cached</code>가 아직 실행되지 않았다. 저장소 크기와 플랫폼 혼동 위험이 지속된다.</p>
+<h3 id="4-llm">4. 스킬 품질의 LLM 비결정성</h3>
+<p>E2E 테스트가 실제 <code>claude -p</code> 세션을 구동하므로 결과가 모델 응답의 비결정성에 노출된다. <code>gate</code>/<code>periodic</code> 분류로 완화하고 있지만, 모델 버전 업그레이드 시 스킬 프롬프트 품질 회귀를 체계적으로 감지하기 어렵다. <code>parity-baseline-v*.json</code> 파일들이 이 문제를 부분적으로 다루지만 자동화된 회귀 경보 체계는 명확하지 않다.</p>
+<h3 id="5-supabasegbrain">5. Supabase/gbrain 의존성의 선택적 처리 복잡성</h3>
+<p>gbrain 통합이 선택사항임에도 <code>bin/</code>, <code>lib/</code>, <code>scripts/resolvers/</code> 전반에 gbrain 분기 코드가 산재해 있다. <code>GBRAIN_PREPARE</code> pooler 버그(#1965)처럼 edge case가 실제 사용자에게 조용히 실패하다가 뒤늦게 발견되는 패턴이 반복된다. 선택적 통합의 테스트 커버리지 보장이 어렵다.</p>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>권고 등급: 조건부 채택 (Conditional Adopt)</strong></p>
+<p><strong>기술 채택 관점:</strong> Claude Code 기반 AI 지원 개발 워크플로를 구축하려는 팀에게 즉시 실용적인 가치를 제공한다. 23개 전문가 역할 스킬, 정교한 브라우저 자동화, 3계층 테스트 피라미드는 솔로 빌더 또는 소규모 팀의 실제 배포 품질을 크게 향상시킬 수 있다.</p>
+<p><strong>아키텍처 벤치마킹 관점:</strong> 브라우저 데몬 패턴(랜덤 포트 + 버전 자동 재시작 + 듀얼-리스너 터널), 이벤트 소싱 메모리, diff 기반 테스트 선택은 AI 에이전트 인프라 설계의 우수 사례로 참조할 만하다.</p>
+<p><strong>보안 검토 관점:</strong> ML + 규칙 기반 앙상블 프롬프트 인젝션 방어와 공유 redaction 엔진 설계는 AI 브라우저 자동화 보안의 현실적 접근법을 보여준다. 단, SBOM 부재와 단일 저자 체제는 엔터프라이즈 도입 전 보완이 필요하다.</p>
+<p><strong>기여 준비 관점:</strong> <code>CONTRIBUTING.md</code>, <code>ETHOS.md</code>, <code>ARCHITECTURE.md</code>, ADR 문서화, 구체적인 커뮤니티 PR 가이드라인이 갖춰져 있어 기여 진입 장벽이 낮다. 단, 커뮤니티 PR이 실제 CI를 통과하려면 <code>garrytan/gstack</code> 기반 저장소로 브랜치 이동이 필요한 점(fork PR의 시크릿 접근 제한)을 인지해야 한다.</p>
+<p><strong>운영 성숙도 관점:</strong> v1.58.4.0, 월 수회 릴리스, 905KB CHANGELOG는 적극적 유지보수를 증명한다. 단일 저자 의존성과 컴파일 바이너리 git 추적 문제는 장기 운영 안정성을 위해 해결이 필요하다.</p>
+<hr />
+<h2 id="english-summary">English Summary</h2>
+<p><strong>gstack</strong> (v1.58.4.0) is an MIT-licensed AI engineering workflow framework by Garry Tan (Y Combinator CEO). It extends Claude Code with 23 specialist slash-command skills (<code>/ship</code>, <code>/review</code>, <code>/qa</code>, <code>/cso</code>, <code>/office-hours</code>, etc.) and a persistent Chromium browser daemon, targeting solo builders who want to ship at the velocity of a 20-person team.</p>
+<p><strong>Architecture highlights:</strong> Browser daemon (CLI → HTTP → Bun server → CDP → Chromium, ~100-200ms after cold start); dual-listener tunnel with physical port separation for security; 6-layer prompt injection defense (ONNX ML + Haiku transcript classifier + canary + threshold ensemble); skill generation pipeline (<code>.tmpl</code> + resolver composition → SKILL.md); diff-based test selection with hermetic E2E environments; event-sourced decision memory (JSONL).</p>
+<p><strong>Stack:</strong> TypeScript on Bun runtime, Playwright/Chromium, Anthropic Claude SDK, HuggingFace Transformers (ONNX), ngrok, Supabase/pgvector (optional gbrain), single-binary deployment via <code>bun build --compile</code>.</p>
+<p><strong>Strengths:</strong> Multi-layer security architecture; cost-tiered 3-layer test pyramid (free static / LLM judge / real claude -p E2E); single-source skill generation pipeline; practical browser daemon design; cross-session decision memory.</p>
+<p><strong>Risks:</strong> Bus factor of 1 (single author); no SBOM or automated dependency vulnerability tracking; tracked macOS-arm64 binaries in git (acknowledged technical debt); LLM non-determinism in E2E test assertions; optional gbrain integration complexity generating silent edge-case failures.</p>
+<p><strong>Recommendation:</strong> Conditionally adopt. Excellent for Claude Code-based AI-assisted development workflows. Architectural patterns (browser daemon, dual-listener tunnel, diff-based test selection) are worth benchmarking. Address SBOM absence and binary git-tracking before enterprise adoption.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>garrytan/gstack</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/garrytan/gstack" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

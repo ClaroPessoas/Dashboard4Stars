@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-23 02:00:09 KST",
+  "generated_at": "2026-06-24 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 2,
+  "total_targets": 3,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,8 +17,8 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 2,
-      "skipped_existing_analysis": 3,
+      "selected": 3,
+      "skipped_existing_analysis": 2,
       "skipped_duplicate": 0
     },
     "weekly": {
@@ -36,30 +36,44 @@
   },
   "targets": [
     {
-      "rank": 3,
-      "name": "voicebox",
-      "full_name": "jamiepine/voicebox",
-      "owner": "jamiepine",
-      "description": "The open-source AI voice studio. Clone, dictate, create.",
-      "url": "https://github.com/jamiepine/voicebox",
-      "stars": 32004,
-      "forks": 3922,
-      "language": "TypeScript",
-      "stars_gained": "508 stars today",
+      "rank": 2,
+      "name": "daily_stock_analysis",
+      "full_name": "ZhuLinsen/daily_stock_analysis",
+      "owner": "ZhuLinsen",
+      "description": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system with multi-source market data, real-time news, decision dashboard, automated notifications, and cost-free scheduled runs.",
+      "url": "https://github.com/ZhuLinsen/daily_stock_analysis",
+      "stars": 46838,
+      "forks": 42324,
+      "language": "Python",
+      "stars_gained": "1,121 stars today",
       "topics": [],
       "period": "daily"
     },
     {
       "rank": 4,
-      "name": "Anthropic-Cybersecurity-Skills",
-      "full_name": "mukul975/Anthropic-Cybersecurity-Skills",
-      "owner": "mukul975",
-      "description": "754 structured cybersecurity skills for AI agents · Mapped to 5 frameworks: MITRE ATT&CK, NIST CSF 2.0, MITRE ATLAS, D3FEND & NIST AI RMF · agentskills.io standard · Works with Claude Code, GitHub Copilot, Codex CLI, Cursor, Gemini CLI & 20+ platforms · 26 security domains · Apache 2.0",
-      "url": "https://github.com/mukul975/Anthropic-Cybersecurity-Skills",
-      "stars": 18399,
-      "forks": 2189,
+      "name": "gstack",
+      "full_name": "garrytan/gstack",
+      "owner": "garrytan",
+      "description": "Use Garry Tan's exact Claude Code setup: 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, Doc Engineer, and QA",
+      "url": "https://github.com/garrytan/gstack",
+      "stars": 113864,
+      "forks": 16865,
+      "language": "TypeScript",
+      "stars_gained": "1,012 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 5,
+      "name": "deer-flow",
+      "full_name": "bytedance/deer-flow",
+      "owner": "bytedance",
+      "description": "An open-source long-horizon SuperAgent harness that researches, codes, and creates. With the help of sandboxes, memories, tools, skill, subagents and message gateway, it handles different levels of tasks that could take minutes to hours.",
+      "url": "https://github.com/bytedance/deer-flow",
+      "stars": 73786,
+      "forks": 9962,
       "language": "Python",
-      "stars_gained": "957 stars today",
+      "stars_gained": "741 stars today",
       "topics": [],
       "period": "daily"
     }
