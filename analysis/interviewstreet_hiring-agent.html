@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>interviewstreet/hiring-agent - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/interviewstreet/hiring-agent" target="_blank" rel="noopener">interviewstreet/hiring-agent</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">AI agent to evaluate and score resumes.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 1999</span>
+      <span class="badge badge-stars">+152 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>I now have enough information to produce the complete analysis report.</p>
+<hr />
+<p>분석일: 2026-06-25
+분석 대상: <code>/tmp/github-dashboard-analysis/interviewstreet_hiring-agent</code></p>
+<hr />
+<h1 id="hiring-agent-review-sourcemd">Hiring Agent — 소스 코드 분석 보고서 (REVIEW-Source.md)</h1>
+<blockquote>
+<p><strong>프로젝트</strong>: <code>interviewstreet/hiring-agent</code>
+<strong>저장소</strong>: <code>https://github.com/interviewstreet/hiring-agent</code>
+<strong>분석일</strong>: 2026-06-25
+<strong>라이선스</strong>: MIT © HackerRank</p>
+</blockquote>
+<hr />
+<h2 id="_1">종합 평가 테이블</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>이력서 PDF를 파싱하여 LLM으로 구조화된 JSON을 추출하고, GitHub 신호로 보강한 뒤 공정한 점수 및 평가 리포트를 생성하는 채용 자동화 CLI 도구. HackerRank 인턴십 채용 심사용으로 설계됨.</td>
+<td>✅ 명확한 단일 목적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>루트 플랫(flat) 레이아웃: 모든 Python 모듈이 최상위에 위치. <code>prompts/templates/*.jinja</code>로 프롬프트 분리. <code>cache/</code>, <code>resume_evaluations.csv</code>는 런타임 아티팩트(gitignore 처리). 별도 <code>src/</code>, <code>tests/</code>, <code>docs/</code> 디렉토리 없음.</td>
+<td>⚠️ 소규모엔 적합, 성장 시 혼잡 가능</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.11.13, PyMuPDF 1.26.3, pymupdf4llm 0.0.27, Pydantic 2.11.7, Jinja2 3.1.6, ollama 0.5.1, google-generativeai 0.4.0, requests 2.32.4, python-dotenv 1.0.1, black 25.9.0. DB·메시지큐·웹 프레임워크 없음.</td>
+<td>✅ 경량 스택, 의존성 최소화</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>score.py:main(pdf_path)</code> — CLI entrypoint. <code>if __name__ == "__main__": main(sys.argv[1])</code>. <code>github.py</code>도 독립 실행 가능(<code>__main__</code> 존재).</td>
+<td>✅ 명확한 단일 진입점</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>5단계 파이프라인: PDF→Markdown(<code>pymupdf_rag.py</code>) → LLM 섹션 추출(<code>pdf.py</code>) → JSON 정규화(<code>transform.py</code>) → GitHub 보강(<code>github.py</code>) → 점수 평가(<code>evaluator.py</code>). Provider 패턴(<code>LLMProvider</code> Protocol)으로 Ollama/Gemini 교체 가능. 캐싱(개발 모드) 내장.</td>
+<td>✅ 파이프라인 구조 명확, Provider 추상화 양호</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>외부 DB 없음. <code>cache/*.json</code>(중간 결과), <code>resume_evaluations.csv</code>(최종 출력)가 유일한 영속 저장소. Pydantic으로 JSONResume 스키마 및 평가 모델 정의.</td>
+<td>⚠️ 파일 기반 영속성은 규모 확장 불가</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker/Kubernetes/Helm/Serverless 설정 없음. <code>pip + venv</code> 또는 <code>uv</code> 기반 로컬 설치. CI/CD 워크플로우 파일 전무(<code>.github/workflows</code> 부재).</td>
+<td>❌ 배포 인프라 부재</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>공식 테스트 파일 없음(<code>test_*.py</code>는 <code>.gitignore</code>에 명시적으로 패턴 등록). CI 파이프라인 없음. CONTRIBUTING.md에서 "smoke test" 권장은 하지만 실제 구현 없음. 코드 커버리지 측정 불가 상태.</td>
+<td>❌ 테스트 인프라 전무</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 없음. Dependabot/Renovate/Snyk 설정 없음. <code>transform.py:2</code>에 <code>import pdb</code> 디버그 잔재 존재. <code>pymupdf_rag.py</code>는 AGPL v3 Artifex 저작권 코드를 MIT 저장소에 벤더링 → <strong>라이선스 충돌 위험</strong>. <code>google-generativeai==0.4.0</code>은 구버전(보안 패치 누락 가능).</td>
+<td>❌ 복수의 보안·라이선스 위험</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>README 품질 우수(아키텍처 표, 설치 가이드, CLI 사용법 완비). CONTRIBUTING.md 존재. CODE_OF_CONDUCT·CHANGELOG·ADR·이슈/PR 템플릿 부재. 단일 커밋(shallow clone 기준). HackerRank 공식 저장소이나 오픈소스 커뮤니티 성숙도는 낮음.</td>
+<td>⚠️ 내부 도구 수준의 성숙도</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h3>
+<p><strong>Hiring Agent</strong>는 HackerRank(InterviewStreet)가 제작한 <strong>이력서 자동 평가 CLI 도구</strong>다. 채용 담당자나 자동화된 채용 파이프라인에서 PDF 이력서를 입력받아:</p>
+<ol>
+<li>PDF → 구조화된 JSON(JSONResume 형식) 변환</li>
+<li>GitHub 활동 신호 보강</li>
+<li>LLM 기반 공정 평가 점수 산출(100점 기본 + 최대 20점 보너스)</li>
+<li>CSV 리포트 출력</li>
+</ol>
+<p>대상 사용자는 소프트웨어 인턴십 채용 심사를 수행하는 채용팀이다. 라이브러리나 SaaS가 아닌 <strong>스탠드얼론 CLI 스크립트</strong>이다.</p>
+<hr />
+<h3 id="2-repository-structure">2. 저장소 구조 분석 (Repository Structure)</h3>
+<pre><code>.
+├── score.py              # 진입점: 파이프라인 오케스트레이터
+├── pdf.py                # PDF → JSONResume (LLM 호출)
+├── github.py             # GitHub API 보강 + 프로젝트 선택
+├── evaluator.py          # 점수 평가 엔진
+├── transform.py          # LLM JSON 정규화 (JSONResume 변환)
+├── models.py             # Pydantic 스키마 + LLM Provider 구현
+├── llm_utils.py          # Provider 초기화 유틸리티
+├── prompt.py             # 환경 설정, 모델 파라미터 레지스트리
+├── config.py             # DEVELOPMENT_MODE 플래그 (단일 상수)
+├── pymupdf_rag.py        # PDF-to-Markdown (Artifex AGPL 코드 벤더링)
+├── requirements.txt      # 의존성 목록
+├── .env.example          # 환경 변수 템플릿
+├── .python-version       # pyenv 버전 핀 (3.11.13)
+├── prompts/
+│   ├── template_manager.py   # Jinja 템플릿 로더
+│   └── templates/            # 10개 Jinja 프롬프트 템플릿
+├── CONTRIBUTING.md
+├── LICENSE               # MIT (HackerRank)
+└── README.md
+</code></pre>
+<p><strong>평가:</strong>
+- 플랫 구조는 10개 모듈 수준에서는 허용 범위이나, 기능 추가 시 <code>src/</code> 레이아웃 도입이 필요
+- 코드와 프롬프트(데이터)의 분리는 <code>prompts/templates/</code>로 잘 처리됨
+- 단일 레포, 단일 프로젝트 (모노레포 아님)</p>
+<hr />
+<h3 id="3-software-stack">3. 소프트웨어 스택 (Software Stack)</h3>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>구성요소</th>
+<th>버전/비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>런타임 언어</td>
+<td>Python</td>
+<td>3.11.13 (pinned via pyenv)</td>
+</tr>
+<tr>
+<td>PDF 파싱</td>
+<td>PyMuPDF</td>
+<td>1.26.3</td>
+</tr>
+<tr>
+<td>PDF→LLM 변환</td>
+<td>pymupdf4llm</td>
+<td>0.0.27</td>
+</tr>
+<tr>
+<td>데이터 검증</td>
+<td>Pydantic</td>
+<td>2.11.7</td>
+</tr>
+<tr>
+<td>프롬프트 템플릿</td>
+<td>Jinja2</td>
+<td>3.1.6</td>
+</tr>
+<tr>
+<td>로컬 LLM</td>
+<td>ollama (Python SDK)</td>
+<td>0.5.1</td>
+</tr>
+<tr>
+<td>클라우드 LLM</td>
+<td>google-generativeai</td>
+<td>0.4.0 ⚠️ 구버전</td>
+</tr>
+<tr>
+<td>HTTP 클라이언트</td>
+<td>requests</td>
+<td>2.32.4</td>
+</tr>
+<tr>
+<td>환경 변수</td>
+<td>python-dotenv</td>
+<td>1.0.1</td>
+</tr>
+<tr>
+<td>코드 포매터</td>
+<td>black</td>
+<td>25.9.0</td>
+</tr>
+<tr>
+<td>LLM 모델</td>
+<td>gemma3:4b (기본), gemini-2.5-pro 등 지원</td>
+<td>—</td>
+</tr>
+<tr>
+<td>DB/캐시</td>
+<td>없음 (파일 기반 JSON 캐시)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>메시지 큐</td>
+<td>없음</td>
+<td>—</td>
+</tr>
+<tr>
+<td>컨테이너화</td>
+<td>없음</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주목사항</strong>: <code>google-generativeai 0.4.0</code>은 현재 <code>google-genai</code> 패키지로 전환된 구버전이며 보안 패치가 충분하지 않을 수 있다. <code>prompt.py</code>에 <code>"gemini-3.5-flash"</code>, <code>"gemini-3.1-flash-lite"</code> 등 실제 존재하지 않는 모델명이 레지스트리에 포함되어 있어 혼란을 줄 수 있다.</p>
+<hr />
+<h3 id="4-architecture-analysis">4. 아키텍처 분석 (Architecture Analysis)</h3>
+<h4 id="_3">파이프라인 흐름</h4>
+<pre><code>PDF 파일
+  │
+  ▼
+pymupdf_rag.to_markdown()          ← PyMuPDF 기반 Markdown 변환
+  │
+  ▼
+pdf.PDFHandler._call_llm_for_section() × 6  ← 섹션별 LLM 호출 (Jinja 템플릿)
+  │   (basics / work / education / skills / projects / awards)
+  ▼
+transform.transform_parsed_data()  ← JSONResume 정규화
+  │
+  ▼
+github.fetch_and_display_github_info()  ← GitHub API + LLM 프로젝트 선택
+  │
+  ▼
+evaluator.ResumeEvaluator.evaluate_resume()  ← 최종 점수 산출
+  │
+  ▼
+score.print_evaluation_results() + CSV 저장
+</code></pre>
+<h4 id="provider">Provider 추상화</h4>
+<p><code>models.py</code>에서 <code>LLMProvider</code> Protocol을 정의하고, <code>OllamaProvider</code>와 <code>GeminiProvider</code>가 구현. <code>llm_utils.initialize_llm_provider()</code>가 환경 변수(<code>LLM_PROVIDER</code>)에 따라 적절한 구현을 반환. <strong>인터페이스는 깔끔하지만</strong>, Gemini Provider의 응답을 Ollama 포맷으로 변환하는 어댑터 패턴이 내장되어 있어 결합도가 존재한다.</p>
+<h4 id="scoring">평가 기준 (scoring)</h4>
+<table>
+<thead>
+<tr>
+<th>카테고리</th>
+<th>최대 점수</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Open Source</td>
+<td>35점</td>
+</tr>
+<tr>
+<td>Self Projects</td>
+<td>30점</td>
+</tr>
+<tr>
+<td>Production Experience</td>
+<td>25점</td>
+</tr>
+<tr>
+<td>Technical Skills</td>
+<td>10점</td>
+</tr>
+<tr>
+<td>보너스 (GSoC, 스타트업 등)</td>
+<td>최대 20점</td>
+</tr>
+<tr>
+<td><strong>총합 한도</strong></td>
+<td><strong>120점</strong></td>
+</tr>
+</tbody>
+</table>
+<p>평가 공정성 요구사항이 Jinja 템플릿에 명시적으로 기술됨(이름·학교·GPA·지역 배제).</p>
+<h4 id="_4">캐싱 설계</h4>
+<p><code>DEVELOPMENT_MODE=True</code>일 때 <code>cache/resumecache_*.json</code>, <code>cache/githubcache_*.json</code>으로 중간 결과를 캐시하여 LLM 호출 비용 절감. 캐시 검증(내용 비어있거나 구조 불량 시 삭제 후 재요청)이 구현됨.</p>
+<hr />
+<h3 id="5-quality-test">5. 품질 및 테스트 (Quality &amp; Test)</h3>
+<h4 id="_5">테스트</h4>
+<ul>
+<li><strong>공식 테스트 없음</strong>: <code>test_*.py</code>는 <code>.gitignore</code>에 패턴으로 등록되어 있어, 로컬에서 작성 후 커밋되지 않는 관행 추정</li>
+<li><code>pytest</code>, <code>unittest</code>, <code>hypothesis</code> 등 테스트 프레임워크 의존성 미포함</li>
+<li>코드 커버리지 측정 도구 없음</li>
+<li>CONTRIBUTING.md는 "smoke test" 권장을 언급하나 실제 구현 없음</li>
+</ul>
+<h4 id="cicd">CI/CD</h4>
+<ul>
+<li><code>.github/workflows/</code> 디렉토리 <strong>없음</strong></li>
+<li><code>Jenkinsfile</code>, <code>.gitlab-ci.yml</code> 등 어떠한 CI 설정도 없음</li>
+<li>수동 검증에만 의존</li>
+</ul>
+<h4 id="_6">코드 품질 도구</h4>
+<ul>
+<li><strong>Black</strong> 포매터 의존성 포함 (스타일 일관성 확보)</li>
+<li><strong>mypy, pylint, flake8, ruff</strong> 등 정적 분석 도구 없음</li>
+<li><code>transform.py:2</code>에 <code>import pdb</code> <strong>디버그 잔재</strong> 존재 — 프로덕션 안전성 우려</li>
+</ul>
+<hr />
+<h3 id="6-security-supply-chain">6. 보안 및 공급망 (Security &amp; Supply Chain)</h3>
+<h4 id="_7">직접적인 위험 사항</h4>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+<th>위험도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SECURITY.md</code></td>
+<td>없음</td>
+<td>낮음</td>
+</tr>
+<tr>
+<td>Dependabot/Renovate</td>
+<td>없음</td>
+<td>중간</td>
+</tr>
+<tr>
+<td><code>import pdb</code> in <code>transform.py:2</code></td>
+<td>잔재 존재</td>
+<td>낮음</td>
+</tr>
+<tr>
+<td><code>google-generativeai==0.4.0</code></td>
+<td>구버전</td>
+<td>중간</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>없음</td>
+<td>낮음</td>
+</tr>
+<tr>
+<td>API 키 관리</td>
+<td><code>.env</code> gitignore 처리, <code>.env.example</code> 제공</td>
+<td>✅ 양호</td>
+</tr>
+<tr>
+<td>GitHub Token</td>
+<td>Optional, 환경 변수로 처리</td>
+<td>✅ 양호</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_8">라이선스 충돌 (중요)</h4>
+<p><code>pymupdf_rag.py</code> 상단에 다음이 명시됨:</p>
+<pre><code>Copyright (C) 2024-2025 Artifex Software, Inc.
+PyMuPDF4LLM is free software... GNU Affero General Public License v3 or later
+</code></pre>
+<p>이 파일은 <strong>AGPL v3</strong> 라이선스 하에 배포된 코드를 MIT 저장소에 <strong>직접 벤더링</strong>한 것이다. AGPL은 네트워크 서비스로 제공 시 소스 공개 의무가 발생한다. MIT 프로젝트가 AGPL 코드를 포함하면 전체 배포물에 AGPL 조건이 전파될 수 있어 <strong>라이선스 충돌 위험</strong>이 실재한다.</p>
+<hr />
+<h3 id="7-documentation-maturity">7. 문서화 및 운영 성숙도 (Documentation &amp; Maturity)</h3>
+<h4 id="_9">문서화 현황</h4>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>존재 여부</th>
+<th>품질</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>✅</td>
+<td>아키텍처 다이어그램, 설치 가이드, CLI 사용법, 디렉토리 레이아웃 모두 포함 — 우수</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✅</td>
+<td>버그 리포트, 코딩 스타일, 프롬프트 원칙, 커밋 메시지 규칙 포함</td>
+</tr>
+<tr>
+<td>LICENSE</td>
+<td>✅</td>
+<td>MIT, HackerRank 저작권</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>❌</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td>❌</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT</td>
+<td>❌</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌</td>
+<td>없음</td>
+</tr>
+<tr>
+<td>이슈/PR 템플릿</td>
+<td>❌</td>
+<td><code>.github/</code> 디렉토리 없음</td>
+</tr>
+</tbody>
+</table>
+<h4 id="_10">커뮤니티 활동</h4>
+<ul>
+<li>Shallow clone으로 인해 정확한 커밋 히스토리 불명(표시 커밋: 1건)</li>
+<li>GitHub 저장소는 HackerRank 공식 조직 소유</li>
+<li>오픈소스 채택보다는 내부 도구에 가까운 성숙도</li>
+</ul>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>명확한 단방향 파이프라인 설계</strong>: PDF 입력 → 구조화 추출 → 보강 → 평가 → 출력의 5단계가 명확히 분리되어 있어 각 단계를 독립적으로 교체하거나 디버깅하기 용이하다.</p>
+</li>
+<li>
+<p><strong>LLM Provider 추상화</strong>: <code>LLMProvider</code> Protocol 기반 설계로 Ollama(로컬)와 Gemini(클라우드) 모두 지원하며, 코드 변경 없이 환경 변수 한 줄로 전환 가능하다. 인터넷 없는 환경에서도 완전 로컬 실행이 가능한 점은 프라이버시 민감 채용 환경에 적합하다.</p>
+</li>
+<li>
+<p><strong>공정성 지향 평가 시스템</strong>: 프롬프트 템플릿에 이름·학교·GPA·지역 등 인구통계적 편향 요소를 명시적으로 배제하는 규칙을 상세히 기술하였고, 점수 카테고리별 상한과 보너스/감점 규칙이 구체적이다.</p>
+</li>
+<li>
+<p><strong>개발 모드 캐싱</strong>: <code>DEVELOPMENT_MODE</code> 플래그로 PDF 파싱 및 GitHub API 호출 결과를 로컬에 캐시하여, 반복 실행 시 LLM/API 비용과 시간을 크게 절약한다. 캐시 무결성 검증(내용 비어있는 캐시 자동 삭제)도 포함되어 있다.</p>
+</li>
+<li>
+<p><strong>Pydantic v2 기반 강력한 스키마 검증</strong>: <code>JSONResume</code>, <code>EvaluationData</code> 등 모든 데이터 흐름이 Pydantic 모델로 정의되어 있어 LLM 출력의 불완전한 JSON에 대한 방어가 명시적이고, 모델 JSON 스키마를 직접 LLM에 전달(<code>EvaluationData.model_json_schema()</code>)하여 구조화 출력을 강제한다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험 / 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>AGPL 라이선스 충돌 (즉각 해결 필요)</strong>: <code>pymupdf_rag.py</code>는 Artifex의 AGPL v3 코드를 MIT 저장소에 직접 벤더링한 상태다. 서비스로 배포하거나 상업적으로 이용할 경우 AGPL 조건(소스 공개 의무 등)이 전파될 수 있다. 해결 방안: <code>pymupdf4llm.to_markdown()</code>을 라이브러리 함수로 직접 호출하거나, Artifex로부터 상업 라이선스를 취득해야 한다.</p>
+</li>
+<li>
+<p><strong>테스트 및 CI 전무</strong>: 공식 테스트 파일이 없고 CI 파이프라인도 없어 코드 변경 시 회귀를 자동으로 감지할 수 없다. 특히 LLM 프롬프트 변경이 평가 결과에 미치는 영향을 검증할 방법이 없다. 최소한 각 파이프라인 단계에 대한 단위 테스트와 GitHub Actions 기반 CI를 도입해야 한다.</p>
+</li>
+<li>
+<p><strong><code>import pdb</code> 디버그 잔재 (<code>transform.py:2</code>)</strong>: <code>pdb</code> 모듈이 사용되지 않음에도 임포트되어 있다. 코드 품질 저하와 함께 향후 실수로 <code>pdb.set_trace()</code> 호출이 추가될 경우 프로덕션 중단 위험이 있다. 즉시 제거해야 한다.</p>
+</li>
+<li>
+<p><strong><code>google-generativeai==0.4.0</code> 구버전 및 존재하지 않는 모델명</strong>: <code>google-generativeai 0.4.0</code>은 현재 deprecated 경로이며, 최신 SDK(<code>google-genai</code>)로의 마이그레이션이 권장된다. 또한 <code>prompt.py</code>의 <code>MODEL_PROVIDER_MAPPING</code>에 실존하지 않는 모델명(<code>gemini-3.5-flash</code>, <code>gemini-3.1-flash-lite</code>)이 포함되어 있어 혼란과 런타임 오류를 유발할 수 있다.</p>
+</li>
+<li>
+<p><strong>파일 기반 영속성의 확장성 한계</strong>: 모든 중간 결과와 최종 출력이 로컬 파일(<code>cache/*.json</code>, <code>resume_evaluations.csv</code>)에 저장된다. 다수 이력서를 병렬 처리하거나 팀 단위로 공유하려면 경쟁 조건(race condition)과 데이터 유실 위험이 있다. 프로덕션 채용 파이프라인으로 확장하려면 SQLite 또는 PostgreSQL 기반 저장소 도입이 필요하다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 채택 가능 여부: 조건부 권고 (Conditional Recommendation)</strong></p>
+<p>Hiring Agent는 LLM 기반 이력서 평가의 PoC(개념 증명) 또는 내부 소규모 채용 도구로서의 잠재력은 충분히 인정된다. 파이프라인 설계, 공정성 지향 프롬프트 엔지니어링, Provider 추상화 패턴은 실제 프로덕션 도구의 기반으로 삼을 만하다.</p>
+<p>그러나 <strong>즉각적인 사용 전에 반드시 해결해야 할 사항</strong>이 있다:</p>
+<table>
+<thead>
+<tr>
+<th>우선순위</th>
+<th>조치 사항</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>🔴 즉각</td>
+<td><code>pymupdf_rag.py</code> AGPL 라이선스 검토 및 해소</td>
+</tr>
+<tr>
+<td>🔴 즉각</td>
+<td><code>transform.py</code>의 <code>import pdb</code> 제거</td>
+</tr>
+<tr>
+<td>🟠 단기</td>
+<td><code>google-generativeai</code> → <code>google-genai</code> 업그레이드, 존재하지 않는 모델명 정리</td>
+</tr>
+<tr>
+<td>🟠 단기</td>
+<td>최소 단위 테스트 및 GitHub Actions CI 도입</td>
+</tr>
+<tr>
+<td>🟡 중기</td>
+<td>파일 기반 영속성을 DB로 전환 (확장 시)</td>
+</tr>
+<tr>
+<td>🟡 중기</td>
+<td>Dependabot 활성화 및 SECURITY.md 추가</td>
+</tr>
+</tbody>
+</table>
+<p>보안 감사나 오픈소스 기여 기반 도입을 검토하는 조직에는 라이선스 문제 해소 전까지 <strong>도입 보류</strong>를 권고한다. 내부 비공개 환경에서의 제한적 사용이라면 <code>import pdb</code> 제거와 테스트 추가를 조건으로 단기 활용 가능하다.</p>
+<hr />
+<p><em>분석 기준: 실제 파일 내용을 직접 검토하여 작성됨. 추정 또는 가정에 의한 기술 없음.</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>interviewstreet/hiring-agent</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/interviewstreet/hiring-agent" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

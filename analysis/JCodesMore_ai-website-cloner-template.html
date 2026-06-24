@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>JCodesMore/ai-website-cloner-template - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/JCodesMore/ai-website-cloner-template" target="_blank" rel="noopener">JCodesMore/ai-website-cloner-template</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Clone any website with one command using AI coding agents</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 19113</span>
+      <span class="badge badge-stars">+693 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>Now I have enough information to generate the full report.</p>
+<hr />
+<h1 id="ai-website-cloner-template">AI Website Cloner Template — 소스 코드 분석 보고서</h1>
+<p><strong>분석일:</strong> 2026-06-25
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/JCodesMore_ai-website-cloner-template</code>
+<strong>출력 파일:</strong> <code>.review/REVIEW-Source.md</code></p>
+<hr />
+<h2 id="_1">종합 평가표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 코딩 에이전트를 활용해 임의의 웹사이트를 픽셀 단위로 리버스 엔지니어링하여 현대적인 Next.js 코드베이스로 재현하는 GitHub 템플릿 리포지토리</td>
+<td>★★★★★ — 명확하고 차별화된 가치 제안</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>src/</code>(App Router 스캐폴드), <code>.claude/</code> <code>.cursor/</code> <code>.windsurf/</code> 등 13개 AI 에이전트별 설정 디렉터리, <code>docs/research/</code>, <code>scripts/</code>, <code>public/</code> 정적 자산 경로 분리</td>
+<td>★★★★★ — 기능별 분리 명확</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Next.js 16 · React 19 · TypeScript strict · shadcn/ui · @base-ui/react · Tailwind CSS v4(oklch 토큰) · Lucide React · Node.js ≥ 24</td>
+<td>★★★★★ — 최신 에코시스템</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>src/app/page.tsx</code> (플레이스홀더) → <code>/clone-website</code> 스킬 실행으로 실제 콘텐츠 생성, <code>src/app/layout.tsx</code> 에서 Geist 폰트·메타데이터 설정</td>
+<td>★★★★☆ — 템플릿 특성상 의도된 최소 구현</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>Next.js App Router 패턴, <code>next.config.ts</code>의 <code>output: "standalone"</code> 독립 배포 모드, AI 에이전트 멀티-워크트리 병렬 빌드 오케스트레이션, AGENTS.md → 동기화 스크립트 단일 진실 공급원 패턴</td>
+<td>★★★★★ — 에이전트 기반 워크플로 설계가 탁월</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>데이터베이스·상태관리 없음(템플릿 의도). 클론 결과물은 정적 콘텐츠 + <code>public/</code> 에셋. 런타임 비밀값은 <code>.env.local</code>/.<code>env</code> 파일로 관리</td>
+<td>N/A (템플릿 특성)</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>멀티스테이지 Dockerfile(Node 24 slim) + docker-compose(프로덕션·개발 서비스 분리), healthcheck 내장, Vercel 권장 플랫폼</td>
+<td>★★★★★ — 컨테이너 보안·재현성 우수</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>테스트 없음. CI는 GitHub Actions로 lint + typecheck + build 3단계 품질 게이트 운영. <code>npm run check</code>로 로컬에서 동일 파이프라인 실행 가능</td>
+<td>★★☆☆☆ — 자동화된 기능 테스트 완전 부재</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>MIT 라이선스, Dockerfile 비루트 사용자(<code>USER node</code>), <code>--no-audit</code> npm ci 플래그 사용, SECURITY.md 없음, dependabot/renovate 설정 없음</td>
+<td>★★★☆☆ — 기본 컨테이너 보안은 양호하나 취약점 관리 체계 미비</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v0.3.1(2026-03-28 첫 릴리스 후 약 1개월), Keep a Changelog + SemVer 준수, PR·이슈 템플릿 완비, CONTRIBUTING.md 없음, 단일 커밋 히스토리(스쿼시로 추정)</td>
+<td>★★★☆☆ — 빠른 초기 성장세, 커뮤니티 성숙도는 초기 단계</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">세부 분석</h2>
+<h3 id="step-1">Step 1. 목적 및 범위</h3>
+<p><code>ai-website-cloner-template</code>은 AI 코딩 에이전트가 <code>/clone-website &lt;url&gt;</code> 명령 하나로 대상 사이트의 디자인 토큰 추출 → 컴포넌트 명세 작성 → 병렬 빌더 에이전트 워크트리 배포 → 병합·QA의 전체 파이프라인을 자동 실행하는 <strong>GitHub 템플릿 리포지토리</strong>다. 플랫폼 마이그레이션, 소스 코드 복구, 교육 목적을 주요 유스케이스로 정의하며, 피싱·소유권 침해·이용약관 위반은 명시적으로 금지하고 있다. 대상 사용자는 웹 개발자 및 Next.js 기반 현대화 마이그레이션을 수행하는 팀이다.</p>
+<h3 id="step-2">Step 2. 리포지토리 구조</h3>
+<pre><code>.
+├── src/app/          # Next.js 앱 라우터 (최소 스캐폴드만 존재)
+├── src/components/ui/# shadcn/ui 프리미티브 (button.tsx 단 하나)
+├── src/lib/utils.ts  # cn() 유틸리티
+├── src/types/        # 비어 있음 (.gitkeep)
+├── src/hooks/        # 비어 있음 (.gitkeep)
+├── public/           # images/ videos/ seo/ 모두 비어 있음 (.gitkeep)
+├── docs/research/    # INSPECTION_GUIDE.md + design-references/
+├── scripts/          # sync-agent-rules.sh, sync-skills.mjs
+├── .claude/          # Claude Code 스킬 (SKILL.md)
+├── .cursor/          # Cursor 규칙
+├── .windsurf/        # Windsurf 워크플로
+├── .github/          # CI + 이슈·PR 템플릿 + Copilot 설정
+└── AGENTS.md         # 모든 플랫폼 규칙의 단일 진실 공급원
+</code></pre>
+<p><strong>구조 특성:</strong> 기능 지향적 분리. 실제 애플리케이션 코드는 최소화되어 있으며, 리포지토리의 핵심 가치는 <code>/clone-website</code> 스킬 명세(<code>SKILL.md</code>, 80+ 라인)와 <code>AGENTS.md</code>, <code>INSPECTION_GUIDE.md</code> 등 에이전트 지침 문서에 집중되어 있다. 단일 리포지토리 구조.</p>
+<h3 id="step-3">Step 3. 소프트웨어 스택</h3>
+<table>
+<thead>
+<tr>
+<th>영역</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>런타임</td>
+<td>Node.js</td>
+<td>≥ 24</td>
+</tr>
+<tr>
+<td>프레임워크</td>
+<td>Next.js</td>
+<td>16.2.1</td>
+</tr>
+<tr>
+<td>UI 라이브러리</td>
+<td>React / React DOM</td>
+<td>19.2.4</td>
+</tr>
+<tr>
+<td>언어</td>
+<td>TypeScript</td>
+<td>^5 (strict)</td>
+</tr>
+<tr>
+<td>UI 컴포넌트</td>
+<td>shadcn/ui + @base-ui/react</td>
+<td>^4.1.0 / ^1.3.0</td>
+</tr>
+<tr>
+<td>스타일링</td>
+<td>Tailwind CSS v4 + tw-animate-css</td>
+<td>^4</td>
+</tr>
+<tr>
+<td>CSS 유틸리티</td>
+<td>clsx + tailwind-merge (cn())</td>
+<td>^2.1 / ^3.5</td>
+</tr>
+<tr>
+<td>아이콘</td>
+<td>Lucide React</td>
+<td>^1.6.0</td>
+</tr>
+<tr>
+<td>빌드 도구</td>
+<td>Next.js 내장 (Turbopack)</td>
+<td>—</td>
+</tr>
+<tr>
+<td>린트</td>
+<td>ESLint + eslint-config-next</td>
+<td>^9</td>
+</tr>
+<tr>
+<td>컨테이너</td>
+<td>Docker (Node 24 slim) + docker-compose</td>
+<td>—</td>
+</tr>
+<tr>
+<td>배포</td>
+<td>Vercel (권장), Docker standalone 모두 지원</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>특이사항:</strong> Tailwind CSS v4는 <code>oklch()</code> 색공간 기반 디자인 토큰을 사용하며, 이는 P3 색영역 지원 및 색상 연산의 선형성 측면에서 v3 대비 우위를 갖는다. <code>@base-ui/react</code>는 Radix UI의 후속 라이브러리로, 접근성 프리미티브를 제공한다.</p>
+<h3 id="step-4">Step 4. 아키텍처 분석</h3>
+<p><strong>진입점 및 라우팅</strong>
+- <code>src/app/layout.tsx</code>: 루트 레이아웃 — Geist 폰트 로드, 메타데이터, <code>&lt;body&gt;</code> 구조 정의
+- <code>src/app/page.tsx</code>: 홈 라우트 — <code>/clone-website</code> 실행 전 플레이스홀더 메시지만 렌더링
+- <code>next.config.ts</code>: <code>output: "standalone"</code> → 독립 Node.js 서버 번들 생성</p>
+<p><strong>에이전트 오케스트레이션 패턴</strong></p>
+<p>이 프로젝트의 핵심 아키텍처는 애플리케이션 코드가 아니라 <strong>에이전트 워크플로 설계</strong>에 있다:</p>
+<ol>
+<li><code>AGENTS.md</code> — 모든 AI 에이전트 플랫폼의 단일 진실 공급원 (Claude Code, Cursor, Windsurf, Gemini CLI 등 13종)</li>
+<li><code>scripts/sync-agent-rules.sh</code> — AGENTS.md의 <code>@file</code> 임포트를 인라인 전개하여 플랫폼별 설정 파일 자동 생성</li>
+<li><code>scripts/sync-skills.mjs</code> — <code>.claude/skills/clone-website/SKILL.md</code>를 모든 플랫폼 형식으로 변환</li>
+<li><code>/clone-website</code> 스킬은 <strong>포먼(foreman) 모델</strong>로 동작: 섹션 추출 → 명세 파일 작성 → 별도 빌더 에이전트에 워크트리 할당의 파이프라인</li>
+</ol>
+<p><strong>디자인 원칙 (SKILL.md에서 추출)</strong>
+- 완전성 우선(Completeness Beats Speed): 빌더 에이전트에 추측 여지 없음
+- 작은 작업 단위: 150라인 초과 명세는 분할 강제
+- 실 콘텐츠 사용: 플레이스홀더 금지
+- 파운데이션 우선(Foundation First): 전역 CSS·디자인 토큰 완료 후 병렬 빌드</p>
+<p><strong>레이어 분리:</strong>
+- 프레젠테이션: <code>src/app/</code>, <code>src/components/</code>
+- 비즈니스 로직: 없음 (템플릿 특성상 AI 에이전트가 담당)
+- 데이터 접근: 없음</p>
+<h3 id="step-5">Step 5. 품질 및 테스트 체계</h3>
+<p><strong>테스트</strong>
+- 단위/통합/E2E 테스트 파일 <strong>전무</strong>
+- 테스트 프레임워크 미설치 (Vitest, Jest, Playwright 모두 부재)
+- 커버리지 측정 불가</p>
+<p><strong>CI/CD</strong> (<code>.github/workflows/ci.yml</code>)</p>
+<pre><code class="language-yaml">트리거: push/PR → master
+단계: Checkout → Node 24 설치 → npm ci → lint → typecheck → build
+제한시간: 15분
+</code></pre>
+<p><strong>정적 분석</strong>
+- TypeScript strict 모드 (<code>strict: true</code>)
+- ESLint <code>eslint-config-next/core-web-vitals</code> + <code>eslint-config-next/typescript</code>
+- <code>npm run check</code> = lint + typecheck + build 통합 커맨드</p>
+<p><strong>릴리스 전략</strong>
+- Semantic Versioning 준수 (현재 v0.3.1)
+- Keep a Changelog 형식 준수
+- GitHub 릴리스 태그 연동</p>
+<h3 id="step-6">Step 6. 보안 및 공급망</h3>
+<p><strong>긍정적 측면</strong>
+- Dockerfile: 비루트 사용자(<code>USER node</code>) 실행, Node 24 slim(최소 이미지)
+- <code>npm ci --no-audit --no-fund</code>: 재현 가능한 빌드
+- <code>.dockerignore</code> 존재 (불필요 파일 이미지 제외)
+- docker-compose에서 <code>NEXT_TELEMETRY_DISABLED=1</code> 기본 설정</p>
+<p><strong>개선 필요</strong>
+- <code>SECURITY.md</code> <strong>없음</strong> — 취약점 보고 채널 미정의
+- Dependabot / Renovate 설정 <strong>없음</strong> — 의존성 자동 업데이트 없음
+- SBOM(Software Bill of Materials) <strong>없음</strong>
+- 아티팩트 서명 <strong>없음</strong>
+- <code>npm ci</code>에 <code>--no-audit</code> 플래그 사용 — 빌드 속도 우선, 보안 스캔 비활성화</p>
+<p><strong>라이선스</strong>
+- 프로젝트 자체: MIT License (Copyright 2025 JCodesMore)
+- 주요 의존성: Next.js(MIT), React(MIT), Tailwind CSS(MIT), shadcn/ui(MIT), Lucide React(ISC) — 모두 호환</p>
+<p><strong>비밀값 관리</strong>
+- <code>.env.local</code> 및 <code>.env</code> 파일은 <code>.gitignore</code> 처리 (추정)
+- docker-compose에서 <code>env_file</code> 옵션으로 선택적 로드</p>
+<h3 id="step-7">Step 7. 문서화 및 운영 성숙도</h3>
+<p><strong>README</strong> — 매우 우수
+- 배지(라이선스, stars, Discord), 데모 영상, Quick Start 6단계, 지원 플랫폼 테이블, 작동 원리, 유스케이스, 금지 용도, 프로젝트 구조, 명령어, Docker 사용법, 다중 플랫폼 업데이트 가이드, Star History 차트</p>
+<p><strong>운영 문서</strong>
+- <code>CHANGELOG.md</code>: Keep a Changelog + SemVer, v0.1.0~v0.3.1 모든 변경 이력 추적
+- <code>docs/research/INSPECTION_GUIDE.md</code>: 5단계(시각 감사, 컴포넌트 인벤토리, 레이아웃, 인터랙션, 기술 스택) 웹사이트 분석 가이드
+- <code>.github/PULL_REQUEST_TEMPLATE.md</code>: 요약, 관련 이슈, 변경 유형, 체크리스트 포함
+- <code>.github/ISSUE_TEMPLATE/bug_report.yml</code>, <code>feature_request.yml</code>: 구조화된 YAML 이슈 템플릿</p>
+<p><strong>부재 항목</strong>
+- <code>CONTRIBUTING.md</code> — 기여 가이드라인 없음
+- <code>CODE_OF_CONDUCT.md</code> — 행동 강령 없음
+- ADR(Architecture Decision Records) — 없음
+- API 문서 — 해당 없음 (템플릿 특성)</p>
+<p><strong>커뮤니티 활동</strong>
+- Discord 서버 존재 (<code>discord.gg/hrTSX5yTpB</code>)
+- GitHub stars 배지 표시
+- 공개 커밋 히스토리: 단 1개 커밋 확인 (스쿼시 병합 또는 초기 단계)
+- 릴리스 빈도: 2026-03-28~03-29 사이 v0.1.0~v0.3.0 4회 릴리스 (매우 빠른 초기 반복)</p>
+<hr />
+<h2 id="_3">강점</h2>
+<ol>
+<li>
+<p><strong>멀티-에이전트 플랫폼 호환성의 탁월한 설계</strong> — <code>AGENTS.md</code> 단일 진실 공급원 + 동기화 스크립트 패턴으로 13개 AI 에이전트 플랫폼을 유지보수 부담 없이 지원. 플랫폼 추가 시 스크립트만 수정하면 되는 확장성이 뛰어나다.</p>
+</li>
+<li>
+<p><strong>픽셀 퍼펙트 오케스트레이션 방법론의 명문화</strong> — <code>/clone-website</code> SKILL.md는 "포먼 모델", "150라인 복잡도 예산 규칙", "레이어드 에셋 추출", <code>getComputedStyle()</code> 강제 사용 등 구체적이고 검증 가능한 지침을 담고 있어, 에이전트 품질 편차를 최소화한다.</p>
+</li>
+<li>
+<p><strong>최신 스택의 선제적 채택</strong> — Next.js 16, React 19, Tailwind CSS v4(oklch), @base-ui/react는 2026년 기준 최신 에코시스템이다. oklch 색공간 토큰 채택은 클론 대상 사이트의 색상 정확도를 높이는 실질적 이점을 제공한다.</p>
+</li>
+<li>
+<p><strong>프로덕션급 Docker 설정</strong> — 멀티스테이지 빌드(dependencies → builder → runner), 비루트 사용자, BuildKit 캐시 마운트, 다중 패키지 매니저 자동 감지(<code>npm</code>/<code>yarn</code>/<code>pnpm</code>)를 모두 지원하는 수준 높은 Dockerfile.</p>
+</li>
+<li>
+<p><strong>웹사이트 분석 방법론의 체계적 문서화</strong> — <code>INSPECTION_GUIDE.md</code>의 5단계 프레임워크(시각 감사, 컴포넌트 인벤토리, 레이아웃 아키텍처, 인터랙션 패턴, 기술 스택 분석)는 독자적인 가치를 갖는 리버스 엔지니어링 방법론이다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="_4">위험 및 개선 필요 사항</h2>
+<ol>
+<li>
+<p><strong>테스트 완전 부재</strong> — 단위/통합/E2E 테스트가 전혀 없다. <code>/clone-website</code> 스킬이 생성한 코드의 품질 검증은 CI의 <code>npm run build</code> 성공 여부에만 의존한다. 템플릿 스캐폴드 자체의 회귀 테스트(예: <code>globals.css</code> 토큰 정합성, <code>cn()</code> 유틸리티 동작)가 없다.</p>
+</li>
+<li>
+<p><strong>보안 취약점 관리 체계 없음</strong> — <code>SECURITY.md</code> 부재로 취약점 보고 채널이 없고, Dependabot/Renovate 설정이 없어 의존성 취약점 자동 탐지가 불가하다. <code>npm ci --no-audit</code> 플래그는 CI에서 보안 감사를 명시적으로 비활성화한다.</p>
+</li>
+<li>
+<p><strong>CONTRIBUTING.md 없음</strong> — 기여 가이드라인이 없어 외부 기여자의 온보딩이 어렵다. 특히 <code>sync-agent-rules.sh</code> 실행 시점, 새 AI 플랫폼 추가 절차, 브랜치 전략 등이 문서화되지 않았다.</p>
+</li>
+<li>
+<p><strong><code>SKILL.md</code>의 브라우저 자동화 의존성 미검증 처리</strong> — Pre-Flight에서 브라우저 MCP 도구 부재 시 사용자에게 물어보도록 되어 있으나, 이 조건이 충족되지 않을 경우 전체 파이프라인이 중단된다. 자동 폴백(스크린샷 API 대체 등) 또는 더 명확한 오류 처리가 필요하다.</p>
+</li>
+<li>
+<p><strong>Git 히스토리 단절</strong> — 공개된 커밋이 1개뿐이다(전체 CHANGELOG는 v0.1.0~v0.3.1의 풍부한 이력을 갖고 있음에도). 이는 스쿼시 또는 히스토리 리셋으로 추정되며, <code>git blame</code>/<code>git log</code>를 통한 변경 맥락 추적이 불가하고 오픈소스 기여자 신뢰도에 영향을 줄 수 있다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="_5">도입 권고</h2>
+<p><strong>목적 적합성: ★★★★★</strong>
+웹사이트 리버스 엔지니어링 및 플랫폼 마이그레이션 자동화라는 명확한 문제를 풀고 있으며, 이 도메인에서 경쟁 템플릿 대비 AI 에이전트 멀티-플랫폼 지원과 오케스트레이션 방법론의 깊이가 차별화 요소다.</p>
+<p><strong>즉시 도입 권장 시나리오:</strong>
+- WordPress/Webflow/Squarespace → Next.js 마이그레이션 프로젝트
+- 소스 코드를 분실한 레거시 사이트의 코드 복구
+- Claude Code + Opus 4.7/4.8 환경에서 사용하는 경우 (SKILL.md가 Claude Code 기준으로 최적화되어 있음)</p>
+<p><strong>도입 전 고려사항:</strong>
+- 브라우저 자동화 MCP 도구(Chrome MCP 등)의 사전 설치 필수
+- 생성 결과물에 대한 품질 검증 프로세스를 별도로 수립할 것 (CI는 빌드 성공만 검증)
+- 피싱·IP 침해 위험을 조직 내 법무 검토 후 사용 정책 수립 권장
+- 보안 의존성 관리를 위해 Dependabot 수동 활성화 권장</p>
+<p><strong>아키텍처 벤치마킹 가치:</strong> AGENTS.md 단일 진실 공급원 + 동기화 스크립트 패턴은 다중 AI 도구를 지원해야 하는 모든 팀 프로젝트에 재사용 가능한 우수한 패턴이다. SKILL.md의 포먼 모델과 복잡도 예산 규칙도 자체 에이전트 워크플로 설계 시 참고할 만하다.</p>
+<hr />
+<p><em>보고서 생성: Claude Sonnet 4.6 | 분석일: 2026-06-25</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>JCodesMore/ai-website-cloner-template</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/JCodesMore/ai-website-cloner-template" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

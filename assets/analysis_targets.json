@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-24 02:00:09 KST",
+  "generated_at": "2026-06-25 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -17,65 +17,65 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 3,
-      "skipped_existing_analysis": 2,
+      "selected": 2,
+      "skipped_existing_analysis": 3,
       "skipped_duplicate": 0
     },
     "weekly": {
       "candidates": 5,
-      "selected": 0,
-      "skipped_existing_analysis": 4,
+      "selected": 1,
+      "skipped_existing_analysis": 3,
       "skipped_duplicate": 1
     },
     "monthly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 5,
-      "skipped_duplicate": 0
+      "skipped_existing_analysis": 3,
+      "skipped_duplicate": 2
     }
   },
   "targets": [
     {
-      "rank": 2,
-      "name": "daily_stock_analysis",
-      "full_name": "ZhuLinsen/daily_stock_analysis",
-      "owner": "ZhuLinsen",
-      "description": "LLM 驱动的多市场股票智能分析系统：多源行情、实时新闻、决策看板与自动推送，支持零成本定时运行。 LLM-powered multi-market stock analysis system with multi-source market data, real-time news, decision dashboard, automated notifications, and cost-free scheduled runs.",
-      "url": "https://github.com/ZhuLinsen/daily_stock_analysis",
-      "stars": 46838,
-      "forks": 42324,
-      "language": "Python",
-      "stars_gained": "1,121 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
       "rank": 4,
-      "name": "gstack",
-      "full_name": "garrytan/gstack",
-      "owner": "garrytan",
-      "description": "Use Garry Tan's exact Claude Code setup: 23 opinionated tools that serve as CEO, Designer, Eng Manager, Release Manager, Doc Engineer, and QA",
-      "url": "https://github.com/garrytan/gstack",
-      "stars": 113864,
-      "forks": 16865,
-      "language": "TypeScript",
-      "stars_gained": "1,012 stars today",
+      "name": "hiring-agent",
+      "full_name": "interviewstreet/hiring-agent",
+      "owner": "interviewstreet",
+      "description": "AI agent to evaluate and score resumes.",
+      "url": "https://github.com/interviewstreet/hiring-agent",
+      "stars": 1999,
+      "forks": 579,
+      "language": "Python",
+      "stars_gained": "152 stars today",
       "topics": [],
       "period": "daily"
     },
     {
       "rank": 5,
-      "name": "deer-flow",
-      "full_name": "bytedance/deer-flow",
-      "owner": "bytedance",
-      "description": "An open-source long-horizon SuperAgent harness that researches, codes, and creates. With the help of sandboxes, memories, tools, skill, subagents and message gateway, it handles different levels of tasks that could take minutes to hours.",
-      "url": "https://github.com/bytedance/deer-flow",
-      "stars": 73786,
-      "forks": 9962,
-      "language": "Python",
-      "stars_gained": "741 stars today",
+      "name": "ai-website-cloner-template",
+      "full_name": "JCodesMore/ai-website-cloner-template",
+      "owner": "JCodesMore",
+      "description": "Clone any website with one command using AI coding agents",
+      "url": "https://github.com/JCodesMore/ai-website-cloner-template",
+      "stars": 19113,
+      "forks": 2862,
+      "language": "TypeScript",
+      "stars_gained": "693 stars today",
       "topics": [],
       "period": "daily"
+    },
+    {
+      "rank": 5,
+      "name": "worldmonitor",
+      "full_name": "koala73/worldmonitor",
+      "owner": "koala73",
+      "description": "Real-time global intelligence dashboard. AI-powered news aggregation, geopolitical monitoring, and infrastructure tracking in a unified situational awareness interface",
+      "url": "https://github.com/koala73/worldmonitor",
+      "stars": 59524,
+      "forks": 9316,
+      "language": "TypeScript",
+      "stars_gained": "2,309 stars this week",
+      "topics": [],
+      "period": "weekly"
     }
   ]
 }
