@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-25 02:00:09 KST",
+  "generated_at": "2026-06-26 02:00:08 KST",
   "list_order": [
     "top100",
     "daily",
@@ -17,65 +17,65 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 2,
-      "skipped_existing_analysis": 3,
+      "selected": 3,
+      "skipped_existing_analysis": 2,
       "skipped_duplicate": 0
     },
     "weekly": {
       "candidates": 5,
-      "selected": 1,
-      "skipped_existing_analysis": 3,
+      "selected": 0,
+      "skipped_existing_analysis": 4,
       "skipped_duplicate": 1
     },
     "monthly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 3,
-      "skipped_duplicate": 2
+      "skipped_existing_analysis": 2,
+      "skipped_duplicate": 3
     }
   },
   "targets": [
     {
-      "rank": 4,
-      "name": "hiring-agent",
-      "full_name": "interviewstreet/hiring-agent",
-      "owner": "interviewstreet",
-      "description": "AI agent to evaluate and score resumes.",
-      "url": "https://github.com/interviewstreet/hiring-agent",
-      "stars": 1999,
-      "forks": 579,
+      "rank": 1,
+      "name": "design.md",
+      "full_name": "google-labs-code/design.md",
+      "owner": "google-labs-code",
+      "description": "A format specification for describing a visual identity to coding agents. DESIGN.md gives agents a persistent, structured understanding of a design system.",
+      "url": "https://github.com/google-labs-code/design.md",
+      "stars": 18636,
+      "forks": 1626,
+      "language": "TypeScript",
+      "stars_gained": "1,407 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 3,
+      "name": "ai-berkshire",
+      "full_name": "xbtlin/ai-berkshire",
+      "owner": "xbtlin",
+      "description": "AI 时代的伯克希尔：基于 Claude Code 的价值投资研究框架。巴菲特·芒格·段永平·李录四大师方法论 + 多Agent并行研究。| AI-era Berkshire: a value investing research framework built on Claude Code. 4 masters' methodologies + multi-agent adversarial analysis.",
+      "url": "https://github.com/xbtlin/ai-berkshire",
+      "stars": 1716,
+      "forks": 283,
       "language": "Python",
-      "stars_gained": "152 stars today",
+      "stars_gained": "201 stars today",
       "topics": [],
       "period": "daily"
     },
     {
-      "rank": 5,
-      "name": "ai-website-cloner-template",
-      "full_name": "JCodesMore/ai-website-cloner-template",
-      "owner": "JCodesMore",
-      "description": "Clone any website with one command using AI coding agents",
-      "url": "https://github.com/JCodesMore/ai-website-cloner-template",
-      "stars": 19113,
-      "forks": 2862,
+      "rank": 4,
+      "name": "TREK",
+      "full_name": "mauriceboe/TREK",
+      "owner": "mauriceboe",
+      "description": "A self-hosted travel/trip planner with real-time collaboration, interactive maps, PWA support, SSO, budgets, packing lists, and more.",
+      "url": "https://github.com/mauriceboe/TREK",
+      "stars": 6406,
+      "forks": 596,
       "language": "TypeScript",
-      "stars_gained": "693 stars today",
+      "stars_gained": "112 stars today",
       "topics": [],
       "period": "daily"
-    },
-    {
-      "rank": 5,
-      "name": "worldmonitor",
-      "full_name": "koala73/worldmonitor",
-      "owner": "koala73",
-      "description": "Real-time global intelligence dashboard. AI-powered news aggregation, geopolitical monitoring, and infrastructure tracking in a unified situational awareness interface",
-      "url": "https://github.com/koala73/worldmonitor",
-      "stars": 59524,
-      "forks": 9316,
-      "language": "TypeScript",
-      "stars_gained": "2,309 stars this week",
-      "topics": [],
-      "period": "weekly"
     }
   ]
 }

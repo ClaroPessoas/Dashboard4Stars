@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>mauriceboe/TREK - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/mauriceboe/TREK" target="_blank" rel="noopener">mauriceboe/TREK</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A self-hosted travel/trip planner with real-time collaboration, interactive maps, PWA support, SSO, budgets, packing lists, and more.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 6406</span>
+      <span class="badge badge-stars">+112 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>I now have sufficient information to produce the comprehensive analysis report.</p>
+<hr />
+<p>분석일: 2026-06-26
+분석 대상: <code>/tmp/github-dashboard-analysis/mauriceboe_TREK</code></p>
+<hr />
+<h1 id="trek-review-sourcemd">TREK — 소스 코드 분석 보고서 (REVIEW-Source.md)</h1>
+<h2 id="project-overview">프로젝트 개요 (Project Overview)</h2>
+<p><strong>TREK</strong>는 셀프 호스팅 방식의 실시간 협업 여행 플래너 애플리케이션입니다. 지도, 예산 추적, 패킹 리스트, 여행 일지, AI/MCP 통합을 포함하며, 개인 또는 팀 단위 사용을 위한 PWA(Progressive Web App)로 설계되었습니다. Docker를 통한 단일 컨테이너 배포를 지원하며 Helm/Kubernetes 차트도 제공됩니다.</p>
+<hr />
+<h2 id="8-a">8-A. 단일 프로젝트 리포트</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>셀프 호스팅 실시간 협업 여행 플래너 — 지도, 예산, 패킹, 여행 일지, AI/MCP 내장. 개인·팀 모두 지원.</td>
+<td>★★★★★ 명확한 문제 정의, 넓은 기능 범위</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>npm 워크스페이스 모노레포 (<code>client</code>, <code>server</code>, <code>shared</code> 3개 패키지). 코드와 운영 자산(charts, wiki, docs) 분리됨. 도메인 지향 구조.</td>
+<td>★★★★★ 모노레포 + 공유 계약 레이어 명확</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Node.js 24 / TypeScript 6, NestJS 11 (백), React 19 + Vite 8 (프론트), SQLite(better-sqlite3), Zustand, Tailwind CSS, Leaflet/Mapbox GL, Dexie(IndexedDB), Vitest, Playwright.</td>
+<td>★★★★☆ 최신 LTS 스택, 경량 DB 선택은 스케일 제약 있음</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>server/src/index.ts</code> (HTTP 서버 부트스트랩 + 스케줄러 시작), <code>server/src/bootstrap.ts</code> (NestJS 앱 빌드 팩토리), <code>client/src/main.tsx</code> (React 루트)</td>
+<td>★★★★★ 부트스트랩 로직이 프로덕션·테스트에서 공유, 드리프트 방지</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>NestJS 모듈 기반 도메인 분리(30+ 모듈), WebSocket 실시간 동기화, Dexie 기반 오프라인 IndexedDB + 뮤테이션 큐, shared Zod 스키마로 API 계약 단일화. MCP(Model Context Protocol) 서버 내장(150+ 도구).</td>
+<td>★★★★★ 클린 모듈 경계, 오프라인 first 설계, MCP 통합 선도적</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLite (<code>data/travel.db</code>), 스키마 + 마이그레이션 코드 기반 관리 (3,079줄 마이그레이션), 파일 업로드 로컬 저장, 클라이언트 IndexedDB(Dexie)로 오프라인 캐싱.</td>
+<td>★★★☆☆ SQLite는 단일 서버에 적합하나 수평 확장 불가, 마이그레이션 파일 단일화로 리뷰 복잡</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>멀티 스테이지 Dockerfile(gosu, node:24-alpine/trixie-slim, dumb-init), Docker Hub 멀티 아키텍처(amd64/arm64), Helm 차트(GitHub Pages 호스팅), Unraid 템플릿.</td>
+<td>★★★★★ 보안 하드닝된 컨테이너, 다양한 플랫폼 지원</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest(서버 211개, 클라이언트 99개+ 테스트 파일), Istanbul 커버리지(서버 NestJS 코드 80% 임계값 강제), Playwright E2E, SonarQube 연동, i18n 패리티 검사 CI.</td>
+<td>★★★★☆ 체계적 테스트 구조, 레거시 코드 커버리지 게이트 미적용은 단점</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SSRF 가드(<code>ssrfGuard.ts</code> — DNS 핀닝 + RFC-1918/링크로컬/루프백 차단), Helmet/CSP, 속도 제한, Argon2/bcrypt 비밀번호 해싱, JWT + OIDC + WebAuthn(Passkey) + TOTP MFA, OAuth 2.1, Docker Scout CVE 스캔 CI, SECURITY.md 존재. 의존성 업데이트 자동화(Dependabot 설정 파일 미확인, SECURITY.md에서 Dependabot 언급).</td>
+<td>★★★★★ 다층 보안 설계, SSRF 방어 세밀함</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 3.1.2, 80개 위키 페이지, Conventional Commits, Discord 커뮤니티, PR 템플릿 + 이슈 템플릿, 80%+ 커버리지 정책 명시, CONTRIBUTING.md 상세, 자동 버전 범프 CI, Helm 릴리즈 자동화. CHANGELOG 파일 없음(GitHub Releases 사용 추정).</td>
+<td>★★★★☆ 성숙한 오픈소스 운영, CHANGELOG 파일 부재</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-strengths">1. 강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>통합된 API 계약 레이어</strong>: <code>shared</code> 패키지의 Zod 스키마가 서버와 클라이언트 간 타입 단일 소스 역할을 하여, CI에서 i18n 패리티와 타입 일관성을 자동 검증합니다. 런타임 에러보다 빌드 타임에 계약 불일치를 잡아냅니다.</p>
+</li>
+<li>
+<p><strong>심층적 보안 설계</strong>: 단순한 인증 미들웨어를 넘어서 SSRF 방어(<code>ssrfGuard.ts</code>)에서 DNS 핀닝, IPv4-매핑 IPv6 처리, CGNAT/Tailscale 대역 차단까지 구현되어 있습니다. WebAuthn Passkey, TOTP MFA, OAuth 2.1, OIDC를 모두 지원하는 다층 인증 체계는 셀프 호스팅 앱 기준으로 매우 드문 수준입니다.</p>
+</li>
+<li>
+<p><strong>오프라인 First PWA 아키텍처</strong>: Dexie/IndexedDB 기반의 오프라인 캐시, 뮤테이션 큐(<code>mutationQueue.ts</code>), 의존성 체인 처리(임시 음수 ID → 실 ID 교체), Workbox 타일 프리페치가 유기적으로 결합된 완성도 높은 오프라인 경험을 제공합니다.</p>
+</li>
+<li>
+<p><strong>MCP(Model Context Protocol) 선도적 통합</strong>: 150+ AI 도구와 30개 리소스를 OAuth 2.1 인증으로 노출하는 내장 MCP 서버는 AI 에이전트 워크플로우와의 통합에서 경쟁 제품 대비 명확한 차별점입니다.</p>
+</li>
+<li>
+<p><strong>프로덕션 급 컨테이너 하드닝</strong>: <code>read_only</code> 파일시스템, <code>cap_drop: ALL</code>, <code>no-new-privileges</code>, <code>tmpfs</code>, <code>dumb-init</code>, <code>gosu</code>를 통한 비루트 실행, 멀티 스테이지 빌드(소스 코드 최종 이미지 미포함), Docker Scout CVE 게이트가 결합된 Docker 이미지는 보안 모범 사례를 충실히 따릅니다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="2-risks-areas-for-improvement">2. 위험 / 개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>SQLite 단일 서버 제약</strong>: SQLite는 동시 쓰기 부하가 증가하면 병목이 됩니다. 현재 설계로는 수평 확장(복수 컨테이너)이 불가능하며, 사용자 증가 시 PostgreSQL 마이그레이션 경로가 없습니다. 마이그레이션 코드(3,079줄 단일 파일)도 리뷰와 관리가 점점 어려워집니다.</p>
+</li>
+<li>
+<p><strong>Dependabot 설정 파일 부재</strong>: SECURITY.md에서 Dependabot 언급은 있지만 <code>.github/dependabot.yml</code> 파일이 저장소에 없습니다. 의존성 자동 업데이트가 비활성화되어 있거나 조직 수준 설정에만 의존할 가능성이 있습니다. 취약한 npm 패키지 노출 시간이 길어질 수 있습니다.</p>
+</li>
+<li>
+<p><strong>레거시 코드 커버리지 게이트 없음</strong>: 서버의 80% 커버리지 임계값은 <code>src/nest/**/*.ts</code> (NestJS 신규 코드)에만 적용됩니다. 레거시 서비스/유틸리티 코드(<code>src/services/</code>, <code>src/middleware/</code> 등)는 커버리지 게이트가 없어 회귀 위험이 있습니다.</p>
+</li>
+<li>
+<p><strong>CHANGELOG 파일 부재</strong>: <code>CHANGELOG.md</code>가 없고 GitHub Releases에만 릴리즈 정보가 있습니다. 설치 후 업데이트 시 변경 사항을 확인하려면 GitHub 접근이 필수이며, 에어갭(air-gapped) 환경 운영자에게는 불편합니다.</p>
+</li>
+<li>
+<p><strong>OIDC 클라이언트 시크릿 환경 변수 노출</strong>: <code>OIDC_CLIENT_SECRET</code>을 포함한 민감 값들이 환경 변수로 관리됩니다. Kubernetes 환경에서는 Helm 차트의 <code>existingSecret</code> 옵션을 안내하지만, Docker Compose 예제에서는 <code>.env</code> 파일 보안에 대한 명시적 경고가 없습니다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="3-adoption-recommendation">3. 도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 벤치마킹 및 참고 구현으로 적극 권장합니다.</strong></p>
+<table>
+<thead>
+<tr>
+<th>관점</th>
+<th>평가</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>개인/소규모 팀 셀프 호스팅</td>
+<td>✅ 즉시 도입 가능</td>
+<td>Docker 한 줄 실행, 완성도 높은 기능 세트</td>
+</tr>
+<tr>
+<td>보안 아키텍처 참고</td>
+<td>✅ 우수한 레퍼런스</td>
+<td>SSRF 가드, 다층 인증, 컨테이너 하드닝 패턴</td>
+</tr>
+<tr>
+<td>MCP/AI 통합 패턴 학습</td>
+<td>✅ 선도적 구현</td>
+<td>OAuth 2.1 인증 MCP 서버 구조 참조 가치 높음</td>
+</tr>
+<tr>
+<td>대규모 멀티 테넌트 SaaS</td>
+<td>⚠️ 제약 있음</td>
+<td>SQLite 확장성 한계, 수평 확장 불가</td>
+</tr>
+<tr>
+<td>상업적 수정 배포</td>
+<td>⚠️ AGPL v3 검토 필요</td>
+<td>네트워크 서비스 제공 시 소스 공개 의무</td>
+</tr>
+</tbody>
+</table>
+<p>오프라인 PWA + 실시간 WebSocket 동기화 + 내장 MCP 서버의 조합은 현 시점 오픈소스 여행 플래너 중 가장 기술적으로 완성도가 높습니다. 단일 서버 셀프 호스팅 시나리오에서는 즉각적인 가치를 제공하며, 아키텍처 참조 구현으로도 높은 학습 가치를 가집니다.</p>
+<hr />
+<h2 id="detailed-analysis-notes">상세 분석 노트 (Detailed Analysis Notes)</h2>
+<h3 id="step-1">Step 1: 목적 및 범위</h3>
+<p>TREK는 <strong>셀프 호스팅 협업 여행 플래너</strong>로, 상용 서비스(TripIt, Wanderlog 등)의 프라이버시 우려를 해결하는 데이터 주권형 대안입니다. 대상 사용자는 개인 여행자부터 그룹 여행팀까지이며, 20개 언어 지원과 RTL 아랍어 포함으로 글로벌 사용을 고려했습니다. 애플리케이션 유형은 <strong>풀스택 셀프 호스팅 SaaS 대체재(플랫폼)</strong>입니다.</p>
+<h3 id="step-2">Step 2: 저장소 구조</h3>
+<pre><code>mauriceboe_TREK/
+├── client/          # React 19 SPA (Vite 8)
+├── server/          # NestJS 11 API + WebSocket + MCP
+│   ├── src/nest/    # 도메인 모듈 (30+ NestJS 모듈)
+│   ├── src/db/      # SQLite 스키마, 마이그레이션, 시드
+│   ├── src/mcp/     # MCP 서버 (tools, resources)
+│   ├── src/services/# 레거시 서비스 (점진적 NestJS 마이그레이션 중)
+│   └── tests/       # unit/integration/e2e/websocket
+├── shared/          # Zod API 계약 + i18n (ESM/CJS 듀얼 빌드)
+├── charts/          # Helm 차트 (trek/)
+├── wiki/            # 80개 문서 마크다운 (GitHub Wiki 소스)
+├── docs/            # 로고, 스크린샷 등 미디어
+└── .github/         # CI/CD 워크플로우, 이슈/PR 템플릿
+</code></pre>
+<p><strong>구조 패턴</strong>: 도메인 지향(domain-oriented). <code>src/nest/trips</code>, <code>src/nest/budget</code> 등 각 도메인이 module/controller/service 삼각 구조를 가집니다. <code>src/services/</code>는 NestJS 마이그레이션 전 레거시 코드 영역으로 점진적 이전(Strangler Fig 패턴) 중임을 주석으로 명시하고 있습니다.</p>
+<h3 id="step-3">Step 3: 소프트웨어 스택</h3>
+<table>
+<thead>
+<tr>
+<th>계층</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>런타임</strong></td>
+<td>Node.js</td>
+<td>24</td>
+</tr>
+<tr>
+<td><strong>언어</strong></td>
+<td>TypeScript</td>
+<td>6.x</td>
+</tr>
+<tr>
+<td><strong>백엔드 프레임워크</strong></td>
+<td>NestJS (Express 어댑터)</td>
+<td>11.x</td>
+</tr>
+<tr>
+<td><strong>프론트엔드 프레임워크</strong></td>
+<td>React</td>
+<td>19.x</td>
+</tr>
+<tr>
+<td><strong>빌드 도구 (클라이언트)</strong></td>
+<td>Vite</td>
+<td>8.x</td>
+</tr>
+<tr>
+<td><strong>빌드 도구 (공유)</strong></td>
+<td>tsdown</td>
+<td>0.22.x</td>
+</tr>
+<tr>
+<td><strong>상태 관리</strong></td>
+<td>Zustand</td>
+<td>4.5.x</td>
+</tr>
+<tr>
+<td><strong>데이터베이스</strong></td>
+<td>SQLite via better-sqlite3</td>
+<td>12.x</td>
+</tr>
+<tr>
+<td><strong>오프라인 캐시</strong></td>
+<td>Dexie (IndexedDB)</td>
+<td>4.4.x</td>
+</tr>
+<tr>
+<td><strong>지도</strong></td>
+<td>Leaflet + Mapbox GL</td>
+<td>1.9.x / 3.22.x</td>
+</tr>
+<tr>
+<td><strong>API 계약</strong></td>
+<td>Zod (공유 스키마)</td>
+<td>4.3.x</td>
+</tr>
+<tr>
+<td><strong>인증</strong></td>
+<td>JWT + OIDC + WebAuthn + TOTP</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>MCP</strong></td>
+<td>@modelcontextprotocol/sdk</td>
+<td>1.28.x</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest + Playwright</td>
+<td>4.1.x / 1.60.x</td>
+</tr>
+<tr>
+<td><strong>컨테이너</strong></td>
+<td>Docker (Alpine + Debian Slim)</td>
+<td>—</td>
+</tr>
+<tr>
+<td><strong>오케스트레이션</strong></td>
+<td>Helm</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-4">Step 4: 아키텍처</h3>
+<p><strong>서버 아키텍처</strong>:
+- NestJS 모듈 기반 도메인 분리: <code>AppModule</code>에 30+ 도메인 모듈 등록
+- <code>bootstrap.ts</code>가 미들웨어 적용 순서를 명시적으로 제어 (Helmet → CORS → HSTS → MFA 정책 → 요청 로깅 → 업로드 라우트 → MCP/OAuth/플랫폼 라우트 → 정적 파일 → NestJS 라우터)
+- <code>SpaFallbackFilter</code> + <code>TrekExceptionFilter</code>: 전역 에러 봉투와 SPA 폴백 분리
+- <code>IdempotencyInterceptor</code>: 클라이언트 재시도 시 이중 적용 방지
+- WebSocket 서버(<code>ws</code> 라이브러리)가 동일 HTTP 서버에 마운트, <code>/ws</code> 경로
+- MCP 서버: StreamableHTTP 트랜스포트 + OAuth 2.1 인증 게이트</p>
+<p><strong>클라이언트 아키텍처</strong>:
+- Zustand store + 도메인별 슬라이스 (<code>placesSlice</code>, <code>daysSlice</code> 등)
+- <code>remoteEventHandler.ts</code>: WebSocket 이벤트 → Zustand 상태 업데이트 → Dexie write-through
+- <code>mutationQueue.ts</code>: 오프라인 뮤테이션 큐 (임시 음수 ID, 의존성 체인 해소)
+- <code>tripSyncManager.ts</code>: 재연결 시 서버 상태 diff/sync
+- React Router v6 기반 SPA 라우팅</p>
+<p><strong>레이어 분리 수준</strong>: 프레젠테이션(React 컴포넌트) → 스토어(Zustand 슬라이스) → API 클라이언트(axios) → WebSocket 싱크. 서버 측은 Controller → Service → DB(raw SQL via better-sqlite3) 패턴. 현재 ORM 없이 직접 SQL을 사용하여 쿼리 유연성은 높으나 타입 안전성은 수동 관리.</p>
+<h3 id="step-5">Step 5: 품질 및 테스트 시스템</h3>
+<p><strong>테스트 구성</strong>:
+- 서버: 211개 테스트 파일 (unit/integration/websocket/e2e 디렉토리 분리)
+- 클라이언트: 99개 테스트 파일 (vitest + @testing-library/react + MSW)
+- 공유: Zod 스키마 계약 테스트</p>
+<p><strong>커버리지</strong>:
+- 서버 NestJS 코드: 80% 임계값 (statements/branches/functions/lines) Vitest 구성에 명시, Istanbul 프로바이더 사용
+- 클라이언트: v8 프로바이더, 임계값 미강제
+- SonarQube: <code>sonar-project.properties</code> 설정, lcov 리포트 연동</p>
+<p><strong>CI 워크플로우</strong>:
+- <code>test.yml</code>: PR 시 i18n 패리티, 타입 검사, lint, 커버리지 (서버/클라이언트 병렬)
+- <code>lint-prettier.yml</code>: 코드 스타일 강제
+- <code>security.yml</code>: Docker Scout CVE 스캔 (critical/high, 패치 가능한 것만)
+- <code>docker.yml</code>: 자동 버전 범프 + 멀티 아키텍처 빌드 + Helm 릴리즈
+- <code>docker-dev.yml</code>: dev 브랜치 실험 빌드</p>
+<p><strong>버전 관리</strong>: 태그 기반 자동 범프 (<code>vX.Y.Z</code>), Conventional Commits, <code>[skip ci]</code> 태그 커밋 활용.</p>
+<h3 id="step-6">Step 6: 보안 및 공급망</h3>
+<p><strong>보안 정책</strong>: <code>SECURITY.md</code> 존재, 비공개 보고 이메일(<code>report@liketrek.com</code>), 48시간 응답 약속.</p>
+<p><strong>SSRF 방어</strong> (<code>server/src/utils/ssrfGuard.ts</code>):
+- DNS 핀닝: 해석된 IP를 캐시하고 리디렉션 시 동일 IP 강제
+- 항상 차단: 루프백(127.x/::1), 미지정(0.x), 링크-로컬(169.254.x/fe80::), IPv4-매핑 루프백/링크-로컬
+- 환경 변수 제어 차단: RFC-1918(10.x/172.16-31.x/192.168.x), CGNAT/Tailscale(100.64/10), IPv6 ULA</p>
+<p><strong>의존성 취약점</strong>: SECURITY.md에서 Dependabot 언급, Docker Scout CI 스캔. <code>.github/dependabot.yml</code> 파일은 확인되지 않음.</p>
+<p><strong>공급망</strong>: gosu를 최신 Go 툴체인으로 재빌드(CVE 스캐너 오탐 방지), <code>kitinerary-extractor</code> 바이너리 sha256 검증 포함. SBOM 생성 설정은 미확인.</p>
+<p><strong>라이선스</strong>:
+- TREK: <strong>AGPL v3</strong> (네트워크 서비스 배포 시 소스 공개 의무)
+- 주요 의존성: MIT(NestJS, React, Zod), Apache 2.0(@modelcontextprotocol/sdk), ISC(npm), CC BY 4.0(geoBoundaries 지리 데이터), ODbL(OpenStreetMap), 공개 도메인(OurAirports)
+- AGPL v3와 MIT/Apache 2.0 의존성은 호환. 상업적 서비스화 시 AGPL v3 의무 이행 필요.</p>
+<p><strong>시크릿 관리</strong>: 환경 변수 기반. <code>ENCRYPTION_KEY</code>로 저장된 시크릿(API 키, MFA, SMTP, OIDC)을 AES 암호화. 자동 생성 폴백 제공. Helm <code>existingSecret</code> 지원.</p>
+<h3 id="step-7">Step 7: 문서화 및 운영 성숙도</h3>
+<p><strong>README</strong>: 30초 빠른 시작, Docker Compose 보안 예제, Helm 설치, 환경 변수 전체 참조, Nginx/Caddy 프록시 설정, 업데이트 절차, 암호화 키 교체 가이드 포함. 매우 완성도 높음.</p>
+<p><strong>위키</strong>: 80개 마크다운 페이지 — 기능별 가이드(예약, 예산, 지도, MCP, OIDC SSO, 오프라인 모드 등), 보안 하드닝, 개발 환경 셋업, FAQ, 트러블슈팅까지 포괄.</p>
+<p><strong>기여 가이드</strong>: CONTRIBUTING.md에 Discord 사전 협의 필수, <code>dev</code> 브랜치 타겟, 80% 커버리지 유지, Conventional Commits, PR 템플릿 구조 명시.</p>
+<p><strong>이슈/PR 시스템</strong>: Bug report YAML 템플릿, PR 템플릿, stale 이슈 자동 닫기, 잘못된 타겟 브랜치 PR 자동 닫기 워크플로우 존재.</p>
+<p><strong>CHANGELOG</strong>: 별도 파일 없음. GitHub Releases를 통해 관리하는 것으로 추정되며, <code>Admin-GitHub-Releases.md</code> 위키 페이지에서 인앱 GitHub 릴리즈 뷰어 기능을 설명함.</p>
+<p><strong>커뮤니티</strong>: Discord 서버, Ko-fi/BMAC 후원 링크, 공개 칸반 로드맵 존재. 단일 메인테이너(mauriceboe) 구조로 버스 팩터 1 리스크.</p>
+<hr />
+<p><em>분석 도구: 파일 직접 검사 (README, package.json, Dockerfile, 워크플로우, 소스 코드, 스키마, 테스트 구성 등 50+ 파일 검토)</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>mauriceboe/TREK</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/mauriceboe/TREK" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

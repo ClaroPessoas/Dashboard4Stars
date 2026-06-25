@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>xbtlin/ai-berkshire - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/xbtlin/ai-berkshire" target="_blank" rel="noopener">xbtlin/ai-berkshire</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">AI 时代的伯克希尔：基于 Claude Code 的价值投资研究框架。巴菲特·芒格·段永平·李录四大师方法论 + 多Agent并行研究。  AI-era Berkshire: a value investing research framework built on Claude Code. 4 masters' methodologies + multi-agent adversarial analysis.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 1716</span>
+      <span class="badge badge-stars">+201 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>분석 보고서가 <code>.review/REVIEW-Source.md</code>에 저장되었습니다.</p>
+<hr />
+<h1 id="ai-berkshire-open-source-software-analysis-report">AI Berkshire — 오픈소스 소프트웨어 분석 보고서 / Open-Source Software Analysis Report</h1>
+<blockquote>
+<p>분석일 (Analysis Date): 2026-06-26
+분석 대상 (Target): <code>/tmp/github-dashboard-analysis/xbtlin_ai-berkshire</code>
+저장소 (Repository): <code>https://github.com/xbtlin/ai-berkshire</code></p>
+</blockquote>
+<hr />
+<h2 id="summary-table">종합 분석표 / Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>Claude Code 기반 가치 투자 리서치 Skill 모음. 버핏·멍거·단융핑·리루 4대 마스터 방법론을 AI 에이전트로 구현. "한 명 + Claude = 투자 리서치 팀"</td>
+<td>★★★★★ — 명확한 타깃 도메인, 실제 운용 실적(146만 위안 누적)으로 검증</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>skills/</code>(18개 Skill 정의) / <code>tools/</code>(7개 Python 도구) / <code>reports/</code>(180개 이상 연구 보고서) / <code>data/</code>(CSV·JSON) / <code>assets/</code>(아키텍처 다이어그램)</td>
+<td>★★★★☆ — 도메인·기능 중심의 명료한 구조. 일부 보고서 파일 명명 규칙 혼재</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.7+, Claude Code(Anthropic), Playwright(xueqiu_scraper), stdlib 전용(financial_rigor, report_audit). 패키지 매니저 없음</td>
+<td>★★★☆☆ — 경량 구성이지만 의존성 선언 파일 부재</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>skills/*.md</code> → <code>~/.claude/commands/</code> 복사 후 <code>/investment-team</code>, <code>/investment-research</code> 등 슬래시 커맨드로 호출. 도구 CLI: <code>python3 tools/financial_rigor.py &lt;subcommand&gt;</code></td>
+<td>★★★★☆ — Claude Code 중심 워크플로 진입은 명확</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>4층 파이프라인: Skill 입력 → Team Lead + 4 Agent 병렬 분석(비즈니스/재무/산업/리스크) → Python 정밀 검증 도구 → Markdown 보고서 출력. 반편견 메커니즘 내장</td>
+<td>★★★★★ — 구조화된 멀티 에이전트 파이프라인. 반편견 메커니즘이 시스템 레벨 설계</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td><code>data/</code> 정형 파일 소규모. 보고서 데이터는 2소스 교차 검증 필수(1% 오차 허용)</td>
+<td>★★★★☆ — 데이터 품질 원칙이 강력하게 문서화</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>완전 수동(파일 복사). Docker/CI/CD 없음</td>
+<td>★★☆☆☆ — 설치 자동화 없음</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>공식 테스트 전무. <code>report_audit.py</code>가 사후 데이터 샘플링/판정(15%, 1% 허용 오차)</td>
+<td>★★☆☆☆ — TDD 프레임워크 아님, 코드 회귀 검증 부재</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 없음. 자격증명은 환경변수 처리(올바름). 스크래퍼의 ToS 위험 존재</td>
+<td>★★★☆☆ — 개인 사용 수준은 적절, 공급망 관리 미비</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>README 한중영 완비, 아키텍처 다이어그램, 실거래 수익 증빙. CONTRIBUTING/COC/이슈 템플릿 없음. 기여자 1명</td>
+<td>★★★☆☆ — 개인 프로젝트 수준의 성숙도</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li><strong>반편견 메커니즘이 아키텍처 레벨로 내장</strong> — 정보 풍부도 등급(A/B/C), 역방향 검증, 8항목 빠른 거부 체크리스트가 파이프라인에 강제 삽입. AI 환각 및 확증 편향을 시스템 수준에서 완화하는 독특한 설계.</li>
+<li><strong>재무 계산의 정밀성 보장</strong> — Python <code>Decimal</code> 기반 <code>financial_rigor.py</code>로 LLM 심산 오류 원천 차단. 시장가치 검증, 3시나리오 모델, Benford 법칙 검사 모두 프로그래매틱하게 감사 가능.</li>
+<li><strong>4대 마스터 다변관점 대립 구조</strong> — 4개 에이전트가 독립적으로 분석하고 Team Lead가 종합. 실제 투자위원회 토론 구조를 모방한 설계.</li>
+<li><strong>180개 이상의 실제 보고서 아카이브</strong> — Skill 출력 품질을 직접 검증할 수 있는 레퍼런스 보고서 다수.</li>
+<li><strong>실거래 수익으로 검증된 방법론</strong> — 2024 +69.29%, 2025 YTD +66.38%. S&amp;P 500 대비 40-50%p 초과 수익.</li>
+</ol>
+<h2 id="risks">위험/개선 필요 사항 (Risks)</h2>
+<ol>
+<li><strong>테스트 커버리지 전무</strong> — <code>financial_rigor.py</code> 핵심 계산 엔진에 단위 테스트 없음. 회귀 버그가 잘못된 투자 판단으로 이어질 수 있음.</li>
+<li><strong>의존성 선언 파일 부재</strong> — <code>requirements.txt</code> 미존재. 외부 기여자의 환경 재현 불가.</li>
+<li><strong>스크래퍼의 ToS 위험</strong> — 雪球·Morningstar 스크래핑은 해당 플랫폼 이용약관 위반 가능성.</li>
+<li><strong>보고서 명명 규칙 비일관성</strong> — 구형 파일이 CLAUDE.md 규칙을 따르지 않아 180개 파일이 혼재.</li>
+<li><strong>Bus Factor = 1</strong> — 단일 기여자. CONTRIBUTING.md·이슈 템플릿 없어 외부 기여 유도 어려움.</li>
+</ol>
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<ul>
+<li><strong>개인 투자 리서치</strong>: 즉시 사용 권고. Claude Code 환경에서 <code>skills/</code> 복사만으로 전문급 투자 리서치 프레임워크를 즉시 활용 가능.</li>
+<li><strong>팀/기업 환경</strong>: <code>requirements.txt</code>, pytest 단위 테스트, ToS 호환 API 교체 후 조건부 도입 권고.</li>
+<li><strong>아키텍처 벤치마크</strong>: 멀티 에이전트 AI 파이프라인 설계, 특히 반편견 메커니즘과 계산 검증 게이트 패턴은 금융 외 도메인에서도 벤치마크 가치 있음.</li>
+<li><strong>오픈소스 기여</strong>: 테스트 추가 또는 보고서 명명 규칙 마이그레이션 스크립트 작성부터 기여 시작 권장.</li>
+</ul>
+<hr />
+<p>보고서는 <code>.review/REVIEW-Source.md</code>에 저장되었습니다. PDF 변환 플래그(<code>--pdf</code>)가 지정되지 않았으므로 Markdown 파일만 생성되었습니다.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>xbtlin/ai-berkshire</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/xbtlin/ai-berkshire" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

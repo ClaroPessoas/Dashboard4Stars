@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>google-labs-code/design.md - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/google-labs-code/design.md" target="_blank" rel="noopener">google-labs-code/design.md</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A format specification for describing a visual identity to coding agents. DESIGN.md gives agents a persistent, structured understanding of a design system.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 18636</span>
+      <span class="badge badge-stars">+1,407 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-26
+분석 대상: <code>/tmp/github-dashboard-analysis/google-labs-code_design.md</code></p>
+<hr />
+<h1 id="designmd-review-sourcemd">DESIGN.md — 소스 코드 분석 보고서 (REVIEW-Source.md)</h1>
+<h2 id="_1">분석 요약 테이블</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 코딩 에이전트와 개발자를 위한 디자인 시스템 명세 포맷(DESIGN.md) + CLI 도구. YAML 프론트매터(토큰) + Markdown 산문(디자인 의도)을 결합하여 에이전트가 일관된 UI를 생성할 수 있게 함</td>
+<td>★★★★★ 명확하고 독창적인 문제 정의</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>모노레포 (Turborepo). 루트 + <code>packages/cli</code> 단일 패키지. <code>docs/</code>, <code>examples/</code>, <code>.agents/skills/</code>, <code>.github/workflows/</code> 분리</td>
+<td>★★★★☆ 단일 패키지이나 모노레포 확장성 고려</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>TypeScript (strict, ESNext) + Bun 1.3.9 + Turborepo. 의존성: citty, remark 생태계, yaml, zod. 빌드 대상: Node.js ESM</td>
+<td>★★★★★ 현대적이고 경량화된 스택</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>packages/cli/src/index.ts</code> (citty 기반 CLI). 서브커맨드: <code>lint</code>, <code>diff</code>, <code>export</code>, <code>spec</code>. 프로그래매틱 API: <code>@google/design.md/linter</code></td>
+<td>★★★★★ CLI/라이브러리 이중 진입점 명확히 분리</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>계층형 파이프라인: Parser → Model → Linter/Emitter. Handler/Spec 패턴으로 계층 분리. 순수 함수 규칙 엔진. Fixer 컴포넌트 별도 분리</td>
+<td>★★★★★ 관심사 분리 우수, 테스트 용이</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>데이터베이스 없음. 로컬 마크다운 파일 처리. 인메모리 Map 기반 심볼 테이블(토큰 해석). 외부 네트워크 호출 없음</td>
+<td>★★★★★ 완전 오프라인/로컬 처리</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>npm 패키지 (<code>@google/design.md</code>, wombat-dressing-room 프록시). Docker/K8s 없음. <code>npx</code> 직접 실행 가능. CI에서 tarball 스모크 테스트 포함</td>
+<td>★★★★☆ npm 배포 성숙, 컨테이너화 불필요</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>34개 <code>.test.ts</code> 파일. Bun 내장 테스트 러너. 규칙별 단위 테스트 + fixture 기반 통합 테스트 + CI 스모크 테스트(Ubuntu + Windows)</td>
+<td>★★★★★ 테스트 커버리지 우수, 규칙 단위 완전 격리</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>Apache 2.0 라이선스. Google CLA 요구. SECURITY.md 부재. dependabot/renovate 미설정. Google OSS VRP 대상 외 명시</td>
+<td>★★★☆☆ 라이선스 명확하나 취약성 관리 체계 미흡</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>Alpha v0.3.0. README/PHILOSOPHY/CONTRIBUTING/spec.md 완비. CHANGELOG 부재. 에이전트 스킬(<code>.agents/skills</code>) 포함으로 AI 워크플로 통합 지향</td>
+<td>★★★★☆ 알파 치고 문서화 수준 높음</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="step-1">Step 1. 목적 및 범위</h3>
+<p><strong>DESIGN.md</strong>는 AI 코딩 에이전트(특히 Claude Code 등)가 일관된 UI를 생성할 수 있도록 디자인 시스템을 기술하는 <strong>포맷 명세 + CLI 검증 도구</strong>다. 핵심 통찰은 "토큰 수치보다 산문(prose)이 디자인 의도를 더 잘 전달한다"는 점이며, <code>PHILOSOPHY.md</code>에 이를 상세히 설명한다.</p>
+<p>대상 사용자:
+- AI 코딩 에이전트와 협업하는 프론트엔드 개발자
+- 디자인 시스템 관리자
+- AI 에이전트 통합을 구축하는 플랫폼 엔지니어</p>
+<p>분류: <strong>CLI 도구 + npm 라이브러리</strong> (에이전트 우선 설계 철학)</p>
+<hr />
+<h3 id="step-2">Step 2. 저장소 구조 분석</h3>
+<pre><code>google-labs-code/design.md/
+├── .agents/skills/          # Claude Code 에이전트 스킬 (ink, opentui, tdd, typed-service-contracts, agent-dx-cli-scale)
+├── .github/workflows/       # CI 워크플로 (test.yml 단일)
+├── docs/                    # spec.md (자동 생성)
+├── examples/                # 예시 DESIGN.md 파일 (atmospheric-glass, paws-and-paths, totality-festival)
+├── packages/cli/            # 단일 퍼블리시 패키지 (@google/design.md)
+│   └── src/
+│       ├── commands/        # lint, diff, export, spec CLI 서브커맨드
+│       └── linter/
+│           ├── parser/      # Markdown/YAML 파싱 레이어
+│           ├── model/       # 토큰 해석 및 심볼 테이블
+│           ├── linter/      # 규칙 엔진 + 10개 lint 규칙
+│           ├── tailwind/    # Tailwind v3/v4 이미터
+│           ├── dtcg/        # W3C DTCG 포맷 이미터
+│           ├── fixer/       # 자동 수정 핸들러
+│           └── spec-gen/    # spec.md 자동 생성기
+├── PHILOSOPHY.md            # 포맷 철학 문서
+├── CONTRIBUTING.md          # 기여 가이드 (Google CLA)
+├── skills-lock.json         # 에이전트 스킬 잠금 파일
+└── turbo.json               # Turborepo 파이프라인 설정
+</code></pre>
+<p><strong>구조 평가</strong>: 기능 지향(function-oriented) 구조. 코드와 운영 자산이 명확히 분리됨. 현재 단일 패키지이나 모노레포 구조로 향후 확장 가능.</p>
+<hr />
+<h3 id="step-3">Step 3. 소프트웨어 스택</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>TypeScript (strict, <code>exactOptionalPropertyTypes</code>, <code>noUncheckedIndexedAccess</code>, ES2022 target)</td>
+</tr>
+<tr>
+<td>런타임/패키지 매니저</td>
+<td>Bun 1.3.9 (고정 버전)</td>
+</tr>
+<tr>
+<td>모노레포 도구</td>
+<td>Turborepo (빌드/테스트/lint 파이프라인 오케스트레이션)</td>
+</tr>
+<tr>
+<td>CLI 프레임워크</td>
+<td>citty ^0.1.6</td>
+</tr>
+<tr>
+<td>Markdown 파싱</td>
+<td>unified + remark-parse + remark-frontmatter + unist-util-visit</td>
+</tr>
+<tr>
+<td>YAML 파싱</td>
+<td>yaml ^2.7.1</td>
+</tr>
+<tr>
+<td>스키마 검증</td>
+<td>zod ^3.24.0</td>
+</tr>
+<tr>
+<td>빌드</td>
+<td><code>bun build</code> (번들링) + <code>tsc</code> (타입 선언 생성)</td>
+</tr>
+<tr>
+<td>테스트</td>
+<td>Bun 내장 테스트 러너</td>
+</tr>
+<tr>
+<td>데이터 저장소</td>
+<td>없음 (로컬 파일 처리)</td>
+</tr>
+<tr>
+<td>배포</td>
+<td>npm (wombat-dressing-room Google 프록시)</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>GitHub Actions</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="step-4">Step 4. 아키텍처 분석</h3>
+<p><strong>처리 파이프라인 (단방향 데이터 흐름)</strong>:</p>
+<pre><code>입력 (DESIGN.md 문자열)
+   │
+   ▼
+[ParserHandler]          ← remark + YAML 파싱, 프론트매터/코드블록 병합
+   │ ParsedDesignSystem
+   ▼
+[ModelHandler]           ← 토큰 해석, 색상/치수 파싱, 레퍼런스 해석, 순환 감지
+   │ DesignSystemState (Map 기반 심볼 테이블)
+   ▼
+   ├──[runLinter]        ← 10개 순수 함수 규칙 순차 실행 → Finding[]
+   ├──[TailwindEmitter]  ← Tailwind v3 JSON 테마 생성
+   ├──[TailwindV4Emitter]← Tailwind v4 CSS @theme 생성
+   ├──[DtcgEmitter]      ← W3C DTCG tokens.json 생성
+   └──[FixerHandler]     ← 섹션 순서 자동 수정
+</code></pre>
+<p><strong>핵심 패턴</strong>:
+- <strong>Handler/Spec 패턴</strong>: 각 모듈은 <code>handler.ts</code> (구현) + <code>spec.ts</code> (타입/인터페이스) + <code>handler.test.ts</code> + <code>spec.test.ts</code> 4파일 구조
+- <strong>순수 함수 규칙 엔진</strong>: <code>LintRule = (state: DesignSystemState) =&gt; Finding[]</code> 시그니처로 각 규칙 독립 합성 가능
+- <strong>Never-throw 설계</strong>: 파서와 모델 핸들러는 예외 대신 <code>{ success: true/false, data/error }</code> Result 타입 반환
+- <strong>토큰 레퍼런스 해석</strong>: <code>{colors.primary}</code> 형식 교차 참조를 최대 깊이 10까지 해석, 순환 감지 포함</p>
+<p><strong>아키텍처 패턴</strong>: 파이프라인 + 포트/어댑터(각 이미터가 동일 <code>DesignSystemState</code> 입력 공유)</p>
+<hr />
+<h3 id="step-5">Step 5. 품질 및 테스트 시스템</h3>
+<p><strong>테스트 구성</strong>:
+- 34개 테스트 파일, 소스 옆 배치(<code>*.test.ts</code>)
+- 규칙별 단위 테스트 (10개 lint 규칙 각각 독립 테스트)
+- <code>fixtures/</code> 실제 DESIGN.md 파일 기반 통합 테스트
+- <code>fixture.test.ts</code> + <code>index.test.ts</code>로 전체 파이프라인 검증
+- W3C DTCG 적합성 테스트 (<code>conformance.test.ts</code>)</p>
+<p><strong>CI/CD</strong> (<code>.github/workflows/test.yml</code>):
+- Ubuntu: 의존성 설치 → lint (<code>tsc --noEmit</code>) → 단위 테스트 → 빌드 → Node.js 스모크 테스트 → tarball 스모크 테스트
+- Windows: npm 레지스트리에서 <code>@google/design.md@latest</code> 직접 설치 후 스모크 테스트
+- Bun 버전 고정 (<code>1.3.9</code>, <code>packageManager</code> 필드와 일치 검증)</p>
+<p><strong>정적 분석</strong>: TypeScript strict + <code>exactOptionalPropertyTypes</code> + <code>noUncheckedIndexedAccess</code> — 런타임 null 오류 사전 차단</p>
+<p><strong>커버리지 도구</strong>: 별도 커버리지 리포트 도구 미설정 (Bun 내장 커버리지 미활용)</p>
+<hr />
+<h3 id="step-6">Step 6. 보안 및 공급망</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>라이선스</td>
+<td>Apache 2.0 (Google LLC 저작권)</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td><strong>부재</strong></td>
+</tr>
+<tr>
+<td>취약성 자동화</td>
+<td><strong>dependabot/renovate 미설정</strong></td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td><strong>부재</strong></td>
+</tr>
+<tr>
+<td>아티팩트 서명</td>
+<td>미확인 (wombat-dressing-room 경유)</td>
+</tr>
+<tr>
+<td>시크릿 관리</td>
+<td>해당 없음 (네트워크/인증 없음)</td>
+</tr>
+<tr>
+<td>OSS VRP 대상</td>
+<td><strong>명시적 제외</strong> (<code>README.md</code> 공지)</td>
+</tr>
+<tr>
+<td>의존성 라이선스</td>
+<td>citty(MIT), remark(MIT), yaml(ISC), zod(MIT) — Apache 2.0과 호환</td>
+</tr>
+<tr>
+<td>공급망 위험</td>
+<td>wombat-dressing-room 프록시 경유 npm 배포 (Google 내부 검증 추정)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>보안 특이사항</strong>: 코어 처리가 완전 로컬(파일 I/O만)이므로 공격 표면이 매우 제한적. 악의적 YAML 입력에 대한 파싱 안전성은 <code>yaml</code> 라이브러리 의존.</p>
+<hr />
+<h3 id="step-7">Step 7. 문서화 및 운영 성숙도</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README</td>
+<td>매우 상세 (퀵스타트, CLI 레퍼런스, 예시, 규칙 테이블, Windows 워크어라운드)</td>
+</tr>
+<tr>
+<td>PHILOSOPHY.md</td>
+<td>포맷 설계 철학 심층 설명 — 드문 고품질 문서</td>
+</tr>
+<tr>
+<td>docs/spec.md</td>
+<td><code>spec.mdx</code> + <code>spec-config.yaml</code>에서 자동 생성</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>Google CLA 절차, PR 리뷰 가이드</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT</td>
+<td>Google OSS 커뮤니티 가이드라인 참조 (별도 파일 없음)</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td><strong>부재</strong></td>
+</tr>
+<tr>
+<td>CHANGELOG</td>
+<td><strong>부재</strong></td>
+</tr>
+<tr>
+<td>이슈/PR 템플릿</td>
+<td><strong>부재</strong></td>
+</tr>
+<tr>
+<td>에이전트 스킬</td>
+<td><code>.agents/skills/</code> — ink, opentui, tdd, typed-service-contracts, agent-dx-cli-scale (Claude Code 통합)</td>
+</tr>
+<tr>
+<td>버전</td>
+<td>Alpha v0.3.0</td>
+</tr>
+<tr>
+<td>커밋 이력</td>
+<td>단일 커밋 확인 (스냅샷 기준, 실제 GitHub 저장소에 추가 이력 존재 추정)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li><strong>철학이 코드에 직접 반영된 아키텍처</strong>: "Never-throw" Result 타입, 순수 함수 규칙 엔진, Handler/Spec 패턴이 <code>PHILOSOPHY.md</code>의 "prose over tokens" 사상과 대응하여 코드-문서 일관성 탁월</li>
+<li><strong>에이전트 우선(Agent-first) 설계</strong>: CLI JSON 출력, 프로그래매틱 API(<code>@google/design.md/linter</code>), <code>.agents/skills/</code> 통합, <code>spec</code> 명령어(에이전트 프롬프트 컨텍스트 주입용)가 AI 워크플로 전반 커버</li>
+<li><strong>단방향 파이프라인의 높은 테스트 용이성</strong>: Parser → Model → Linter 각 레이어가 독립적으로 테스트 가능하며, 34개 테스트 파일이 규칙 단위로 격리되어 회귀 방지 우수</li>
+<li><strong>표준 상호운용성</strong>: DTCG(W3C), Tailwind v3/v4, <code>{token.ref}</code> 레퍼런스 문법이 기존 디자인 시스템 생태계와 통합 가능하게 설계</li>
+<li><strong>스펙 자동 생성 체계</strong>: <code>spec-config.yaml</code> 단일 진실의 원천 → <code>bun run spec:gen</code> → <code>docs/spec.md</code> 자동 동기화로 문서-코드 드리프트 방지</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험/개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li><strong>SECURITY.md 및 취약성 관리 부재</strong>: <code>dependabot</code>/<code>renovate</code> 미설정으로 remark, yaml 등 파싱 라이브러리 취약점 알림 체계 없음. Google 오픈소스 프로젝트임에도 OSS VRP 대상 제외로 외부 보안 보고 채널 불명확</li>
+<li><strong>CHANGELOG 및 릴리스 노트 부재</strong>: v0.3.0까지 변경 이력 미추적. alpha 단계에서 breaking change 관리가 어려워 소비자에게 마이그레이션 부담 가중</li>
+<li><strong>테스트 커버리지 계측 미설정</strong>: Bun 내장 커버리지 (<code>bun test --coverage</code>) 미활용. 어떤 코드 경로가 미검증 상태인지 가시성 없음. 특히 <code>model/handler.ts</code>의 복잡한 레퍼런스 해석 로직</li>
+<li><strong>이슈/PR 템플릿 및 라벨 시스템 부재</strong>: <code>.github/ISSUE_TEMPLATE/</code> 없음. 버그 리포트와 피처 요청 구조화 미비로 커뮤니티 기여 장벽 존재</li>
+<li><strong>Alpha 포맷 불안정성</strong>: README가 "Expect changes to the format as it matures"를 명시. <code>spec-config.yaml</code>의 토큰 스키마가 외부 코드 생성기에 직접 영향을 미치므로 버전 관리 없는 alpha 변경은 생태계 채택을 저해할 수 있음</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 도입 관점</strong>: 조건부 권고.</p>
+<p>DESIGN.md 포맷과 CLI는 <strong>AI 에이전트 기반 프론트엔드 개발 워크플로</strong>에서 명확한 가치를 제공한다. 코드 아키텍처는 성숙도 이상으로 정교하며(Handler/Spec 패턴, 순수 함수 규칙 엔진, Never-throw 설계), 테스트 커버리지도 규칙 단위 격리 수준이 높다. Tailwind v3/v4 및 W3C DTCG 표준 지원으로 기존 디자인 시스템과 연계 가능하다.</p>
+<p>그러나 <strong>alpha v0.3.0</strong> 상태로 포맷 안정성 보장이 없다. 프로덕션 디자인 시스템에 직접 통합하는 것보다 <strong>에이전트 프롬프트 컨텍스트 주입</strong>(<code>spec</code> 명령어)과 <strong>CI 검증 게이트</strong>(<code>lint</code> 명령어)로 제한적 도입을 권장한다. SECURITY.md 및 CHANGELOG가 갖춰지고 beta 태그가 붙는 시점에 전면 도입을 재검토할 것을 제안한다.</p>
+<p><strong>아키텍처 벤치마킹 관점</strong>: Handler/Spec 패턴과 단방향 파이프라인 설계는 유사한 마크다운 기반 DSL 파서/린터를 구현하는 팀에게 참조 아키텍처로 권고 가능하다.</p>
+<hr />
+<p><em>분석일: 2026-06-26 | 분석 대상: google-labs-code/design.md (v0.3.0, Alpha) | 출력 파일: <code>.review/REVIEW-Source.md</code></em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>google-labs-code/design.md</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/google-labs-code/design.md" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
