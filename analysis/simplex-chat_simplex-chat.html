@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>simplex-chat/simplex-chat - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/simplex-chat/simplex-chat" target="_blank" rel="noopener">simplex-chat/simplex-chat</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">SimpleX - the first messaging network operating without user identifiers of any kind - 100% private by design! iOS, Android and desktop apps 📱!</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Haskell</span>
+      <span class="badge badge-stars">★ 12174</span>
+      <span class="badge badge-stars">+191 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>보고서가 <code>.review/REVIEW-Source.md</code>에 저장되었습니다. 아래는 최종 분석 결과입니다.</p>
+<hr />
+<h1 id="simplex-chat">SimpleX Chat — 소스 코드 분석 보고서</h1>
+<p><strong>분석일:</strong> 2026-06-27<br />
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/simplex-chat_simplex-chat</code><br />
+<strong>저장소:</strong> https://github.com/simplex-chat/simplex-chat<br />
+<strong>현재 버전:</strong> v6.5.6 (Android 358 / Desktop 148 / iOS 337)<br />
+<strong>라이선스:</strong> AGPL-3.0</p>
+<hr />
+<h2 id="summary-table">분석 요약표 / Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>사용자 식별자(전화번호·이메일·계정 ID)가 전혀 없는 탈중앙화 프라이버시 메신저. 1:1 채팅, 그룹, 파일전송, 영상통화, 공개채널 지원</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>Haskell 코어 + Kotlin Multiplatform(Android/Desktop) + SwiftUI(iOS) 를 포함하는 모노레포. 플랫폼별 앱이 FFI를 통해 공유 Haskell 라이브러리를 호출하는 구조</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Haskell GHC 9.6.3 + Cabal / Kotlin Multiplatform + Compose / SwiftUI / SQLCipher(SQLite) / PostgreSQL(옵션) / Node.js·Python 봇 SDK / Nix</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>CLI: <code>apps/simplex-chat/Main.hs</code> / Mobile FFI: <code>src/Simplex/Chat/Mobile.hs</code> / 봇: <code>apps/simplex-bot/Main.hs</code></td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>Haskell 레이어드 아키텍처(Controller → Library/Commands → Store/DB). 모바일은 MVI/UDF 패턴(Compose + ChatModel). Haskell ↔ 모바일 간 JSON-over-FFI 브리지</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLite(SQLCipher 암호화) 기본 / PostgreSQL 옵션(빌드 플래그). 마이그레이션 152개(SQLite), 독립적인 Postgres 마이그레이션 별도 존재. 스키마는 테스트 실행 시 자동 갱신</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Docker(멀티스테이지 빌드) / GitHub Actions CI(Ubuntu·macOS·Windows 크로스 빌드) / Nix flake / F-Droid·App Store·Play Store·직접 APK</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Haskell 통합·프로토콜·JSON·WebRTC 테스트 4,155줄+. 모바일 Gradle 인스트루먼트 테스트 포함. 재현 빌드 스케줄 워크플로우 별도 운영</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>Trail of Bits 보안 감사 2회(2022 구현, 2024 프로토콜 설계). GPG 서명 릴리스. PGP 취약점 신고 채널. AGPL-3 공개 의무. Double ratchet E2E 암호화 + 추가 레이어</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v6.5(2026.04) 활발히 릴리스 중. CONTRIBUTING·CODE_OF_CONDUCT·SECURITY 문서 완비. CLA 봇·이슈 템플릿 구비. Weblate 다국어 번역(20개 언어). 계획 문서(plans/) 다수 공개</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-1">Step 1. 목적과 범위</h2>
+<p>SimpleX Chat은 <strong>사용자 식별자가 전혀 없는</strong> 최초의 메시징 플랫폼을 표방한다. 기존 메신저들이 전화번호·이메일·사용자 ID 등 영구 식별자를 사용하는 것과 달리, SimpleX는 연결마다 일회성 메시지 큐 주소(SMP Queue)를 할당해 메타데이터 노출을 최소화한다.</p>
+<p><strong>해결하는 문제:</strong> 누가 누구와 대화하는지(통신 메타데이터) 보호, 중앙화 서버 의존 제거, 소셜 그래프 노출 방지.</p>
+<p><strong>분류:</strong> 오픈소스 P2P/연합 메시징 <strong>플랫폼</strong> (클라이언트 앱 + 프로토콜 + 서버 인프라)</p>
+<hr />
+<h2 id="step-2">Step 2. 저장소 구조 분석</h2>
+<p><strong>모노레포</strong> 구조로 6개 플랫폼 코드가 한 저장소에 집중:</p>
+<pre><code>simplex-chat/
+├── src/Simplex/Chat/         # Haskell 코어 (252 .hs 파일)
+├── apps/
+│   ├── multiplatform/         # Kotlin Compose KMP (335 .kt 파일)
+│   ├── ios/                   # SwiftUI iOS (217 .swift 파일)
+│   ├── simplex-chat/          # CLI 진입점
+│   └── simplex-bot*/          # 봇 프레임워크들
+├── packages/
+│   ├── simplex-chat-nodejs/   # Node.js 네이티브 애드온 SDK
+│   └── simplex-chat-python/   # Python SDK
+├── tests/                     # Haskell 테스트
+├── docs/                      # 프로토콜 사양, RFC, 가이드
+├── plans/                     # 설계·구현 계획 50개 이상 공개
+└── flake.nix / Dockerfile     # 재현 빌드
+</code></pre>
+<p>구조는 <strong>도메인 지향</strong> (Store/Direct, Store/Groups, Store/Files 등).</p>
+<hr />
+<h2 id="step-3">Step 3. 소프트웨어 스택</h2>
+<table>
+<thead>
+<tr>
+<th>계층</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>백엔드</td>
+<td>Haskell GHC 9.6.3, Cabal 3.10</td>
+</tr>
+<tr>
+<td>암호화</td>
+<td><code>crypton</code> 0.34, Double ratchet, X25519, Ed25519, TLS 1.3</td>
+</tr>
+<tr>
+<td>데이터베이스</td>
+<td>SQLite + SQLCipher (AES-256), PostgreSQL 옵션</td>
+</tr>
+<tr>
+<td>모바일/데스크톱</td>
+<td>Kotlin Multiplatform + Compose, SwiftUI</td>
+</tr>
+<tr>
+<td>봇 SDK</td>
+<td>Node.js (native addon), Python</td>
+</tr>
+<tr>
+<td>인프라</td>
+<td>Docker, GitHub Actions, Nix flake</td>
+</tr>
+<tr>
+<td>코드 품질</td>
+<td>fourmolu (Haskell), GHC <code>-Weverything</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-4">Step 4. 아키텍처</h2>
+<pre><code>[iOS/Android/Desktop/CLI/Node.js]
+         ↓ C FFI (JSON-over-FFI)
+[Haskell Core: Controller → Commands → Store/SQLCipher]
+         ↓ simplexmq Agent
+[SMP Relay Servers (자체 또는 운영자)]
+</code></pre>
+<ul>
+<li><strong>Haskell 코어:</strong> <code>ReaderT</code>/<code>ExceptT</code> 모나드 스택 기반 레이어드 아키텍처. STM 동시성.</li>
+<li><strong>모바일 프론트엔드:</strong> MVI 패턴, <code>ChatModel.kt</code> 전역 상태, Compose StateFlow.</li>
+<li><strong>FFI 브리지:</strong> <code>chatMigrateInit</code> / <code>chatSendCmd</code> / <code>chatRecvMsg</code> C 익스포트.</li>
+</ul>
+<hr />
+<h2 id="step-5">Step 5. 품질 및 테스트</h2>
+<ul>
+<li>Haskell 통합·프로토콜·스키마·모바일 테스트 <strong>4,155줄+</strong></li>
+<li>DB 스키마 변경 자동 감지 (<code>SchemaDump.hs</code>)</li>
+<li>CI: GitHub Actions 4개 워크플로우, Ubuntu/macOS/Windows 크로스 빌드</li>
+<li><strong>재현 빌드 일일 CI 검증</strong> (<code>reproduce-schedule.yml</code>)</li>
+<li>코드 커버리지 도구 준비되어 있으나 CI 미통합</li>
+</ul>
+<hr />
+<h2 id="step-6">Step 6. 보안 및 공급망</h2>
+<ul>
+<li><strong>Trail of Bits 독립 감사 2회</strong> (구현 2022, 프로토콜 2024) — 보고서 전문 포함</li>
+<li>GPG 서명 릴리스 + ENS(<code>simplexchat.eth</code>) 지문 등록</li>
+<li>핵심 의존성 4개 자체 포크 + git commit hash 고정</li>
+<li>PGP 암호화 비공개 취약점 신고 채널</li>
+<li>AGPL-3.0 (네트워크 서비스 배포 시 소스 공개 의무)</li>
+<li>SBOM 공식 파일 미비 (단, cabal.project로 추적 가능)</li>
+</ul>
+<hr />
+<h2 id="step-7">Step 7. 문서화 및 운영 성숙도</h2>
+<ul>
+<li>README, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT 모두 완비</li>
+<li>프로토콜 사양, RFC, API 문서, 사용자 가이드 전부 존재</li>
+<li>이슈 템플릿 3종 + CLA 봇 자동화</li>
+<li><strong>Weblate 20개 언어</strong> 번역 커뮤니티 운영</li>
+<li><code>plans/</code> 디렉토리에 50개 이상 설계 문서 공개 (투명성 ★)</li>
+<li>릴리스 주기: 약 3~4개월 메이저 릴리스 (v6.1~v6.5, 2024.10~2026.04)</li>
+</ul>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li><strong>독창적인 프라이버시 아키텍처</strong> — 사용자 식별자 완전 제거라는 근본적으로 다른 접근법이 프로토콜부터 UX까지 일관되게 관통</li>
+<li><strong>효율적인 멀티 플랫폼 FFI 아키텍처</strong> — Haskell 코어 하나로 6개 플랫폼(Android/Desktop/iOS/CLI/Node.js/Python) 지원, 비즈니스 로직 중복 없음</li>
+<li><strong>강력한 공급망 보안</strong> — 핵심 암호화·DB 의존성 자체 포크 관리, git hash 고정, Nix flake 재현 빌드, 일일 CI 검증</li>
+<li><strong>전문적인 외부 감사</strong> — Trail of Bits 2회 독립 감사, 보고서 전문 공개</li>
+<li><strong>활발한 개발과 투명한 계획 공개</strong> — 50개 이상 설계 문서 공개, 3~4개월 메이저 릴리스 사이클</li>
+</ol>
+<hr />
+<h2 id="risks">위험/개선 필요 사항 (Risks)</h2>
+<ol>
+<li><strong>Haskell 생태계 진입 장벽</strong> — 기여자 풀 극소수, 핵심팀 의존도 과도</li>
+<li><strong>JSON-over-FFI 브리지의 성능·타입 안전성 한계</strong> — 런타임 타입 오류 위험, 성능 오버헤드</li>
+<li><strong>테스트 커버리지 정량화 미비</strong> — cabal coverage 옵션 주석 처리, CI 통합 없음</li>
+<li><strong>공식 SBOM 파일 부재</strong> — 기업 도입 및 공급망 감사 시 표준화된 SBOM 필요</li>
+<li><strong>복잡한 크로스 플랫폼 빌드 환경</strong> — GHC + Cabal + Gradle + Xcode + Nix 혼재, 로컬 개발 환경 설정 복잡</li>
+</ol>
+<hr />
+<h2 id="recommendation">도입 권고 (Recommendation)</h2>
+<p><strong>강력 권고</strong> 시나리오:
+- 의료기관·법률사무소·언론사 등 메타데이터 보호가 필수인 조직 내부 통신
+- 자체 SMP 서버 운영으로 완전 자율 통신 인프라를 원하는 조직
+- LLM 통합, 고객지원 봇 등 Node.js/Python SDK 기반 자동화</p>
+<p><strong>주의사항:</strong> AGPL-3.0 라이선스로 네트워크 서비스에 수정 버전 사용 시 소스 공개 의무 발생. Haskell 코어 기여는 높은 기술 수준 요구 (팀 사전 협의 필수).</p>
+<hr />
+<p><em>분석일: 2026-06-27 | 분석 대상: <code>simplex-chat_simplex-chat</code> | 버전: v6.5.6 (commit <code>59fce95</code>)</em><br />
+<em>보고서 저장 위치: <code>.review/REVIEW-Source.md</code></em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>simplex-chat/simplex-chat</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/simplex-chat/simplex-chat" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>kunchenguid/no-mistakes - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/kunchenguid/no-mistakes" target="_blank" rel="noopener">kunchenguid/no-mistakes</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">git push no-mistakes</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Go</span>
+      <span class="badge badge-stars">★ 3272</span>
+      <span class="badge badge-stars">+412 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>Now I have enough information to write the full analysis report.</p>
+<hr />
+<p>분석일: 2026-06-27
+분석 대상: <code>/tmp/github-dashboard-analysis/kunchenguid_no-mistakes</code>
+출력 파일: <code>.review/REVIEW-Source.md</code></p>
+<hr />
+<h1 id="no-mistakes-source-analysis-report"><code>no-mistakes</code> 소스 분석 보고서 / Source Analysis Report</h1>
+<h2 id="analysis-overview">분석 개요 / Analysis Overview</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td><code>git push no-mistakes</code> 형태의 로컬 Git 프록시 게이트. 브랜치를 실제 원격에 푸시하기 전에 AI 주도 검증 파이프라인(코드 리뷰 → 테스트 → 문서 → 린트 → 푸시 → PR → CI)을 격리된 워크트리에서 수행하고 깨끗한 PR을 자동으로 생성함. 개발자 개인 또는 팀 단위 도구.</td>
+<td>★★★★★ 목적이 명확하고 차별화됨</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 Go 모듈(<code>github.com/kunchenguid/no-mistakes</code>). <code>cmd/</code>(4개 바이너리), <code>internal/</code>(27개 패키지), <code>docs/</code>(Astro 기반 문서 사이트), <code>skills/</code>(에이전트 스킬 파일). 기능별 패키지 분리(layer-oriented + domain-oriented 혼합). 모노레포 구조이나 단일 바이너리 제품.</td>
+<td>★★★★☆ 패키지 경계 명확, 일부 단계 파일 수가 많음</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Go 1.25.0, CGO_ENABLED=0(순수 Go). TUI: <code>bubbletea</code> + <code>lipgloss</code>. CLI: <code>cobra</code>. DB: <code>modernc.org/sqlite</code>. 출력 포맷: TOON. 설정: YAML. 도큐멘테이션: Astro + Starlight(Node.js). 릴리즈: release-please. 텔레메트리: Umami.</td>
+<td>★★★★★ 최소 외부 의존, CGO-free 크로스컴파일</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>cmd/no-mistakes/main.go</code> → <code>daemon.Run()</code>(백그라운드 프로세스, <code>NM_DAEMON=1</code>) 또는 <code>cli.Execute()</code>(사용자 대면 커맨드). 게이트는 <code>post-receive</code> Git 훅으로 트리거됨.</td>
+<td>★★★★★ 진입점 분리 명확</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>데몬-클라이언트 분리(IPC: JSON-RPC over Unix 소켓/Windows Named Pipe). 파이프라인: <code>Step</code> 인터페이스 기반 순차 실행기(<code>executor.go</code>). 에이전트: <code>Agent</code> 인터페이스 + 백엔드별 구현(claude, codex, rovodev, opencode, pi, acpx). TUI: Bubble Tea MVU 패턴. 데이터: SQLite(repos/runs/step_results/rounds). 프로세스 격리: <code>shellenv.ConfigureShellCommand</code>로 자식 프로세스 그룹 격리.</td>
+<td>★★★★★ 아키텍처 일관성 매우 높음</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLite(단일 파일, <code>~/.no-mistakes/</code>). 테이블: <code>repos</code>, <code>runs</code>, <code>step_results</code>, <code>step_rounds</code>, <code>intent_cache</code>. <code>awaiting_agent_since</code> 컬럼으로 파킹 상태 추적. <code>ULID</code> 기반 ID.</td>
+<td>★★★★☆ 단일 사용자 로컬 앱에 적합, 다중 사용자 확장 비고려</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>CGO-free 크로스컴파일(darwin/linux/windows × amd64/arm64). <code>make dist</code>로 tarball/zip. GitHub Actions <code>release.yml</code>이 release-please 태그 감지 후 6개 플랫폼 빌드 및 체크섬 업로드. 인스톨 스크립트(<code>docs/install.sh</code>, <code>install.ps1</code>).</td>
+<td>★★★★★ 배포 파이프라인 완성도 높음</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>단위 테스트(패키지별 <code>*_test.go</code>), 통합 테스트, e2e 테스트(<code>e2e</code> 빌드 태그, 실제 바이너리 + 가짜 에이전트 픽스처). CI: 3-OS 매트릭스(ubuntu/macos/windows), race detector, gofmt 검사. 픽스처 재녹화(<code>make e2e-record</code>)로 에이전트 와이어 포맷 회귀 방지.</td>
+<td>★★★★★ 테스트 전략 매우 체계적</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>공급망 RCE 방어: <code>.no-mistakes.yaml</code>의 코드-실행 필드를 기본 브랜치에서만 로드(푸시된 SHA 불허). <code>allow_repo_commands</code> 기본 <code>false</code>. 자식 프로세스 그룹 격리(컨텍스트 취소 시 전체 트리 종료). 텔레메트리 opt-out(<code>NO_MISTAKES_TELEMETRY</code>). <code>.env</code> gitignore. <code>SECURITY.md</code> 부재, Dependabot 설정 미확인.</td>
+<td>★★★★☆ 핵심 보안 설계 우수, 취약점 정책 문서 미비</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 v1.30.2(현재일 기준 활발한 개발). CHANGELOG는 release-please 자동 관리. CONTRIBUTING은 도구 자체를 통해 PR 제출 강제(자기 독식). Astro 기반 전용 문서 사이트. Discord + X 커뮤니티. 한국어/중국어 README 미포함(중국어 README 포함). 워크플로 가드(<code>guard-generated-files</code>, <code>no-mistakes-required</code>) 완비.</td>
+<td>★★★★☆ 적극적 개발, 커뮤니티 성장 중</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>공급망 RCE 방어 설계</strong> — 데몬이 <code>.no-mistakes.yaml</code>의 코드 실행 필드(<code>commands.*</code>, <code>agent</code>)를 기본 브랜치의 정확한 커밋 SHA에서만 읽도록 설계되어 있음. 패치 브랜치에서 임의 명령어를 주입하는 공급망 공격을 구조적으로 차단. 페치 실패 시 fail-closed 동작이 보장되며, 전용 회귀 테스트(<code>TestLoadTrustedRepoConfig_*</code>)로 보호됨.</p>
+</li>
+<li>
+<p><strong>자식 프로세스 트리 완전 격리</strong> — <code>shellenv.ConfigureShellCommand</code>가 Unix에서 <code>Setpgid</code>, Windows에서 <code>CREATE_NEW_PROCESS_GROUP</code>을 설정하고, 컨텍스트 취소 시 프로세스 그룹 전체를 종료함. <code>npm → node 워커</code>, 에이전트 spawned git 등 손자 프로세스가 워크트리를 잠그는 문제를 구조적으로 해결.</p>
+</li>
+<li>
+<p><strong>에이전트 추상화 계층</strong> — <code>Agent</code> 인터페이스 + 백엔드별 구현(claude, codex, rovodev, opencode, pi, <code>acp:&lt;target&gt;</code> 범용 ACP). 새 에이전트를 추가해도 파이프라인 코어에 변경이 없음. <code>agent.New()</code> 팩토리로 설정값 하나로 교체 가능.</p>
+</li>
+<li>
+<p><strong>E2E 픽스처 기반 회귀 테스트</strong> — 실제 바이너리를 가짜 에이전트(픽스처)에 연결하여 <code>git push → daemon → pipeline → push → PR</code> 전 흐름을 테스트. <code>make e2e-record</code>로 업스트림 에이전트 와이어 포맷 변경을 감지하고 픽스처를 재녹화할 수 있음.</p>
+</li>
+<li>
+<p><strong>자기 독식(Dogfooding) 강제</strong> — CONTRIBUTING이 모든 PR을 <code>no-mistakes</code> 도구 자체를 통해 제출하도록 요구하고, GitHub Actions <code>no-mistakes-required</code> 워크플로가 서명 없는 PR을 차단함. 도구의 신뢰성이 도구 자신으로 검증됨.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-and-improvements">위험 / 개선 필요 사항 / Risks and Improvements</h2>
+<ol>
+<li>
+<p><strong><code>SECURITY.md</code> 부재</strong> — 보안 취약점 신고 정책 및 연락처가 없음. 오픈소스 공개 프로젝트로서 CVE 프로세스나 책임 공개(responsible disclosure) 경로를 문서화해야 함.</p>
+</li>
+<li>
+<p><strong>텔레메트리 기본 활성화</strong> — Umami 앤드포인트(<code>https://a.kunchenguid.com</code>)로 사용 데이터를 기본 전송. <code>NO_MISTAKES_TELEMETRY</code> 환경 변수로 비활성화 가능하나, README나 첫 실행 시 명시적 동의 흐름이 없음. 개인정보 관련 규정(GDPR 등) 환경에서 문제가 될 수 있음.</p>
+</li>
+<li>
+<p><strong>단일 사용자 로컬 SQLite 가정</strong> — 데이터베이스가 <code>~/.no-mistakes/</code> 아래 단일 파일로 관리되어 다중 사용자/공유 CI 환경으로의 확장이 현재 구조에서 어려움. 엔터프라이즈 도입 시 병렬 실행 관리에 대한 설계가 필요.</p>
+</li>
+<li>
+<p><strong>Dependabot / 자동 의존성 갱신 설정 미확인</strong> — <code>.github/</code> 아래 <code>dependabot.yml</code>이 없음. Go 모듈의 보안 패치 자동 감지 메커니즘이 보이지 않음. <code>go.sum</code>이 고정되어 있으나 취약점 알림 체계 부재.</p>
+</li>
+<li>
+<p><strong>릴리즈가 프리릴리즈로 게시됨</strong> — <code>release.yml</code>의 <code>finalize</code> 단계에서 <code>--prerelease=true</code>로 게시함. 안정 릴리즈와 프리릴리즈의 구분 전략이 명확히 문서화되어 있지 않아, 패키지 매니저/설치 스크립트 통합 시 혼란 가능성이 있음.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h2>
+<p><strong>기술 도입 관점</strong>: 아키텍처 설계와 구현 품질이 모두 높음. 에이전트 추상화, 프로세스 격리, 공급망 보안 설계 등은 유사한 AI 파이프라인 도구의 참조 구현으로 활용 가치가 있음. CGO-free 크로스컴파일과 릴리즈 자동화는 즉시 운영 수준.</p>
+<p><strong>보안 검토 관점</strong>: 핵심 보안 아이디어(신뢰 경계 설정, fail-closed 설계, 프로세스 트리 격리)는 우수하나, <code>SECURITY.md</code> 부재와 텔레메트리 기본 활성화는 기업 환경 도입 전 해결이 필요한 사항임.</p>
+<p><strong>기여 준비도</strong>: <code>CONTRIBUTING.md</code>가 명확하고, 테스트 전략 및 커밋 컨벤션이 잘 정의되어 있어 외부 기여자 온보딩 난이도가 낮음. 단, 모든 PR을 도구 자체로 제출해야 하는 독특한 요건이 있어 초기 환경 설정이 선행되어야 함.</p>
+<p><strong>결론</strong>: 적극적으로 유지관리되는 고품질 Go CLI 도구. AI 에이전트 통합, 파이프라인 오케스트레이션, 보안 설계 측면에서 참고할 만한 오픈소스 구현체. 기업 환경 도입 시 텔레메트리 정책과 보안 취약점 신고 체계 정비를 권장.</p>
+<hr />
+<h2 id="appendix-key-package-map">부록: 핵심 패키지 맵 / Appendix: Key Package Map</h2>
+<pre><code>cmd/no-mistakes/
+  main.go              ← 진입점: daemon.Run() 또는 cli.Execute()
+
+internal/
+  cli/                 ← cobra 커맨드 (root, axi, attach, init, daemon, wizard, ...)
+  daemon/              ← 백그라운드 런 매니저, IPC 서버 호스팅
+  pipeline/            ← Step 인터페이스, Executor (순차 실행 + 승인 게이트)
+    steps/             ← review, test, document, lint, push, pr, ci, intent, rebase
+  agent/               ← Agent 인터페이스 + claude/codex/rovodev/opencode/pi/acpx 구현
+  gate/                ← git bare repo 생성, post-receive 훅 설치
+  ipc/                 ← JSON-RPC over Unix socket/Named Pipe (client + server)
+  db/                  ← SQLite: repos/runs/step_results/rounds/intent_cache
+  tui/                 ← Bubble Tea TUI (findings, diff, CI, approve/skip/fix)
+  config/              ← GlobalConfig(~/.no-mistakes/config.yaml) + RepoConfig(.no-mistakes.yaml)
+  git/                 ← git 래퍼 (worktree, ref, push, diff, ...)
+  shellenv/            ← 프로세스 그룹 격리 (Setpgid/CREATE_NEW_PROCESS_GROUP)
+  paths/               ← NM_HOME 기반 경로 관리
+  types/               ← AgentName, StepName 등 공유 타입
+  telemetry/           ← Umami 기반 사용 추적 (opt-out 가능)
+  update/              ← 백그라운드 업데이트 확인
+  e2e/                 ← 실제 바이너리 + 픽스처 기반 E2E 테스트
+
+skills/no-mistakes/    ← 에이전트에 설치되는 /no-mistakes 스킬 파일 (genskill로 생성)
+docs/                  ← Astro + Starlight 기반 공개 문서 사이트
+</code></pre></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>kunchenguid/no-mistakes</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/kunchenguid/no-mistakes" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

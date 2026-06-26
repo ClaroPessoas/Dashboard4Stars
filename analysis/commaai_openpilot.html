@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>commaai/openpilot - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/commaai/openpilot" target="_blank" rel="noopener">commaai/openpilot</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">openpilot is an operating system for robotics. Currently, it upgrades the driver assistance system on 300+ supported cars.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 61706</span>
+      <span class="badge badge-stars">+67 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-27
+분석 대상: <code>/tmp/github-dashboard-analysis/commaai_openpilot</code></p>
+<hr />
+<h1 id="commaaiopenpilot">commaai/openpilot — 소스 분석 보고서</h1>
+<blockquote>
+<p><strong>openpilot</strong> is an open-source operating system for robotics and advanced driver assistance, developed by comma.ai.</p>
+</blockquote>
+<hr />
+<h2 id="project-overview">프로젝트 개요 (Project Overview)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>300종 이상의 양산차에 SAE Level 2 자율주행(적응형 크루즈 컨트롤 + 차선 유지 보조)을 제공하는 오픈소스 로보틱스 OS. comma four 하드웨어(ARM64 TICI 플랫폼) 또는 PC(x86_64)에서 동작.</td>
+<td>★★★★★ — 명확하고 유일한 포지셔닝</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>openpilot/, selfdrive/, system/, cereal/, tools/, docs/ 등 도메인 분리된 단일 리포지토리(mono-repo). 6개의 Git 서브모듈(panda, opendbc, msgq, rednose, teleoprtc, tinygrad)을 심볼릭 링크로 참조.</td>
+<td>★★★★☆ — 기능 도메인 분리 명확, 서브모듈 복잡성 존재</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.12.13 (주), C/C++ (안전 임계 로직), Cython (고성능 확장). Cap'n Proto + ZeroMQ 메시징, SCons 빌드, tinygrad(ML 추론), Qt5/OpenGL/Raylib(UI), ACADOS(최적 제어), FFmpeg(영상 인코딩)</td>
+<td>★★★★★ — 성능·안전성에 최적화된 다중 언어 스택</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>openpilot/system/manager/manager.py</code> (시스템 프로세스 매니저), <code>openpilot/selfdrive/controls/controlsd.py</code> (핵심 제어 루프), <code>launch_openpilot.sh</code> (부트스트랩)</td>
+<td>★★★★☆ — 명확한 오케스트레이션 계층</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>데몬(Daemon) 기반 분산 프로세스 아키텍처. 각 기능(camerad, loggerd, controlsd, modeld, locationd, pandad, sensord 등)이 독립 프로세스로 동작하며 ZeroMQ pub/sub + Cap'n Proto 직렬화로 통신. 메시지 스키마는 <code>cereal/log.capnp</code>로 중앙 정의.</td>
+<td>★★★★★ — 마이크로서비스 수준의 관심사 분리</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>비관계형 메시지 스트림(Cap'n Proto 로그). loggerd가 카메라 스트림, CAN, GPS, IMU를 rlog/qlog 형식으로 로컬 저장. 클라우드 업로드(옵트인). 영구 DB 없음 — 파라미터는 파일시스템 키-값 저장소 사용.</td>
+<td>★★★★☆ — 임베디드에 적합한 설계, 별도 DB 불필요</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>대상 디바이스: comma four (TICI, ARM64). 배포 채널: release-mici, nightly, nightly-dev. 업데이트: <code>system/updated/</code> 데몬이 OTA 방식으로 관리. PC 개발 환경은 <code>bash &lt;(curl -fsSL openpilot.comma.ai)</code> 원라인 설치.</td>
+<td>★★★★☆ — OTA 자동화 완비, 채널 기반 릴리즈</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest 기반 단위/통합 테스트 + process_replay(재현 기반 회귀 테스트) + HWIL(Jenkins + comma 디바이스). GitHub Actions에서 Linux/macOS/TICI 멀티 플랫폼 CI. 시뮬레이터(MetaDrive) 통합 테스트.</td>
+<td>★★★★★ — HWIL 포함 3계층 테스트 전략</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>MIT 라이선스. <code>SECURITY.md</code> 취약점 신고 창구(adeeb@comma.ai, security@comma.ai). ISO26262 안전 준수 선언. Panda 마이크로컨트롤러에 독립적 안전 레이어. 의존성 잠금(uv.lock). 별도 SBOM·서명 미확인.</td>
+<td>★★★☆☆ — 안전 설계 강력, 공급망 보안 공식화 미흡</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 0.11.2(2026-06-15), 월간 릴리즈 cadence. RELEASES.md 완비. 기여 가이드, 바운티 프로그램, Discord 커뮤니티, issue/PR 템플릿 완비. 활발한 커밋 히스토리. Ruff + codespell + 커스텀 lint 스크립트.</td>
+<td>★★★★★ — 프로덕션급 운영 성숙도</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_1">상세 분석</h2>
+<h3 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h3>
+<p>openpilot은 comma.ai가 개발한 <strong>오픈소스 로보틱스 운영체제</strong>로, 양산차의 기존 ADAS를 SAE Level 2 반자율주행으로 업그레이드합니다.</p>
+<ul>
+<li><strong>지원 차량</strong>: 300종 이상 (<code>docs/CARS.md</code>, 164 KB)</li>
+<li><strong>필수 하드웨어</strong>: comma four 디바이스 + 차량 하네스</li>
+<li><strong>대상 사용자</strong>: 일반 소비자(운전자), 자율주행 연구자, 차량 포팅 기여자</li>
+<li><strong>소프트웨어 분류</strong>: 임베디드 플랫폼 / 로보틱스 OS</li>
+</ul>
+<blockquote>
+<p>README 명시: <em>"alpha quality software for research purposes only"</em> — 연구 목적 경고 포함.</p>
+</blockquote>
+<hr />
+<h3 id="2-repository-structure">2. 리포지토리 구조 (Repository Structure)</h3>
+<pre><code>commaai_openpilot/
+├── openpilot/                  # 핵심 소프트웨어
+│   ├── selfdrive/              # 자율주행 핵심 알고리즘
+│   │   ├── car/                # 차량별 인터페이스 (100+ 차종)
+│   │   ├── controls/           # 횡방향/종방향 제어 (controlsd.py)
+│   │   ├── modeld/             # 신경망 비전 모델 추론
+│   │   ├── locationd/          # 위치 추정 및 자세 계산
+│   │   ├── monitoring/         # 운전자 모니터링
+│   │   ├── selfdrived/         # 고수준 주행 상태머신
+│   │   └── ui/                 # 온로드 HMI (Qt5, Raylib)
+│   ├── system/                 # 시스템 인프라
+│   │   ├── manager/            # 프로세스 오케스트레이터
+│   │   ├── loggerd/            # 데이터 로깅 데몬
+│   │   ├── camerad/            # 카메라 인터페이스
+│   │   ├── sensord/            # IMU/센서 데몬
+│   │   ├── athena/             # 원격 접근/텔레오퍼레이션
+│   │   ├── hardware/           # 하드웨어 추상화 (TICI)
+│   │   └── updated/            # OTA 업데이트 데몬
+│   ├── cereal/                 # 메시지 스키마 (Cap'n Proto)
+│   ├── common/                 # 공통 유틸리티
+│   └── tools/                  # 개발자 도구
+│       ├── replay/             # 드라이브 재현 도구
+│       ├── cabana/             # CAN 분석기
+│       └── sim/                # MetaDrive 시뮬레이터 연동
+├── panda_repo/                 # 차량 마이크로컨트롤러 (서브모듈)
+├── opendbc_repo/               # 차량 DB/DBC (서브모듈)
+├── msgq_repo/                  # 제로카피 메시지 큐 (서브모듈)
+├── rednose_repo/               # 칼만 필터 라이브러리 (서브모듈)
+├── tinygrad_repo/              # ML 추론 프레임워크 (서브모듈)
+├── teleoprtc_repo/             # WebRTC 텔레오퍼레이션 (서브모듈)
+├── docs/                       # 문서
+├── SConstruct                  # SCons 빌드 스크립트
+├── pyproject.toml              # Python 프로젝트 설정
+├── uv.lock                     # 의존성 잠금 파일
+└── .github/                    # CI/CD, 이슈/PR 템플릿
+</code></pre>
+<p><strong>구조 특성</strong>: 기능 도메인 분리 + 하드웨어 추상화 계층 명확. 코드와 운영 자산(문서, CI 설정) 분리됨.</p>
+<hr />
+<h3 id="3-software-stack">3. 소프트웨어 스택 (Software Stack)</h3>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>기술</th>
+<th>버전/비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Python</td>
+<td>3.12.13 (<code>.python-version</code>)</td>
+</tr>
+<tr>
+<td><strong>언어</strong></td>
+<td>C/C++</td>
+<td>GNU C11, C++17</td>
+</tr>
+<tr>
+<td><strong>언어</strong></td>
+<td>Cython</td>
+<td>고성능 확장</td>
+</tr>
+<tr>
+<td><strong>빌드</strong></td>
+<td>SCons</td>
+<td><code>SConstruct</code></td>
+</tr>
+<tr>
+<td><strong>패키지 관리</strong></td>
+<td>uv (hatchling)</td>
+<td><code>pyproject.toml</code>, <code>uv.lock</code></td>
+</tr>
+<tr>
+<td><strong>메시지 직렬화</strong></td>
+<td>Cap'n Proto (pycapnp)</td>
+<td>2.1.0 (pinned — 메모리 누수 회피)</td>
+</tr>
+<tr>
+<td><strong>메시지 브로커</strong></td>
+<td>ZeroMQ (msgq)</td>
+<td>제로카피 pub/sub</td>
+</tr>
+<tr>
+<td><strong>ML 추론</strong></td>
+<td>tinygrad</td>
+<td>자체 개발 프레임워크 (서브모듈)</td>
+</tr>
+<tr>
+<td><strong>수치 계산</strong></td>
+<td>NumPy</td>
+<td>&gt;= 2.0</td>
+</tr>
+<tr>
+<td><strong>최적 제어</strong></td>
+<td>ACADOS</td>
+<td>MPC 계획</td>
+</tr>
+<tr>
+<td><strong>칼만 필터</strong></td>
+<td>rednose</td>
+<td>자체 라이브러리</td>
+</tr>
+<tr>
+<td><strong>UI 렌더링</strong></td>
+<td>Qt5, OpenGL/EGL/GLES, Raylib</td>
+<td>임베디드 HMI</td>
+</tr>
+<tr>
+<td><strong>영상 인코딩</strong></td>
+<td>FFmpeg</td>
+<td>loggerd</td>
+</tr>
+<tr>
+<td><strong>웹RTC</strong></td>
+<td>aiortc, teleoprtc</td>
+<td>원격 조작</td>
+</tr>
+<tr>
+<td><strong>정적 분석</strong></td>
+<td>Ruff</td>
+<td>160자 줄 길이</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest + pytest-xdist</td>
+<td>병렬 실행</td>
+</tr>
+<tr>
+<td><strong>CI</strong></td>
+<td>GitHub Actions + Jenkins</td>
+<td>멀티 플랫폼</td>
+</tr>
+<tr>
+<td><strong>배포 타깃</strong></td>
+<td>TICI (ARM64, larch64), x86_64, macOS</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="4-architecture">4. 아키텍처 분석 (Architecture)</h3>
+<h4 id="_2">아키텍처 패턴: <strong>데몬 기반 분산 프로세스 아키텍처</strong></h4>
+<pre><code>[Hardware Layer]
+  Camera → camerad → (zeromq) → modeld (Vision NN)
+  CAN Bus → pandad → (zeromq) → controlsd
+  IMU/GPS → sensord/ubloxd → (zeromq) → locationd
+
+[Processing Layer]
+  modeld → (predictions) → plannerd → controlsd
+  locationd → (pose) → controlsd
+  controlsd → (actuator commands) → pandad → CAN Bus
+
+[Support Layer]
+  loggerd ← (all topics) — rlog/qlog files → athena → cloud
+  manager.py → supervises all daemons
+  updated → OTA delta updates
+</code></pre>
+<p><strong>핵심 설계 원칙</strong>:
+1. <strong>메시지 버스 중심</strong>: 모든 프로세스가 ZeroMQ pub/sub 토픽으로 통신. 직접 함수 호출 없음.
+2. <strong>스키마 중앙화</strong>: <code>cereal/log.capnp</code>가 단일 진실의 원천(Single Source of Truth). 포크가 스키마를 변경하면 training data 호환성 깨짐.
+3. <strong>안전 분리</strong>: panda 마이크로컨트롤러가 독립적인 안전 레이어 담당. openpilot 소프트웨어 버그가 직접 물리적 위험을 유발하지 않도록 설계.
+4. <strong>계층 격리</strong>: 차량 인터페이스(<code>selfdrive/car/</code>)가 나머지 시스템과 격리되어 차종 추가 시 isolated 변경 가능.</p>
+<hr />
+<h3 id="5-quality-testing">5. 품질 및 테스트 체계 (Quality &amp; Testing)</h3>
+<p><strong>테스트 유형</strong>:</p>
+<table>
+<thead>
+<tr>
+<th>유형</th>
+<th>위치</th>
+<th>설명</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트</td>
+<td><code>openpilot/*/tests/</code></td>
+<td>pytest, C++ 테스트 하네스</td>
+</tr>
+<tr>
+<td>프로세스 재현 테스트</td>
+<td><code>selfdrive/test/process_replay/</code></td>
+<td>실제 드라이브 로그 재현으로 회귀 검출</td>
+</tr>
+<tr>
+<td>온로드 통합 테스트</td>
+<td><code>selfdrive/test/test_onroad.py</code></td>
+<td>전체 시스템 통합</td>
+</tr>
+<tr>
+<td>시뮬레이터 테스트</td>
+<td><code>tools/sim/</code> (MetaDrive)</td>
+<td>가상 환경 주행</td>
+</tr>
+<tr>
+<td>HWIL 테스트</td>
+<td>Jenkins + comma 디바이스</td>
+<td>실제 하드웨어 인루프</td>
+</tr>
+<tr>
+<td>퍼지 테스트</td>
+<td><code>selfdrive/test/fuzzy_generation.py</code></td>
+<td>Hypothesis 기반</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CI/CD 파이프라인</strong>:
+- GitHub Actions: <code>tests.yaml</code> (8660 lines) — build_release, static_analysis, unit_tests, process_replay, simulator_driving, ui_report
+- Jenkins: Jenkinsfile로 HWIL 테스트 오케스트레이션
+- 멀티플랫폼: Linux AMD64, macOS, TICI ARM64</p>
+<p><strong>코드 품질 도구</strong>:
+- Ruff (linting, 160자 줄 제한)
+- codespell (오타 검사)
+- 커스텀 shebang/nomerge 검사 스크립트
+- <code>time.time</code> 금지 (time.monotonic 강제) — 시간 단조성 보장</p>
+<hr />
+<h3 id="6-security-supply-chain">6. 보안 및 공급망 (Security &amp; Supply Chain)</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>라이선스</strong></td>
+<td>MIT (commaai/openpilot 본체)</td>
+</tr>
+<tr>
+<td><strong>취약점 신고</strong></td>
+<td>SECURITY.md — adeeb@comma.ai, security@comma.ai</td>
+</tr>
+<tr>
+<td><strong>ISO26262 준수</strong></td>
+<td>선언됨 (<code>docs/SAFETY.md</code>)</td>
+</tr>
+<tr>
+<td><strong>의존성 잠금</strong></td>
+<td>uv.lock (170 KB) — 재현 가능 빌드</td>
+</tr>
+<tr>
+<td><strong>Dependabot/Renovate</strong></td>
+<td>미확인 (<code>.github/dependabot.yml</code> 부재)</td>
+</tr>
+<tr>
+<td><strong>SBOM</strong></td>
+<td>미제공</td>
+</tr>
+<tr>
+<td><strong>아티팩트 서명</strong></td>
+<td>미확인</td>
+</tr>
+<tr>
+<td><strong>시크릿 관리</strong></td>
+<td>Jenkins credentials + GitHub Secrets (CI_ARTIFACTS_TOKEN, GITHUB_COMMENTS_TOKEN)</td>
+</tr>
+<tr>
+<td><strong>panda 안전 레이어</strong></td>
+<td>마이크로컨트롤러 수준 독립 안전 검증</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주요 라이선스 (주요 의존성)</strong>:
+- pycapnp: MIT
+- ZeroMQ: MPL-2.0
+- NumPy: BSD-3
+- tinygrad: MIT
+- ACADOS: BSD-2
+- FFmpeg: LGPL-2.1+</p>
+<blockquote>
+<p>MIT 라이선스는 상업적 활용에 우호적이나, README에 별도 <strong>면책 조항</strong>(indemnification clause)이 존재하므로 법무 검토 권장.</p>
+</blockquote>
+<hr />
+<h3 id="7-documentation-operational-maturity">7. 문서 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README</td>
+<td>완비 (설치, 하드웨어, 채널, 안전 경고)</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>상세 (우선순위 체계: Safety &gt; Stability &gt; Quality &gt; Features)</td>
+</tr>
+<tr>
+<td>SAFETY.md</td>
+<td>안전 모델 및 ISO26262 설명</td>
+</tr>
+<tr>
+<td>DEVELOPMENT.md</td>
+<td>개발 환경 설정</td>
+</tr>
+<tr>
+<td>CARS.md</td>
+<td>300+ 지원 차종 목록 (164 KB)</td>
+</tr>
+<tr>
+<td>RELEASES.md</td>
+<td>릴리즈 노트 완비 (버전별 변경사항)</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td>미확인</td>
+</tr>
+<tr>
+<td>이슈 템플릿</td>
+<td>3종 (bug_report, pc_bug_report, config)</td>
+</tr>
+<tr>
+<td>PR 템플릿</td>
+<td>5종 (Fingerprint, Car Bugfix, Bugfix, Car Port, Refactor)</td>
+</tr>
+<tr>
+<td>커뮤니티</td>
+<td>Discord + GitHub + 바운티 프로그램</td>
+</tr>
+<tr>
+<td>릴리즈 주기</td>
+<td>월 1회 이상 (0.11.2 기준, 활발)</td>
+</tr>
+<tr>
+<td>문서 생성기</td>
+<td>zensical.toml (MkDocs 기반)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>강력한 안전 아키텍처</strong>: panda 마이크로컨트롤러의 독립적 안전 레이어와 소프트웨어 레이어의 이중 분리로 ISO26262 준수. 소프트웨어 버그가 직접 물리 위험으로 이어지는 경로를 구조적으로 차단.</p>
+</li>
+<li>
+<p><strong>메시지 버스 기반 마이크로서비스 설계</strong>: Cap'n Proto + ZeroMQ 조합으로 모든 컴포넌트가 느슨하게 결합. 신규 센서/알고리즘 추가 시 기존 코드 변경 없이 새 데몬만 추가 가능. 재생(replay) 기반 테스트 인프라의 기반이기도 함.</p>
+</li>
+<li>
+<p><strong>3계층 테스트 전략</strong>: 단위 테스트 → process_replay(로그 재현 회귀) → HWIL(실 하드웨어) 파이프라인이 소프트웨어 변경의 물리적 영향을 체계적으로 검증. 특히 process_replay는 실제 주행 데이터를 활용한 고신뢰 회귀 테스트.</p>
+</li>
+<li>
+<p><strong>의존성 완전 벤더링</strong>: <code>commaai/dependencies</code> 저장소를 통한 모든 네이티브 라이브러리 벤더링으로 빌드 재현성 보장. 공개 패키지 레지스트리 의존성 최소화.</p>
+</li>
+<li>
+<p><strong>활발한 커뮤니티와 명확한 기여 체계</strong>: 월간 릴리즈 cadence, 5종의 PR 템플릿, 바운티 프로그램, 기여 우선순위 체계(Safety &gt; Stability &gt; Quality &gt; Features) 등 오픈소스 프로젝트로서의 거버넌스가 성숙함.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험/개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>공급망 보안 공식화 미흡</strong>: Dependabot/Renovate 자동 취약점 알림, SBOM 생성, 아티팩트 서명이 없음. 6개의 Git 서브모듈이 각각 외부 저장소를 참조하므로 공급망 공격 벡터가 존재.</p>
+</li>
+<li>
+<p><strong>서브모듈 복잡성</strong>: 6개 서브모듈 + 심볼릭 링크 패턴이 신규 기여자 온보딩을 복잡하게 함. 서브모듈 간 버전 핀 불일치 시 빌드 재현성 문제 발생 가능.</p>
+</li>
+<li>
+<p><strong>보안 정책 최소화</strong>: SECURITY.md가 이메일 주소만 제공. 취약점 공개 정책(CVD), 응답 SLA, 버그 바운티 프로그램, CVSS 기준 등 구조화된 보안 프로세스 부재.</p>
+</li>
+<li>
+<p><strong>문서 진입 장벽</strong>: README가 최종 사용자 중심으로 기술되어 있으며, 내부 아키텍처 문서(ADR, 아키텍처 다이어그램, 모듈 의존성 그래프)가 부재. 코드베이스 규모(100+ 차종, 10+ 데몬)에 비해 개발자 온보딩 문서가 부족.</p>
+</li>
+<li>
+<p><strong>"alpha quality" 경고와 상업적 사용 간 괴리</strong>: README에 연구 목적 alpha 소프트웨어임을 명시하나 comma four 판매 디바이스에 배포됨. 면책 조항(README의 indemnification clause)이 라이선스 파일이 아닌 README에 위치하여 법적 명확성이 낮음.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 도입 / 아키텍처 벤치마킹 관점</strong>:</p>
+<p>openpilot은 임베디드 자율주행 시스템의 <strong>실전 검증된 오픈소스 참조 아키텍처</strong>로서 높은 가치를 가집니다.</p>
+<ul>
+<li><strong>도입 권장 시나리오</strong>: 차량 ADAS 연구, 로보틱스 OS 설계 참조, Cap'n Proto + ZeroMQ 기반 임베디드 메시지 버스 설계, process_replay 패턴의 테스트 전략 도입</li>
+<li><strong>주의 시나리오</strong>: 상업적 차량 제어 시스템 직접 적용 시 "alpha quality" 경고 및 면책 조항 법무 검토 필수. 공급망 보안이 중요한 환경에서는 SBOM 생성 및 아티팩트 서명 파이프라인 추가 필요.</li>
+<li><strong>기여 준비도</strong>: PR 템플릿, 기여 가이드, 바운티 프로그램이 완비되어 기여 진입 장벽이 낮음. 단, 500줄 이상 PR 및 기능 PR은 거의 머지되지 않으므로 작고 명확한 버그픽스 위주 기여 전략 권장.</li>
+</ul>
+<p><strong>종합 평가</strong>: ★★★★☆ (4.5/5) — 안전성·아키텍처·테스트 체계가 프로덕션급이며, 공급망 보안 공식화와 개발자 아키텍처 문서화가 개선되면 5성급 참조 프로젝트.</p>
+<hr />
+<p><em>분석일: 2026-06-27 | 분석 대상: <code>/tmp/github-dashboard-analysis/commaai_openpilot</code> | 출력: <code>.review/REVIEW-Source.md</code></em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>commaai/openpilot</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/commaai/openpilot" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BuilderIO/agent-native - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/BuilderIO/agent-native" target="_blank" rel="noopener">BuilderIO/agent-native</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A framework for building agent-native applications.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">weekly trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 2455</span>
+      <span class="badge badge-stars">+1,588 stars this week</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-27
+분석 대상: /tmp/github-dashboard-analysis/BuilderIO_agent-native</p>
+<hr />
+<h1 id="builderio-agent-native">BuilderIO / agent-native — 소스 분석 보고서</h1>
+<blockquote>
+<p><strong>Source Analysis Report</strong> — Comprehensive structured review of the Agent-Native open-source framework.</p>
+</blockquote>
+<hr />
+<h2 id="summary-table">종합 요약 테이블 / Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 에이전트와 UI가 동일한 SQL 데이터와 액션 표면을 공유하는 "에이전트 네이티브" 풀스택 애플리케이션 프레임워크. 에이전트가 앱 옆에서 채팅하는 것이 아닌 앱 안에서 실제로 동작하도록 설계.</td>
+<td>★★★★★ — 명확하고 차별화된 비전</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>pnpm 모노레포. <code>packages/</code> (14개 npm 패키지) + <code>templates/</code> (15개 프로덕션 템플릿) + <code>.agents/skills/</code> (50개 이상 스킬). 기능 지향적 구조.</td>
+<td>★★★★★ — 잘 분리된 레이어</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>TypeScript 6 / React 19 / Vite 8 / Nitro+H3 / Drizzle ORM / Tailwind CSS 4 / shadcn/ui / Radix UI / Vitest + Playwright / oxlint + oxfmt / pnpm 10 / Node 24</td>
+<td>★★★★★ — 최신 스택</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>각 템플릿의 <code>vite.config.ts</code> → <code>agentNative()</code> 플러그인. 서버는 <code>server/plugins/auth.ts</code> + <code>server/plugins/agent-chat.ts</code>로 부트스트랩.</td>
+<td>★★★★☆ — 명시적이나 템플릿마다 반복</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>액션 중심 단일 진실 공급원(Single Source of Truth). UI·에이전트·HTTP·MCP·A2A·CLI 모두 동일한 <code>defineAction()</code> 사용. SQL 기반 상태. 조합형 미니앱 A2A 통신.</td>
+<td>★★★★★ — 혁신적 패턴</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>Drizzle ORM, 방언 무관 스키마. SQLite(기본) / PostgreSQL(Neon, Supabase) / Turso(LibSQL) 지원. 추가(additive) 마이그레이션 전용. <code>ownableColumns()</code> + 공유 테이블로 소유권 관리.</td>
+<td>★★★★★ — 안전하고 유연</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Nitro 프리셋으로 Netlify / Cloudflare Workers / Vercel 지원. 13개 <code>wrangler-*.toml</code>. Electron(Mac/Win/Linux) 데스크탑. Expo/EAS 모바일.</td>
+<td>★★★★★ — 멀티 플랫폼</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest(단위·통합, 12개 이상 설정), Playwright(E2E, 2개 설정). CI에서 brain LLM 평가(30분), SSR 콜드스타트 스모크, 스캐폴드 E2E, 14개 보안 가드 실행.</td>
+<td>★★★★☆ — 커버리지 수치 미공개</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>14개 가드 스크립트(자격증명 누출, 비범위 쿼리, localhost 폴백 등). npm OIDC 신뢰 게시. PR 비주얼 리캡 시 비밀 스캔. <code>drizzle-kit push</code> 프로덕션 방지 내장.</td>
+<td>★★★★★ — 업계 최고 수준</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>16개 CI 워크플로우. AI 기반 PR 시각 리캡. Changesets 릴리스 자동화. 50개 이상 구현 가이드 스킬. 기여자 다수, 커밋 빈도 높음. DEVELOPMENT.md·AGENTS.md 완비.</td>
+<td>★★★★☆ — 성숙하나 Dependabot 부재</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-purpose-scope">1. 목적 및 범위 / Purpose &amp; Scope</h2>
+<p><strong>한국어</strong></p>
+<p>Agent-Native는 BuilderIO가 개발한 오픈소스 풀스택 프레임워크로, AI 에이전트와 UI를 동등한 일급 시민으로 취급합니다. 핵심 철학은 "에이전트가 앱 옆에서 채팅하는 것이 아닌, 앱 안에서 실제로 동작"하는 것입니다. 에이전트와 프론트엔드가 동일한 SQL 데이터와 액션 표면을 공유하여, UI에서 할 수 있는 모든 것을 에이전트도 동일한 코드 경로로 수행할 수 있습니다.</p>
+<p><strong>English</strong></p>
+<p>Agent-Native is an open-source full-stack framework by BuilderIO that treats AI agents and UI as equal first-class citizens sharing the same SQL-backed state and action surface. Everything the UI can do, the agent can do through the same code path — no parallel tooling, no shadow API.</p>
+<p><strong>대상 사용자 / Target Users:</strong>
+- SaaS 제품을 에이전트 우선으로 구축하려는 개발팀
+- 에이전트 네이티브 아키텍처를 탐구하는 스타트업
+- 자체 소유 AI 애플리케이션(15개 템플릿 중 하나를 클론)을 원하는 팀
+- Claude Code, Cursor, Pi 등 코딩 에이전트에 스킬을 연동하려는 개발자</p>
+<p><strong>유형 / Type:</strong> 오픈소스 프레임워크 + 프로덕션 템플릿 플랫폼 (Framework + Platform)</p>
+<hr />
+<h2 id="2-repository-structure">2. 저장소 구조 분석 / Repository Structure</h2>
+<pre><code>BuilderIO_agent-native/
+├── .agents/skills/          # 50+ 구현 가이드 스킬 (960KB)
+├── .changeset/              # Changesets 릴리스 설정
+├── .claude/ .gemini/        # IDE 에이전트 플러그인 설정
+├── .github/workflows/       # 16개 GitHub Actions 워크플로우
+├── packages/                # 14개 npm 패키지 (52MB)
+│   ├── core/                # @agent-native/core — 핵심 런타임
+│   ├── dispatch/            # @agent-native/dispatch — 워크스페이스 제어
+│   ├── scheduling/          # @agent-native/scheduling — 스케줄링
+│   ├── pinpoint/            # @agent-native/pinpoint — 시각 피드백
+│   ├── skills/              # @agent-native/skills — 공유 스킬
+│   ├── desktop-app/         # Electron 데스크탑
+│   ├── mobile-app/          # React Native 모바일
+│   ├── vscode-extension/    # VS Code 확장
+│   └── docs/                # 문서 사이트
+├── templates/               # 15개 프로덕션 템플릿 (62MB)
+│   ├── brain/   chat/   dispatch/   analytics/
+│   ├── calendar/ clips/ content/    design/
+│   ├── forms/   mail/  macros/     plan/
+│   ├── slides/  videos/ assets/
+├── scripts/                 # 빌드·보안 스크립트 (1.5MB)
+├── plans/                   # 플랜 관리 아티팩트 (232KB)
+├── skills/                  # 공유 스킬 정의 (200KB)
+├── registry/                # shadcn/ui 레지스트리
+├── docs/                    # 일반 문서 (16KB)
+├── package.json             # 루트 워크스페이스 (pnpm)
+├── pnpm-workspace.yaml      # 워크스페이스 카탈로그
+├── AGENTS.md (= CLAUDE.md)  # 에이전트 규칙 및 아키텍처 계약
+├── DEVELOPMENT.md           # 개발 가이드
+└── wrangler-*.toml          # Cloudflare 배포 설정 (13개)
+</code></pre>
+<p><strong>구조 평가:</strong>
+- <strong>모노레포 방식:</strong> pnpm 워크스페이스 (<code>packages/*</code>, <code>templates/*</code>, <code>templates/*/desktop</code>, <code>templates/*/chrome-extension</code>)
+- <strong>기능 지향 구조:</strong> 도메인별 분리가 명확 (packages ≠ templates ≠ scripts)
+- <strong>운영·코드 분리:</strong> <code>.agents/</code>, <code>scripts/</code>, <code>.github/</code> 가 소스와 분리됨
+- <strong>에이전트 인프라:</strong> <code>.agents/skills/</code> 50개 스킬 파일이 프레임워크의 "살아있는 문서" 역할 수행</p>
+<hr />
+<h2 id="3-software-stack">3. 소프트웨어 스택 / Software Stack</h2>
+<h3 id="_1">언어 및 런타임</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>TypeScript</td>
+<td>^6.0.3 (네이티브 TS 파서)</td>
+</tr>
+<tr>
+<td>런타임</td>
+<td>Node.js</td>
+<td>&gt;=22.22.0 (권장 v24.14.0)</td>
+</tr>
+<tr>
+<td>패키지 매니저</td>
+<td>pnpm</td>
+<td>10.29.1</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">프론트엔드</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UI 프레임워크</td>
+<td>React</td>
+<td>19.2.7</td>
+</tr>
+<tr>
+<td>라우팅</td>
+<td>React Router</td>
+<td>^8.0.1</td>
+</tr>
+<tr>
+<td>빌드 도구</td>
+<td>Vite</td>
+<td>8.1.0</td>
+</tr>
+<tr>
+<td>스타일링</td>
+<td>Tailwind CSS</td>
+<td>4.2.4</td>
+</tr>
+<tr>
+<td>UI 컴포넌트</td>
+<td>shadcn/ui + Radix UI</td>
+<td>Radix 25개+ 프리미티브</td>
+</tr>
+<tr>
+<td>아이콘</td>
+<td>Tabler Icons</td>
+<td>^3.41.1</td>
+</tr>
+<tr>
+<td>리치 에디터</td>
+<td>Tiptap (+ Yjs 협업)</td>
+<td>3.27.1</td>
+</tr>
+<tr>
+<td>차트</td>
+<td>Recharts</td>
+<td>^3.8.1</td>
+</tr>
+<tr>
+<td>폼</td>
+<td>React Hook Form + Zod</td>
+<td>7.71.2 / ^4.3.6</td>
+</tr>
+<tr>
+<td>에이전트 채팅 UI</td>
+<td>@assistant-ui/react</td>
+<td>^0.12.19</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">백엔드</h3>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>HTTP 서버</td>
+<td>H3 + Nitro</td>
+<td>^2.0.1-rc / 3.0.x</td>
+</tr>
+<tr>
+<td>ORM</td>
+<td>Drizzle ORM</td>
+<td>^0.45.2</td>
+</tr>
+<tr>
+<td>인증</td>
+<td>better-auth</td>
+<td>1.6.16</td>
+</tr>
+<tr>
+<td>AI SDK</td>
+<td>Vercel AI SDK</td>
+<td>^6.x (multi-provider)</td>
+</tr>
+<tr>
+<td>Anthropic SDK</td>
+<td>@anthropic-ai/sdk</td>
+<td>&gt;=0.90.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_4">데이터베이스</h3>
+<table>
+<thead>
+<tr>
+<th>데이터베이스</th>
+<th>클라이언트</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SQLite</td>
+<td>better-sqlite3 ^12.8.0</td>
+<td>기본 로컬 개발</td>
+</tr>
+<tr>
+<td>Turso/LibSQL</td>
+<td>@libsql/client ^0.15.8</td>
+<td>프로덕션 SQLite</td>
+</tr>
+<tr>
+<td>Neon PostgreSQL</td>
+<td>@neondatabase/serverless ^1.1.0</td>
+<td>서버리스 Postgres</td>
+</tr>
+<tr>
+<td>Supabase</td>
+<td>(postgres 호환)</td>
+<td>대안 Postgres</td>
+</tr>
+</tbody>
+</table>
+<h3 id="ai">AI 모델 지원</h3>
+<table>
+<thead>
+<tr>
+<th>공급자</th>
+<th>패키지</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Anthropic (Claude)</td>
+<td>@ai-sdk/anthropic ^3.0.71</td>
+</tr>
+<tr>
+<td>OpenAI (GPT)</td>
+<td>@ai-sdk/openai ^3.0.53</td>
+</tr>
+<tr>
+<td>Google (Gemini)</td>
+<td>@ai-sdk/google ^3.0.64</td>
+</tr>
+<tr>
+<td>Groq</td>
+<td>@ai-sdk/groq ^3.0.35</td>
+</tr>
+<tr>
+<td>Mistral / Cohere / Ollama / OpenRouter</td>
+<td>피어 의존성</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_5">배포 플랫폼</h3>
+<table>
+<thead>
+<tr>
+<th>플랫폼</th>
+<th>설정 파일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Netlify</td>
+<td><code>netlify.toml</code> (각 템플릿)</td>
+</tr>
+<tr>
+<td>Cloudflare Workers</td>
+<td><code>wrangler-*.toml</code> (13개)</td>
+</tr>
+<tr>
+<td>Vercel</td>
+<td>Nitro 프리셋</td>
+</tr>
+<tr>
+<td>Electron (Mac/Win/Linux)</td>
+<td><code>packages/desktop-app/</code></td>
+</tr>
+<tr>
+<td>Expo/EAS (모바일)</td>
+<td><code>eas.json</code>, <code>app.json</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="_6">테스트·품질</h3>
+<table>
+<thead>
+<tr>
+<th>도구</th>
+<th>버전</th>
+<th>용도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Vitest</td>
+<td>^4.1.5</td>
+<td>단위·통합 테스트</td>
+</tr>
+<tr>
+<td>Playwright</td>
+<td>^1.60.0</td>
+<td>E2E 브라우저 테스트</td>
+</tr>
+<tr>
+<td>oxlint</td>
+<td>1.71.0</td>
+<td>린팅 (Rust 기반)</td>
+</tr>
+<tr>
+<td>oxfmt</td>
+<td>0.56.0</td>
+<td>코드 포매팅 (Rust 기반)</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-architecture-analysis">4. 아키텍처 분석 / Architecture Analysis</h2>
+<h3 id="4-1-entry-points">4-1. 진입점 / Entry Points</h3>
+<p><strong>서버 부트스트랩:</strong></p>
+<pre><code>각 템플릿/
+├── vite.config.ts          → agentNative() + reactRouter() 플러그인
+├── server/plugins/auth.ts  → createAuthPlugin({ appName, features })
+└── server/plugins/agent-chat.ts → createAgentChatPlugin({
+        appId, actions, initialToolNames, systemPrompt
+    })
+</code></pre>
+<p><strong>CLI 진입점:</strong> <code>packages/core/src/cli/</code> — <code>agent-native</code> CLI 커맨드
+<strong>액션 HTTP 진입점:</strong> <code>/_agent-native/actions/&lt;name&gt;</code> (Nitro 자동 라우팅)</p>
+<h3 id="4-2-unified-action-surface">4-2. 핵심 패턴: 통합 액션 표면 / Unified Action Surface</h3>
+<pre><code class="language-typescript">// defineAction — 한 번 정의, 어디서나 사용
+export default defineAction({
+  description: &quot;...&quot;,
+  schema: z.object({ name: z.string() }),
+  http: { method: &quot;GET&quot; },
+  run: async ({ name }, ctx) =&gt; {
+    // ctx.caller: &quot;tool&quot; | &quot;http&quot; | &quot;frontend&quot; | &quot;cli&quot; | &quot;mcp&quot; | &quot;a2a&quot;
+    // ctx.userEmail, ctx.orgId — 요청 범위 ID
+    return { message: `Hello, ${name}!` };
+  },
+});
+</code></pre>
+<p><strong>동일 액션을 호출하는 경로:</strong>
+- 프론트엔드: <code>useActionQuery()</code> / <code>useActionMutation()</code>
+- 에이전트 도구: 채팅 루프 내 도구 호출
+- HTTP: <code>GET /_agent-native/actions/hello?name=world</code>
+- MCP: <code>/mcp/tools/call</code>
+- A2A: 에이전트 간 JSON-RPC 프로토콜
+- CLI: <code>pnpm action hello --name world</code></p>
+<h3 id="4-3-layer-separation">4-3. 레이어 분리 / Layer Separation</h3>
+<pre><code>┌─────────────────────────────────────────────┐
+│  프레젠테이션 (Presentation)                  │
+│  React + React Router 8 + shadcn/ui         │
+│  useActionQuery / useActionMutation          │
+├─────────────────────────────────────────────┤
+│  에이전트 런타임 (Agent Runtime)               │
+│  production-agent.ts → tool-search.ts       │
+│  run-manager.ts → run-store.ts              │
+├─────────────────────────────────────────────┤
+│  비즈니스 로직 (Business Logic)               │
+│  defineAction() — 액션 레지스트리             │
+│  provider-api 카탈로그 패턴                  │
+├─────────────────────────────────────────────┤
+│  데이터 액세스 (Data Access)                  │
+│  Drizzle ORM — 방언 무관 스키마              │
+│  ownableColumns() — 소유권/공유 내장         │
+│  SQL: SQLite / Postgres / Turso             │
+└─────────────────────────────────────────────┘
+</code></pre>
+<h3 id="4-4">4-4. 아키텍처 패턴</h3>
+<table>
+<thead>
+<tr>
+<th>패턴</th>
+<th>적용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>액션 중심 설계</strong></td>
+<td><code>defineAction()</code> — 단일 진실 공급원</td>
+</tr>
+<tr>
+<td><strong>도메인 서비스</strong></td>
+<td>각 패키지가 독립 도메인 (dispatch, scheduling, pinpoint)</td>
+</tr>
+<tr>
+<td><strong>이벤트 버스</strong></td>
+<td><code>packages/core/src/event-bus/</code></td>
+</tr>
+<tr>
+<td><strong>A2A 프로토콜</strong></td>
+<td>에이전트 간 JSON-RPC 통신</td>
+</tr>
+<tr>
+<td><strong>MCP 통합</strong></td>
+<td>Model Context Protocol 서버/클라이언트</td>
+</tr>
+<tr>
+<td><strong>실시간 협업</strong></td>
+<td>Yjs CRDT + <code>useDbSync()</code> 폴링</td>
+</tr>
+<tr>
+<td><strong>낙관적 업데이트</strong></td>
+<td>캐시 즉시 업데이트 → 오류 시 롤백</td>
+</tr>
+<tr>
+<td><strong>조합형 미니앱</strong></td>
+<td>여러 소형 헤드리스 앱이 A2A로 서로 발견·호출</td>
+</tr>
+<tr>
+<td><strong>자기 수정 코드</strong></td>
+<td>에이전트가 소스 파일 직접 편집 가능</td>
+</tr>
+</tbody>
+</table>
+<h3 id="4-5">4-5. 상태 관리</h3>
+<ul>
+<li><strong>서버 사이드 상태:</strong> Drizzle SQL (<code>application_state</code> 테이블 — 에이전트가 현재 내비게이션·선택 항목 파악)</li>
+<li><strong>클라이언트 사이드:</strong> TanStack Query 5.x (<code>useActionQuery</code>) + 폴링 (<code>/_agent-native/poll</code>)</li>
+<li><strong>실시간 협업:</strong> Yjs 분산 데이터 타입 + Tiptap 협업 확장</li>
+<li><strong>에이전트 메모리:</strong> <code>observational-memory/</code> + <code>checkpoints/</code></li>
+</ul>
+<hr />
+<h2 id="5-quality-test-system">5. 품질 및 테스트 시스템 / Quality &amp; Test System</h2>
+<h3 id="5-1">5-1. 테스트 구조</h3>
+<table>
+<thead>
+<tr>
+<th>테스트 유형</th>
+<th>도구</th>
+<th>파일 수</th>
+<th>특이사항</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위/통합</td>
+<td>Vitest 4.1.5</td>
+<td>18개 설정, 30개+ 스펙</td>
+<td>Node 환경, 커버리지 미측정</td>
+</tr>
+<tr>
+<td>E2E</td>
+<td>Playwright 1.60</td>
+<td>2개 설정 (plan, content)</td>
+<td>병렬 2-5 워커, 스크린샷</td>
+</tr>
+<tr>
+<td>LLM 평가</td>
+<td>Vitest 커스텀</td>
+<td>test:brain-evals</td>
+<td>30분 타임아웃, CI에서 실행</td>
+</tr>
+<tr>
+<td>SSR 스모크</td>
+<td>QA 스크립트</td>
+<td>qa:standalone-*</td>
+<td>콜드스타트 응답 검증</td>
+</tr>
+<tr>
+<td>스캐폴드 E2E</td>
+<td>CI scaffold-e2e</td>
+<td>chat/calendar/dispatch</td>
+<td>전체 템플릿 기동 검증</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Playwright 설정 특징:</strong>
+- 전역 인증 설정 (스토리지 상태 재사용)
+- 실패 시 트레이스·스크린샷 자동 저장
+- CI: 2회 재시도, 2개 워커 / 로컬: 5개 워커</p>
+<h3 id="5-2-cicd">5-2. CI/CD 워크플로우</h3>
+<p><strong>16개 GitHub Actions 워크플로우:</strong></p>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>목적</th>
+<th>타임아웃</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>ci.yml</code></td>
+<td>메인 CI (lint→typecheck→test→build→guards)</td>
+<td>10-30분</td>
+</tr>
+<tr>
+<td><code>auto-publish.yml</code></td>
+<td>npm 릴리스 + 데스크탑 빌드</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>changeset-check.yml</code></td>
+<td>Changeset 요구 검증</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>desktop-release.yml</code></td>
+<td>Electron 멀티플랫폼 릴리스</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>pr-visual-recap.yml</code></td>
+<td>Claude/Codex AI PR 시각 리뷰</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>neon-preview-branches.yml</code></td>
+<td>PR별 Neon DB 브랜치 생성</td>
+<td>—</td>
+</tr>
+<tr>
+<td><code>clips-desktop-release.yml</code></td>
+<td>Clips 전용 데스크탑 릴리스</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p><strong>CI 병렬 잡:</strong></p>
+<pre><code>lint → typecheck → test → brain-evals
+              ↓
+         build (dist 캐시)
+              ↓
+  scaffold-e2e + ssr-boot-smoke + guards + qa-static
+</code></pre>
+<h3 id="5-3">5-3. 린팅 및 포매팅</h3>
+<pre><code class="language-json">// .oxlintrc.json
+{
+  &quot;plugins&quot;: [&quot;react&quot;, &quot;react-hooks&quot;, &quot;typescript&quot;],
+  &quot;options&quot;: { &quot;typeAware&quot;: true },
+  &quot;rules&quot;: {
+    &quot;react-hooks/rules-of-hooks&quot;: &quot;error&quot;,
+    &quot;react-hooks/exhaustive-deps&quot;: &quot;warn&quot;,
+    &quot;eslint/eqeqeq&quot;: &quot;warn&quot;,
+    &quot;eslint/no-unused-vars&quot;: &quot;warn&quot;
+  }
+}
+</code></pre>
+<ul>
+<li><strong>oxlint</strong> (Rust 기반): ESLint 대비 50-100배 빠른 린팅</li>
+<li><strong>oxfmt</strong> (Rust 기반): Prettier 대비 빠른 포매팅</li>
+<li><strong>TypeScript 6</strong> 엄격 모드: <code>strict: true</code>, <code>bundler</code> 모듈 해상도</li>
+</ul>
+<h3 id="5-4">5-4. 릴리스 전략</h3>
+<ul>
+<li><strong>버전 관리:</strong> Changesets (<code>pnpm changeset</code>)</li>
+<li><strong>공개 패키지:</strong> core, dispatch, pinpoint, scheduling, skills</li>
+<li><strong>자동 병합:</strong> "Version Packages" PR → changesets bot 자동 병합</li>
+<li><strong>npm 게시:</strong> OIDC 신뢰 게시 (<code>--provenance</code>)</li>
+<li><strong>최소 릴리스 간격:</strong> 24시간 (core 제외)</li>
+<li><strong>데스크탑:</strong> electron-builder, macOS 코드사이닝 (Apple 인증서)</li>
+</ul>
+<hr />
+<h2 id="6-security-supply-chain">6. 보안 및 공급망 / Security &amp; Supply Chain</h2>
+<h3 id="6-1">6-1. 보안 정책</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td><strong>부재</strong> — 취약점 보고 프로세스 미문서화</td>
+</tr>
+<tr>
+<td>비밀 관리</td>
+<td>Vault/Secrets 시스템 내장 (<code>packages/core/src/secrets/</code>)</td>
+</tr>
+<tr>
+<td>의존성 감사</td>
+<td>pnpm overrides로 보안 패치 강제</td>
+</tr>
+<tr>
+<td>Dependabot/Renovate</td>
+<td><strong>부재</strong> — 수동 의존성 업데이트</td>
+</tr>
+<tr>
+<td>SBOM</td>
+<td>미발견</td>
+</tr>
+<tr>
+<td>아티팩트 서명</td>
+<td>npm <code>--provenance</code> (OIDC) 적용</td>
+</tr>
+</tbody>
+</table>
+<h3 id="6-2-14">6-2. 14개 보안 가드 스크립트</h3>
+<pre><code class="language-bash"># scripts/guard-*.mjs — pnpm guards 로 일괄 실행 (CI 포함)
+guard-no-drizzle-push          # 프로덕션 DB push 방지
+guard-no-unscoped-queries      # 비범위 DB 쿼리 방지
+guard-no-env-credentials       # 하드코딩 자격증명 방지
+guard-no-unscoped-credentials  # 비범위 자격증명 방지
+guard-no-env-mutation          # process.env 변조 방지
+guard-no-localhost-fallback    # localhost 폴백 방지
+guard-db-tool-scoping          # DB 도구 접근 제어
+guard-template-list            # 템플릿 레지스트리 검증
+guard-no-generated-artifacts   # 생성 코드 커밋 방지
+guard-no-action-twin-routes    # 중복 액션 라우트 방지
+guard-i18n-catalogs            # i18n 카탈로그 검증
+guard-plan-marketplace         # 마켓플레이스 동기화 검증
+guard-no-error-string-returns  # 에러 문자열 반환 방지
+guard-google-auth-redirects    # Google OAuth 리다이렉트 검증
+</code></pre>
+<h3 id="6-3-pr">6-3. PR 시각 리캡 보안</h3>
+<ul>
+<li><strong>비밀 스캔:</strong> diff에서 자격증명 패턴 고신뢰 탐지</li>
+<li><strong>자기수정 보호:</strong> <code>skills/</code>, <code>.claude/</code>, <code>AGENTS.md</code> 수정 PR에서 스킵</li>
+<li><strong>포크 보호:</strong> <code>PLAN_RECAP_TOKEN</code> 필수</li>
+<li><strong>봇 필터링:</strong> dependabot/renovate PR 자동 스킵</li>
+</ul>
+<h3 id="6-4">6-4. 데이터 보안</h3>
+<pre><code class="language-typescript">// ownableColumns() — 소유권 강제
+// accessFilter(), resolveAccess(), assertAccess() — 범위 읽기/쓰기 필수
+// Nitro 커스텀 라우트: 요청 컨텍스트 설정 후 소유 데이터 조회
+</code></pre>
+<ul>
+<li>스키마 변경은 추가(additive)만 허용 — 드롭·리네임 금지</li>
+<li>Vault/Secrets: 암호화 저장, 요청 범위 접근</li>
+<li>OAuth 토큰: 별도 관리 (<code>oauth-tokens/</code>)</li>
+<li>감사 로그: 모든 변이 작업 자동 추적</li>
+</ul>
+<h3 id="6-5">6-5. 라이선스</h3>
+<ul>
+<li><strong>주 라이선스:</strong> ISC (BSD-2-Clause 동등)</li>
+<li>상업적 사용·수정·배포 허용</li>
+<li>주요 의존성: MIT (React, Drizzle, Radix UI, shadcn/ui, Tailwind CSS)</li>
+<li>주의: Electron(MIT), better-auth(MIT), Anthropic SDK(MIT) — 상호 호환</li>
+</ul>
+<h3 id="6-6">6-6. 공급망</h3>
+<ul>
+<li><strong>pnpm overrides</strong> — 보안 패치 강제:
+  <code>yaml
+  rollup: "&gt;=4.59.0"
+  multer: "&gt;=2.1.1"
+  undici: "^7.28.0"
+  lodash: "&gt;=4.18.0"
+  node-forge: "&gt;=1.4.0"
+  path-to-regexp: "&gt;=8.4.0"</code></li>
+<li><strong>Dependabot/Renovate 부재</strong> — 의존성 취약점 자동 알림 없음 (위험 요소)</li>
+</ul>
+<hr />
+<h2 id="7-documentation-operational-maturity">7. 문서 및 운영 성숙도 / Documentation &amp; Operational Maturity</h2>
+<h3 id="7-1">7-1. 문서 현황</h3>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>상태</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>✅ 170줄</td>
+<td>목적·철학·기능·퀵스타트·템플릿 목록</td>
+</tr>
+<tr>
+<td>DEVELOPMENT.md</td>
+<td>✅ 151줄</td>
+<td>환경설정·DB 옵션·스크립트·guard 설명</td>
+</tr>
+<tr>
+<td>AGENTS.md (= CLAUDE.md)</td>
+<td>✅ 213줄</td>
+<td>아키텍처 계약·규칙·스킬 인덱스</td>
+</tr>
+<tr>
+<td>.agents/skills/</td>
+<td>✅ 50개+</td>
+<td>영역별 상세 구현 가이드</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td><strong>부재</strong></td>
+<td>기여 프로세스 미문서화</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td><strong>부재</strong></td>
+<td>커뮤니티 행동 강령 없음</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td><strong>부재</strong></td>
+<td>취약점 보고 채널 없음</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td><strong>부재</strong></td>
+<td>설계 결정 기록 없음</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td>앱별 분리</td>
+<td><code>agent-native changelog add</code> 시스템</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-2-pr">7-2. 이슈/PR 시스템</h3>
+<ul>
+<li><strong>PR 템플릿:</strong> 부재 (표준화되지 않음)</li>
+<li><strong>이슈 템플릿:</strong> 부재</li>
+<li><strong>레이블 시스템:</strong> 미확인</li>
+<li><strong>AI PR 리뷰:</strong> <code>pr-visual-recap.yml</code> — Claude 또는 Codex가 모든 PR에 시각 리캡 생성</li>
+</ul>
+<h3 id="7-3">7-3. 커뮤니티 활동</h3>
+<table>
+<thead>
+<tr>
+<th>지표</th>
+<th>현황</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>최근 커밋</td>
+<td><code>6090121 chore: version packages (#1589)</code> — PR #1589</td>
+</tr>
+<tr>
+<td>PR 번호</td>
+<td>#1589 — 활발한 개발 흐름</td>
+</tr>
+<tr>
+<td>Discord</td>
+<td>discord.gg/qm82StQ2NC</td>
+</tr>
+<tr>
+<td>기여자</td>
+<td>다수 (git log 기반)</td>
+</tr>
+<tr>
+<td>브랜치</td>
+<td><code>main</code> 단일 트렁크 개발</td>
+</tr>
+</tbody>
+</table>
+<h3 id="7-4-changelog">7-4. Changelog 시스템</h3>
+<pre><code class="language-bash"># 앱별 사용자 facing 변경 기록
+agent-native changelog add &quot;Added CSV export to analytics dashboard&quot; --type added
+# → changelog/ 에 pending 엔트리 생성
+# → changelog release 로 CHANGELOG.md 롤업
+# → Cmd+K → &quot;What's new&quot; 에 표시
+</code></pre>
+<hr />
+<h2 id="8-strengths">8. 강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>통합 액션 표면 (Unified Action Surface)</strong>
+   <code>defineAction()</code> 하나로 UI·에이전트·HTTP·MCP·A2A·CLI를 모두 커버하는 패턴은 코드 중복을 제거하고 에이전트와 UI가 동일한 비즈니스 로직을 사용함을 보장합니다. 업계에서 드문 수준의 아키텍처 일관성.</p>
+</li>
+<li>
+<p><strong>보안 우선 문화 (Security-First Engineering)</strong>
+   14개 가드 스크립트가 CI에서 실행되어 자격증명 누출, 비범위 쿼리, drizzle-kit push 등을 자동 차단합니다. npm OIDC 신뢰 게시와 PR 비밀 스캔까지 포함한 계층적 보안.</p>
+</li>
+<li>
+<p><strong>최신 기술 스택 (Bleeding-Edge Stack)</strong>
+   TypeScript 6 네이티브 파서, React 19, Vite 8, Tailwind 4, Drizzle ORM — 2026년 기준 가장 최신 패키지만 사용. Rust 기반 oxlint/oxfmt로 빌드 속도도 최적화.</p>
+</li>
+<li>
+<p><strong>AI 기반 개발 워크플로우 (AI-Augmented Developer Experience)</strong>
+   모든 PR에 Claude/Codex가 시각 리캡을 자동 생성하는 <code>pr-visual-recap.yml</code>은 코드 리뷰 품질을 AI로 증폭시키는 혁신적 접근.</p>
+</li>
+<li>
+<p><strong>운영 성숙도 (Operational Maturity)</strong>
+   16개 전문화된 CI 워크플로우, 50개+ 구현 스킬, Neon 프리뷰 브랜치, Changesets 자동화, LLM 평가 테스트, 다중 클라우드 배포 설정 — 스타트업 프로젝트 수준을 넘어선 기업급 운영 체계.</p>
+</li>
+</ol>
+<hr />
+<h2 id="9-risks-areas-for-improvement">9. 위험 및 개선 필요 사항 / Risks &amp; Areas for Improvement</h2>
+<ol>
+<li>
+<p><strong>Dependabot/Renovate 부재</strong>
+   의존성 취약점 자동 알림 도구가 없습니다. 현재 pnpm overrides로 일부 패치를 강제하지만, 신규 CVE에 대한 자동 감지가 없어 보안 취약점이 조용히 누적될 수 있습니다.
+   → <strong>권고:</strong> <code>dependabot.yml</code> 또는 <code>renovate.json</code> 추가</p>
+</li>
+<li>
+<p><strong>SECURITY.md 및 CONTRIBUTING.md 부재</strong>
+   취약점 보고 채널과 기여 가이드라인이 문서화되지 않았습니다. 오픈소스 프로젝트로서 외부 기여자와 보안 연구자를 위한 공식 채널이 필요합니다.
+   → <strong>권고:</strong> <code>SECURITY.md</code> (취약점 신고 이메일/프로세스), <code>CONTRIBUTING.md</code> 추가</p>
+</li>
+<li>
+<p><strong>테스트 커버리지 수치 미공개</strong>
+   Vitest와 Playwright가 설정되어 있지만 코드 커버리지 리포트(<code>@vitest/coverage-v8</code> 설치됨에도)가 CI에서 생성·게시되지 않습니다. 회귀 위험 구간을 파악하기 어렵습니다.
+   → <strong>권고:</strong> CI에 <code>vitest run --coverage</code> + 커버리지 배지 추가</p>
+</li>
+<li>
+<p><strong>모노레포 규모 복잡성</strong>
+   14개 패키지 + 15개 템플릿 = 29개 독립 앱이 단일 저장소에 존재합니다. <code>pnpm-lock.yaml</code>이 40,000줄 이상이며 전체 설치 시간이 길 수 있습니다. 신규 기여자의 진입 장벽이 높습니다.
+   → <strong>권고:</strong> 개발 전용 "slim" 설치 경로 문서화 강화</p>
+</li>
+<li>
+<p><strong>ADR(아키텍처 결정 기록) 부재</strong>
+   <code>drizzle-kit push</code> 프로덕션 방지 사건(2026-04-21)처럼 중요한 설계 결정들이 가드 스크립트 주석이나 AGENTS.md에 분산되어 있습니다. 공식 ADR 시스템이 없어 설계 이유를 추적하기 어렵습니다.
+   → <strong>권고:</strong> <code>docs/adr/</code> 디렉토리 신설, 주요 결정 소급 문서화</p>
+</li>
+</ol>
+<hr />
+<h2 id="10-adoption-recommendation">10. 도입 권고 / Adoption Recommendation</h2>
+<h3 id="_7">기술 도입 관점</h3>
+<p><strong>강력 권고</strong> — Agent-Native는 AI 에이전트와 UI를 진정한 동등 파트너로 만드는 몇 안 되는 프레임워크입니다. 단순한 "AI 채팅 위젯 추가" 수준을 넘어, 에이전트가 앱의 모든 기능을 동일한 코드 경로로 수행하는 아키텍처를 제공합니다.</p>
+<p><strong>도입 적합 시나리오:</strong>
+- AI 에이전트가 UI와 동일한 데이터를 읽고 변경해야 하는 SaaS 제품
+- 빠른 프로토타이핑이 필요한 에이전트 네이티브 스타트업 (15개 템플릿 즉시 클론)
+- Claude Code, Cursor 등 코딩 에이전트에 커스텀 스킬을 연동하려는 팀
+- 멀티 테넌트 워크스페이스 구조가 필요한 B2B SaaS</p>
+<p><strong>주의 사항:</strong>
+- Node 24+ 필수 — 레거시 환경 제약
+- Anthropic Claude API 의존도 높음 (다른 공급자도 지원하나 Claude 중심)
+- Dependabot 부재로 의존성 보안 모니터링 직접 필요
+- 모노레포 전체 이해에 상당한 학습 곡선</p>
+<h3 id="_8">아키텍처 벤치마킹 관점</h3>
+<p><code>defineAction()</code> 패턴 — 단일 정의로 UI·에이전트·HTTP·MCP·CLI를 모두 커버하는 설계 — 은 에이전트 시대의 API 설계 패턴으로 참조할 가치가 높습니다. <code>ownableColumns()</code> 기반 공유 시스템과 SQL-기반 애플리케이션 상태 관리도 벤치마킹 적합합니다.</p>
+<h3 id="_9">보안 리뷰 관점</h3>
+<p><strong>조건부 승인</strong> — 14개 가드 스크립트와 OIDC npm 게시는 우수하나, Dependabot 부재와 SECURITY.md 미작성은 도입 전 해결이 필요합니다. 내부 도입 시 <code>dependabot.yml</code> 추가와 취약점 보고 프로세스 수립을 선행하십시오.</p>
+<h3 id="_10">기여 준비도 관점</h3>
+<p><strong>중급</strong> — 50개 스킬 파일과 AGENTS.md가 상세한 구현 가이드를 제공하지만 CONTRIBUTING.md와 이슈 템플릿이 부재합니다. 기존 PR(#1589 활발)을 참고하거나 Discord를 통한 소통이 현재로서는 기여 진입로입니다.</p>
+<hr />
+<h2 id="key-file-index">부록: 핵심 파일 위치 / Key File Index</h2>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>경로</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>루트 패키지</td>
+<td><code>package.json</code></td>
+</tr>
+<tr>
+<td>워크스페이스 설정</td>
+<td><code>pnpm-workspace.yaml</code></td>
+</tr>
+<tr>
+<td>에이전트 규칙</td>
+<td><code>AGENTS.md</code> (= <code>CLAUDE.md</code> 심링크)</td>
+</tr>
+<tr>
+<td>개발 가이드</td>
+<td><code>DEVELOPMENT.md</code></td>
+</tr>
+<tr>
+<td>핵심 프레임워크</td>
+<td><code>packages/core/src/</code></td>
+</tr>
+<tr>
+<td>액션 정의 예시</td>
+<td><code>templates/chat/actions/hello.ts</code></td>
+</tr>
+<tr>
+<td>DB 스키마 헬퍼</td>
+<td><code>packages/core/src/db/schema.ts</code></td>
+</tr>
+<tr>
+<td>CI 메인</td>
+<td><code>.github/workflows/ci.yml</code></td>
+</tr>
+<tr>
+<td>보안 가드</td>
+<td><code>scripts/guard-*.mjs</code></td>
+</tr>
+<tr>
+<td>린터 설정</td>
+<td><code>.oxlintrc.json</code></td>
+</tr>
+<tr>
+<td>릴리스 설정</td>
+<td><code>.changeset/config.json</code></td>
+</tr>
+<tr>
+<td>Node 버전</td>
+<td><code>.nvmrc</code> (v24.14.0)</td>
+</tr>
+<tr>
+<td>템플릿 목록</td>
+<td><code>packages/shared-app-config/templates.ts</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<p><em>분석일: 2026-06-27 | 분석 대상: /tmp/github-dashboard-analysis/BuilderIO_agent-native | 브랜치: main | 최근 커밋: 6090121</em></p>
+<hr />
+<p>⠀
+🟢 BuilderIO/agent-native 소스 분석 완료 — 단일 프로젝트 8-A 형식으로 한국어·영어 병기 보고서 생성됨 (파일 저장 없이 마크다운 직접 출력)</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>BuilderIO/agent-native</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/BuilderIO/agent-native" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
