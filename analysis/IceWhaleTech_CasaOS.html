@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IceWhaleTech/CasaOS - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/IceWhaleTech/CasaOS" target="_blank" rel="noopener">IceWhaleTech/CasaOS</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">CasaOS - A simple, easy-to-use, elegant open-source Personal Cloud system.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Go</span>
+      <span class="badge badge-stars">★ 35677</span>
+      <span class="badge badge-stars">+502 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 수집된 모든 정보를 바탕으로 최종 보고서를 작성합니다.</p>
+<hr />
+<h1 id="casaos">CasaOS 소스 코드 분석 보고서</h1>
+<p><strong>분석일:</strong> 2026-06-28
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/IceWhaleTech_CasaOS</code>
+<strong>출력 파일:</strong> <code>.review/REVIEW-Source.md</code> (지시에 따라 마크다운 직접 출력)</p>
+<hr />
+<h2 id="_1">항목별 분석 요약</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>가정/소규모 사용자를 위한 자체 호스팅 퍼스널 클라우드 OS. Docker 앱 원클릭 설치, 파일 관리, 스토리지 관리, NAS 기능, DDNS, Samba 공유, 클라우드 드라이브 마운트를 제공하는 홈 서버 플랫폼. 대상 사용자는 기술 지식이 부족한 일반 가정 사용자.</td>
+<td>★★★★☆ — 명확한 목적과 실사용 수요가 있음</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 Go 모노레포. <code>main.go</code> (진입점), <code>route/</code> (v1·v2·v3 HTTP 라우터), <code>service/</code> (비즈니스 로직), <code>model/</code> (데이터 모델), <code>pkg/</code> (공유 유틸리티), <code>internal/</code> (내부 드라이버 추상화), <code>drivers/</code> (Google Drive·OneDrive·Dropbox), <code>common/</code> (상수), <code>build/</code> (systemd 유닛·셸 스크립트·설정 샘플), <code>cmd/</code> (마이그레이션 툴). 코드와 운영 자산이 <code>build/</code> 아래 분리됨.</td>
+<td>★★★☆☆ — 구조적으로 합리적이나 v1 라우터에 비대한 핸들러 몰림</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Go 1.21, Echo v4 (HTTP 프레임워크), GORM + SQLite (embedded), Redis (선택적 캐시), gorilla/websocket + go-socket.io (실시간 통신), rclone(HTTP API 래퍼로 스토리지 마운트), Samba (smb2 Go 라이브러리), gopsutil (시스템 메트릭), goreleaser (릴리스 자동화), GitHub Actions (CI/CD). 프론트엔드는 서브모듈(별도 레포)로 분리되며 빌드 시 포함. TypeScript+Axios OpenAPI SDK는 npm 패키지로 별도 배포.</td>
+<td>★★★★☆ — 성숙한 Go 생태계 활용, 의존성 관리 명확</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>main.go</code> — CLI 플래그 파싱(<code>-c</code>, <code>-db</code>, <code>-v</code>) → 설정 로드 → SQLite DB 초기화 → 서비스 레지스트리(<code>service.NewService</code>) 생성 → v1/v2/v3 멀티플렉서 구성 → 랜덤 포트에 TCP 리스너 바인딩 후 게이트웨이(casaos-gateway 서비스)에 라우트 등록 → systemd <code>sd_notify(READY)</code>. 마이그레이션 툴은 <code>cmd/migration-tool/</code>에 독립 바이너리.</td>
+<td>★★★★☆ — 게이트웨이 위임 아키텍처로 포트 관리 분리됨</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>마이크로서비스형 단일 바이너리(내부 <code>Repository</code> 인터페이스로 서비스 경계 추상화). 외부 게이트웨이(<code>casaos-gateway</code>) + 메시지 버스(<code>casaos-message-bus</code>)와 IPC 통신(Unix socket URL 파일 기반). 계층: 라우터(presentation) → 서비스(business logic) → 모델/pkg(data access). 스토리지 드라이버는 <code>internal/driver</code> 인터페이스로 플러그인화. 이벤트 버스로 컴포넌트 간 느슨한 결합. 실시간 하드웨어 상태는 WebSocket/Socket.IO로 push.</td>
+<td>★★★★☆ — 분산 마이크로서비스 설계를 채택했으나 일부 서비스는 여전히 단단히 결합됨</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>SQLite(glebarez 순수 Go 드라이버) — 연결 정보, 공유, 피어 등. Redis(선택적) — 캐시 레이어. 런타임 상태는 INI 설정 파일(<code>casaos.conf</code>) + JSON 파일(<code>baseinfo.conf</code>). 클라우드 스토리지 설정은 rclone 설정 파일로 위임. GORM ORM 사용.</td>
+<td>★★★☆☆ — SQLite는 홈 서버에 적합하나 GORM 마이그레이션 전략 명시 없음</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>systemd 서비스(<code>casaos.service</code>, <code>Type=notify</code>). goreleaser로 amd64·arm64·armv7·riscv64 크로스 컴파일 및 패키징. UPX 바이너리 압축 적용(amd64·armv7). 태그 푸시 → GitHub Actions → 재사용 가능한 워크플로(<code>IceWhaleTech/github</code>)로 릴리스 자동화. 테스트 서버 자동 배포 워크플로 별도 존재(ZeroTier VPN 경유 SCP). Docker 컨테이너 자체 배포는 없음(Docker 위에서 동작하는 앱을 관리하는 플랫폼).</td>
+<td>★★★★☆ — 다중 아키텍처 지원과 자동화 릴리스 파이프라인 체계적</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>테스트 파일 8개(서비스·유틸·라우터 일부). <code>go test -race -failfast</code>로 데이터 레이스 검출. Codecov 통합(커버리지 배지 존재). goreleaser 전처리 훅에서 전체 테스트 실행. 단위 테스트 위주이며 통합·E2E 테스트 프레임워크 미존재. <code>go.uber.org/goleak</code>으로 고루틴 누수 검출.</td>
+<td>★★☆☆☆ — 커버리지 낮음, 핵심 비즈니스 로직(파일·스토리지)의 테스트 부족</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 존재(이메일 보고 채널 명시). JWT(ECDSA) 기반 인증, 로컬호스트(<code>127.0.0.1</code>, <code>::1</code>)는 인증 우회. CORS <code>AllowOrigins: ["*"]</code> + <code>AllowCredentials: true</code> 조합(보안 취약). OpenAPI 스키마 유효성 검사 미들웨어 적용(multipart 업로드 제외). goreleaser 전처리에서 <code>go-licenses</code> 라이선스 체크 실행. 의존성 자동 업데이트 도구(Dependabot·Renovate) 미구성. SBOM/코사인(cosign) 서명 없음.</td>
+<td>★★☆☆☆ — 로컬호스트 인증 우회·CORS 설정이 핵심 보안 위험</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 0.4.15, 시맨틱 버저닝 준수, CHANGELOG 관리. 15명 컨트리뷰터(all-contributors). GitHub Discussions·Discord 커뮤니티 운영. 이슈/PR 템플릿 및 프로젝트 자동화 워크플로 존재. CODE_OF_CONDUCT.md 존재. CONTRIBUTING.md 미존재(위키로 위임). ADR(Architecture Decision Record) 없음. 스냅샷 이미지(다크/라이트/모바일) 포함한 README 품질 양호.</td>
+<td>★★★☆☆ — 활성 커뮤니티 프로젝트이나 아직 v1.0 미달성</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1">1. 강점</h2>
+<p><strong>① 명확한 마이크로서비스 경계 추상화</strong>
+<code>service.Repository</code> 인터페이스를 통해 모든 서비스 의존성을 단일 지점(<code>service.NewService</code>)에서 주입한다. 이는 테스트 더블 교체와 기능 확장에 유리하며, 외부 서비스(게이트웨이, 메시지 버스)와의 통신도 인터페이스로 추상화되어 있다(<code>external.ManagementService</code>).</p>
+<p><strong>② 광범위한 하드웨어 아키텍처 지원</strong>
+goreleaser + 크로스 컴파일로 amd64·arm64·armv7·riscv64 네 가지 아키텍처를 단일 파이프라인에서 동시 빌드한다. UPX 압축으로 임베디드 환경의 용량 제약도 대응한다. 홈 서버 플랫폼으로서 하드웨어 다양성에 실질적으로 대응하는 드문 사례다.</p>
+<p><strong>③ OpenAPI 코드 생성 기반 API 계약 관리</strong>
+<code>oapi-codegen</code>으로 OpenAPI 스펙에서 서버 핸들러 인터페이스와 검증 미들웨어를 자동 생성하고, TypeScript+Axios SDK를 npm으로 배포한다. API 계약이 단일 진실 공급원(openapi.yaml)에서 관리되어 클라이언트/서버 불일치를 구조적으로 방지한다.</p>
+<p><strong>④ 이벤트 버스를 통한 느슨한 컴포넌트 결합</strong>
+<code>casaos-message-bus</code>를 통해 이벤트 타입을 등록하고 발행하는 방식으로 컴포넌트 간 직접 의존성을 줄인다. 메시지 버스가 실패해도 패닉을 회피하고 gracefully 동작하도록 설계되어 있다(소프트 의존성).</p>
+<p><strong>⑤ 릴리스 파이프라인의 라이선스 컴플라이언스 자동화</strong>
+goreleaser 전처리 훅에서 <code>go run github.com/google/go-licenses@latest check . --disallowed_types=restricted</code>를 실행하여 제한적 라이선스 의존성을 릴리스 단계에서 차단한다. 오픈소스 프로젝트로서 공급망 라이선스 관리의 모범 사례다.</p>
+<hr />
+<h2 id="2">2. 위험 / 개선 필요 사항</h2>
+<p><strong>① CORS 와일드카드 + AllowCredentials 조합 (심각)</strong>
+<code>route/v1.go:21</code>, <code>route/v2.go:59</code>에서 <code>AllowOrigins: ["*"]</code>와 <code>AllowCredentials: true</code>를 동시에 설정한다. 이는 CORS 스펙상 브라우저가 차단해야 하지만, 일부 구현 환경에서 CSRF 공격 벡터가 될 수 있다. 로컬 네트워크 서비스이지만 악의적인 웹페이지가 내부 네트워크 주소로 요청을 보내는 시나리오(DNS rebinding)에서 위험하다. <code>AllowOrigins</code>를 특정 도메인으로 제한하거나 <code>AllowCredentials: false</code>로 변경해야 한다.</p>
+<p><strong>② 로컬호스트 JWT 인증 완전 우회 (중간)</strong>
+<code>route/v2.go:72-74</code>, <code>route/v1.go:45-47</code>에서 <code>c.RealIP() == "127.0.0.1"</code> 조건으로 JWT 검증을 완전히 건너뛴다. 동일 호스트의 다른 프로세스(컨테이너 내부 앱 포함)가 인증 없이 모든 API에 접근 가능하다. 이는 Docker 앱을 실행하는 플랫폼 특성상 컨테이너 탈출 후 권한 상승 경로가 될 수 있다.</p>
+<p><strong>③ 테스트 커버리지 매우 낮음 (중간)</strong>
+8개 테스트 파일이 존재하지만 핵심 비즈니스 로직인 <code>service/system.go</code>, <code>service/file.go</code>, <code>service/storage.go</code> 등의 주요 경로에 대한 테스트가 거의 없다. 통합 테스트와 E2E 테스트가 없어 릴리스 품질을 수동 QA에 의존한다. Codecov 배지가 있지만 실제 커버리지 수치가 낮을 것으로 추정된다.</p>
+<p><strong>④ 의존성 자동 업데이트 미구성 (낮음)</strong>
+<code>.github/</code> 디렉터리에 Dependabot이나 Renovate 설정이 없다. <code>go.mod</code>에 다수의 의존성이 있으나 보안 취약점 발생 시 자동 알림·PR 생성이 되지 않는다. 특히 <code>golang.org/x/crypto</code>, <code>github.com/labstack/echo</code>와 같은 네트워크 스택 라이브러리는 취약점 감시가 중요하다.</p>
+<p><strong>⑤ 아키텍처 문서 및 ADR 부재 (낮음)</strong>
+마이크로서비스 분할(gateway, message-bus, app-management, user 등 별도 레포) 결정, rclone HTTP API 위임 방식, SQLite 선택 등 핵심 아키텍처 결정의 근거가 코드베이스 내에 문서화되지 않았다. DEVELOPING.md는 개발 환경 설정에 그치며, 컨트리뷰터가 전체 시스템을 이해하려면 여러 레포를 탐색해야 한다.</p>
+<hr />
+<h2 id="3">3. 도입 권고</h2>
+<p><strong>기술 도입 관점:</strong> CasaOS는 홈/소규모 사무소 환경의 자체 호스팅 서버 관리 플랫폼으로, Docker 생태계를 기반으로 하는 앱 마켓플레이스·파일 관리·스토리지 통합을 원하는 조직에 적합하다. 단, <strong>v1.0 미달성 상태</strong>이므로 프로덕션 중요 데이터 저장소로 직접 사용은 권장하지 않는다.</p>
+<p><strong>아키텍처 벤치마킹 관점:</strong> Go + Echo + OpenAPI 코드 생성 + goreleaser 조합은 임베디드 Linux 플랫폼 서비스 개발의 참조 아키텍처로 적합하다. 마이크로서비스 간 인터페이스 추상화와 이벤트 버스 설계는 학습 참고 가치가 있다.</p>
+<p><strong>보안 검토 관점:</strong> CORS 와일드카드 + AllowCredentials 조합과 로컬호스트 JWT 우회는 <strong>로컬 네트워크에서만 동작한다는 전제</strong>에 기반한 설계로, 이 전제가 깨지는 시나리오(DNS rebinding, 컨테이너 환경)에서 공격 표면이 된다. 보안 민감 환경에 도입 시 이 두 항목을 반드시 수정 후 적용해야 한다.</p>
+<p><strong>기여 준비 관점:</strong> 이슈 템플릿, Discord 커뮤니티, all-contributors 체계가 갖춰져 있어 기여 시작 장벽은 낮다. 그러나 ADR 부재와 분산된 마이크로서비스 레포 구조로 인해 전체 시스템 이해에 상당한 시간이 필요하다. 단일 레포 내 변경만으로도 기여 가능한 영역(테스트 커버리지 향상, 문서화, 드라이버 추가)부터 시작을 권장한다.</p>
+<hr />
+<h2 id="_2">부록: 기술 스택 요약</h2>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Go 1.21</td>
+</tr>
+<tr>
+<td>HTTP 프레임워크</td>
+<td>Echo v4</td>
+</tr>
+<tr>
+<td>ORM</td>
+<td>GORM v1.25</td>
+</tr>
+<tr>
+<td>데이터베이스</td>
+<td>SQLite (glebarez 순수 Go 드라이버)</td>
+</tr>
+<tr>
+<td>캐시</td>
+<td>Redis (선택적, go-cache 인메모리도 병행)</td>
+</tr>
+<tr>
+<td>실시간 통신</td>
+<td>WebSocket (gorilla), Socket.IO (go-socket.io)</td>
+</tr>
+<tr>
+<td>인증</td>
+<td>JWT ECDSA (CasaOS-Common 공유 라이브러리)</td>
+</tr>
+<tr>
+<td>클라우드 드라이버</td>
+<td>Google Drive, OneDrive, Dropbox (자체 OAuth2 구현)</td>
+</tr>
+<tr>
+<td>파일 시스템</td>
+<td>SMB2 (go-smb2), rclone HTTP API, FUSE 마운트</td>
+</tr>
+<tr>
+<td>릴리스</td>
+<td>goreleaser, GitHub Actions, UPX</td>
+</tr>
+<tr>
+<td>배포 단위</td>
+<td>systemd 서비스, 바이너리 패키지 (tar.gz)</td>
+</tr>
+<tr>
+<td>API 명세</td>
+<td>OpenAPI 3.0 (oapi-codegen 코드 생성)</td>
+</tr>
+<tr>
+<td>SDK</td>
+<td>TypeScript+Axios (npm: @icewhale/casaos-openapi)</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td>Apache License 2.0</td>
+</tr>
+</tbody>
+</table></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>IceWhaleTech/CasaOS</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/IceWhaleTech/CasaOS" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
