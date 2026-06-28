@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-28 02:00:09 KST",
+  "generated_at": "2026-06-29 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 2,
+  "total_targets": 1,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,8 +17,8 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 2,
-      "skipped_existing_analysis": 3,
+      "selected": 1,
+      "skipped_existing_analysis": 4,
       "skipped_duplicate": 0
     },
     "weekly": {
@@ -36,30 +36,16 @@
   },
   "targets": [
     {
-      "rank": 4,
-      "name": "CasaOS",
-      "full_name": "IceWhaleTech/CasaOS",
-      "owner": "IceWhaleTech",
-      "description": "CasaOS - A simple, easy-to-use, elegant open-source Personal Cloud system.",
-      "url": "https://github.com/IceWhaleTech/CasaOS",
-      "stars": 35677,
-      "forks": 2041,
-      "language": "Go",
-      "stars_gained": "502 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
       "rank": 5,
-      "name": "free-for-dev",
-      "full_name": "ripienaar/free-for-dev",
-      "owner": "ripienaar",
-      "description": "A list of SaaS, PaaS and IaaS offerings that have free tiers of interest to devops and infradev",
-      "url": "https://github.com/ripienaar/free-for-dev",
-      "stars": 124052,
-      "forks": 13072,
-      "language": "HTML",
-      "stars_gained": "459 stars today",
+      "name": "lingbot-map",
+      "full_name": "Robbyant/lingbot-map",
+      "owner": "Robbyant",
+      "description": "A feed-forward 3D foundation model for reconstructing scenes from streaming data",
+      "url": "https://github.com/Robbyant/lingbot-map",
+      "stars": 8094,
+      "forks": 794,
+      "language": "Python",
+      "stars_gained": "372 stars today",
       "topics": [],
       "period": "daily"
     }
