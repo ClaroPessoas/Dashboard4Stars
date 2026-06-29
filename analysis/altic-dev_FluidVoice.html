@@ -1,0 +1,547 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>altic-dev/FluidVoice - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/altic-dev/FluidVoice" target="_blank" rel="noopener">altic-dev/FluidVoice</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">FluidVoice - Fastest macOS Offline Dictation app - Voice to Text fully Local. One ⭐ takes us a long way :))</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Swift</span>
+      <span class="badge badge-stars">★ 4236</span>
+      <span class="badge badge-stars">+836 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 최종 보고서를 작성하겠습니다.</p>
+<hr />
+<p>분석일: 2026-06-30
+분석 대상: <code>/tmp/github-dashboard-analysis/altic-dev_FluidVoice</code></p>
+<hr />
+<h1 id="fluidvoice-review-sourcemd">FluidVoice — 소스 코드 분석 보고서 (REVIEW-Source.md)</h1>
+<h2 id="project-overview">프로젝트 개요 / Project Overview</h2>
+<p><strong>FluidVoice</strong> is an open-source macOS voice-to-text dictation application built natively in Swift/SwiftUI. It supports multiple on-device and cloud-based speech recognition engines, optional AI post-processing, a voice-controlled Command Mode, and a Write Mode for inline text rewriting—all with a privacy-first, local-first design philosophy.</p>
+<hr />
+<h2 id="structured-summary-table">구조화 요약 테이블 / Structured Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>macOS용 오픈소스 음성-텍스트 받아쓰기 앱. Parakeet, Whisper, Nemotron, Cohere, Apple Speech 등 다중 모델 지원. AI 후처리 및 명령 모드 포함.</td>
+<td>✅ 명확하고 잘 정의된 단일 제품 목적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 Swift Package + Xcode 프로젝트. <code>Sources/Fluid/</code> 아래 <code>Analytics/</code>, <code>Models/</code>, <code>Networking/</code>, <code>Persistence/</code>, <code>Services/</code>, <code>Theme/</code>, <code>UI/</code>, <code>Views/</code> 로 기능별 분리.</td>
+<td>✅ 기능 지향 구조, 명확한 레이어 분리</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Swift 5.9+, SwiftUI + AppKit, macOS 15.0 이상, Swift Package Manager, 6개 외부 의존성</td>
+<td>✅ 현대적 Apple 네이티브 스택, 최소 의존성</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>@main FluidApp</code> (<code>fluidApp.swift</code>), <code>AppDelegate</code> (<code>AppDelegate.swift</code>) — 앱 부트스트랩, 서비스 초기화, 업데이트 체크 처리</td>
+<td>✅ 표준 SwiftUI App lifecycle + NSApplicationDelegate</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>서비스 싱글톤 패턴 (<code>AppServices.shared</code>, <code>ASRService</code>, <code>LLMClient</code>), @MainActor 기반 concurrency, Combine 퍼블리셔, Strategy 패턴(TranscriptionProvider), 로컬 REST API 서버 내장</td>
+<td>✅ Swift concurrency 적극 활용, actor 격리 명확</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td><code>UserDefaults</code> (설정 영속화), macOS Keychain (API 키), 로컬 파일시스템 (모델 캐시, 오디오 기록), HuggingFace 원격 모델 다운로드</td>
+<td>✅ 외부 DB 없음, 로컬 우선 정책 일관</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Homebrew Cask(<code>fluidvoice</code>), GitHub Releases 수동 다운로드, GitHub Actions CI (<code>build.yml</code>) — 빌드/테스트/SwiftLint 자동화</td>
+<td>✅ 표준 macOS 앱 배포, CI 완비</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>XCTest 통합/E2E 테스트 (<code>FluidDictationIntegrationTests</code>) — 사전처리, dictionary transfer, updater, HTML 검출 등 약 30개 케이스; Whisper Tiny 실제 모델 E2E 테스트 포함</td>
+<td>⚠️ 유닛 테스트 분리 없음, UI 자동화 미완(계획만 존재)</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>Keychain으로 API 키 관리, 로컬 API 서버는 loopback-only 접속 제한, 모델 다운로드 HTML injection 탐지, <code>cs.disable-library-validation</code> 엔타이틀먼트 사용</td>
+<td>⚠️ SECURITY.md 없음, 라이브러리 검증 비활성화 주목</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>버전 1.6.x, GPLv3 라이선스(2026-02-23 이후), SwiftLint/SwiftFormat 설정 완비, PR 템플릿 및 이슈 템플릿, Discord/X 커뮤니티, PostHog 익명 분석, Homebrew 배포</td>
+<td>✅ 활성 프로젝트, 커뮤니티 인프라 구축됨</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-1-purpose-and-scope">Step 1. 목적 및 범위 / Purpose and Scope</h2>
+<p><strong>[한국어]</strong> FluidVoice는 macOS(Sequoia 15.0+)용 오픈소스 음성-텍스트 받아쓰기 애플리케이션이다. 주요 문제 해결:
+- 클라우드 의존 없는 온디바이스 고품질 음성 인식 (Apple Silicon 기반 Parakeet, Nemotron, CoreML 모델 활용)
+- 음성으로 맥 시스템 제어(Command Mode), 모든 앱 텍스트 필드에 직접 텍스트 입력(Write Mode)
+- 선택적 AI 후처리(OpenAI, Groq, Anthropic, Gemini, Ollama 등) 또는 완전 로컬 "Fluid Intelligence"</p>
+<p><strong>대상 사용자:</strong> 개인 사용자, 작가, 개발자, 접근성 필요 사용자 등 macOS에서 효율적으로 타이핑 대신 말하길 선호하는 사람들.</p>
+<p><strong>분류:</strong> 네이티브 macOS 애플리케이션 (오픈소스 핵심, 비공개 Fluid Intelligence AI 런타임 별도).</p>
+<p><strong>[English]</strong> FluidVoice is a native macOS dictation app that prioritizes on-device processing. The open-source repository contains the full dictation engine, all UI, analytics, and a built-in local HTTP API server. "Fluid Intelligence" (the private LLM runtime) is intentionally excluded from the public repo to sustain free development.</p>
+<hr />
+<h2 id="step-2-repository-structure-analysis">Step 2. 저장소 구조 분석 / Repository Structure Analysis</h2>
+<pre><code>altic-dev_FluidVoice/
+├── Sources/Fluid/          # 전체 앱 소스 (125 Swift 파일, ~64,000 LOC)
+│   ├── Analytics/          # PostHog 기반 익명 분석 파이프라인
+│   ├── Models/             # 도메인 모델 (HotkeyShortcut 등)
+│   ├── Networking/         # AI 프로바이더, 모델 다운로더
+│   ├── Persistence/        # SettingsStore (UserDefaults), KeychainService, 히스토리 저장소
+│   ├── Services/           # ASRService, LLMClient, CommandModeService 등 핵심 서비스
+│   │   └── LocalAPI/       # 로컬 HTTP API 서버 (127.0.0.1 only)
+│   ├── Theme/              # 테마 시스템, 컴포넌트
+│   ├── UI/                 # SwiftUI 화면 뷰들
+│   ├── Views/              # 오버레이 뷰들 (BottomOverlay, NotchContent, CommandMode, RewriteMode)
+│   ├── Resources/          # 오디오 사운드 파일, 기본 어휘 JSON
+│   └── Assets.xcassets/    # 앱 아이콘, 프로바이더 로고
+├── Tests/
+│   └── FluidDictationIntegrationTests/  # XCTest 통합 테스트
+├── Fluid.xcodeproj/        # Xcode 프로젝트
+├── Package.swift           # SPM 패키지 정의 (6개 외부 의존성)
+├── Package.resolved        # 의존성 버전 고정 파일
+├── Fluid.entitlements      # macOS 앱 엔타이틀먼트
+├── .github/workflows/      # GitHub Actions CI (build.yml)
+├── .swiftlint.yml          # SwiftLint 규칙
+├── .swiftformat            # SwiftFormat 규칙
+├── build.sh                # 빌드 프로파일 라우터 (private FI 빌드용)
+├── docs/                   # 브랜치 계획 문서
+└── scripts/                # pre-commit hook, format/lint 스크립트
+</code></pre>
+<p><strong>특징:</strong>
+- 단일 저장소(monorepo 아님), 단일 앱 타깃
+- 코드와 운영 자산(빌드 스크립트, 스크립트) 분리됨
+- 구조는 <strong>기능 지향(feature-oriented)</strong>: Services, Persistence, UI, Analytics 등으로 명확히 구분
+- <code>build.sh</code>는 private Fluid Intelligence 빌드에만 연결—OSS 빌드 엔트리포인트로서 불완전</p>
+<hr />
+<h2 id="step-3-software-stack">Step 3. 소프트웨어 스택 / Software Stack</h2>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>세부 내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Swift 5.9+ (<code>swift-tools-version: 5.9</code>)</td>
+</tr>
+<tr>
+<td><strong>빌드 도구</strong></td>
+<td>Xcode (Xcode Project + Swift Package Manager)</td>
+</tr>
+<tr>
+<td><strong>패키지 매니저</strong></td>
+<td>Swift Package Manager (Package.swift)</td>
+</tr>
+<tr>
+<td><strong>UI 프레임워크</strong></td>
+<td>SwiftUI (primary) + AppKit (NSApplication, NSWindow, AVFoundation)</td>
+</tr>
+<tr>
+<td><strong>런타임</strong></td>
+<td>macOS 15.0 (Sequoia) 이상, Apple Silicon 최적화 (일부 Intel 지원)</td>
+</tr>
+<tr>
+<td><strong>주요 외부 의존성</strong></td>
+<td></td>
+</tr>
+<tr>
+<td>- AppUpdater 1.1.1</td>
+<td>GitHub Releases 기반 자동 업데이트</td>
+</tr>
+<tr>
+<td>- FluidAudio (branch)</td>
+<td>NVIDIA Parakeet / Cohere CoreML ASR 엔진 (자체 포크)</td>
+</tr>
+<tr>
+<td>- PromiseKit 6.22.1</td>
+<td>비동기 업데이트 체크</td>
+</tr>
+<tr>
+<td>- DynamicNotchKit (branch)</td>
+<td>MacBook 노치 오버레이 UI</td>
+</tr>
+<tr>
+<td>- SwiftWhisper (master)</td>
+<td>OpenAI Whisper 바인딩</td>
+</tr>
+<tr>
+<td>- PostHog iOS 3.41.1</td>
+<td>익명 분석</td>
+</tr>
+<tr>
+<td><strong>추이 의존성</strong></td>
+<td>swift-transformers 1.1.6, swift-jinja 2.3.1, swift-collections 1.3.0 (HuggingFace 트랜스포머 파이프라인)</td>
+</tr>
+<tr>
+<td><strong>AI/ML 런타임</strong></td>
+<td>Apple CoreML, Core Audio (AVAudioEngine)</td>
+</tr>
+<tr>
+<td><strong>데이터 저장소</strong></td>
+<td>UserDefaults, Keychain, 로컬 파일시스템</td>
+</tr>
+<tr>
+<td><strong>분석</strong></td>
+<td>PostHog (익명, opt-out 가능)</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>Homebrew Cask, GitHub Releases (앱 번들 직접 다운로드)</td>
+</tr>
+<tr>
+<td><strong>CI</strong></td>
+<td>GitHub Actions (macOS runner)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주목할 점:</strong> <code>FluidAudio</code>와 <code>DynamicNotchKit</code>은 브랜치 핀으로 고정 — 안정적인 릴리스 버전이 아닌 브랜치 해시로 관리되어 재현성 위험이 있다.</p>
+<hr />
+<h2 id="step-4-architecture-analysis">Step 4. 아키텍처 분석 / Architecture Analysis</h2>
+<h3 id="_1">진입점</h3>
+<ul>
+<li><code>@main FluidApp</code> (fluidApp.swift:13) — SwiftUI 라이프사이클</li>
+<li><code>AppDelegate</code> — NSApplicationDelegate, 업데이트 체크, LocalAPIServer 시작, 분석 부트스트랩</li>
+</ul>
+<h3 id="_2">아키텍처 패턴</h3>
+<p><strong>서비스 컨테이너 패턴:</strong> <code>AppServices.shared</code>가 <code>ASRService</code>, <code>AudioHardwareObserver</code> 등 무거운 서비스를 지연 초기화로 보유. UI 준비 신호(<code>signalUIReady()</code>) 후에만 서비스 활성화 — EXC_BAD_ACCESS 런치 크래시 방지를 위한 방어적 전략이 코드 전반에 상세히 문서화됨.</p>
+<p><strong>Strategy 패턴 (TranscriptionProvider):</strong> <code>TranscriptionProvider</code> 프로토콜을 구현하는 <code>FluidAudioProvider</code>, <code>WhisperProvider</code>, <code>NemotronProvider</code>, <code>AppleSpeechProvider</code>, <code>ExternalCoreMLTranscriptionProvider</code> 등이 런타임 교체 가능.</p>
+<p><strong>Actor 기반 동시성:</strong> <code>@MainActor</code>로 UI 상태 보호, <code>TranscriptionExecutor</code> actor로 CoreML 순차 직렬화 (동시 접근 방지).</p>
+<p><strong>로컬 API 서버:</strong> <code>LocalAPIServer</code> (NWListener 기반, loopback-only)가 외부 툴(n8n, Raycast 등)과 음성 인식/딕셔너리 API를 HTTP로 제공.</p>
+<p><strong>LLM 통합 레이어:</strong> <code>LLMClient</code>가 OpenAI Chat Completions API, Responses API(o1/o3/gpt-5), SSE 스트리밍, thinking 토큰 추출, tool calls를 단일 인터페이스로 추상화.</p>
+<h3 id="_3">레이어 구조</h3>
+<pre><code>Presentation (SwiftUI Views/UI) 
+    ↓
+AppServices / AppNavigationRouter
+    ↓
+Services (ASRService, LLMClient, CommandModeService, RewriteModeService)
+    ↓
+Providers (TranscriptionProvider implementations)
+    ↓  
+Persistence (SettingsStore, KeychainService, HistoryStore)
+    ↓
+Platform (AVFoundation, CoreML, Keychain, Network.framework)
+</code></pre>
+<h3 id="_4">주요 특징</h3>
+<ul>
+<li><code>SettingsStore</code>가 4,765 LOC의 거대한 <code>UserDefaults</code> 래퍼로, 사실상 앱 전체 상태 관리 역할을 함</li>
+<li><code>ContentView.swift</code>가 4,178 LOC — 뷰 로직이 과도하게 집중됨</li>
+<li><code>ASRService.swift</code>가 3,326 LOC — 단일 책임 원칙 위반 경계에 근접</li>
+<li>Combine <code>PassthroughSubject</code>로 오디오 레벨 퍼블리셔 구현</li>
+</ul>
+<hr />
+<h2 id="step-5-quality-and-test-system">Step 5. 품질 및 테스트 / Quality and Test System</h2>
+<h3 id="_5">테스트 구조</h3>
+<ul>
+<li><strong>통합/E2E 테스트:</strong> <code>Tests/FluidDictationIntegrationTests/</code> — 약 30개 <code>XCTest</code> 케이스</li>
+<li><strong>Whisper 실제 모델 E2E:</strong> <code>testDictationEndToEnd_whisperTiny_transcribesFixture()</code> — CI 환경에서 실제 오디오 피처 파일(<code>dictation_fixture.wav</code>)로 모델 다운로드 후 전사 검증</li>
+<li><strong>Dictionary/Settings 테스트:</strong> SettingsStore 마이그레이션, 프롬프트 라우팅, 업데이터 로직, HTML 인젝션 탐지 등 비즈니스 로직 집중</li>
+</ul>
+<h3 id="_6">미비 사항</h3>
+<ul>
+<li><strong>유닛 테스트 타깃 부재:</strong> 별도 순수 유닛 테스트 없음 (목 없는 통합 테스트 중심)</li>
+<li><strong>UI 자동화 미완:</strong> <code>docs/MACOS_UI_AUTOMATION_BRANCH_PLAN.md</code>에 XCUITest 4단계 계획이 문서화되어 있으나 아직 미구현</li>
+<li><strong>코드 커버리지 측정 없음:</strong> CI 파이프라인에 커버리지 리포트 단계 없음</li>
+</ul>
+<h3 id="cicd">CI/CD</h3>
+<ul>
+<li>GitHub Actions (<code>build.yml</code>): PR/push on main → SwiftLint strict → Xcode clean build (arm64) → XCTest 실행</li>
+<li>Whisper 모델 GitHub Actions Cache로 CI 속도 최적화</li>
+<li>Homebrew Cask를 통한 배포 (<code>brew install --cask fluidvoice</code>)</li>
+<li>수동 업데이트 채널 + 선택적 Beta 채널</li>
+</ul>
+<h3 id="_7">코드 품질 도구</h3>
+<ul>
+<li><strong>SwiftLint 1.72개 규칙:</strong> <code>force_unwrapping</code>, <code>sorted_imports</code>, <code>discouraged_optional_collection</code> 등 opt-in 규칙, <code>cyclomatic_complexity</code> 임계값 설정 (warning: 80), 커스텀 규칙으로 <code>NSLog</code> 금지 및 <code>// MARK: -</code> 형식 강제</li>
+<li><strong>SwiftFormat:</strong> <code>.swiftformat</code> 설정 파일 존재</li>
+<li><code>scripts/format-and-lint.sh</code> 로컬 실행용 스크립트 제공</li>
+</ul>
+<hr />
+<h2 id="step-6-security-and-supply-chain">Step 6. 보안 및 공급망 / Security and Supply Chain</h2>
+<h3 id="_8">보안 정책</h3>
+<ul>
+<li><strong>SECURITY.md 부재</strong> — 취약점 보고 채널 미정의</li>
+<li><strong>Keychain 활용:</strong> API 키는 macOS Keychain에 저장 (<code>com.fluidvoice.provider-api-keys</code>) — 평문 저장 없음</li>
+<li><strong>로컬 API 서버 보안:</strong> loopback-only 접속 강제 (<code>isLoopback()</code> 검사)</li>
+<li><strong>모델 다운로드 보안:</strong> HTML/proxy page injection 탐지 (<code>HuggingFaceModelDownloader.looksLikeHTML()</code>, <code>cachedFileIsMarkup()</code>) — 테스트도 완비됨</li>
+<li><strong>LLMClient:</strong> API 키를 Authorization 헤더에만 전달, 디버그 로그에서 <code>[REDACTED]</code> 처리</li>
+</ul>
+<h3 id="_9">엔타이틀먼트 주의사항</h3>
+<pre><code class="language-xml">&lt;key&gt;com.apple.security.cs.disable-library-validation&lt;/key&gt;
+&lt;true/&gt;
+</code></pre>
+<p><strong>라이브러리 검증 비활성화</strong> — Fluid Intelligence 같은 비서명 동적 라이브러리를 로드하기 위한 것으로 추정되나, 악성 dylib 인젝션 취약성을 높임. Apple 보안 리뷰에서 지적될 수 있음.</p>
+<h3 id="_10">의존성 관리</h3>
+<ul>
+<li><strong>Dependabot/Renovate 없음</strong> — 자동화된 의존성 취약점 스캔 없음</li>
+<li><strong>SBOM 없음</strong> — 아티팩트 서명 없음</li>
+<li><strong>브랜치 핀 위험:</strong> <code>FluidAudio</code>(B/cohere-coreml-asr), <code>DynamicNotchKit</code>(main), <code>SwiftWhisper</code>(master) 브랜치가 버전 고정 없이 <code>revision</code> 해시만으로 관리 — 업스트림 변경 시 재현성 저하</li>
+</ul>
+<h3 id="_11">라이선스</h3>
+<ul>
+<li><strong>기본 라이선스:</strong> GPLv3 (2026-02-23 이후), 이전 버전 Apache 2.0</li>
+<li><strong>주요 의존성 라이선스:</strong></li>
+<li>PostHog iOS: MIT</li>
+<li>SwiftWhisper: MIT</li>
+<li>PromiseKit: MIT</li>
+<li>AppUpdater: MIT</li>
+<li>FluidAudio/DynamicNotchKit: 자체 포크 (라이선스 확인 필요)</li>
+<li>swift-transformers (HuggingFace): Apache 2.0</li>
+</ul>
+<blockquote>
+<p><strong>GPLv3 호환성 주의:</strong> GPLv3로 릴리스된 앱이 MIT/Apache 라이선스 라이브러리를 포함하는 것은 일반적으로 허용되나, 상업적 도입 시 GPLv3 조항(소스 공개 의무 등) 검토 필요.</p>
+</blockquote>
+<hr />
+<h2 id="step-7-documentation-and-operational-maturity">Step 7. 문서화 및 운영 성숙도 / Documentation and Operational Maturity</h2>
+<h3 id="readme">README 품질</h3>
+<ul>
+<li>빠른 시작(Quick Start) 단계별 안내, 지원 모델 표, 기능 목록, 요구사항, 소스 빌드 방법, 개인정보 정책 포함</li>
+<li>데모 비디오, 스크린샷, star history 차트 포함</li>
+<li>영어 단독 (국제화 문서 없음)</li>
+</ul>
+<h3 id="_12">커뮤니티 및 기여</h3>
+<ul>
+<li><code>CONTRIBUTING.md</code> <strong>없음</strong> (README 내 PR 가이드라인으로 대체)</li>
+<li><code>CODE_OF_CONDUCT.md</code> <strong>없음</strong></li>
+<li>PR 템플릿: 체크리스트형, 상세함 (변경 유형, 테스트 항목, 스크린샷 요청)</li>
+<li>이슈 템플릿: Bug Report, Feature Request 분리</li>
+<li>GitHub Sponsors, Ko-fi 후원 링크 (<code>FUNDING.yml</code>)</li>
+<li>Discord 커뮤니티, X(@ALTIC_DEV) 운영</li>
+</ul>
+<h3 id="adr">ADR/변경 로그</h3>
+<ul>
+<li><strong>CHANGELOG.md 없음</strong> — 릴리스 히스토리는 GitHub Releases에 의존</li>
+<li><strong>ADR(Architecture Decision Records) 없음</strong></li>
+<li><code>docs/MACOS_UI_AUTOMATION_BRANCH_PLAN.md</code> — 내부 개발 계획 문서 하나 존재</li>
+<li>pre-commit hook 스크립트 (<code>scripts/check-team-id.sh</code>) — 개발자 ID 실수 커밋 방지</li>
+</ul>
+<h3 id="_13">커뮤니티 활동</h3>
+<ul>
+<li>커밋 히스토리: shallow clone으로 전체 히스토리 미확인 (로컬에 ddae598 1건)</li>
+<li>GitHub에 따르면 활발히 유지보수 중 (버전 1.6.0 최근 릴리스, star history 성장 중)</li>
+<li>단일 핵심 기여자(Barathwaj Anandan) 중심의 소규모 오픈소스 프로젝트</li>
+</ul>
+<hr />
+<h2 id="step-8-final-analysis">Step 8. 최종 분석 결과 / Final Analysis</h2>
+<hr />
+<h3 id="strengths">강점 / Strengths</h3>
+<ol>
+<li>
+<p><strong>강력한 Swift Concurrency 설계:</strong> <code>@MainActor</code>, <code>actor</code>, <code>async/await</code>를 일관되게 사용하여 audio pipeline의 race condition과 EXC_BAD_ACCESS 크래시를 방어적으로 처리. <code>TranscriptionExecutor</code> actor로 CoreML 직렬화, <code>AppServices</code> 지연 초기화로 SwiftUI AttributeGraph 크래시 회피 — 코드 내에 상세한 이유가 문서화되어 있어 유지보수성이 높다.</p>
+</li>
+<li>
+<p><strong>모델 불가지론적 추상화(Strategy Pattern):</strong> <code>TranscriptionProvider</code> 프로토콜을 통해 Parakeet, Whisper, Nemotron, Cohere, Apple Speech를 동일 인터페이스로 교체 가능. 새 모델 추가 시 기존 코드를 최소한으로 수정.</p>
+</li>
+<li>
+<p><strong>로컬 우선 + 선택적 클라우드:</strong> 음성/텍스트 데이터가 기본으로 기기를 벗어나지 않음. API 키는 Keychain 저장, 분석은 익명 opt-out 가능. 보안 설계가 사용자 프라이버시를 적극 고려.</p>
+</li>
+<li>
+<p><strong>실용적 테스트 전략:</strong> Whisper Tiny 실제 모델을 CI에서 다운로드 후 실제 오디오 파일로 E2E 검증하는 방식은 전사 파이프라인 전체를 통합적으로 커버. HTML injection 탐지, dictionary 전송 규칙, 업데이터 정렬 로직 등 비즈니스 위험이 높은 영역의 테스트가 충실함.</p>
+</li>
+<li>
+<p><strong>내장 로컬 HTTP API 서버:</strong> loopback-only NW.framework 기반 서버로 n8n/Raycast/자동화 도구와의 통합을 외부 의존 없이 제공. 인증 없이 loopback 제한으로 보안 위험 최소화.</p>
+</li>
+</ol>
+<hr />
+<h3 id="risks-and-areas-for-improvement">위험/개선 필요 사항 / Risks and Areas for Improvement</h3>
+<ol>
+<li>
+<p><strong>God Class 안티패턴:</strong> <code>SettingsStore.swift</code> (4,765 LOC), <code>ContentView.swift</code> (4,178 LOC), <code>ASRService.swift</code> (3,326 LOC)는 SwiftLint 임계값 상한에 도달하거나 초과. 단일 책임 원칙 위반으로 테스트 단리 어렵고, 병렬 기여 시 merge conflict 위험이 큼.</p>
+</li>
+<li>
+<p><strong><code>cs.disable-library-validation</code> 엔타이틀먼트:</strong> 모든 코드 서명 없는 dylib 로드를 허용 — Fluid Intelligence 런타임 통합을 위한 것이나, 악성 라이브러리 인젝션 공격 표면을 넓힘. App Store 배포 불가 요소이며, Notarization 경고 발생 가능.</p>
+</li>
+<li>
+<p><strong>브랜치 핀 의존성:</strong> <code>FluidAudio</code>, <code>DynamicNotchKit</code>, <code>SwiftWhisper</code>가 안정 버전 태그가 아닌 브랜치/커밋 해시로 고정. 업스트림 breaking change가 자동으로 들어올 수 있어 재현성과 공급망 보안이 취약함. <code>Dependabot</code>/<code>Renovate</code> 및 버전 태그 핀 적용 권장.</p>
+</li>
+<li>
+<p><strong>SECURITY.md 및 취약점 공개 정책 부재:</strong> 보안 이슈 보고 채널이 정의되어 있지 않음. 오픈소스 프로젝트로서 CVE 관리, 책임 있는 공개 프로세스 없음.</p>
+</li>
+<li>
+<p><strong>단일 기여자 버스 팩터:</strong> 커밋 내 저자 정보(<code>Barathwaj Anandan</code>)와 pre-commit hook에 개인 Team ID(<code>V4J43B279J</code>)가 하드코딩 — 사실상 단일 개발자 프로젝트. 기여자 온보딩 문서(<code>CONTRIBUTING.md</code>) 부재, <code>CODE_OF_CONDUCT.md</code> 부재, 변경로그(CHANGELOG.md) 부재로 외부 기여자 유입 장벽이 높음.</p>
+</li>
+</ol>
+<hr />
+<h3 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h3>
+<p><strong>[한국어]</strong></p>
+<p><strong>기술 벤치마킹 / 참조 구현으로: 강력 권장</strong>
+- macOS 네이티브 Swift Concurrency, AVFoundation 오디오 파이프라인, CoreML 통합 방법의 우수 사례로 학습 가치 높음
+- loopback-only HTTP API 서버, Keychain API 키 관리, PostHog 분석 통합 등 macOS 앱 개발 패턴의 실제 구현 예시</p>
+<p><strong>직접 프로덕션 도입 (엔터프라이즈/조직 배포):</strong> 조건부 권장
+- GPLv3 라이선스 의무(소스 파생물 공개) 검토 필수
+- <code>cs.disable-library-validation</code> 엔타이틀먼트와 Fluid Intelligence 비공개 런타임의 공급망 투명성 평가 필요
+- Dependabot 미설정, SECURITY.md 부재, 단일 기여자 구조는 장기 의존성 위험</p>
+<p><strong>개인 사용자/개발자 도구로:</strong> 강력 권장
+- Homebrew 설치, 완전한 로컬 처리, 다양한 모델 지원, 활발한 개발 — 개인 생산성 도구로서 성숙도 충분</p>
+<p><strong>[English]</strong></p>
+<p>For <strong>architectural benchmarking</strong> and as a reference implementation of native macOS Swift Concurrency patterns (actor isolation, @MainActor, async audio pipelines, CoreML integration), FluidVoice is an excellent, production-grade open source example well above average quality for its domain.</p>
+<p>For <strong>enterprise deployment or embedding as a dependency</strong>: review the GPLv3 copyleft implications, the <code>cs.disable-library-validation</code> entitlement (which widens the dylib attack surface), and the single-maintainer risk before committing. Add Dependabot, SECURITY.md, and pin all dependencies to stable version tags before treating this as a supply-chain-safe dependency.</p>
+<p>For <strong>end-user adoption</strong>: FluidVoice is a well-engineered, privacy-first dictation tool with broad model support and an active development cadence — recommended without reservation for individual use.</p>
+<hr />
+<p><em>분석일: 2026-06-30 | 분석 대상: altic-dev/FluidVoice | 분석 도구: Claude Sonnet 4.6</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>altic-dev/FluidVoice</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/altic-dev/FluidVoice" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

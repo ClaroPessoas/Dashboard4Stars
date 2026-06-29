@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>cupy/cupy - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/cupy/cupy" target="_blank" rel="noopener">cupy/cupy</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">NumPy & SciPy for GPU</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 11759</span>
+      <span class="badge badge-stars">+352 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-06-30
+분석 대상: <code>/tmp/github-dashboard-analysis/cupy_cupy</code></p>
+<hr />
+<h1 id="cupy">CuPy 소스 분석 보고서</h1>
+<p>보고서가 <code>/tmp/github-dashboard-analysis/cupy_cupy/.review/REVIEW-Source.md</code>에 저장되었습니다.</p>
+<hr />
+<h2 id="_1">분석 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>NVIDIA CUDA/AMD ROCm GPU 가속을 위한 NumPy/SciPy 드롭인 대체 라이브러리</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>모노레포. <code>cupy/</code>(핵심), <code>cupyx/</code>(확장), <code>cupy_backends/</code>(추상화), <code>tests/</code>(354 파일)</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.10–3.14, Cython 3+, CUDA C++/HIP, NumPy ≥ 2.0, CUDA 12–13/ROCm 7.0</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>cupy/__init__.py</code>(1,159줄 퍼블릭 API), <code>setup.py</code> + <code>install/cupy_builder/</code></td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>Python API → Cython 바인딩 → CUDA C++/HIP 커널. <code>cupy_backends/</code>로 이중 GPU 추상화</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>인메모리 GPU ndarray. DLPack으로 프레임워크 간 제로카피 텐서 교환</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>PyPI 휠(CUDA/ROCm 버전별), Docker(CUDA 13/ROCm 7), ReadTheDocs</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest 기반 354 파일, 5개 카테고리, multi_gpu/parallel 마커, 3단계 CI</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 부재. SBOM/서명 미확인. MIT 라이선스, 모든 서드파티 허용 라이선스</td>
+<td>★★★☆☆</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v15.0.0a1, 2017년부터 지속 개발. NumFOCUS CoC, Mergify 자동화, 다중 커뮤니티 채널</td>
+<td>★★★★★</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">강점</h2>
+<ol>
+<li><strong>NumPy API 완전 호환</strong> — <code>import cupy as cp</code>만으로 기존 NumPy 코드 GPU 가속 전환 가능</li>
+<li><strong>이중 GPU 백엔드</strong> — <code>cupy_backends/</code> 추상화 계층이 NVIDIA CUDA와 AMD ROCm을 단일 코드베이스로 지원</li>
+<li><strong>3단계 CI 파이프라인</strong> — GitHub Actions(정적/빌드) → PFN 내부 CI → 자체 호스팅 ROCm 러너로 실제 GPU 검증</li>
+<li><strong>JIT 커널 확장성</strong> — Jitify 통합으로 Python에서 동적 CUDA 커널 생성, <code>cupy.RawKernel</code>/<code>ElementwiseKernel</code> API 제공</li>
+<li><strong>풍부한 테스트 생태계</strong> — 354개 테스트 파일, <code>cupy.testing</code> 비교 유틸리티, typing 테스트까지 포괄</li>
+</ol>
+<hr />
+<h2 id="_3">위험/개선 필요 사항</h2>
+<ol>
+<li><strong>SECURITY.md 부재</strong> — 취약점 신고 채널 미문서화. GPU 라이브러리 특성상 조속한 보안 정책 수립 필요</li>
+<li><strong>SBOM 및 아티팩트 서명 미비</strong> — PyPI 배포 패키지에 Sigstore/PEP 740 적용 권고</li>
+<li><strong>대형 단일 파일</strong> — <code>core.pyx</code>(~116KB), <code>__init__.py</code>(1,159줄) 유지보수 부담</li>
+<li><strong>서브모듈 취약점 추적 부재</strong> — CCCL/Jitify 등 NVIDIA 서드파티 CVE 자동 추적 미적용</li>
+<li><strong>ROCm CI 불균형</strong> — AMD GPU 테스트가 자체 호스팅 러너에 의존, 커뮤니티 기여자 재현 어려움</li>
+</ol>
+<hr />
+<h2 id="_4">도입 권고</h2>
+<p><strong>NumPy 코드의 GPU 가속이 필요한 환경에서 1순위 도입 후보.</strong> 기술적 완성도와 생태계 성숙도 모두 높으며, v15를 향한 개발 모멘텀도 지속적이다. 엔터프라이즈 환경에서는 SECURITY.md 부재와 SBOM 미비 여부를 조직 보안 정책과 대조 후 도입 결정을 권고한다. AMD GPU 환경은 ROCm CI 성숙도를 별도 검증 후 적용할 것.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>cupy/cupy</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/cupy/cupy" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

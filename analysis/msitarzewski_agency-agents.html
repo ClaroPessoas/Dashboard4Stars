@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>msitarzewski/agency-agents - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/msitarzewski/agency-agents" target="_blank" rel="noopener">msitarzewski/agency-agents</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agent is a specialized expert with personality, processes, and proven deliverables.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Shell</span>
+      <span class="badge badge-stars">★ 118623</span>
+      <span class="badge badge-stars">+1,221 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>Now I have enough information to produce the comprehensive report.</p>
+<hr />
+<p>분석일: 2026-06-30
+분석 대상: <code>/tmp/github-dashboard-analysis/msitarzewski_agency-agents</code></p>
+<hr />
+<h1 id="review-source-agency-agents-msitarzewski">REVIEW-Source: agency-agents (msitarzewski)</h1>
+<blockquote>
+<p><strong>Analysis Date / 분석일</strong>: 2026-06-30<br />
+<strong>Target / 분석 대상</strong>: <code>msitarzewski/agency-agents</code><br />
+<strong>Output / 출력 파일</strong>: <code>.review/REVIEW-Source.md</code></p>
+</blockquote>
+<hr />
+<h2 id="summary-table">분석 요약 테이블 / Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적 (Purpose)</strong></td>
+<td>AI 전문 에이전트 퍼소나/시스템 프롬프트 정의 컬렉션. 개발자·지식 근로자가 Claude Code, Cursor, GitHub Copilot, Gemini CLI 등 다양한 AI 코딩 도구에 즉시 설치하여 사용하는 232개 이상의 특화된 AI 에이전트 라이브러리.</td>
+<td>★★★★★ — 명확하고 실용적인 목적</td>
+</tr>
+<tr>
+<td><strong>구조 (Structure)</strong></td>
+<td>16개 부서(Division) 디렉터리 기반 도메인 지향 구조. <code>academic/</code>, <code>engineering/</code>, <code>marketing/</code> 등 기능별로 분리. <code>scripts/</code>에 변환·설치 셸 스크립트, <code>integrations/</code>에 도구별 생성 파일, <code>strategy/</code>에 운영 가이드, <code>examples/</code>에 멀티에이전트 워크플로우 예제.</td>
+<td>★★★★★ — 매우 명확한 구조 분리</td>
+</tr>
+<tr>
+<td><strong>스택 (Stack)</strong></td>
+<td>주언어: <strong>Markdown</strong> (에이전트 정의) + <strong>Bash</strong> (설치·변환 스크립트) + <strong>Python 3</strong> (<code>build-hermes-plugin.py</code>). 별도 런타임 의존성 없음. CI: GitHub Actions 3개 워크플로우. 패키지 매니저 없음.</td>
+<td>★★★★☆ — 의존성 최소화된 실용적 스택</td>
+</tr>
+<tr>
+<td><strong>진입점 (Entry Points)</strong></td>
+<td><code>scripts/install.sh</code> (사용자 대상 설치 CLI), <code>scripts/convert.sh</code> (도구별 형식 변환), <code>scripts/lint-agents.sh</code> (에이전트 검증). <code>divisions.json</code>, <code>tools.json</code>이 데이터 소스의 단일 진실(single source of truth) 역할.</td>
+<td>★★★★★ — 명확한 진입점 구분</td>
+</tr>
+<tr>
+<td><strong>아키텍처 (Architecture)</strong></td>
+<td>데이터 주도 파이프라인: Markdown 소스 → <code>convert.sh</code> → <code>integrations/&lt;tool&gt;/</code> → <code>install.sh</code> → 로컬 도구 설정 디렉터리. 런타임 없음, 완전 정적(stateless). <code>divisions.json</code>과 <code>tools.json</code>이 CI 검증 및 앱 카탈로그를 구동.</td>
+<td>★★★★★ — 단순하고 검증 가능한 구조</td>
+</tr>
+<tr>
+<td><strong>데이터 (Data)</strong></td>
+<td>영구 저장소 없음. YAML 프론트매터(name, description, color, emoji, vibe) 포함 Markdown 파일이 데이터 형식. <code>divisions.json</code>, <code>tools.json</code>이 메타데이터 레지스트리.</td>
+<td>★★★★★ — 파일 기반, 부채 없음</td>
+</tr>
+<tr>
+<td><strong>배포 (Deployment)</strong></td>
+<td>Git 클론 + 셸 스크립트 방식. 추가로 네이티브 데스크탑 앱(<code>agency-agents-app</code> 별도 저장소)으로 클릭 설치 지원. 지원 도구: Claude Code, Cursor, Copilot, Gemini CLI, Codex, Qwen, Kimi, Aider, Windsurf, OpenCode, OpenClaw, Osaurus, Hermes(14개).</td>
+<td>★★★★★ — 광범위한 멀티툴 지원</td>
+</tr>
+<tr>
+<td><strong>테스트 (Testing)</strong></td>
+<td>공식 단위/통합 테스트 없음. CI 검증 3종: ① <code>lint-agents.yml</code>(프론트매터 필수 필드 + 권장 섹션 검사), ② <code>check-divisions.yml</code>(divisions.json ↔ 디렉터리 일관성), ③ <code>check-tools.yml</code>(tools.json 일관성). Python 기반 8-word shingle 유사도로 중복 에이전트 탐지(40% 이상 시 빌드 실패).</td>
+<td>★★★☆☆ — 콘텐츠 품질 게이트는 강력하나 스크립트 테스트 부재</td>
+</tr>
+<tr>
+<td><strong>보안 (Security)</strong></td>
+<td><code>SECURITY.md</code> 존재 — GitHub 비공개 Security Advisory 채널, 48시간 확인 SLA. 실행 가능 코드 없는 순수 Markdown 에이전트. 시크릿 금지 명시. 셸 스크립트는 사용자 홈 디렉터리에 파일을 씀 → 실행 전 검토 권고. 패키지 의존성 없어 공급망 공격 면적(attack surface) 최소화.</td>
+<td>★★★★☆ — 적절한 보안 정책, 스크립트 감사 필요</td>
+</tr>
+<tr>
+<td><strong>성숙도 (Maturity)</strong></td>
+<td>README 1,063줄 — 상세한 퀵스타트, 멀티툴 가이드, 유스케이스. CONTRIBUTING.md(한국어·중국어 지원). 이슈/PR 템플릿 완비. CHANGELOG 부재. 커뮤니티 활동: Reddit 런치 12시간 50+ 요청, 네이티브 앱 존재, GitHub Sponsors 활성화.</td>
+<td>★★★★☆ — 문서화 우수, 릴리즈 관리 체계 미흡</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-purpose-scope">1. 목적 및 범위 (Purpose &amp; Scope)</h2>
+<p><strong>The Agency</strong>는 Reddit 스레드에서 출발해 수개월간 반복 개선된 AI 에이전트 퍼소나 라이브러리다. 각 에이전트는 YAML 프론트매터와 구조화된 Markdown 섹션(Identity, Core Mission, Critical Rules, Technical Deliverables, Workflow, Success Metrics)으로 구성되어 있으며, Claude Code·Cursor 등 AI 코딩 도구에 직접 설치된다.</p>
+<ul>
+<li><strong>유형</strong>: 콘텐츠 데이터 저장소 + 설치 자동화 도구 (라이브러리나 프레임워크 아님)</li>
+<li><strong>대상 사용자</strong>: AI 코딩 도구 사용자, 개발자, 지식 근로자</li>
+<li><strong>규모</strong>: 232개 이상 에이전트, 16개 Division, 275개 Markdown 파일, 10,000+줄 콘텐츠</li>
+</ul>
+<hr />
+<h2 id="2-repository-structure">2. 저장소 구조 분석 (Repository Structure)</h2>
+<pre><code>agency-agents/
+├── academic/          ← 학문 전문가 5개 에이전트
+├── design/            ← 디자인 9개 에이전트
+├── engineering/       ← 엔지니어링 33개 에이전트
+├── finance/           ← 금융 5개 에이전트
+├── game-development/  ← 게임 개발 (Unity/Unreal/Godot/Blender/Roblox 포함) 17개
+├── gis/               ← 지리정보 13개 에이전트
+├── marketing/         ← 마케팅 33개 에이전트
+├── paid-media/        ← 광고·미디어 7개 에이전트
+├── product/           ← 제품 5개 에이전트
+├── project-management/← PM 7개 에이전트
+├── sales/             ← 영업 9개 에이전트
+├── security/          ← 보안 10개 에이전트
+├── spatial-computing/ ← 공간 컴퓨팅 6개 에이전트
+├── specialized/       ← 특화 에이전트 40개 이상
+├── support/           ← 지원 6개 에이전트
+├── testing/           ← 테스팅 8개 에이전트
+├── integrations/      ← convert.sh 생성 도구별 출력 (대부분 .gitignore)
+├── strategy/          ← NEXUS 플레이북·런북 (에이전트 정의 아님)
+├── examples/          ← 멀티에이전트 워크플로우 예제
+├── scripts/           ← install.sh, convert.sh, lint-agents.sh 등
+├── divisions.json     ← Division 단일 진실 소스
+├── tools.json         ← 지원 도구 단일 진실 소스
+└── .github/           ← CI 워크플로우, 이슈/PR 템플릿
+</code></pre>
+<ul>
+<li><strong>도메인 지향 구조</strong> (function-oriented): 각 디렉터리가 비즈니스/기능 도메인에 대응</li>
+<li>소스(에이전트 Markdown)와 생성물(integrations/)이 명확히 분리됨</li>
+<li><code>strategy/</code>와 <code>integrations/</code>는 Division이 아님을 <code>divisions.json</code>과 CI에서 명시적으로 관리</li>
+<li>단일 저장소(single repo), 서브패키지 없음</li>
+</ul>
+<hr />
+<h2 id="3-software-stack">3. 소프트웨어 스택 (Software Stack)</h2>
+<table>
+<thead>
+<tr>
+<th>구분</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>주언어</strong></td>
+<td>Markdown (에이전트 정의), Bash 3.2+ (스크립트), Python 3 (originality check, Hermes plugin builder)</td>
+</tr>
+<tr>
+<td><strong>빌드 도구</strong></td>
+<td>없음 (순수 스크립트)</td>
+</tr>
+<tr>
+<td><strong>패키지 매니저</strong></td>
+<td>없음 (외부 의존성 0)</td>
+</tr>
+<tr>
+<td><strong>프레임워크</strong></td>
+<td>없음</td>
+</tr>
+<tr>
+<td><strong>데이터 저장</strong></td>
+<td>없음 (파일 기반)</td>
+</tr>
+<tr>
+<td><strong>CI/CD</strong></td>
+<td>GitHub Actions (lint-agents.yml, check-divisions.yml, check-tools.yml)</td>
+</tr>
+<tr>
+<td><strong>배포 플랫폼</strong></td>
+<td>Git clone + shell scripts; 별도 네이티브 앱 (Tauri/Electron 추정, 별도 저장소)</td>
+</tr>
+<tr>
+<td><strong>지원 OS</strong></td>
+<td>Linux, macOS, Windows (Git Bash/WSL)</td>
+</tr>
+</tbody>
+</table>
+<p>에이전트 파일 형식 예:</p>
+<pre><code class="language-yaml">---
+name: Frontend Developer
+description: Expert frontend developer...
+color: cyan
+emoji: 🖥️
+vibe: Builds responsive...
+---
+</code></pre>
+<hr />
+<h2 id="4-architecture-analysis">4. 아키텍처 분석 (Architecture Analysis)</h2>
+<h3 id="_1">데이터 흐름 파이프라인</h3>
+<pre><code>[Source: &lt;division&gt;/*.md]
+        ↓
+[scripts/convert.sh]
+  - YAML 프론트매터 파싱
+  - 도구별 형식 렌더링
+        ↓
+[integrations/&lt;tool&gt;/]
+  - cursor → .mdc 파일
+  - codex → .toml 파일
+  - aider → CONVENTIONS.md (roster)
+  - windsurf → .windsurfrules (roster)
+  - claude-code → .md (identity/pass-through)
+  - kimi → agent.yaml + system.md
+        ↓
+[scripts/install.sh]
+  - 도구 자동 감지
+  - 대화형 위저드 또는 --no-interactive
+  - ~/.claude/agents/, ~/.cursor/rules/ 등 복사/심링크
+</code></pre>
+<h3 id="_2">아키텍처 패턴</h3>
+<ul>
+<li><strong>데이터 주도 파이프라인</strong>: <code>divisions.json</code>과 <code>tools.json</code>이 스크립트와 CI의 동작을 제어</li>
+<li><strong>단일 진실 소스(Single Source of Truth)</strong>: 두 JSON 파일의 내용이 스크립트 내부 배열, CI 경로 필터와 반드시 일치해야 하며 불일치 시 빌드 실패</li>
+<li><strong>완전 정적(Stateless)</strong>: 런타임 없음, 서버 없음, API 없음</li>
+<li><strong>InstallKind 분류</strong>: <code>per-agent</code> (에이전트당 파일 1개), <code>roster</code> (전체를 단일 파일로 합침), <code>plugin</code> (빌드 아티팩트)</li>
+<li><code>lint-agents.sh</code>의 <code>classify_header_target()</code>: Markdown 섹션을 <code>soul</code>(Identity/Rules) 또는 <code>agents</code>(기능 정의)로 분류하여 OpenClaw 등 멀티파일 도구에 대응</li>
+</ul>
+<hr />
+<h2 id="5-quality-test-system">5. 품질 및 테스트 시스템 (Quality &amp; Test System)</h2>
+<h3 id="ci-github-actions">CI 파이프라인 (GitHub Actions)</h3>
+<table>
+<thead>
+<tr>
+<th>워크플로우</th>
+<th>트리거</th>
+<th>동작</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>lint-agents.yml</code></td>
+<td>PR (에이전트 파일 변경 시)</td>
+<td>변경된 파일의 YAML 프론트매터 필수 필드 검사 + 에이전트 독창성 검사</td>
+</tr>
+<tr>
+<td><code>check-divisions.yml</code></td>
+<td>PR + main push</td>
+<td><code>divisions.json</code> ↔ 디렉터리 ↔ <code>convert.sh</code> 배열 일관성 검사</td>
+</tr>
+<tr>
+<td><code>check-tools.yml</code></td>
+<td>(별도 파일로 존재)</td>
+<td><code>tools.json</code> ↔ <code>install.sh</code> ↔ <code>convert.sh</code> 일관성 검사</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_3">에이전트 독창성 검사</h3>
+<ul>
+<li><code>check-agent-originality.sh</code>에서 Python3를 호출하여 <strong>8-word shingle 유사도</strong> 계산</li>
+<li>기존 전체 에이전트와 신규 에이전트를 비교 (고유명사 중립화 후)</li>
+<li><strong>ORIGINALITY_FAIL=40%</strong> 이상 → 빌드 실패 (중복 에이전트 차단)</li>
+<li><strong>ORIGINALITY_WARN=20%</strong> 이상 → 경고만 출력</li>
+</ul>
+<h3 id="_4">미흡 사항</h3>
+<ul>
+<li>셸 스크립트(<code>install.sh</code>, <code>convert.sh</code>) 자체에 대한 자동화 테스트 없음</li>
+<li>실제 설치 결과를 검증하는 통합 테스트 없음</li>
+<li>릴리즈 자동화 워크플로우 없음</li>
+</ul>
+<hr />
+<h2 id="6-security-supply-chain">6. 보안 및 공급망 (Security &amp; Supply Chain)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>보안 정책</strong></td>
+<td><code>SECURITY.md</code> 존재 — GitHub Private Security Advisory 채널 지정, 48h 확인 SLA</td>
+</tr>
+<tr>
+<td><strong>취약점 관리</strong></td>
+<td>외부 패키지 의존성 없음 → Dependabot/Renovate 불필요</td>
+</tr>
+<tr>
+<td><strong>SBOM</strong></td>
+<td>없음 (의존성 없음으로 불필요)</td>
+</tr>
+<tr>
+<td><strong>라이선스</strong></td>
+<td>MIT (Copyright 2025 AgentLand Contributors) — 완전 허용형, 상업적 사용·포크·재배포 가능</td>
+</tr>
+<tr>
+<td><strong>시크릿 관리</strong></td>
+<td>SECURITY.md에서 API 키·토큰·자격증명 커밋 금지 명시. <code>.gitignore</code>에 환경 파일 패턴 포함</td>
+</tr>
+<tr>
+<td><strong>공급망 위험</strong></td>
+<td>최소화 — Python stdlib + bash 내장 명령만 사용. 외부 npm/pip 패키지 없음</td>
+</tr>
+<tr>
+<td><strong>스크립트 위험</strong></td>
+<td><code>install.sh</code>·<code>convert.sh</code>는 사용자 홈 디렉터리에 파일을 씀. SECURITY.md에서 "실행 전 검토" 권고</td>
+</tr>
+<tr>
+<td><strong>프롬프트 인젝션</strong></td>
+<td>SECURITY.md에서 에이전트 정의를 이용한 프롬프트 인젝션 공격 신고 요청 명시</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="7-documentation-operational-maturity">7. 문서화 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h2>
+<h3 id="_5">문서화</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>상태</th>
+<th>품질</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md</td>
+<td>존재 (1,063줄)</td>
+<td>매우 상세 — 퀵스타트 4가지 방법, 전체 에이전트 로스터, 6가지 실사용 시나리오, 에이전트 설계 철학</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>존재 (16,404바이트)</td>
+<td>상세 — Division 선택, 에이전트 템플릿, PR 프로세스, 스타일 가이드</td>
+</tr>
+<tr>
+<td>CONTRIBUTING_zh-CN.md</td>
+<td>존재</td>
+<td>중국어 기여 가이드 (국제화 지원)</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>존재</td>
+<td>적절한 수준</td>
+</tr>
+<tr>
+<td>CHANGELOG.md</td>
+<td><strong>없음</strong></td>
+<td>릴리즈 이력 추적 불가</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td><strong>없음 (CONTRIBUTING에 내재)</strong></td>
+<td>별도 파일로 분리되지 않음</td>
+</tr>
+<tr>
+<td>ADR</td>
+<td><strong>없음</strong></td>
+<td>아키텍처 결정 기록 없음</td>
+</tr>
+</tbody>
+</table>
+<h3 id="pr">이슈/PR 관리</h3>
+<ul>
+<li><strong>이슈 템플릿</strong>: <code>bug-report.yml</code>, <code>new-agent-request.yml</code> (GitHub form 기반)</li>
+<li><strong>PR 템플릿</strong>: 에이전트 체크리스트 포함 구조화된 템플릿</li>
+<li><strong>FUNDING.yml</strong>: GitHub Sponsors 활성화</li>
+</ul>
+<h3 id="_6">커뮤니티</h3>
+<ul>
+<li>Reddit 런치 12시간 내 50+ 요청 언급</li>
+<li>네이티브 앱(<code>agency-agents-app</code>) 별도 제공 — macOS/Linux/Windows 지원</li>
+<li>Homebrew Cask 배포 (<code>brew install --cask msitarzewski/agency-agents/agency-agents</code>)</li>
+<li>중국어 기여 가이드 및 i18n 스크립트(PowerShell) 포함 → 글로벌 기여자 지향</li>
+<li>로컬 클론 기준 1개 커밋 (shallow clone으로 전체 이력 불확인)</li>
+</ul>
+<hr />
+<h2 id="8-a">8-A. 최종 평가 보고서</h2>
+<h3 id="strengths">강점 (Strengths)</h3>
+<ol>
+<li>
+<p><strong>단일 진실 소스 아키텍처</strong>: <code>divisions.json</code>과 <code>tools.json</code>이 스크립트·CI·앱 카탈로그 전체를 구동하며, CI가 이 일관성을 자동으로 강제함. 새 Division이나 Tool 추가 시 한 곳만 수정하면 됨.</p>
+</li>
+<li>
+<p><strong>콘텐츠 품질 게이트</strong>: <code>lint-agents.sh</code>(프론트매터 검증) + Python shingle 유사도 기반 독창성 검사의 조합으로 단순한 "이름만 바꾼 복제 에이전트"가 머지되는 것을 방지하는 실용적 품질 통제.</p>
+</li>
+<li>
+<p><strong>광범위한 멀티툴 지원</strong>: 14개 AI 도구에 대한 변환 형식을 <code>installKind</code>(<code>per-agent</code>, <code>roster</code>, <code>plugin</code>)와 <code>format</code> 계약으로 명확히 분류하여 확장성 확보. 동일 소스에서 <code>.md</code>, <code>.mdc</code>, <code>.toml</code>, <code>.yaml</code> 등 다양한 형식 생성.</p>
+</li>
+<li>
+<p><strong>운영 의존성 제로</strong>: 외부 패키지 의존성 없이 bash + python3(stdlib만) 사용. 어떤 개발 환경에서도 클론 즉시 사용 가능.</p>
+</li>
+<li>
+<p><strong>수준 높은 문서화</strong>: 1,063줄 README에 퀵스타트, 멀티툴 가이드, 6개 실사용 시나리오, 에이전트 철학까지 포함. 중국어 기여 가이드로 국제 커뮤니티 포용. <code>examples/</code>에 실제 멀티에이전트 협업 결과물 제공.</p>
+</li>
+</ol>
+<h3 id="risks-improvements">위험/개선 필요 사항 (Risks &amp; Improvements)</h3>
+<ol>
+<li>
+<p><strong>셸 스크립트 자동화 테스트 부재</strong>: <code>install.sh</code>와 <code>convert.sh</code>는 사용자 홈 디렉터리에 파일을 쓰는 핵심 스크립트이나 단위/통합 테스트가 없음. 새 도구 지원 추가 시 회귀 가능성이 높음. Bats(Bash Automated Testing System)나 Docker 기반 설치 검증 추가 권고.</p>
+</li>
+<li>
+<p><strong>CHANGELOG 및 릴리즈 관리 부재</strong>: 에이전트 추가·수정 이력이 git 커밋 메시지에만 존재하며, 구조화된 CHANGELOG나 릴리즈 태깅이 없음. 사용자가 "무엇이 새로 추가됐는지" 파악하기 어려움. GitHub Releases + CHANGELOG.md 도입 권고.</p>
+</li>
+<li>
+<p><strong>프롬프트 인젝션 위험</strong>: 에이전트 파일 자체가 Markdown이므로 악의적 기여자가 시스템 프롬프트 오버라이드나 탈출 시퀀스를 삽입할 수 있음. 현재 lint 검사는 구조적 검증만 하며 콘텐츠 의미를 검사하지 않음. PR 리뷰어 체크리스트에 "프롬프트 인젝션 패턴 스캔" 항목 추가 및 자동 탐지 스크립트 도입 권고.</p>
+</li>
+<li>
+<p><strong>CODE_OF_CONDUCT 별도 파일 부재</strong>: CONTRIBUTING.md에 행동 강령이 내재되어 있으나 GitHub의 커뮤니티 프로파일에서 별도 파일로 인식되지 않음. <code>CODE_OF_CONDUCT.md</code> 분리 및 Contributor Covenant 채택 권고.</p>
+</li>
+<li>
+<p><strong>에이전트 품질의 비균질성</strong>: 232개 에이전트의 깊이와 품질이 기여자마다 다를 수 있음. 현재 lint는 프론트매터 필드와 권장 섹션 존재 여부만 확인하며, 실제 콘텐츠 품질(코드 예제의 정확성, 성공 지표의 구체성)은 PR 리뷰어에 전적으로 의존.</p>
+</li>
+</ol>
+<h3 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h3>
+<p><strong>기술 도입 관점</strong>: 개발팀이나 개인이 AI 코딩 도구를 사용하고 있고 특화된 AI 에이전트 퍼소나를 빠르게 확보하고 싶다면 <strong>즉시 도입을 권고</strong>한다. 설치 장벽이 사실상 없고(클론 + 셸 스크립트 or 네이티브 앱 클릭), MIT 라이선스로 상업적 사용도 자유로우며, 232개의 에이전트가 대부분의 비즈니스·기술 도메인을 커버한다.</p>
+<p><strong>아키텍처 벤치마킹 관점</strong>: 이 저장소의 <code>divisions.json</code> + <code>tools.json</code> 기반 단일 진실 소스 패턴, 그리고 <code>installKind</code> 계약으로 다양한 출력 형식을 추상화하는 방식은 콘텐츠 중심 멀티플랫폼 배포를 설계할 때 참고할 만한 훌륭한 패턴이다.</p>
+<p><strong>보안 리뷰 관점</strong>: 에이전트 파일 자체는 비실행형이므로 직접적 보안 위험은 낮다. 단, <code>install.sh</code>를 프로덕션 환경에서 사용한다면 실행 전 스크립트 감사와 <code>--dry-run</code> 옵션을 활용할 것을 권고한다. 프롬프트 인젝션 리스크는 AI 런타임 레벨의 문제이며, 이 저장소가 단독으로 해결할 수 없는 영역이다.</p>
+<p><strong>기여 준비 관점</strong>: CONTRIBUTING.md, 이슈 템플릿, PR 템플릿이 완비되어 오픈소스 기여 환경이 잘 갖춰져 있다. 새 에이전트 추가 기여는 매우 낮은 진입 장벽을 갖는다. 단, 셸 스크립트나 CI 인프라 기여는 자동화 테스트가 없으므로 신중한 수동 검증이 필요하다.</p>
+<hr />
+<p><em>English Summary</em>: <strong>agency-agents</strong> is a high-quality, operationally sound AI agent persona library with 232+ specialists across 16 domains. Its standout trait is a data-driven pipeline architecture (governed by <code>divisions.json</code> / <code>tools.json</code>) that converts a single Markdown source into 14 tool-specific formats while CI enforces consistency end-to-end. Zero external dependencies, MIT license, and a comprehensive README make it immediately adoptable. Primary gaps: no shell-script test suite, no CHANGELOG/release management, and content-level prompt injection scanning is absent. Recommended for teams looking to rapidly equip AI coding workflows with domain-specialized agent personas.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>msitarzewski/agency-agents</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/msitarzewski/agency-agents" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

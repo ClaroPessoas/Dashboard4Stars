@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-29 02:00:09 KST",
+  "generated_at": "2026-06-30 02:00:09 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 1,
+  "total_targets": 3,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,15 +17,15 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 1,
-      "skipped_existing_analysis": 4,
+      "selected": 3,
+      "skipped_existing_analysis": 2,
       "skipped_duplicate": 0
     },
     "weekly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 5,
-      "skipped_duplicate": 0
+      "skipped_existing_analysis": 4,
+      "skipped_duplicate": 1
     },
     "monthly": {
       "candidates": 5,
@@ -36,16 +36,44 @@
   },
   "targets": [
     {
-      "rank": 5,
-      "name": "lingbot-map",
-      "full_name": "Robbyant/lingbot-map",
-      "owner": "Robbyant",
-      "description": "A feed-forward 3D foundation model for reconstructing scenes from streaming data",
-      "url": "https://github.com/Robbyant/lingbot-map",
-      "stars": 8094,
-      "forks": 794,
+      "rank": 2,
+      "name": "agency-agents",
+      "full_name": "msitarzewski/agency-agents",
+      "owner": "msitarzewski",
+      "description": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agent is a specialized expert with personality, processes, and proven deliverables.",
+      "url": "https://github.com/msitarzewski/agency-agents",
+      "stars": 118623,
+      "forks": 19433,
+      "language": "Shell",
+      "stars_gained": "1,221 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 3,
+      "name": "cupy",
+      "full_name": "cupy/cupy",
+      "owner": "cupy",
+      "description": "NumPy & SciPy for GPU",
+      "url": "https://github.com/cupy/cupy",
+      "stars": 11759,
+      "forks": 1080,
       "language": "Python",
-      "stars_gained": "372 stars today",
+      "stars_gained": "352 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 4,
+      "name": "FluidVoice",
+      "full_name": "altic-dev/FluidVoice",
+      "owner": "altic-dev",
+      "description": "FluidVoice - Fastest macOS Offline Dictation app - Voice to Text fully Local. One ⭐ takes us a long way :))",
+      "url": "https://github.com/altic-dev/FluidVoice",
+      "stars": 4236,
+      "forks": 266,
+      "language": "Swift",
+      "stars_gained": "836 stars today",
       "topics": [],
       "period": "daily"
     }
