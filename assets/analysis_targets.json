@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-06-30 02:00:09 KST",
+  "generated_at": "2026-07-01 02:00:14 KST",
   "list_order": [
     "top100",
     "daily",
@@ -24,8 +24,8 @@
     "weekly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 4,
-      "skipped_duplicate": 1
+      "skipped_existing_analysis": 5,
+      "skipped_duplicate": 0
     },
     "monthly": {
       "candidates": 5,
@@ -36,44 +36,44 @@
   },
   "targets": [
     {
-      "rank": 2,
-      "name": "agency-agents",
-      "full_name": "msitarzewski/agency-agents",
-      "owner": "msitarzewski",
-      "description": "A complete AI agency at your fingertips - From frontend wizards to Reddit community ninjas, from whimsy injectors to reality checkers. Each agent is a specialized expert with personality, processes, and proven deliverables.",
-      "url": "https://github.com/msitarzewski/agency-agents",
-      "stars": 118623,
-      "forks": 19433,
-      "language": "Shell",
-      "stars_gained": "1,221 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
-      "rank": 3,
-      "name": "cupy",
-      "full_name": "cupy/cupy",
-      "owner": "cupy",
-      "description": "NumPy & SciPy for GPU",
-      "url": "https://github.com/cupy/cupy",
-      "stars": 11759,
-      "forks": 1080,
+      "rank": 1,
+      "name": "strix",
+      "full_name": "usestrix/strix",
+      "owner": "usestrix",
+      "description": "Open-source AI penetration testing tool to find and fix your app’s vulnerabilities.",
+      "url": "https://github.com/usestrix/strix",
+      "stars": 27891,
+      "forks": 3109,
       "language": "Python",
-      "stars_gained": "352 stars today",
+      "stars_gained": "395 stars today",
       "topics": [],
       "period": "daily"
     },
     {
       "rank": 4,
-      "name": "FluidVoice",
-      "full_name": "altic-dev/FluidVoice",
-      "owner": "altic-dev",
-      "description": "FluidVoice - Fastest macOS Offline Dictation app - Voice to Text fully Local. One ⭐ takes us a long way :))",
-      "url": "https://github.com/altic-dev/FluidVoice",
-      "stars": 4236,
-      "forks": 266,
-      "language": "Swift",
-      "stars_gained": "836 stars today",
+      "name": "OmniRoute",
+      "full_name": "diegosouzapw/OmniRoute",
+      "owner": "diegosouzapw",
+      "description": "Never stop coding. Free AI gateway: one endpoint, 160+ providers (50+ free), connect Claude Code, Codex, Cursor, Cline & Copilot to FREE Claude/GPT/Gemini. RTK+Caveman stacked compression saves 15-95% tokens, smart auto-fallback, MCP/A2A, multimodal APIs, Desktop/PWA.",
+      "url": "https://github.com/diegosouzapw/OmniRoute",
+      "stars": 8298,
+      "forks": 1378,
+      "language": "TypeScript",
+      "stars_gained": "459 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 5,
+      "name": "video-use",
+      "full_name": "browser-use/video-use",
+      "owner": "browser-use",
+      "description": "Edit videos with coding agents",
+      "url": "https://github.com/browser-use/video-use",
+      "stars": 12435,
+      "forks": 1596,
+      "language": "Python",
+      "stars_gained": "722 stars today",
       "topics": [],
       "period": "daily"
     }
