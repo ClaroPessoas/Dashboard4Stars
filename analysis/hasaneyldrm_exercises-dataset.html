@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>hasaneyldrm/exercises-dataset - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/hasaneyldrm/exercises-dataset" target="_blank" rel="noopener">hasaneyldrm/exercises-dataset</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">A comprehensive dataset of 433 fitness exercises. Each entry includes name, category, target muscle group, equipment, instructions, thumbnail image, and animation video.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">HTML</span>
+      <span class="badge badge-stars">★ 8167</span>
+      <span class="badge badge-stars">+1,343 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>Now I have enough information to write the full analysis report.</p>
+<hr />
+<p>분석일: 2026-07-02
+분석 대상: <code>/tmp/github-dashboard-analysis/hasaneyldrm_exercises-dataset</code></p>
+<hr />
+<h1 id="exercises-dataset">📋 Exercises Dataset — 소스 코드 분석 보고서</h1>
+<h1 id="exercises-dataset-source-analysis-report">Exercises Dataset — Source Analysis Report</h1>
+<hr />
+<h2 id="analysis-summary-table">분석 요약표 / Analysis Summary Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>1,324개 피트니스 운동 데이터셋 + 개발자 설정 마법사. 운동 앱 백엔드 구축을 위한 DB 스키마, API 코드, LLM 프롬프트를 브라우저에서 직접 생성 가능. 6개 언어(EN/ES/IT/TR/RU/ZH) 다국어 운동 지침 포함. 미디어(이미지·GIF)는 제외.</td>
+<td>✅ 명확하고 단일한 목적</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>완전한 단일 평탄 구조: <code>data/exercises.json</code>, <code>index.html</code>, <code>setup.html</code>, <code>README.md</code>, <code>.gitignore</code> 5개 파일. 서버 없음, 빌드 없음, 의존성 없음.</td>
+<td>✅ 단순·명료 (복잡도 없음)</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>순수 HTML/CSS/Vanilla JavaScript + JSON 데이터. 프레임워크·빌드 도구·패키지 매니저 전무. 런타임: 모던 브라우저. Python/Node.js/TypeScript는 README 사용 예시로만 등장.</td>
+<td>✅ 제로 의존성, 최대 이식성</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>index.html</code> — IntersectionObserver 기반 무한스크롤, 실시간 검색·필터, 모달 상세보기. 전체 데이터셋(9MB)이 JS 리터럴(<code>const EXERCISES = [...]</code>)로 인라인 임베드됨. <code>setup.html</code> — DB SQL 생성기, API 클라이언트 코드 예시, LLM 프롬프트 생성기.</td>
+<td>⚠️ index.html 단일 파일 9MB — 진입 비용 과다</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>완전 클라이언트사이드 단일 HTML 앱 2개. 상태 관리는 <code>state</code> 객체 + DOM 직접 조작. 레이어 구분 없음 (프레젠테이션·로직·데이터 혼재). <code>index.html</code>에 데이터가 내장되어 있고 <code>exercises.json</code>에도 동일 데이터가 중복 존재.</td>
+<td>⚠️ 단일 파일 구조, 관심사 미분리</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td><code>data/exercises.json</code>: 9.7MB, 1,324 레코드. 스키마: <code>id</code>, <code>name</code>, <code>category</code>, <code>body_part</code>, <code>equipment</code>, <code>instructions</code>(6개 언어 문자열), <code>instruction_steps</code>(6개 언어 배열), <code>muscle_group</code>, <code>secondary_muscles</code>, <code>target</code>, <code>media_id</code>, <code>image</code>(null), <code>gif_url</code>(null), <code>created_at</code>. 카테고리 10종, 장비 28종, 타깃 근육 19종.</td>
+<td>✅ 풍부하고 일관된 스키마</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>배포 인프라 없음. 정적 HTML 파일을 GitHub Pages, Netlify, Vercel, 또는 로컬 파일 시스템에서 직접 열기만 하면 됨. Dockerfile·CI/CD·Helm 없음.</td>
+<td>✅ 의도된 설계 (서버리스)</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>테스트 없음. 테스트 파일, CI/CD 워크플로우(<code>.github/workflows/</code> 등), 린트, 정적 분석 도구 전무.</td>
+<td>❌ 테스트 인프라 부재</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 없음. 외부 의존성 없어 공급망 취약점 위험 없음. <code>index.html</code>에 9MB 데이터 인라인 임베드는 XSS 벡터 없음(읽기전용 데이터). 라이선스 불명확 — <code>LICENSE</code> 파일 없음, README에서 ExerciseDB 원출처 귀속 및 권리 면책 명시.</td>
+<td>⚠️ 라이선스 파일 부재, 저작권 불명확</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>단일 커밋(225b17d, 2026-06-30), 단일 기여자(Hasan Emir Yıldırım). CONTRIBUTING.md, CODE_OF_CONDUCT.md, 이슈/PR 템플릿, CHANGELOG, 릴리스 없음. README는 상세하고 고품질. 매우 초기 단계 프로젝트.</td>
+<td>⚠️ 초기 단계, 커뮤니티 미성숙</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-purpose-scope">1. 목적 및 범위 / Purpose &amp; Scope</h2>
+<p>이 저장소는 <strong>개발자용 피트니스 운동 데이터셋 + 셋업 마법사</strong>이다.</p>
+<ul>
+<li><strong>문제 정의</strong>: 운동 앱 또는 ML 프로젝트를 시작할 때 정제된 구조화 데이터와 초기 백엔드 뼈대 코드를 얻는 것이 번거롭다. 이 프로젝트는 데이터(JSON), DB 스키마(SQL), API 클라이언트 예시 코드, LLM 프롬프트를 한곳에서 제공한다.</li>
+<li><strong>대상 사용자</strong>: 운동·피트니스 앱 개발자, 헬스 ML/AI 연구자, 데이터 엔지니어, 교육·시제품 개발자.</li>
+<li><strong>분류</strong>: 정적 데이터셋 저장소 + 서버리스 개발자 도구 (Library / Dataset + Developer Tool).</li>
+<li><strong>원출처</strong>: ExerciseDB v1 by AscendAPI (Kaggle을 통해 재호스팅된 데이터 기반). 스페인어·이탈리아어·터키어·러시아어·중국어 번역 및 <code>instruction_steps</code> 배열 분리, 인터랙티브 HTML 도구는 이 프로젝트에서 추가됨.</li>
+<li><strong>미디어 미포함</strong>: 썸네일 이미지와 GIF 애니메이션은 소유권 분쟁으로 인해 의도적으로 제외. <code>media_id</code> 필드로 ExerciseDB CDN 참조 가능.</li>
+</ul>
+<hr />
+<h2 id="2-repository-structure">2. 저장소 구조 / Repository Structure</h2>
+<pre><code>exercises-dataset/
+├── data/
+│   └── exercises.json       # 핵심 데이터 (9.7MB, 1,324 레코드)
+├── index.html               # 운동 탐색 브라우저 (클라이언트사이드, ~9MB)
+├── setup.html               # 개발자 설정 가이드 (59KB)
+├── README.md                # 상세 문서 (403줄)
+└── .gitignore               # Python 캐시, venv, macOS DS_Store, zip 파일
+</code></pre>
+<ul>
+<li><strong>단일 레포, 완전 평탄</strong>: 서브디렉토리 1개(<code>data/</code>), 코드 파일 2개, 문서 1개.</li>
+<li><strong>도메인 지향도, 레이어 지향도 아님</strong>: 데이터·UI·문서가 각자 역할에 맞게 파일 단위로 분리됨.</li>
+<li><strong>코드·운영 자산 미분리</strong>: 배포 관련 파일(Docker, CI 등) 전무.</li>
+<li><code>.review/</code> 디렉토리는 비어 있음 (이전 분석 결과 없음).</li>
+</ul>
+<hr />
+<h2 id="3-software-stack">3. 소프트웨어 스택 / Software Stack</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>HTML5, CSS3, Vanilla JavaScript (ES2020+)</td>
+</tr>
+<tr>
+<td><strong>빌드 도구</strong></td>
+<td>없음</td>
+</tr>
+<tr>
+<td><strong>패키지 매니저</strong></td>
+<td>없음 (package.json 없음)</td>
+</tr>
+<tr>
+<td><strong>프레임워크</strong></td>
+<td>없음 (React, Vue, Angular 등 미사용)</td>
+</tr>
+<tr>
+<td><strong>런타임</strong></td>
+<td>모던 브라우저 (Chrome, Firefox, Safari, Edge)</td>
+</tr>
+<tr>
+<td><strong>데이터 저장소</strong></td>
+<td>JSON 파일 (정적, 서버 없음)</td>
+</tr>
+<tr>
+<td><strong>외부 라이브러리</strong></td>
+<td>없음 (CDN 로드 없음)</td>
+</tr>
+<tr>
+<td><strong>배포 플랫폼</strong></td>
+<td>임의의 정적 호스팅 (GitHub Pages, Netlify, 로컬 파일 등)</td>
+</tr>
+<tr>
+<td><strong>개발 언어 예시</strong></td>
+<td>README에 Python (json, pandas), Node.js, TypeScript 사용 예시 제공</td>
+</tr>
+</tbody>
+</table>
+<p><strong>주목할 점</strong>: <code>index.html</code>은 Fetch API 없이 인라인 JS 리터럴(<code>const EXERCISES = [...]</code>)로 1,324개 레코드를 직접 포함한다. 이로 인해 단일 파일 크기가 <strong>9MB</strong>에 달한다. <code>setup.html</code>은 별도로 <code>fetch('data/exercises.json')</code>을 사용하여 동적으로 데이터를 로드한다.</p>
+<hr />
+<h2 id="4-architecture-analysis">4. 아키텍처 분석 / Architecture Analysis</h2>
+<h3 id="_1">진입점</h3>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>역할</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>index.html</code></td>
+<td>운동 탐색 앱 — 검색, 필터(카테고리·장비·타깃), 무한스크롤, 상세 모달</td>
+</tr>
+<tr>
+<td><code>setup.html</code></td>
+<td>개발자 마법사 — DB SQL 생성, API 클라이언트 코드, LLM 프롬프트</td>
+</tr>
+</tbody>
+</table>
+<h3 id="indexhtml">index.html 아키텍처</h3>
+<ul>
+<li><strong>상태 관리</strong>: 단일 <code>state</code> 객체 (<code>exercises</code>, <code>filtered</code>, <code>rendered</code>, 현재 필터 값들)</li>
+<li><strong>렌더링</strong>: DOM 직접 조작 (innerHTML, createElement)</li>
+<li><strong>무한스크롤</strong>: <code>IntersectionObserver</code> + <code>load-sentinel</code> 요소로 배치 렌더링</li>
+<li><strong>필터·검색</strong>: 클라이언트사이드 배열 필터 (메모리 내 전체 데이터)</li>
+<li><strong>모달</strong>: CSS transition 기반 슬라이드인 패널</li>
+<li><strong>데이터 중복</strong>: <code>index.html</code> 내 인라인 + <code>exercises.json</code>에 동일 데이터 별도 존재</li>
+</ul>
+<h3 id="setuphtml">setup.html 아키텍처</h3>
+<ul>
+<li><strong>탭 UI</strong>: DB 종류별(MSSQL, PostgreSQL, MySQL, SQLite) SQL DDL 탭</li>
+<li><strong>SQL 생성기</strong>: 브라우저 메모리에서 <code>exercises.json</code> fetch 후 INSERT 구문 생성, <code>Blob</code> URL로 <code>.sql</code> 파일 다운로드</li>
+<li><strong>API 코드 예시</strong>: JavaScript, Python, C#, Java, PHP, Go, cURL — 라이브 URL 입력 시 모든 예시 동시 갱신</li>
+<li><strong>LLM 프롬프트 생성기</strong>: 프레임워크(Express/FastAPI/ASP.NET/Spring/Laravel/Gin) × DB(PostgreSQL/MySQL/MSSQL/SQLite) 조합으로 완성형 백엔드 생성 프롬프트 출력</li>
+</ul>
+<h3 id="_2">아키텍처 패턴</h3>
+<ul>
+<li><strong>SPA-lite</strong>: 단일 HTML 파일에 CSS·JS·데이터 모두 포함 (빌드 없는 단일 파일 앱)</li>
+<li><strong>레이어 미분리</strong>: 프레젠테이션, 비즈니스 로직, 데이터 접근이 동일 파일에 혼재</li>
+<li><strong>이벤트 기반 UI</strong>: addEventListener 패턴으로 상태 전이 처리</li>
+</ul>
+<hr />
+<h2 id="5-quality-test-system">5. 품질 및 테스트 / Quality &amp; Test System</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>단위 테스트</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>통합 테스트</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>E2E 테스트</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>❌ <code>.github/workflows/</code> 없음</td>
+</tr>
+<tr>
+<td>린트 (ESLint, Prettier 등)</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>정적 분석</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>데이터 무결성 검증</td>
+<td>❌ 스키마 유효성 검사 스크립트 없음</td>
+</tr>
+</tbody>
+</table>
+<p>데이터 품질 측면에서 1,324개 레코드 전체가 <code>image</code>, <code>gif_url</code> 필드 null, <code>media_id</code> 존재, 6개 언어 지침 모두 포함으로 일관성은 유지되나, 자동화된 유효성 검증 수단은 없다.</p>
+<hr />
+<h2 id="6-security-supply-chain">6. 보안 및 공급망 / Security &amp; Supply Chain</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>SECURITY.md</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>의존성 취약점 관리 (Dependabot 등)</td>
+<td>✅ 해당 없음 (외부 의존성 전무)</td>
+</tr>
+<tr>
+<td>SBOM / 아티팩트 서명</td>
+<td>❌ 없음 (해당 없음)</td>
+</tr>
+<tr>
+<td>LICENSE 파일</td>
+<td>❌ <strong>없음</strong></td>
+</tr>
+<tr>
+<td>시크릿 관리</td>
+<td>✅ 해당 없음 (서버·API 키 없음)</td>
+</tr>
+<tr>
+<td>CDN / 외부 스크립트 로드</td>
+<td>✅ 없음 (완전 오프라인 가능)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>라이선스 위험</strong>: <code>LICENSE</code> 파일이 존재하지 않는다. README에서는 원출처(ExerciseDB v1)의 조건을 검토할 것을 안내하고, 저작권 소유를 주장하지 않는다고 명시하지만, 구체적인 재사용 조건이 명시된 라이선스 파일이 없어 법적 모호성이 있다. ExerciseDB v1 원본 라이선스 확인 필요.</p>
+<p><strong>보안 위험 면에서 긍정적</strong>: 순수 정적 파일이므로 서버사이드 취약점(SQL 인젝션, SSRF 등) 가능성 자체가 없다. 외부 CDN 스크립트 없으므로 공급망 공격 표면도 없다.</p>
+<hr />
+<h2 id="7-documentation-operational-maturity">7. 문서 및 운영 성숙도 / Documentation &amp; Operational Maturity</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>상태</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README</td>
+<td>✅ 고품질 — 목적, 데이터 스키마, 통계, 다국어 샘플, Python/JS/TS 코드 예시, 라이선스 안내 포함</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>ADR (Architecture Decision Records)</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>이슈/PR 템플릿</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>CHANGELOG / 릴리스 노트</td>
+<td>❌ 없음</td>
+</tr>
+<tr>
+<td>커뮤니티 활동</td>
+<td>⚠️ 커밋 1개, 기여자 1명, 매우 초기</td>
+</tr>
+<tr>
+<td>최근 커밋 빈도</td>
+<td>단일 커밋 (2026-06-30)</td>
+</tr>
+</tbody>
+</table>
+<p>README의 품질 자체는 우수하다. 원출처 귀속(issue #5에 따른 사후 추가), 미디어 부재 사유, 데이터 스키마, 통계, 다국어 코드 예시 등이 체계적으로 문서화되어 있다.</p>
+<hr />
+<h2 id="8-strengths">8. 강점 / Strengths</h2>
+<ol>
+<li><strong>제로 의존성 배포</strong>: 빌드 도구, 패키지 매니저, 서버 없이 브라우저에서 즉시 실행. 개발자 온보딩 마찰이 사실상 0에 가깝다.</li>
+<li><strong>풍부한 다국어 데이터</strong>: 1,324개 운동 × 6개 언어(EN, ES, IT, TR, RU, ZH)의 전문 번역 지침이 <code>instructions</code> (문자열)과 <code>instruction_steps</code> (단계별 배열) 두 형식으로 동시 제공되어 다양한 앱 구조에 바로 적용 가능하다.</li>
+<li><strong>end-to-end 개발자 경험</strong>: JSON 데이터 → SQL DDL 생성 → API 클라이언트 코드 → LLM 백엔드 프롬프트까지 한 번에 제공하는 <code>setup.html</code>은 프로토타입 개발 속도를 크게 높인다.</li>
+<li><strong>이식성 높은 JSON 스키마</strong>: <code>id</code>, <code>category</code>, <code>body_part</code>, <code>equipment</code>, <code>target</code>, <code>muscle_group</code>, <code>secondary_muscles</code> 등 잘 정규화된 필드 구조로 Python(pandas), JavaScript, TypeScript에서 바로 타입 정의 및 필터링이 가능하다.</li>
+<li><strong>미디어 분리 결정의 투명성</strong>: 이미지/GIF를 제외한 이유(저작권 분쟁)를 명시하고 <code>media_id</code>로 원본 CDN 참조를 유지한 결정은 법적 리스크를 최소화하면서 데이터 참조 체인을 보존한다.</li>
+</ol>
+<hr />
+<h2 id="9-risks-improvements">9. 위험 및 개선 필요 사항 / Risks &amp; Improvements</h2>
+<ol>
+<li><strong><code>index.html</code> 9MB 인라인 데이터</strong>: 전체 데이터셋이 단일 HTML 파일에 JS 리터럴로 포함되어 초기 로드 비용이 크다. <code>setup.html</code>처럼 <code>fetch('data/exercises.json')</code>을 사용하는 방식으로 전환하면 파일 크기를 99% 줄이고 캐싱 효율을 높일 수 있다.</li>
+<li><strong>LICENSE 파일 부재</strong>: 명시적 라이선스 없이 저장소를 공개하면 법적 재사용 불명확성이 발생한다. ExerciseDB v1 원본 라이선스와 이 프로젝트의 추가 기여물(번역, HTML 도구)에 대한 조건을 별도 <code>LICENSE</code> 파일로 명시해야 한다.</li>
+<li><strong>데이터 무결성 자동 검증 없음</strong>: 스키마 유효성 검사(필수 필드 존재, 언어 키 완전성, <code>category</code>/<code>equipment</code>/<code>target</code> 허용값 범위)를 자동으로 검증하는 스크립트나 CI가 없다. 향후 데이터 갱신 시 조용한 데이터 손상 위험이 있다.</li>
+<li><strong>데이터 이중화</strong>: 동일한 1,324개 레코드가 <code>index.html</code> (인라인)과 <code>exercises.json</code> (파일)에 각각 존재한다. <code>index.html</code>이 <code>exercises.json</code>을 fetch하도록 리팩토링하면 단일 진실 원천(SSOT)을 유지하고 데이터 업데이트 오류를 방지할 수 있다.</li>
+<li><strong>커뮤니티·거버넌스 인프라 부재</strong>: CONTRIBUTING.md, CHANGELOG, 이슈 템플릿, CI, 릴리스 태그가 없어 외부 기여 수용 및 버전 관리가 어렵다. 오픈소스 프로젝트로 성장하려면 기초 거버넌스 문서가 필요하다.</li>
+</ol>
+<hr />
+<h2 id="10-adoption-recommendation">10. 도입 권고 / Adoption Recommendation</h2>
+<h3 id="_3">한국어</h3>
+<p>이 저장소는 <strong>운동 앱 프로토타입, ML 벤치마크 데이터셋, 교육 시연</strong>에 즉시 활용 가능한 고품질 데이터 소스다. 제로 의존성 아키텍처와 즉시 사용 가능한 개발자 도구(<code>setup.html</code>)는 온보딩 마찰을 최소화한다.</p>
+<p><strong>도입 시 유의사항:</strong>
+- <strong>상업적 활용 전</strong> ExerciseDB v1 원본 라이선스(oss.exercisedb.dev) 확인 필수. 현재 <code>LICENSE</code> 파일이 없어 법적 명확성이 낮다.
+- 미디어(이미지·GIF)가 포함되지 않으므로 시각 자산이 필요한 앱은 ExerciseDB 공식 CDN 또는 별도 미디어 소스를 추가로 확보해야 한다.
+- 프로덕션 앱에 통합 시 <code>index.html</code>의 9MB 인라인 데이터 방식보다 <code>exercises.json</code> 직접 fetch 방식을 사용하는 것을 강권한다.
+- 단일 커밋·단일 기여자 프로젝트로 장기 유지보수 지속성을 보장할 수 없으므로, 필요 시 포크 후 자체 관리를 권장한다.</p>
+<p><strong>권고 등급</strong>: <strong>조건부 채택 권장 (Conditional Adopt)</strong>
+데이터 자체의 품질과 구조는 우수하나, 라이선스 명확화와 데이터 이중화 해소 후 프로덕션 도입을 권장한다.</p>
+<hr />
+<h3 id="english-summary">English Summary</h3>
+<p>This repository is a <strong>ready-to-use fitness exercise dataset + developer onboarding wizard</strong>. The dataset quality is strong: 1,324 exercises, consistent schema, 6-language multilingual instructions in both prose and step-array formats, covering 28 equipment types and 19 target muscles.</p>
+<p><strong>Key adoption considerations:</strong>
+- <strong>Commercial use</strong>: No <code>LICENSE</code> file exists. The README disclaims ownership of underlying content and points to ExerciseDB v1's terms. Legal review is required before any commercial use.
+- <strong>Media assets</strong>: Images and GIFs are intentionally excluded due to ownership disputes. The <code>media_id</code> field provides a pointer to the ExerciseDB CDN for those with access rights.
+- <strong>Technical debt</strong>: <code>index.html</code>'s 9MB inline data embed is the primary architectural concern — trivially fixable by switching to a <code>fetch()</code> call. No test infrastructure or CI exists.
+- <strong>Maturity</strong>: Single commit, single contributor project as of analysis date. Fork and self-maintain if long-term stability is required.</p>
+<p><strong>Recommendation</strong>: <strong>Conditionally Adopt</strong> — excellent data asset for prototyping, ML, and education; resolve license ambiguity and data duplication before production integration.</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>hasaneyldrm/exercises-dataset</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/hasaneyldrm/exercises-dataset" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

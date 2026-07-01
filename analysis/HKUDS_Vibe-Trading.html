@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HKUDS/Vibe-Trading - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/HKUDS/Vibe-Trading" target="_blank" rel="noopener">HKUDS/Vibe-Trading</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">"Vibe-Trading: Your Personal Trading Agent"</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">Python</span>
+      <span class="badge badge-stars">★ 16365</span>
+      <span class="badge badge-stars">+682 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-07-02
+분석 대상: /tmp/github-dashboard-analysis/HKUDS_Vibe-Trading</p>
+<hr />
+<h1 id="hkuds-vibe-trading">HKUDS / Vibe-Trading — 소스 분석 리포트</h1>
+<h2 id="summary-analysis-table">요약 분석표 (Summary Analysis Table)</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 기반 금융 리서치 에이전트 플랫폼. 자연어 마켓 리서치, 452종 퀀트 알파, 7종 백테스트 엔진, 10종 브로커 연동, 16종 IM 채널 지원</td>
+<td>★★★★★ — 범용 퀀트·트레이딩 플랫폼으로서 기능 범위가 매우 광범위함</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td><code>agent/</code> (Python 백엔드 733파일), <code>frontend/</code> (React), <code>wiki/</code>, <code>scripts/</code>, <code>tools/</code>, <code>.github/</code>. 기능 지향적(feature-oriented) 디렉터리 구성</td>
+<td>★★★★☆ — 모노레포이며 도메인 경계가 명확하나 일부 대형 파일 존재</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Python 3.11+, FastAPI, LangChain/LangGraph, React 19, Vite, Zustand, DuckDB, Pandas 2.x, ECharts</td>
+<td>★★★★★ — 최신 버전 스택, LLM 에이전트 생태계 완전 활용</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>cli/main.py</code> (REPL), <code>api_server.py</code> (FastAPI), <code>mcp_server.py</code> (MCP) 3중 진입점</td>
+<td>★★★★☆ — 진입점이 명확하나 <code>_legacy.py</code> (206KB)가 기술 부채로 존재</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>ReAct 에이전트 루프 + 멀티에이전트 스웜, 레이어드 아키텍처(API → Agent → Skills/Tools → Data)</td>
+<td>★★★★☆ — 아키텍처 패턴이 일관되나 일부 단일 파일이 거대함</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>DuckDB 로컬 캐시, 18종 마켓 데이터 소스(자동 폴백), FTS5 세션 메모리, SQLite 영속 메모리</td>
+<td>★★★★★ — 다중 소스 폴백 전략, 오프라인 우선 지원</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>멀티스테이지 Dockerfile (Node 빌드 → Python 슬림), docker-compose, 비루트 사용자, 헬스체크</td>
+<td>★★★★★ — 프로덕션 수준 컨테이너화, 보안 강화 적용</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>pytest 232파일 + vitest 197파일, AST 순수성 게이트, 선행 누수(lookahead) 검사, 보안 API 테스트(645 LOC)</td>
+<td>★★★☆☆ — 테스트 수는 충분하나 커버리지 수치 미공개, e2e는 환경변수 게이트</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>CORS, CSRF, 경로 순회 방지, API 키 게이트, 쉘 도구 opt-in, 파일 업로드 50MB 제한, SECURITY.md 완비</td>
+<td>★★★★☆ — 다층 보안 정책 명시, CVE 보고 채널 공식화됨</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v0.1.10 베타, CHANGELOG 관리, 기여 가이드·DCO·CoC 완비, 7개국어 README, 월간 50+ 업데이트</td>
+<td>★★★★☆ — 빠른 릴리즈 사이클, 단일 조직 주도이나 커뮤니티 성장 중</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-1-purpose-and-scope">Step 1. 목적 및 범위 (Purpose and Scope)</h2>
+<p><strong>Vibe-Trading</strong>은 홍콩과학기술대학교 데이터사이언스 연구실(HKUDS)에서 오픈소스로 개발 중인 <strong>AI 기반 금융 리서치 및 트레이딩 플랫폼</strong>이다.</p>
+<ul>
+<li><strong>해결하는 문제</strong>: 퀀트 연구자·트레이더가 AI 에이전트를 통해 시장 조사, 알파 팩터 검증, 백테스트, 라이브 트레이딩 감시를 단일 플랫폼에서 처리할 수 있도록 한다.</li>
+<li><strong>대상 사용자</strong>: 퀀트 애널리스트, 개인 트레이더, 금융 리서처, AI 에이전트 연구자</li>
+<li><strong>분류</strong>: 복합 플랫폼 — CLI 툴킷 + FastAPI 백엔드 + React 프론트엔드 + MCP 서버</li>
+<li><strong>현재 버전</strong>: 0.1.10 (개발 상태: Beta)</li>
+</ul>
+<hr />
+<h2 id="step-2-repository-structure">Step 2. 저장소 구조 분석 (Repository Structure)</h2>
+<pre><code>HKUDS_Vibe-Trading/
+├── agent/                  # 핵심 Python 백엔드 (733 파일, ~102K LOC)
+│   ├── src/                # 소스 라이브러리
+│   │   ├── agent/          # 에이전트 루프 (loop.py 62KB, context.py 17KB)
+│   │   ├── tools/          # 도구 정의
+│   │   ├── skills/         # 79종 금융 스킬
+│   │   ├── factors/        # Alpha Zoo (452종 알파)
+│   │   ├── swarm/          # 29종 멀티에이전트 팀 프리셋
+│   │   ├── trading/        # 브로커 커넥터 레이어
+│   │   ├── live/           # 라이브 트레이딩 런타임
+│   │   ├── channels/       # 16종 IM 채널 어댑터
+│   │   ├── api/            # FastAPI 라우트
+│   │   ├── session/        # 세션 영속화 + FTS5 검색
+│   │   ├── memory/         # 교차 세션 영속 메모리
+│   │   ├── shadow_account/ # 브로커 저널 → 룰 추출
+│   │   ├── security/       # 인증/CORS/경로 보안
+│   │   └── providers/      # LLM 프로바이더 통합
+│   ├── backtest/           # 백테스트 프레임워크 (12.2K LOC)
+│   ├── cli/                # CLI 패키지
+│   ├── tests/              # 232개 테스트 파일
+│   ├── api_server.py       # FastAPI 진입점 (138KB)
+│   └── mcp_server.py       # MCP 서버 (70.8KB)
+├── frontend/               # React 19 + TypeScript 프론트엔드
+│   ├── src/
+│   │   ├── pages/          # 8개 라우트 페이지
+│   │   ├── components/     # 30+ React 컴포넌트
+│   │   ├── stores/         # Zustand 상태 관리
+│   │   ├── i18n/           # 6개 언어 국제화
+│   │   └── tests/          # 197개 vitest 테스트
+│   └── package.json
+├── wiki/                   # 정적 문서 사이트
+├── assets/                 # 이미지 및 미디어
+├── scripts/                # 빌드/배포 스크립트
+├── .github/workflows/      # CI/CD 워크플로
+├── Dockerfile              # 멀티스테이지 컨테이너 빌드
+├── docker-compose.yml      # Docker 오케스트레이션
+├── pyproject.toml          # Python 프로젝트 설정
+└── README.md (113KB)       # 메인 문서
+</code></pre>
+<p><strong>모노레포</strong> 구조이며, <strong>기능 지향(feature-oriented)</strong> 디렉터리 구성을 따른다. 코드와 운영 자산(Docker, CI)이 명확히 분리되어 있다.</p>
+<hr />
+<h2 id="step-3-software-stack">Step 3. 소프트웨어 스택 (Software Stack)</h2>
+<h3 id="python">백엔드 (Python)</h3>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>Python</td>
+<td>&gt;= 3.11</td>
+</tr>
+<tr>
+<td>웹 프레임워크</td>
+<td>FastAPI + Uvicorn</td>
+<td>0.104+</td>
+</tr>
+<tr>
+<td>AI 에이전트</td>
+<td>LangChain + LangGraph</td>
+<td>&gt;= 1.0.0</td>
+</tr>
+<tr>
+<td>데이터 처리</td>
+<td>Pandas, NumPy, SciPy</td>
+<td>2.x / 1.x</td>
+</tr>
+<tr>
+<td>로컬 DB</td>
+<td>DuckDB</td>
+<td>&gt;= 1.2.0</td>
+</tr>
+<tr>
+<td>ML</td>
+<td>scikit-learn, joblib</td>
+<td>&gt;= 1.3.0</td>
+</tr>
+<tr>
+<td>마켓 데이터</td>
+<td>yfinance, tushare, akshare, ccxt</td>
+<td>다양</td>
+</tr>
+<tr>
+<td>PDF 생성</td>
+<td>WeasyPrint</td>
+<td>—</td>
+</tr>
+<tr>
+<td>패키지 관리</td>
+<td>pip + pyproject.toml</td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<h3 id="typescriptreact">프론트엔드 (TypeScript/React)</h3>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>기술</th>
+<th>버전</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>UI 프레임워크</td>
+<td>React</td>
+<td>19.0.0</td>
+</tr>
+<tr>
+<td>빌드 도구</td>
+<td>Vite</td>
+<td>6.4.3</td>
+</tr>
+<tr>
+<td>스타일링</td>
+<td>Tailwind CSS</td>
+<td>3.4.0</td>
+</tr>
+<tr>
+<td>상태 관리</td>
+<td>Zustand</td>
+<td>5.0.0</td>
+</tr>
+<tr>
+<td>차트</td>
+<td>ECharts</td>
+<td>6.1.0</td>
+</tr>
+<tr>
+<td>국제화</td>
+<td>i18next</td>
+<td>—</td>
+</tr>
+<tr>
+<td>라우팅</td>
+<td>React Router DOM</td>
+<td>7.15.0</td>
+</tr>
+<tr>
+<td>테스트</td>
+<td>Vitest</td>
+<td>4.1.0</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_1">인프라</h3>
+<table>
+<thead>
+<tr>
+<th>범주</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>컨테이너</td>
+<td>Docker (멀티스테이지), docker-compose</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>GitHub Actions</td>
+</tr>
+<tr>
+<td>런타임 이미지</td>
+<td>python:3.11-slim</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="step-4-architecture-analysis">Step 4. 아키텍처 분석 (Architecture Analysis)</h2>
+<h3 id="entry-points">진입점 (Entry Points)</h3>
+<table>
+<thead>
+<tr>
+<th>명령</th>
+<th>역할</th>
+<th>파일</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>vibe-trading</code></td>
+<td>인터랙티브 REPL CLI</td>
+<td><code>cli/main.py</code></td>
+</tr>
+<tr>
+<td><code>vibe-trading serve</code></td>
+<td>FastAPI REST 서버</td>
+<td><code>api_server.py</code> (138KB)</td>
+</tr>
+<tr>
+<td><code>vibe-trading-mcp</code></td>
+<td>Model Context Protocol 서버</td>
+<td><code>mcp_server.py</code> (70.8KB)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">아키텍처 패턴</h3>
+<ol>
+<li><strong>ReAct 에이전트 루프</strong> (<code>agent/src/agent/loop.py</code>, 62KB): LangGraph 기반 추론-행동-관찰 사이클</li>
+<li><strong>레이어드 아키텍처</strong>:</li>
+<li>Presentation: FastAPI 라우트 (<code>api/</code>) + React 프론트엔드</li>
+<li>Business Logic: 에이전트 루프, 스킬, 팩터 계산</li>
+<li>Data Access: 18종 마켓 데이터 로더 + DuckDB 캐시</li>
+<li><strong>멀티에이전트 스웜</strong>: 29종 팀 프리셋, 병렬 워커 + SSE 스트리밍 상태 전달</li>
+<li><strong>이벤트 기반 통신</strong>: Server-Sent Events(SSE)로 프론트엔드 실시간 스트리밍</li>
+</ol>
+<h3 id="_3">상태 관리</h3>
+<ul>
+<li><strong>백엔드</strong>: SQLite + FTS5 세션 메모리, 교차 세션 영속 메모리</li>
+<li><strong>프론트엔드</strong>: Zustand (<code>stores/agent.ts</code>) 단일 스토어</li>
+</ul>
+<h3 id="_4">모듈 경계</h3>
+<pre><code>LLM Provider (13종)
+       ↓
+Agent Loop (ReAct/LangGraph)
+       ↓
+Skills (79종) / Tools / Swarm Teams (29종)
+       ↓
+Backtest Engines (7종) / Broker Connectors (10종) / Data Loaders (18종)
+       ↓
+IM Channels (16종) / FastAPI / MCP
+</code></pre>
+<hr />
+<h2 id="step-5-quality-test-system">Step 5. 품질 및 테스트 시스템 (Quality &amp; Test System)</h2>
+<h3 id="_5">테스트 구성</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Python 테스트 프레임워크</td>
+<td>pytest</td>
+</tr>
+<tr>
+<td>Python 테스트 파일 수</td>
+<td>232개</td>
+</tr>
+<tr>
+<td>Frontend 테스트 프레임워크</td>
+<td>Vitest 4.1.0</td>
+</tr>
+<tr>
+<td>Frontend 테스트 파일 수</td>
+<td>197개</td>
+</tr>
+<tr>
+<td>커버리지 리포트</td>
+<td>XML + term-missing</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_6">특수 테스트 게이트</h3>
+<ul>
+<li><strong><code>test_alpha_purity.py</code></strong>: AST 정적 분석으로 알파 팩터의 금지된 패턴(사이드이펙트, I/O 등) 차단</li>
+<li><strong><code>test_lookahead.py</code></strong>: 팩터 계산의 미래 정보 누출(look-ahead bias) 자동 검출</li>
+<li><strong><code>test_security_auth_api.py</code></strong> (645 LOC): API 보안 엔드포인트 전용 테스트</li>
+<li><strong><code>test_e2e_harness_v2.py</code></strong>: 실제 LLM 호출 e2e 테스트 — <code>VIBE_TRADING_RUN_LIVE_E2E=1</code> 환경변수로 게이팅</li>
+</ul>
+<h3 id="cicd-githubworkflowstestyml">CI/CD (<code>.github/workflows/test.yml</code>)</h3>
+<pre><code>트리거: main push + PR
+Python 3.11 / Node 20
+  1. pip install -e &quot;.[dev]&quot;
+  2. py_compile 문법 검사
+  3. pytest (e2e 제외)
+  4. npm ci + npm run build
+  5. npm run test (vitest)
+타임아웃: 10분
+</code></pre>
+<h3 id="_7">코드 품질 도구</h3>
+<ul>
+<li><strong>Black</strong> (포맷팅)</li>
+<li><strong>Ruff</strong> (린팅)</li>
+<li>120자 라인 제한</li>
+<li>Google 스타일 docstring</li>
+</ul>
+<hr />
+<h2 id="step-6-security-supply-chain">Step 6. 보안 및 공급망 (Security &amp; Supply Chain)</h2>
+<h3 id="_8">보안 정책</h3>
+<ul>
+<li><strong>SECURITY.md</strong>: GitHub Security Advisories를 통한 취약점 보고 채널 공식화</li>
+<li><strong>지원 버전</strong>: 최신 릴리즈만 지원 (별도 LTS 없음)</li>
+<li><strong>임포스터 경고</strong>: 2026-06-18 공식 Discord 계정 사칭 사건 기록, 공식 서버 명시</li>
+</ul>
+<h3 id="2026-5">코드 레벨 보안 강화 (2026년 5월~ 지속 적용)</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>구현 방식</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>CORS</td>
+<td>오리진 화이트리스트 검증</td>
+</tr>
+<tr>
+<td>CSRF</td>
+<td>루프백 API 보호</td>
+</tr>
+<tr>
+<td>경로 순회</td>
+<td><code>safe_path()</code> 함수</td>
+</tr>
+<tr>
+<td>쉘 도구</td>
+<td><code>VIBE_TRADING_ENABLE_SHELL_TOOLS=1</code> opt-in</td>
+</tr>
+<tr>
+<td>파일 업로드</td>
+<td>50MB 제한</td>
+</tr>
+<tr>
+<td>Docker 보안</td>
+<td>비루트 사용자 <code>vibe</code></td>
+</tr>
+<tr>
+<td>생성 코드</td>
+<td>임포트 전 유효성 검사</td>
+</tr>
+<tr>
+<td>API 키 게이트</td>
+<td>Settings 쓰기 작업 보호</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_9">의존성 관리</h3>
+<ul>
+<li>주요 의존성 버전 범위 명시 (semver)</li>
+<li>Dependabot/Renovate 설정 파일 미확인 (자동 취약점 스캔 도구 설정 부재)</li>
+<li>SBOM 및 아티팩트 서명 미확인</li>
+</ul>
+<h3 id="_10">라이선스</h3>
+<ul>
+<li><strong>메인 라이선스</strong>: MIT</li>
+<li><strong>주요 의존성</strong>: LangChain(MIT), FastAPI(MIT), React(MIT), pandas(BSD-3), yfinance(Apache-2.0)</li>
+<li><strong>라이선스 호환성</strong>: 전반적으로 허용적(permissive) 라이선스 스택</li>
+</ul>
+<hr />
+<h2 id="step-7-documentation-operational-maturity">Step 7. 문서화 및 운영 성숙도 (Documentation &amp; Operational Maturity)</h2>
+<h3 id="_11">문서화</h3>
+<table>
+<thead>
+<tr>
+<th>파일</th>
+<th>품질</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README.md (113KB)</td>
+<td>퀵스타트, API 문서, 예제, 로드맵 포함 — 매우 상세</td>
+</tr>
+<tr>
+<td>README_{zh,ja,ko,ar}.md</td>
+<td>4개 언어 번역본 완비</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>DCO 요건, 알파 PR 체크리스트, 코드 스타일 명시</td>
+</tr>
+<tr>
+<td>CODE_OF_CONDUCT.md</td>
+<td>Contributor Covenant 2.0</td>
+</tr>
+<tr>
+<td>SECURITY.md</td>
+<td>취약점 보고 채널, 임포스터 경고</td>
+</tr>
+<tr>
+<td>CHANGELOG.md (9.4KB)</td>
+<td>버전별 변경사항 관리</td>
+</tr>
+<tr>
+<td>AGENT_CONTRIBUTOR_GUIDE.md</td>
+<td>AI 보조 기여 가이드, 리스크 경계 명시</td>
+</tr>
+<tr>
+<td>agent/SKILL.md</td>
+<td>79종 스킬 YAML 매니페스트</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_12">커뮤니티 및 활동</h3>
+<ul>
+<li><strong>릴리즈 사이클</strong>: 빠름 — 2026년 5~7월 기간 50+ 업데이트</li>
+<li><strong>최신 커밋</strong>: 2026-07-01 (<code>docs: add July 1 news</code>)</li>
+<li><strong>주도</strong>: HKUDS 연구실 (단일 조직)</li>
+<li><strong>PR 템플릿</strong>: 알파 기여를 위한 상세 체크리스트 존재</li>
+<li><strong>Discord 커뮤니티</strong>: 공식 서버 운영 중</li>
+</ul>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>극도로 넓은 기능 범위</strong>: 퀀트 리서치(452종 알파), 7종 백테스트 엔진, 10종 브로커 연동, 16종 IM 채널, 18종 데이터 소스를 단일 플랫폼에서 통합 — 업계에서 이 수준의 통합 오픈소스 플랫폼은 희귀하다.</p>
+</li>
+<li>
+<p><strong>AST 기반 알파 안전 게이트</strong>: <code>test_alpha_purity.py</code>와 <code>test_lookahead.py</code>의 자동 정적 분석 테스트는 알파 팩터 기여 시 사이드이펙트 및 미래 정보 누출을 코드 레벨에서 차단하는 강력한 안전망이다.</p>
+</li>
+<li>
+<p><strong>프로덕션 수준 컨테이너화</strong>: 멀티스테이지 Dockerfile, 비루트 사용자, 헬스체크, named volume 분리까지 갖춘 Docker 구성은 즉시 배포 가능한 수준이다.</p>
+</li>
+<li>
+<p><strong>다중 LLM 프로바이더 지원</strong>: 13종 LLM 프로바이더를 추상화하여 벤더 종속 없이 교체 가능하며, 스트리밍 장애 복구 로직까지 포함되어 있다.</p>
+</li>
+<li>
+<p><strong>풍부한 문서화 및 다언어 지원</strong>: 113KB README + 4개 언어 번역 + SKILL.md 매니페스트 + AI 기여자 가이드 등, 오픈소스 프로젝트로서 매우 높은 문서화 수준이다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험 및 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>거대 단일 파일 문제</strong>: <code>api_server.py</code> (138KB), <code>mcp_server.py</code> (70.8KB), <code>cli/_legacy.py</code> (206KB), <code>agent/src/agent/loop.py</code> (62KB)는 유지보수성과 테스트 격리를 저해한다. 점진적 모듈 분리가 필요하다.</p>
+</li>
+<li>
+<p><strong>테스트 커버리지 불투명</strong>: CI 파이프라인에서 커버리지를 측정하지만 최소 목표치(e.g., 80%)를 강제하지 않으며, 전체 커버리지 수치가 공개되어 있지 않다. 핵심 에이전트 루프의 실제 커버리지가 불확실하다.</p>
+</li>
+<li>
+<p><strong>자동화된 의존성 취약점 스캔 부재</strong>: Dependabot, Renovate, Snyk 등의 자동 취약점 스캔 및 의존성 업데이트 봇 설정이 확인되지 않는다. 수십 개의 외부 라이브러리가 포함된 규모에서는 자동 스캔이 필수적이다.</p>
+</li>
+<li>
+<p><strong>라이브 트레이딩 리스크 관리</strong>: 10종 브로커 연동과 라이브 트레이딩 기능을 제공하지만 버전이 여전히 v0.1.10 베타다. <code>PreTradeAdvisoryInterface</code>와 킬 스위치가 추가되었으나, 금융 손실에 대한 책임 경계와 안전장치의 실전 검증 여부가 불명확하다.</p>
+</li>
+<li>
+<p><strong>단일 조직 의존도</strong>: HKUDS 연구실이 사실상 유일한 주도 조직으로 보이며, 외부 핵심 기여자 다양성이 낮을 가능성이 있다. 연구실 활동 변화 시 프로젝트 지속성이 위협받을 수 있다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>분류</strong>: 금융 AI 에이전트 플랫폼 / 퀀트 리서치 툴킷</p>
+<p><strong>권고 등급</strong>: ★★★★☆ — <strong>연구·프로토타이핑 환경에 적극 권장, 프로덕션 라이브 트레이딩에는 추가 검토 필요</strong></p>
+<h3 id="_13">적합한 사용 시나리오</h3>
+<table>
+<thead>
+<tr>
+<th>시나리오</th>
+<th>적합도</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>퀀트 팩터 리서치 및 백테스트</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>AI 에이전트 기반 마켓 리서치</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>LLM 에이전트 아키텍처 벤치마킹</td>
+<td>★★★★★</td>
+</tr>
+<tr>
+<td>내부 리서치 플랫폼 구축</td>
+<td>★★★★☆</td>
+</tr>
+<tr>
+<td>프로덕션 라이브 트레이딩</td>
+<td>★★★☆☆</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_14">도입 시 권고 사항</h3>
+<ol>
+<li><strong>라이브 트레이딩 사용 시</strong> — <code>VIBE_TRADING_ENABLE_SHELL_TOOLS=0</code> 유지, 별도 격리 환경에서 운영, 자체 리스크 관리 레이어 추가</li>
+<li><strong>엔터프라이즈 도입 시</strong> — Dependabot 활성화, 커버리지 최소 목표 설정, <code>api_server.py</code> 모듈 분리 후 운영</li>
+<li><strong>연구/학습 목적</strong> — 현재 상태로도 퀀트 AI 에이전트 연구에 즉시 활용 가능한 수준</li>
+</ol>
+<blockquote>
+<p><strong>결론</strong>: Vibe-Trading은 AI 에이전트 기반 퀀트 금융 플랫폼 중 오픈소스로는 드물게 포괄적인 기능 셋을 갖추고 있으며, 빠른 개발 속도와 체계적인 보안 강화가 병행되고 있다. 백테스트 및 리서치 플랫폼으로서의 성숙도는 높지만, v0.1.x 베타 단계에서의 라이브 트레이딩 활용은 충분한 검증 후 신중하게 접근해야 한다.</p>
+</blockquote></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>HKUDS/Vibe-Trading</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/HKUDS/Vibe-Trading" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
