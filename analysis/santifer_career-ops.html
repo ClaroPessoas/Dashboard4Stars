@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>santifer/career-ops - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/santifer/career-ops" target="_blank" rel="noopener">santifer/career-ops</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">AI-powered job search system built on Claude Code. 14 skill modes, Go dashboard, PDF generation, batch processing.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">JavaScript</span>
+      <span class="badge badge-stars">★ 57565</span>
+      <span class="badge badge-stars">+322 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-07-03
+분석 대상: <code>/tmp/github-dashboard-analysis/santifer_career-ops</code></p>
+<hr />
+<h1 id="career-ops">Career-Ops 오픈소스 소프트웨어 분석 보고서</h1>
+<h1 id="career-ops-open-source-software-analysis-report">Career-Ops Open-Source Software Analysis Report</h1>
+<hr />
+<h2 id="summary-analysis-table">요약 분석표 / Summary Analysis Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적 (Purpose)</strong></td>
+<td>AI 코딩 CLI(Claude Code, Codex, OpenCode 등)를 활용한 로컬 우선 구직 자동화 파이프라인. 채용공고 평가, 맞춤형 CV PDF 생성, 포털 스캐닝, 배치 처리, 파이프라인 추적 기능 제공. 740개+ 공고 평가·100개+ CV 생성을 통해 실전 검증 완료</td>
+<td>✅ 명확하고 독창적</td>
+</tr>
+<tr>
+<td><strong>구조 (Structure)</strong></td>
+<td>루트에 <code>.mjs</code> 스크립트 집중, <code>modes/</code>에 프롬프트 파일, <code>providers/</code>에 ATS 연동 모듈(40개+), <code>plugins/</code>에 옵트인 플러그인 엔진, <code>dashboard/</code>에 독립 Go TUI. <code>data/</code>, <code>reports/</code>, <code>output/</code> 등 유저 레이어는 시스템 레이어와 엄격히 분리. 모노레포 구조</td>
+<td>✅ 명확한 레이어 분리</td>
+</tr>
+<tr>
+<td><strong>스택 (Stack)</strong></td>
+<td>Node.js v24 (ESM <code>.mjs</code>), Go 1.24 (BubbleTea TUI), Playwright 1.61.1 (PDF·스크래핑), js-yaml, @google/generative-ai, dotenv. 보조: Nix devShell, Docker/Compose, LaTeX(CV 생성), OpenRouter/Ollama/OpenAI 연동</td>
+<td>✅ 경량·현실적</td>
+</tr>
+<tr>
+<td><strong>진입점 (Entrypoints)</strong></td>
+<td>AI CLI에서 <code>CLAUDE.md</code>/<code>AGENTS.md</code> 자동 로드; <code>npm run</code> 스크립트(scan, pdf, verify 등); <code>npx @santifer/career-ops init</code> 원커맨드 설치; <code>node doctor.mjs</code> 사전진단; <code>dashboard/main.go</code> TUI; <code>cops</code> 셸 래퍼</td>
+<td>✅ 다중 CLI 대응</td>
+</tr>
+<tr>
+<td><strong>아키텍처 (Architecture)</strong></td>
+<td><strong>로컬 우선·AI 무관·Human-in-the-Loop</strong> 3원칙. 시스템/유저 파일 이중 레이어(DATA_CONTRACT.md가 경계 명시). Markdown 기반 프롬프트(<code>modes/</code>)가 비즈니스 로직 역할. 독립 스탠드얼론 평가기(Gemini/Ollama/OpenAI/OpenRouter) 지원. 플러그인 훅 시스템으로 외부 통합 격리</td>
+<td>✅ 아키텍처 선언 명확</td>
+</tr>
+<tr>
+<td><strong>데이터 (Data)</strong></td>
+<td>유저 데이터는 마크다운/YAML 로컬 파일(<code>data/applications.md</code>, <code>config/profile.yml</code>). SQLite 파생 인덱스(<code>data/applications.db</code>)는 재생성 가능. 원자적 보고서 번호 예약(<code>reserve-report-num.mjs</code>). <code>.gitignore</code>로 <code>output/</code>, <code>jds/</code>, <code>batch/</code> 제외</td>
+<td>✅ 안전하고 투명</td>
+</tr>
+<tr>
+<td><strong>배포 (Deployment)</strong></td>
+<td>로컬 전용 (<code>npx</code> 설치기 or <code>git clone</code>). Docker/Compose는 선택적 컨테이너 환경 제공. Nix flake로 재현 가능한 devShell. 서버·호스팅·SaaS 없음</td>
+<td>✅ 설치 마찰 최소화</td>
+</tr>
+<tr>
+<td><strong>테스트 (Tests)</strong></td>
+<td><code>test-all.mjs</code> 500개+ 검증(구문, 스크립트, 데이터 계약, 보안, 업데이터 경계), Go 유닛 테스트(<code>open_command_test.go</code>), <code>detect-reposts.test.mjs</code>, <code>followup-cadence.test.mjs</code>, <code>updater-migration-tests.mjs</code>. CI: PR마다 <code>--quick</code> 실행</td>
+<td>✅ 광범위한 커버리지</td>
+</tr>
+<tr>
+<td><strong>보안 (Security)</strong></td>
+<td>CodeQL(JS+Go 주간 스캔), Dependabot(npm+gomod+Actions 주간), Renovate, SBOM 릴리즈 첨부(Anchore SPDX), 의존성 리뷰 워크플로우, 개인 취약점 보고(이메일). <code>.env.example</code>로 시크릿 분리, <code>no-user-data.yml</code>로 PR 개인정보 차단</td>
+<td>✅ 다층 보안</td>
+</tr>
+<tr>
+<td><strong>성숙도 (Maturity)</strong></td>
+<td>v1.16.0, CHANGELOG 자동화(release-please), BDFL 거버넌스, Contributor Ladder, 커뮤니티 디스코드, CodeRabbit 자동 리뷰, 이슈 템플릿 5종, 14개 언어 README, CITATION.cff(학술 인용 지원), WIRED·Business Insider 미디어 노출</td>
+<td>✅ 성숙한 오픈소스</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="detailed-analysis">세부 분석 / Detailed Analysis</h2>
+<h3 id="step-1-purpose-and-scope">Step 1. 목적 및 범위 / Purpose and Scope</h3>
+<p>Career-Ops는 AI 코딩 CLI를 완전한 구직 커맨드 센터로 전환하는 <strong>로컬 우선 구직 자동화 도구</strong>다. 작자 santifer가 개인 구직 과정(740개+ 공고 평가, 100개+ CV, Head of Applied AI 포지션 획득)에서 실전 사용하여 검증한 뒤 오픈소스화했다. 대상 사용자는 AI 코딩 CLI에 익숙한 기술직 구직자이며, AI에 의한 스크리닝에 AI로 대응하는 역발상 컨셉이 핵심이다.</p>
+<p><strong>프로젝트 유형</strong>: 복합 도구(CLI 자동화 + 마크다운 프롬프트 라이브러리 + TUI 대시보드 + 플러그인 플랫폼)</p>
+<p><strong>핵심 원칙</strong>: Human-in-the-Loop — AI는 평가·초안을 준비하고, 최종 제출은 반드시 사용자가 결정한다.</p>
+<hr />
+<h3 id="step-2-repository-structure">Step 2. 저장소 구조 / Repository Structure</h3>
+<pre><code>career-ops/
+├── modes/              # 프롬프트 파일 — 평가·CV·스캔·인터뷰 등 모드별 지침
+│   ├── _shared.md      # 스코어링 핵심 + 전역 규칙 (시스템 레이어)
+│   ├── _profile.md     # 사용자 아케타입·협상 스크립트 (유저 레이어 템플릿)
+│   ├── de/, fr/, ja/…  # 언어별 번역 모드 (7개 언어 디렉터리)
+│   └── interview/      # 인터뷰 준비·연습·디브리핑 하위 모드
+├── providers/          # ATS 별 스캐너 모듈 (~40개 — Greenhouse, Ashby, Lever 등)
+├── plugins/            # 옵트인 외부 통합 엔진 (Notion, Gmail, Apify 등)
+├── dashboard/          # Go TUI (BubbleTea) — 파이프라인 브라우저
+├── templates/          # HTML/LaTeX CV 템플릿
+├── data/               # 유저 데이터 (applications.md, pipeline.md 등, gitignored)
+├── batch/              # 병렬 배치 워커 스크립트
+├── config/             # profile.example.yml, plugins.example.yml
+├── docs/               # 추가 문서
+├── *.mjs               # 유틸리티 스크립트 (~35개)
+└── CLAUDE.md / AGENTS.md / CODEX.md  # CLI별 에이전트 진입 파일
+</code></pre>
+<p><strong>특징</strong>: 코드와 운영 자산(마크다운 프롬프트)이 동일 저장소에 공존하는 독특한 구조. 시스템 레이어와 유저 레이어의 경계가 <code>DATA_CONTRACT.md</code>와 <code>update-system.mjs</code>의 <code>SYSTEM_PATHS</code>/<code>USER_PATHS</code> 상수로 코드 레벨에서 강제된다.</p>
+<hr />
+<h3 id="step-3-software-stack">Step 3. 소프트웨어 스택 / Software Stack</h3>
+<table>
+<thead>
+<tr>
+<th>계층</th>
+<th>기술</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>언어</strong></td>
+<td>Node.js (ESM <code>.mjs</code>), Go 1.24</td>
+</tr>
+<tr>
+<td><strong>런타임</strong></td>
+<td>Node.js v24 (CI 기준), Go 1.24</td>
+</tr>
+<tr>
+<td><strong>주요 의존성</strong></td>
+<td>Playwright 1.61.1, js-yaml 4.x, @google/generative-ai 0.24.x, dotenv 17.x</td>
+</tr>
+<tr>
+<td><strong>TUI</strong></td>
+<td>BubbleTea + lipgloss + termenv (Go)</td>
+</tr>
+<tr>
+<td><strong>빌드/패키지</strong></td>
+<td>npm (Node), Go modules, npx 설치기(scaffolder/), Nix flake</td>
+</tr>
+<tr>
+<td><strong>PDF 생성</strong></td>
+<td>Playwright HTML→PDF, LaTeX/pdflatex (선택)</td>
+</tr>
+<tr>
+<td><strong>데이터 저장</strong></td>
+<td>마크다운 파일 (primary), SQLite (파생 인덱스), YAML (설정), TSV (스캔 이력)</td>
+</tr>
+<tr>
+<td><strong>컨테이너화</strong></td>
+<td>Docker (Playwright 기반 이미지), docker-compose.yml</td>
+</tr>
+<tr>
+<td><strong>CI</strong></td>
+<td>GitHub Actions (11개 워크플로우)</td>
+</tr>
+<tr>
+<td><strong>LLM 연동</strong></td>
+<td>Claude Code CLI (주), Gemini/OpenRouter/Ollama/OpenAI (독립 스크립트)</td>
+</tr>
+</tbody>
+</table>
+<p>Node.js의 의존성이 4개로 극도로 간결하다. Playwright가 유일한 무거운 의존성이며, PDF/스크래핑 기능에만 사용된다.</p>
+<hr />
+<h3 id="step-4-architecture-analysis">Step 4. 아키텍처 분석 / Architecture Analysis</h3>
+<p><strong>3대 원칙</strong>:
+1. <strong>로컬 우선(Local-first)</strong>: 계정·서버 불필요, 모든 데이터가 로컬에 존재
+2. <strong>AI 무관(AI-agnostic)</strong>: 프롬프트 로직이 <code>modes/</code> 마크다운에 격리, 어떤 CLI/모델로도 실행 가능
+3. <strong>Human-in-the-Loop</strong>: 제출 버튼은 항상 사용자가 누름</p>
+<p><strong>아키텍처 패턴</strong>: <strong>프롬프트 기반 파이프라인 아키텍처</strong>. 전통적인 MVC나 Clean Architecture와 다르게, 비즈니스 로직(스코어링·아케타입 감지·협상 프레임워크)이 마크다운 프롬프트 파일에 구현되고, AI CLI가 런타임 실행기 역할을 한다.</p>
+<p><strong>핵심 데이터 흐름</strong>:</p>
+<pre><code>scan.mjs → data/pipeline.md → [AI 평가 (oferta.md + cv.md)] → reports/NNN-*.md
+                                             ↓
+                              data/applications.md (tracker)
+                                             ↓
+                              apply mode → [human reviews] → submit
+</code></pre>
+<p><strong>플러그인 시스템</strong>: 훅 기반 옵트인 구조. <code>manifest.json</code> 파싱 (실행 전), <code>allowedHosts</code> 네트워크 허용 목록, <code>humanInTheLoop: true</code> 강제, 공급망 검증(<code>plugins-registry.json</code> 신뢰 루트).</p>
+<p><strong>상태 관리</strong>: 파일 기반. <code>data/applications.md</code>가 소스 오브 트루스, <code>data/applications.db</code>는 SQLite 파생 인덱스(재생성 가능). 원자적 보고서 번호 예약으로 동시성 충돌 방지.</p>
+<hr />
+<h3 id="step-5-quality-and-test-system">Step 5. 품질 및 테스트 시스템 / Quality and Test System</h3>
+<p><strong>테스트 아키텍처</strong>:
+- <code>test-all.mjs</code> (9,758줄, 500개+ 검증): 구문 검사, 스크립트 실행, 데이터 계약 경계, 개인정보 노출, 업데이터 안전성, 경로 커버리지 검증. 프레임워크 없이 Node.js 내장만 사용하여 clean checkout에서 즉시 실행 가능
+- <code>updater-migration-tests.mjs</code>: 시스템/유저 경계 교차 여부 및 버전 간 안전 업그레이드 강제
+- <code>detect-reposts.test.mjs</code>, <code>followup-cadence.test.mjs</code>, <code>tracker-columns-tests.mjs</code>: 독립 모듈 테스트
+- <code>test-salary-filter.mjs</code>, <code>test-trust-validator.mjs</code>: 특화 기능 검증
+- Go: <code>open_command_test.go</code> (TUI 오픈 커맨드 크로스플랫폼 테스트)</p>
+<p><strong>CI/CD</strong>:
+- PR 트리거: 테스트(<code>--quick</code>) + CodeQL + 의존성 리뷰 + no-user-data 가드
+- <code>main</code> 푸시: CodeQL 전체 분석 + release-please 자동화
+- 릴리즈: SBOM 생성(SPDX JSON), npm 퍼블리시(scaffolder, provenance 포함)
+- 주간: Dependabot(npm+gomod+Actions), Renovate, CodeQL 스케줄 스캔</p>
+<p><strong>린팅/포맷팅</strong>: 별도 linter 설정 파일 없음(<code>.eslintrc</code> 등). CodeRabbit 자동 리뷰가 주요 코드 품질 게이트 역할.</p>
+<p><strong>버저닝</strong>: Conventional Commits + release-please 자동화, <code>VERSION</code> 파일 + <code>package.json</code> 동기화, semver.</p>
+<hr />
+<h3 id="step-6-security-and-supply-chain">Step 6. 보안 및 공급망 / Security and Supply Chain</h3>
+<table>
+<thead>
+<tr>
+<th>영역</th>
+<th>현황</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>취약점 보고</strong></td>
+<td><code>SECURITY.md</code> + <code>.github/SECURITY.md</code> — 72시간 응답 SLA, 이메일 비공개 보고</td>
+</tr>
+<tr>
+<td><strong>정적 분석</strong></td>
+<td>CodeQL (JavaScript/TypeScript + Go, PR + 주간 스케줄)</td>
+</tr>
+<tr>
+<td><strong>의존성 관리</strong></td>
+<td>Dependabot (npm+gomod+Actions 주간) + Renovate (Monday AM 배치) 이중 운영</td>
+</tr>
+<tr>
+<td><strong>SBOM</strong></td>
+<td>Anchore sbom-action, SPDX JSON 형식, 릴리즈 아티팩트로 첨부</td>
+</tr>
+<tr>
+<td><strong>라이선스</strong></td>
+<td>MIT (핵심). 의존성: Playwright(Apache-2.0), BubbleTea(MIT), js-yaml(MIT), dotenv(BSD-2-Clause) — 호환성 양호</td>
+</tr>
+<tr>
+<td><strong>시크릿 관리</strong></td>
+<td><code>.env.example</code> 제공, <code>.gitignore</code>로 <code>.env</code> 제외. <code>no-user-data.yml</code> 워크플로우가 PR에서 개인 데이터 파일 커밋 차단</td>
+</tr>
+<tr>
+<td><strong>코드 보안</strong></td>
+<td><code>.coderabbit.yaml</code>에 <code>*.mjs</code> 코드인젝션·경로탐색·SSRF 명시 검토 지시. 1.15.0에서 배치 tmpfile·PDF 경로·트래커 셀 하드닝 버그픽스 확인</td>
+</tr>
+<tr>
+<td><strong>플러그인 공급망</strong></td>
+<td><code>manifest.json</code> 파싱(실행 전 검증), <code>allowedHosts</code> 네트워크 허용 목록, <code>plugins-registry.json</code> 신뢰 루트, <code>plugins.lock</code> 무결성 핀</td>
+</tr>
+</tbody>
+</table>
+<p><strong>개선 여지</strong>: <code>dependency-review</code> 워크플로우에 <code>continue-on-error: true</code> 임시 설정이 남아 있어 고위험 의존성이 병합을 차단하지 않음(#343 이슈로 추적 중).</p>
+<hr />
+<h3 id="step-7-documentation-and-operational-maturity">Step 7. 문서 및 운영 성숙도 / Documentation and Operational Maturity</h3>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>현황</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>README</strong></td>
+<td>14개 언어(EN/DE/ES/FR/PT-BR/KO/JA/ZH/ZH-TW/UA/RU/PL/DA/AR). 데모 GIF, 빠른 시작, 기능표, 설치 방법(npx+git) 완비</td>
+</tr>
+<tr>
+<td><strong>아키텍처 문서</strong></td>
+<td><code>ARCHITECTURE.md</code> — 원칙, 컴포넌트 맵, 데이터 흐름, 품질 게이트 상세 기술</td>
+</tr>
+<tr>
+<td><strong>데이터 계약</strong></td>
+<td><code>DATA_CONTRACT.md</code> — 시스템/유저 레이어 파일 전체 목록화, 업데이터 규칙 명시</td>
+</tr>
+<tr>
+<td><strong>기여 가이드</strong></td>
+<td><code>CONTRIBUTING.md</code> — Contributor Ladder, good-first-issue 경로, 기여 범위 명확 경계</td>
+</tr>
+<tr>
+<td><strong>거버넌스</strong></td>
+<td><code>GOVERNANCE.md</code> — BDFL 모델, 의사결정 계층, 역할 승진 기준 명시</td>
+</tr>
+<tr>
+<td><strong>법적 문서</strong></td>
+<td><code>LEGAL_DISCLAIMER.md</code>, <code>TRADEMARK.md</code>, <code>CODE_OF_CONDUCT.md</code>(Contributor Covenant 2.1), <code>CITATION.cff</code>(학술 인용)</td>
+</tr>
+<tr>
+<td><strong>이슈 템플릿</strong></td>
+<td>5종 — bug_report, feature_request, i-got-hired, plugin-registration, 설정</td>
+</tr>
+<tr>
+<td><strong>PR 템플릿</strong></td>
+<td><code>.github/PULL_REQUEST_TEMPLATE.md</code></td>
+</tr>
+<tr>
+<td><strong>CODEOWNERS</strong></td>
+<td><code>.github/CODEOWNERS</code></td>
+</tr>
+<tr>
+<td><strong>CHANGELOG</strong></td>
+<td>release-please 자동화, 컨벤셔널 커밋 기반 상세 릴리즈 노트 (v1.16.0까지 완비)</td>
+</tr>
+<tr>
+<td><strong>커뮤니티</strong></td>
+<td>Discord, CONTRIBUTORS.md(성공 사례 포함), Trendshift·ProductHunt 배지, WIRED·Business Insider 미디어 노출</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>이중 레이어 데이터 계약 아키텍처</strong>: <code>DATA_CONTRACT.md</code>→<code>update-system.mjs</code>→<code>updater-migration-tests.mjs</code>→<code>no-user-data.yml</code>로 이어지는 시스템/유저 경계 강제 체계가 코드·CI·문서 3계층에서 동시 작동. 사용자 개인정보가 실수로 커밋될 가능성을 구조적으로 차단한다.</p>
+</li>
+<li>
+<p><strong>프레임워크 의존성 최소화</strong>: Node.js 의존성 4개(Playwright, js-yaml, dotenv, @google/generative-ai)의 극단적 경량화. 테스트 스위트도 외부 프레임워크 없이 Node.js 내장만 사용, clean checkout 즉시 실행 가능.</p>
+</li>
+<li>
+<p><strong>AI 무관 아키텍처</strong>: 비즈니스 로직이 마크다운 프롬프트(<code>modes/</code>)에 구현되어 Claude Code, Gemini, Codex, Qwen, OpenCode 등 모든 AI CLI에서 동일하게 작동. 스탠드얼론 평가기(Gemini/Ollama/OpenRouter)도 지원하여 모델 락인 없음.</p>
+</li>
+<li>
+<p><strong>다층 보안 게이팅</strong>: CodeQL(JS+Go 이중 언어), Dependabot+Renovate 이중 의존성 관리, SBOM 릴리즈 첨부, 플러그인 공급망 격리(allowedHosts+manifest 선파싱+registry 신뢰 루트)가 체계적으로 구성되어 있다.</p>
+</li>
+<li>
+<p><strong>운영 성숙도</strong>: v1.16.0, 14개 언어 README, 완전 자동화된 릴리즈(release-please+npm provenance publish), BDFL 거버넌스+Contributor Ladder, CITATION.cff 학술 인용 지원, 7개 언어 모드(EN/DE/FR/JA/AR/TR 등)에 이르는 국제화 수준이 단기간(2026년) 성장 대비 매우 성숙하다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-and-areas-for-improvement">위험 및 개선 필요 사항 / Risks and Areas for Improvement</h2>
+<ol>
+<li>
+<p><strong>의존성 리뷰 임시 우회</strong>: <code>.github/workflows/dependency-review.yml</code>에 <code>continue-on-error: true</code>가 설정되어 고위험 의존성이 실제로 병합을 차단하지 않는다(#343 이슈 추적 중). Dependency Graph 활성화 전까지는 보안 게이트에 구멍이 존재한다.</p>
+</li>
+<li>
+<p><strong>Playwright 버전 불일치 리스크</strong>: <code>package.json</code>은 <code>playwright@1.61.1</code>을 선언하나 <code>Dockerfile</code>에 <code>playwright@1.58.1</code> 하드코딩이 남아 있다. 버전 드리프트가 PDF 생성·스크래핑에서 재현하기 어려운 오류를 유발할 수 있다.</p>
+</li>
+<li>
+<p><strong>로컬 전용 설계의 규모 한계</strong>: 현재 아키텍처는 개인 사용에 최적화되어 있고, 팀 공유나 원격 스케줄링 시나리오에 대한 공식 지원이 없다. 문서가 Discord Discussion에서 논의 중인 "hosted layer" 방향을 언급하지만 현재 Core에는 없다.</p>
+</li>
+<li>
+<p><strong>린터/포맷터 부재</strong>: ESLint, Prettier, Go <code>gofmt</code> 강제 CI 스텝이 없다. 코드 품질이 CodeRabbit 리뷰와 기여자 자율에 의존하며, 대규모 기여 확대 시 스타일 일관성 유지가 어려워질 수 있다.</p>
+</li>
+<li>
+<p><strong>테스트 커버리지 불균형</strong>: <code>test-all.mjs</code>가 광범위하나 일부 핵심 스크립트(예: <code>analyze-patterns.mjs</code>, <code>openrouter-runner.mjs</code>, <code>gemini-eval.mjs</code>)에 대한 독립 단위 테스트가 없다. 35,000줄+ 파일들이 통합 테스트 수준에서만 검증된다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h2>
+<p><strong>기술 도입</strong>: AI 보조 구직 자동화 도구로서 <strong>강력 권고</strong>. 로컬 우선 설계, Human-in-the-Loop 원칙, AI 무관 아키텍처, 4개 의존성의 경량 스택은 개인 구직자에게 실질적인 레버리지를 제공하며 프라이버시 리스크를 최소화한다.</p>
+<p><strong>아키텍처 벤치마킹</strong>: Markdown-as-Prompt 아키텍처 패턴, 시스템/유저 이중 레이어 데이터 계약 구조, 플러그인 공급망 거버넌스(allowedHosts+manifest 선파싱) 패턴은 유사한 AI 에이전트 툴킷 설계 시 참고 가치가 높다.</p>
+<p><strong>보안 검토</strong>: 전반적으로 양호하나 Dependency Graph 미활성화에 따른 <code>continue-on-error</code> 우회, Playwright 버전 불일치는 즉시 해결이 권고된다.</p>
+<p><strong>기여 적합성</strong>: <code>good first issue</code> 경로, 명확한 Contributor Ladder, 빠른 리뷰 응답, 세밀한 기여 범위 가이드(provider 모듈·번역·문서 저장입구 제공)로 오픈소스 첫 기여에 적합하다.</p>
+<p><strong>운영 성숙도</strong>: v1.16.0, SBOM, 자동화된 릴리즈, 다국어 문서, BDFL 거버넌스로 개인 프로젝트 대비 매우 높은 운영 성숙도를 보인다. 사용자 데이터 보호 철학이 설계 전반에 일관되게 반영되어 있다.</p>
+<hr />
+<p><em>분석 기준: 실제 파일 검사 (README.md, ARCHITECTURE.md, DATA_CONTRACT.md, GOVERNANCE.md, CONTRIBUTING.md, package.json, Dockerfile, dashboard/go.mod, .github/workflows/</em>, test-all.mjs, modes/_shared.md, providers/, plugins/, .env.example, CHANGELOG.md, renovate.json, .coderabbit.yaml 등)*</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>santifer/career-ops</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/santifer/career-ops" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
