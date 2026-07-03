@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-03 02:00:13 KST",
+  "generated_at": "2026-07-04 02:00:13 KST",
   "list_order": [
     "top100",
     "daily",
@@ -7,7 +7,7 @@
     "monthly"
   ],
   "top_n_per_list": 5,
-  "total_targets": 3,
+  "total_targets": 4,
   "summary": {
     "top100": {
       "candidates": 5,
@@ -17,15 +17,15 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 3,
-      "skipped_existing_analysis": 2,
+      "selected": 4,
+      "skipped_existing_analysis": 1,
       "skipped_duplicate": 0
     },
     "weekly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 5,
-      "skipped_duplicate": 0
+      "skipped_existing_analysis": 4,
+      "skipped_duplicate": 1
     },
     "monthly": {
       "candidates": 5,
@@ -42,38 +42,52 @@
       "owner": "usestrix",
       "description": "Open-source AI penetration testing tool to find and fix your app’s vulnerabilities.",
       "url": "https://github.com/usestrix/strix",
-      "stars": 31479,
-      "forks": 3327,
+      "stars": 34103,
+      "forks": 3510,
       "language": "Python",
-      "stars_gained": "2,167 stars today",
+      "stars_gained": "2,804 stars today",
       "topics": [],
       "period": "daily"
     },
     {
       "rank": 2,
-      "name": "caveman",
-      "full_name": "JuliusBrussee/caveman",
-      "owner": "JuliusBrussee",
-      "description": "🪨 why use many token when few token do trick — Claude Code skill that cuts 65% of tokens by talking like caveman",
-      "url": "https://github.com/JuliusBrussee/caveman",
-      "stars": 80216,
-      "forks": 4502,
+      "name": "codex-plugin-cc",
+      "full_name": "openai/codex-plugin-cc",
+      "owner": "openai",
+      "description": "Use Codex from Claude Code to review code or delegate tasks.",
+      "url": "https://github.com/openai/codex-plugin-cc",
+      "stars": 23041,
+      "forks": 1395,
       "language": "JavaScript",
-      "stars_gained": "866 stars today",
+      "stars_gained": "629 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 4,
+      "name": "elasticsearch",
+      "full_name": "elastic/elasticsearch",
+      "owner": "elastic",
+      "description": "Free and Open Source, Distributed, RESTful Search Engine",
+      "url": "https://github.com/elastic/elasticsearch",
+      "stars": 77281,
+      "forks": 25923,
+      "language": "Java",
+      "stars_gained": "77 stars today",
       "topics": [],
       "period": "daily"
     },
     {
       "rank": 5,
-      "name": "career-ops",
-      "full_name": "santifer/career-ops",
-      "owner": "santifer",
-      "description": "AI-powered job search system built on Claude Code. 14 skill modes, Go dashboard, PDF generation, batch processing.",
-      "url": "https://github.com/santifer/career-ops",
-      "stars": 57565,
-      "forks": 11353,
-      "language": "JavaScript",
-      "stars_gained": "322 stars today",
+      "name": "checkout",
+      "full_name": "actions/checkout",
+      "owner": "actions",
+      "description": "Action for checking out a repo",
+      "url": "https://github.com/actions/checkout",
+      "stars": 8239,
+      "forks": 2533,
+      "language": "TypeScript",
+      "stars_gained": "129 stars today",
       "topics": [],
       "period": "daily"
     }

@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>openai/codex-plugin-cc - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/openai/codex-plugin-cc" target="_blank" rel="noopener">openai/codex-plugin-cc</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Use Codex from Claude Code to review code or delegate tasks.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">JavaScript</span>
+      <span class="badge badge-stars">★ 23041</span>
+      <span class="badge badge-stars">+629 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-07-04
+분석 대상: <code>/tmp/github-dashboard-analysis/openai_codex-plugin-cc</code></p>
+<hr />
+<h1 id="review-sourcemd-openaicodex-plugin-cc">REVIEW-Source.md — openai/codex-plugin-cc 소스 코드 분석 보고서</h1>
+<h2 id="project-overview">프로젝트 개요 (Project Overview)</h2>
+<p><strong>이름</strong>: <code>@openai/codex-plugin-cc</code> (Codex Plugin for Claude Code)
+<strong>버전</strong>: 1.0.5
+<strong>제작자</strong>: OpenAI
+<strong>라이선스</strong>: Apache-2.0</p>
+<hr />
+<h2 id="_1">항목별 분석 표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>OpenAI Codex CLI를 Claude Code 플러그인으로 통합하여, 코드 리뷰 자동화·태스크 위임·세션 이전·백그라운드 작업 관리 기능을 Claude Code 워크플로우 안에서 제공함</td>
+<td>★★★★★ — 명확한 단일 책임, 두 AI 시스템 간 가교 역할을 간결하게 정의</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 저장소, <code>plugins/codex/</code>(플러그인 본체) + <code>tests/</code>(독립 테스트) + <code>scripts/</code>(빌드 유틸) 3계층 분리. 플러그인 내부는 <code>commands/</code>, <code>agents/</code>, <code>hooks/</code>, <code>prompts/</code>, <code>schemas/</code>, <code>scripts/lib/</code>, <code>skills/</code>로 책임별 세분화</td>
+<td>★★★★☆ — 도메인 경계가 명확하나 <code>scripts/lib/codex.mjs</code>(1,219 LoC) 단일 모듈이 과도하게 비대함</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>Node.js ≥ 18.18 / ESM(<code>type: "module"</code>) / TypeScript(타입 체킹 전용, 트랜스파일 없음) / <code>@types/node</code>, <code>typescript</code>만 devDependency / 런타임 외부 의존성 없음</td>
+<td>★★★★★ — 런타임 의존성 제로로 공급망 리스크 최소화, ESM 네이티브</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>plugins/codex/scripts/codex-companion.mjs</code> — 서브커맨드(<code>setup</code>, <code>review</code>, <code>adversarial-review</code>, <code>task</code>, <code>status</code>, <code>result</code>, <code>cancel</code>, <code>transfer</code>) 디스패처. 훅 진입은 <code>session-lifecycle-hook.mjs</code> / <code>stop-review-gate-hook.mjs</code></td>
+<td>★★★★☆ — 단일 CLI 진입점으로 일관성 있으나, 서브커맨드별 핸들러 분리 없이 단일 파일에 집중</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>JSON-RPC 2.0(JSONL) 기반 Codex App Server 통신. 두 가지 전송 전략: ① Direct(자식 프로세스 stdio) ② Broker(Unix 도메인 소켓, 지속 프로세스). 파일 기반 Job 시스템(상태 JSON + 로그 파일). Claude Code 라이프사이클 훅(SessionStart/End/Stop) 연동</td>
+<td>★★★★☆ — 전략 패턴으로 전송 레이어 교체 가능, 브로커를 통한 세션 재사용이 영리함. <code>AppServerClientBase</code> → <code>Spawned/Broker</code> 상속 구조 명확</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>DB/캐시 없음. 영속성은 파일 시스템 전용: <code>${CLAUDE_PLUGIN_DATA}/state/&lt;slug&gt;-&lt;sha256[:16]&gt;/state.json</code> + <code>jobs/*.json</code> + <code>jobs/*.log</code>. 최대 50개 Job 자동 pruning</td>
+<td>★★★★☆ — 단순·이식성 우수. 동시 다중 Claude 인스턴스에서의 파일 쓰기 경합은 명시적 처리 없음</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>npm 글로벌 설치(<code>/plugin install codex@openai-codex</code>), Claude Code 마켓플레이스 경유. <code>marketplace.json</code>으로 플러그인 메타데이터 선언. Docker/K8s 없음 — 로컬 CLI 툴</td>
+<td>★★★★☆ — Claude Code 플러그인 생태계에 최적화된 배포. Codex CLI 전역 설치 의존이 전제 조건</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Node.js 내장 테스트 러너(<code>node --test</code>), 8개 파일 — <code>runtime</code>, <code>state</code>, <code>git</code>, <code>render</code>, <code>process</code>, <code>commands</code>, <code>broker-endpoint</code>, <code>bump-version</code>. <code>fake-codex-fixture.mjs</code>로 실제 Codex 없이 통합 수준 테스트. CI: GitHub Actions + ubuntu-latest + Node 22</td>
+<td>★★★★☆ — fake fixture 기반 통합 테스트로 핵심 흐름 커버. 커버리지 측정 도구 미적용, e2e 테스트 없음</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 없음. Dependabot/Renovate 설정 없음. 런타임 외부 의존성 제로로 공급망 공격면 최소. Claude 세션 경로 검증: <code>~/.claude/projects</code> 하위만 허용(<code>realpathSync</code> + 경로 탈출 차단). <code>.env</code> gitignore 처리</td>
+<td>★★★☆☆ — devDependency 취약점 모니터링 자동화 미흡, SECURITY.md 부재</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>README 품질 매우 우수(모든 명령 예시 포함). CHANGELOG는 1.0.0 항목만 있고 1.0.1~1.0.5 변경 이력 누락. CONTRIBUTING·CODE_OF_CONDUCT·이슈 템플릿 없음. 기여자 1인(Dominik Kundel). PR CI 핀된 액션 해시로 보안 강화</td>
+<td>★★★☆☆ — 기능 문서화는 우수하나 오픈소스 거버넌스 자료 미비</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="1-strengths">1. 강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>런타임 외부 의존성 제로</strong> — <code>devDependencies</code>만 존재하고 프로덕션 패키지가 없어 공급망 공격면이 구조적으로 차단됨. 플러그인이 설치된 환경에서 추가 패키지 취약점이 발생할 여지가 없음.</p>
+</li>
+<li>
+<p><strong>이중 전송 전략(Direct/Broker) 설계</strong> — <code>CodexAppServerClient.connect()</code>가 환경 변수 또는 파일 기반 세션 상태에 따라 직접 프로세스/소켓 브로커 중 하나를 투명하게 선택하여, 단일 세션에서의 Codex 재사용과 멀티 클라이언트 격리를 모두 지원함.</p>
+</li>
+<li>
+<p><strong>명령-프롬프트-스크립트 3계층 분리</strong> — 각 <code>/codex:*</code> 명령은 Markdown 명세(commands/), 프롬프트 템플릿(prompts/), JS 런타임(scripts/)으로 완전 분리되어, Claude Code의 LLM 동작 규칙과 실행 로직이 독립적으로 유지·변경 가능함.</p>
+</li>
+<li>
+<p><strong>파일 기반 Job 시스템의 영속성과 단순성</strong> — SHA-256 해시 기반 워크스페이스 슬러그로 다중 프로젝트를 충돌 없이 분리하고, JSON + 로그 파일로 재시작 후에도 Job 상태를 복원함. DB 없이 이식성 최고 수준 달성.</p>
+</li>
+<li>
+<p><strong>JSON Schema 기반 리뷰 출력 검증</strong> — <code>review-output.schema.json</code>으로 Codex 리뷰 결과를 구조화하고, <code>additionalProperties: false</code>로 엄격하게 검증하여 LLM 출력의 불확정성을 파싱 레이어에서 방어함.</p>
+</li>
+</ol>
+<hr />
+<h2 id="2-risks-improvement-areas">2. 위험/개선 필요 사항 (Risks &amp; Improvement Areas)</h2>
+<ol>
+<li>
+<p><strong><code>codex.mjs</code> 단일 모듈 비대화 (1,219 LoC)</strong> — 리뷰 실행, 태스크 실행, 세션 임포트, 인증 확인, 출력 파싱 등 이질적 책임이 한 파일에 집중됨. 코드 탐색·테스트 격리·기여자 온보딩 모두에 마찰을 일으킴. 도메인별 모듈(<code>review.mjs</code>, <code>task.mjs</code>, <code>auth.mjs</code>)로 분리 필요.</p>
+</li>
+<li>
+<p><strong>CHANGELOG 불완전</strong> — v1.0.1~1.0.5 변경 이력이 CHANGELOG.md에 기록되지 않아 버전 간 추적이 불가함. 자동 릴리즈 노트 생성(<code>release-please</code>, <code>auto-changelog</code>) 도입 또는 PR 병합 시 업데이트 정책 수립이 필요.</p>
+</li>
+<li>
+<p><strong>파일 경합 무방비</strong> — <code>state.mjs</code>의 <code>saveState()</code>는 <code>loadState()</code> → <code>writeFileSync()</code> 사이에 원자성 보장이 없음. 동일 워크스페이스에서 두 Claude 인스턴스가 동시에 Job을 생성할 경우 한쪽 기록이 소실될 수 있음. 임시 파일 + <code>rename()</code> 패턴으로 원자적 쓰기 적용 필요.</p>
+</li>
+<li>
+<p><strong>보안 정책 및 자동 취약점 모니터링 부재</strong> — <code>SECURITY.md</code>가 없어 취약점 신고 경로가 불명확함. <code>devDependencies</code>(TypeScript 6.x, @types/node)에 대한 Dependabot 설정도 없어 개발 툴체인 취약점이 방치될 수 있음.</p>
+</li>
+<li>
+<p><strong>Stop 훅의 15분 타임아웃과 사용 제한 미통제</strong> — <code>hooks.json</code>에서 <code>Stop</code> 훅 타임아웃이 900초(15분)로 설정되어, 리뷰 게이트 활성 시 긴 지연이 발생할 수 있음. README에 경고가 있지만 사용량 제한 초과 방어 로직이 코드 수준에는 없어 API 비용 폭증 위험이 있음.</p>
+</li>
+</ol>
+<hr />
+<h2 id="3-adoption-recommendation">3. 도입 권고 (Adoption Recommendation)</h2>
+<p><strong>종합 판단</strong>: 조건부 도입 권고 ★★★★☆</p>
+<p>이 플러그인은 Claude Code와 OpenAI Codex를 통합하는 <strong>유일한 공식 브리지</strong>로서, OpenAI가 직접 배포·관리하는 레퍼런스 구현이다. 런타임 의존성 제로, JSON-RPC 기반 명확한 프로토콜 설계, 이중 전송 전략, 파일 기반 영속 Job 시스템은 실용적 완성도가 높다.</p>
+<p><strong>도입 적합 시나리오</strong>:
+- Claude Code를 주 편집 환경으로 사용하면서 Codex의 독립적 코드 리뷰나 태스크 위임 기능이 필요한 팀
+- 두 AI 시스템 간 세션 연속성(context transfer)을 실험하려는 연구·개발 환경
+- OpenAI API 키 또는 ChatGPT 구독이 이미 있는 조직</p>
+<p><strong>도입 전 확인 사항</strong>:
+- Stop 게이트(<code>--enable-review-gate</code>)는 프로덕션 활성화 전 사용량 한도 정책 확인 필수
+- 다중 Claude 인스턴스 병렬 사용 환경이라면 상태 파일 경합 이슈 모니터링 권고
+- 보안 취약점 신고 채널(<code>SECURITY.md</code>)이 없으므로, 외부 공개 환경에서는 자체 취약점 대응 프로세스 수립 필요</p>
+<p><strong>아키텍처 벤치마킹 관점</strong>: JSON-RPC 2.0 위에 구축된 브로커 패턴과 파일 기반 Job 추적 시스템은 외부 프로세스 통합이 필요한 다른 Claude Code 플러그인 설계의 좋은 참조 사례가 됨.</p>
+<hr />
+<h2 id="tech-stack-summary">부록: 기술 스택 요약 (Tech Stack Summary)</h2>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>내용</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>JavaScript (ESM), Node.js ≥ 18.18</td>
+</tr>
+<tr>
+<td>타입 체킹</td>
+<td>TypeScript 6.x (checkJs, noEmit — 트랜스파일 없음)</td>
+</tr>
+<tr>
+<td>빌드</td>
+<td><code>tsc -p tsconfig.app-server.json</code> (type-check only), <code>codex app-server generate-ts</code> (prebuild)</td>
+</tr>
+<tr>
+<td>테스트</td>
+<td>Node.js 내장 <code>node:test</code> 러너</td>
+</tr>
+<tr>
+<td>CI/CD</td>
+<td>GitHub Actions (<code>pull-request-ci.yml</code>) — ubuntu-latest, Node 22, 핀된 액션 해시</td>
+</tr>
+<tr>
+<td>외부 런타임 의존성</td>
+<td>없음 (<code>devDependencies</code> only)</td>
+</tr>
+<tr>
+<td>통신 프로토콜</td>
+<td>JSON-RPC 2.0 over JSONL (Unix socket / subprocess stdio)</td>
+</tr>
+<tr>
+<td>배포</td>
+<td>Claude Code 플러그인 마켓플레이스 (<code>marketplace.json</code>)</td>
+</tr>
+<tr>
+<td>라이선스</td>
+<td>Apache-2.0 (OpenAI, 2026)</td>
+</tr>
+</tbody>
+</table></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>openai/codex-plugin-cc</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/openai/codex-plugin-cc" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
