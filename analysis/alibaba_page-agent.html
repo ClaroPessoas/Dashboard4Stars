@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>alibaba/page-agent - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/alibaba/page-agent" target="_blank" rel="noopener">alibaba/page-agent</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">JavaScript in-page GUI agent. Control web interfaces with natural language.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 22895</span>
+      <span class="badge badge-stars">+726 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>이제 충분한 정보를 수집했습니다. 최종 보고서를 작성합니다.</p>
+<hr />
+<h1 id="review-sourcemd">REVIEW-Source.md</h1>
+<p>분석일: 2026-07-05
+분석 대상: <code>/tmp/github-dashboard-analysis/alibaba_page-agent</code></p>
+<hr />
+<h2 id="_1">프로젝트 개요 요약표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>웹 페이지 내에서 자연어로 UI를 제어하는 클라이언트 사이드 AI 에이전트 라이브러리. 별도의 브라우저 확장·파이썬·헤드리스 브라우저 없이 인라인 JS만으로 동작하며, SaaS AI Copilot·스마트 폼 자동화·접근성 향상을 핵심 유즈케이스로 삼음</td>
+<td>★★★★★ 명확하고 차별화된 포지셔닝</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>npm workspaces 기반 소스-퍼스트 모노레포 (8개 패키지). 도메인 경계가 명확하게 분리됨: <code>core</code> (ReAct 루프) → <code>llms</code> (LLM 클라이언트) + <code>page-controller</code> (DOM 조작) → <code>ui</code> (패널) → <code>page-agent</code> (통합 진입점). 별도로 <code>extension</code>(WXT), <code>mcp</code>(MCP 서버), <code>website</code>(문서/데모) 패키지 존재</td>
+<td>★★★★★ 위상 정렬까지 강제하는 엄격한 경계</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>TypeScript 6.0.3, Node.js ≥22, npm workspaces, Vite 8 + unplugin-dts, Vitest 4, Zod v4, React + Tailwind v4(extension/website), WXT(browser extension), @modelcontextprotocol/sdk(MCP), ESLint strict + prettier + commitlint</td>
+<td>★★★★☆ 최신 스택. TS 6 beta 의존성이 다소 공격적</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><code>packages/page-agent/src/PageAgent.ts</code> (UI 포함 메인), <code>packages/core/src/PageAgentCore.ts</code> (헤드리스 코어), <code>packages/page-agent/src/demo.ts</code> (IIFE CDN 데모), <code>packages/mcp/src/index.js</code> (MCP 서버)</td>
+<td>★★★★★ 각 배포 형태별 진입점이 명시적으로 분리됨</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>ReAct(Reason+Act) 에이전트 루프. 모든 LLM 툴을 단일 MacroTool로 패킹해 구조화된 출력 강제. EventTarget 기반 이벤트 시스템(statuschange/historychange/activity). DOM → FlatDomTree → 인덱스 기반 simplified HTML → LLM → 인덱스 조작의 단방향 파이프라인. UI는 PanelAgentAdapter 인터페이스로 완전 분리. MCP 서버는 확장 프로그램 허브-브릿지 통해 외부에서 브라우저 제어</td>
+<td>★★★★★ 계층 분리, 취소 전파(AbortSignal), 상태 격리가 일관됨</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>클라이언트 사이드 전용, BYOK(Bring Your Own Key) 아키텍처. 어떤 데이터도 page-agent 서버로 전송되지 않음(테스트 API 제외). 대화 이력은 인메모리 <code>history</code> 배열로만 보관. 영속 스토리지 없음</td>
+<td>★★★★★ 최소 데이터 원칙 준수</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>npm 패키지 퍼블리시(v* 태그 트리거, OIDC provenance). CDN(jsDelivr/npmmirror) 통해 IIFE 데모 배포. GitHub Pages로 문서 사이트. Extension은 WXT zip 빌드. semver 프리릴리즈 자동 태그 처리</td>
+<td>★★★★☆ 릴리즈 자동화 양호. SBOM·서명 부재</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>Vitest 단위 테스트: <code>@page-agent/llms</code> (재시도·중단·툴 호출 포괄적 커버), <code>@page-agent/core</code> (mock fetch/PageController), <code>@page-agent/page-controller</code> (DOM 조작 테스트). E2E 계획 중(Playwright, <code>packages/e2e/</code> 예정). 현재 통합/E2E 없음. CI에서 lint·format·typecheck·test 병렬 실행</td>
+<td>★★★☆☆ llms 커버리지 우수. 다른 패키지는 초기 단계</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 있음: GitHub private reporting 지원, 공개 발표 유예 정책. Dependabot 주간 자동 업데이트(npm + GitHub Actions). API 키가 클라이언트(브라우저)에서 직접 사용 → 노출 위험 내재. SBOM·아티팩트 서명 없음. 테스트 API: 인메모리 처리, PII 금지, 최소 수집 원칙 명문화</td>
+<td>★★★☆☆ 정책은 갖춰짐. BYOK 클라이언트 키 노출은 사용자 책임으로 전가</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>v1.11.0, 2026-07 기준 주간 릴리즈 주기 유지. Keep a Changelog 형식의 상세 CHANGELOG. CONTRIBUTING.md에 AI 코딩 정책(vibe coding 코어 금지) 명시. 바이링구얼 README(영·중). AGENTS.md로 AI 코딩 어시스턴트 온보딩. 기여자는 현재 주로 1인(SimonLuvRamen/Alibaba) 구조</td>
+<td>★★★★☆ 문서·프로세스 성숙. 단독 메인테이너 리스크 존재</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="_2">상세 분석</h2>
+<h3 id="step-1">Step 1. 목적 및 범위</h3>
+<p><strong>Page Agent</strong>는 알리바바가 공개한 MIT 라이선스 오픈소스 프로젝트로, 웹 페이지 내에 임베드되는 클라이언트 사이드 AI GUI 에이전트 라이브러리다. 핵심 차별점은 스크린샷·멀티모달 LLM·헤드리스 브라우저 없이 순수 텍스트 기반 DOM 조작만으로 동작한다는 점이다. <code>browser-use</code>(Python 기반 서버사이드 브라우저 자동화)에서 DOM 처리 컴포넌트와 프롬프트 패턴을 파생시켰으며, 이를 명시적으로 인정하고 원저작자 저작권을 보존하고 있다.</p>
+<p>타겟 사용자: SaaS 제품 개발자(AI Copilot 삽입), 기업 ERP/CRM 자동화 팀, 접근성 도구 개발자, 브라우저 제어 에이전트 개발자.</p>
+<h3 id="step-2">Step 2. 저장소 구조 분석</h3>
+<pre><code>alibaba_page-agent/
+├── packages/
+│   ├── page-controller/    # DOM 추출·조작 엔진 (LLM 독립)
+│   ├── ui/                 # React 패널 + i18n
+│   ├── llms/               # OpenAI 호환 LLM 클라이언트
+│   ├── core/               # ReAct 에이전트 루프 (UI 없음)
+│   ├── page-agent/         # UI 포함 통합 엔트리
+│   ├── mcp/                # MCP 서버 (Beta)
+│   ├── extension/          # WXT + React 브라우저 확장
+│   └── website/            # React 문서·랜딩·데모 (private)
+├── scripts/                # build, ci, version sync 스크립트
+├── docs/                   # CHANGELOG, SECURITY, 개발자 가이드
+└── .github/workflows/      # CI, Release, Deploy-demo
+</code></pre>
+<p><code>workspaces</code>는 위상 정렬 순서로 선언되어 있다(<code>page-controller</code> → <code>ui</code> → <code>llms</code> → <code>core</code> → <code>page-agent</code>). 소스-퍼스트 모노레포 패턴: 개발 중에는 <code>package.json exports</code>가 <code>src/*.ts</code>를 직접 가리키며, 퍼블리시 전 <code>scripts/pre-publish.js</code>가 <code>publishConfig</code>를 <code>dist/</code>로 승격한다.</p>
+<h3 id="step-3">Step 3. 소프트웨어 스택 식별</h3>
+<table>
+<thead>
+<tr>
+<th>분류</th>
+<th>구성 요소</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>언어</td>
+<td>TypeScript 6.0.3 (beta), JavaScript (DOM tree engine)</td>
+</tr>
+<tr>
+<td>런타임</td>
+<td>Node.js ^22.22.1 || ≥24, npm ^11.6.3</td>
+</tr>
+<tr>
+<td>빌드</td>
+<td>Vite 8.1, unplugin-dts 1.0</td>
+</tr>
+<tr>
+<td>테스트</td>
+<td>Vitest 4.1, happy-dom 20</td>
+</tr>
+<tr>
+<td>코드 품질</td>
+<td>ESLint 10 (strict + react + typed), Prettier 3, commitlint (conventional)</td>
+</tr>
+<tr>
+<td>스키마</td>
+<td>Zod v4 (zod/v4)</td>
+</tr>
+<tr>
+<td>LLM 프로토콜</td>
+<td>OpenAI 호환 REST API (BYOK; Qwen/DeepSeek/GPT/Claude/Gemini 모두 지원)</td>
+</tr>
+<tr>
+<td>UI</td>
+<td>React (extension/website), Tailwind v4</td>
+</tr>
+<tr>
+<td>브라우저 확장</td>
+<td>WXT framework</td>
+</tr>
+<tr>
+<td>MCP</td>
+<td>@modelcontextprotocol/sdk + WebSocket</td>
+</tr>
+<tr>
+<td>배포</td>
+<td>npm, jsDelivr CDN, GitHub Pages, GitHub Actions</td>
+</tr>
+<tr>
+<td>데이터 저장소</td>
+<td>없음 (클라이언트 인메모리만 사용)</td>
+</tr>
+</tbody>
+</table>
+<h3 id="step-4">Step 4. 아키텍처 분석</h3>
+<h4 id="react">ReAct 에이전트 루프</h4>
+<pre><code>execute(task)
+  └─ while (step &lt; maxSteps)
+       ├─ observe(): getBrowserState() → FlatDomTree → simplified HTML
+       ├─ think(): LLM.invoke(messages, MacroTool)
+       │     └─ MacroTool: 모든 tool을 하나의 structured output으로 통합
+       │           → evaluation_previous_goal | memory | next_goal | action
+       └─ act(): tool.execute(input, { signal })
+</code></pre>
+<p><strong>MacroTool 패턴</strong>이 핵심이다. 모든 에이전트 도구(click, input, scroll, wait, done 등)를 단일 Zod 스키마 공용체(z.union)로 패킹해, 매 스텝마다 LLM이 반드시 하나의 구조화된 도구를 호출하도록 강제한다. 이로써 파싱 실패·할루시네이션을 최소화한다.</p>
+<h4 id="_3">이벤트 시스템</h4>
+<table>
+<thead>
+<tr>
+<th>이벤트</th>
+<th>영속성</th>
+<th>목적</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>statuschange</code></td>
+<td>-</td>
+<td>에이전트 상태 전환 (idle→running→completed/error/stopped)</td>
+</tr>
+<tr>
+<td><code>historychange</code></td>
+<td>✓</td>
+<td>LLM 컨텍스트에 포함되는 영속 이력 변경</td>
+</tr>
+<tr>
+<td><code>activity</code></td>
+<td>✗</td>
+<td>UI 전용 실시간 피드백 (thinking/executing/executed/retrying)</td>
+</tr>
+<tr>
+<td><code>dispose</code></td>
+<td>-</td>
+<td>에이전트 정리</td>
+</tr>
+</tbody>
+</table>
+<h4 id="dom">DOM 파이프라인</h4>
+<p><code>browser-use</code> 포크 기반 <code>dom_tree/index.js</code>가 라이브 DOM을 순회해 인터랙티브 요소를 인덱스 매핑(<code>[N]&lt;type&gt;text&lt;/type&gt;</code>) 형태의 simplified HTML로 변환한다. LLM은 스크린샷 없이 이 텍스트 표현만으로 요소를 선택하고, <code>PageController</code>가 인덱스를 통해 실제 DOM 요소를 찾아 조작한다.</p>
+<h4 id="_4">계층 의존성</h4>
+<pre><code>page-agent ──▶ core ──▶ llms
+           ──▶ core ──▶ page-controller
+           ──▶ ui
+extension  ──▶ core, llms, page-controller, ui
+mcp        ──▶ @modelcontextprotocol/sdk, ws
+</code></pre>
+<p><code>ui</code>는 <code>PanelAgentAdapter</code> 인터페이스를 통해 <code>PageAgentCore</code>와 분리되어 있고, <code>page-controller</code>는 LLM 의존성이 전혀 없다. 순환 의존성 없음.</p>
+<h3 id="step-5">Step 5. 품질 및 테스트 시스템</h3>
+<p><strong>테스트 현황:</strong>
+- <code>@page-agent/llms</code>: 포괄적인 단위 테스트. 재시도 로직(maxRetries, AbortError 즉시 전파, retryable/non-retryable 구분), retry 이벤트 발화, OpenAI 클라이언트 HTTP 오류 처리를 커버
+- <code>@page-agent/core</code>: <code>PageAgentCore</code>에 대한 mock fetch 기반 통합성 단위 테스트 (done 액션, 커스텀 툴, 최대 스텝 초과 등)
+- <code>@page-agent/page-controller</code>: PageController 단위 테스트
+- E2E: 아직 없음, <code>packages/e2e/</code> Playwright 예정</p>
+<p><strong>CI/CD:</strong></p>
+<pre><code>push/PR → main:
+  ├─ commitlint (main 브랜치 제외)
+  └─ 병렬: lint | format | typecheck | test
+         └─ build
+
+v* 태그 push → npm publish (OIDC provenance)
+</code></pre>
+<p><strong>코드 품질 도구:</strong> TypeScript strict + 타입 체크, ESLint strict + react + recommendedTypeChecked, Prettier(탭 들여쓰기, singleQuote), import 정렬, husky pre-commit hook</p>
+<h3 id="step-6">Step 6. 보안 및 공급망</h3>
+<p><strong>강점:</strong>
+- <code>SECURITY.md</code> 존재: GitHub private vulnerability reporting, 공개 발표 유예 정책 명시
+- Dependabot 주간 자동 업데이트 (npm + GitHub Actions), production 메이저 업데이트는 개별 PR로 분리
+- 릴리즈 워크플로에 OIDC id-token 사용 (<code>id-token: write</code>)
+- 테스트 API 프라이버시 정책: 인메모리 처리, PII 금지, 데이터 비보존 명문화
+- 클라이언트 사이드 전용 → 서버 공격 표면 없음</p>
+<p><strong>우려 사항:</strong>
+- <strong>API 키 클라이언트 노출</strong>: BYOK 아키텍처 특성상 <code>apiKey</code>가 브라우저 JS에 직접 노출됨. 문서에서 서버 프록시 구성을 권장하나 강제하지 않음
+- SBOM 미제공
+- 아티팩트 서명(npm provenance 제외) 미구현
+- DOM tree engine(<code>index.js</code>)이 JavaScript로 작성되어 TypeScript 타입 안전성 범위 밖</p>
+<p><strong>라이선스:</strong>
+- 메인: MIT
+- DOM tree engine: browser-use 파생 (MIT), 원저작권 보존 명시
+- 주요 의존성: Zod(MIT), Vite(MIT), React(MIT), WXT(MIT) — MIT 호환</p>
+<h3 id="step-7">Step 7. 문서화 및 운영 성숙도</h3>
+<table>
+<thead>
+<tr>
+<th>문서</th>
+<th>존재 여부</th>
+<th>품질</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>README (英+中)</td>
+<td>✓</td>
+<td>퀵스타트, CDN/NPM, 유즈케이스, 라이선스 명확</td>
+</tr>
+<tr>
+<td>CONTRIBUTING.md</td>
+<td>✓</td>
+<td>AI 코딩 정책(코어 vibe coding 금지), PR 기준 명확</td>
+</tr>
+<tr>
+<td>AGENTS.md</td>
+<td>✓</td>
+<td>AI 코딩 어시스턴트 전용 아키텍처 가이드</td>
+</tr>
+<tr>
+<td>docs/developer-guide.md</td>
+<td>✓</td>
+<td>로컬 개발, LLM 설정, 확장 개발 상세 기술</td>
+</tr>
+<tr>
+<td>docs/CHANGELOG.md</td>
+<td>✓</td>
+<td>Keep a Changelog + semver, 주간 릴리즈</td>
+</tr>
+<tr>
+<td>docs/SECURITY.md</td>
+<td>✓</td>
+<td>Private reporting 채널 안내</td>
+</tr>
+<tr>
+<td>docs/CODE_OF_CONDUCT.md</td>
+<td>✓</td>
+<td>존재</td>
+</tr>
+<tr>
+<td>Issue/PR 템플릿</td>
+<td>✓</td>
+<td>bug_report.yml, feature_request.yml, PR template</td>
+</tr>
+<tr>
+<td>API 문서</td>
+<td>부분</td>
+<td>JSDoc 존재, 외부 사이트 문서(alibaba.github.io)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>커뮤니티:</strong> 주로 1인 메인테이너(SimonLuvRamen / Alibaba). 커밋 이력 기준 매우 활발한 개발 페이스(주간 릴리즈). 다중 기여자 생태계는 아직 초기 단계.</p>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>명확한 계층 분리와 역방향 의존성 없는 아키텍처</strong>: <code>page-controller</code> → <code>llms</code> → <code>core</code> → <code>page-agent</code>의 단방향 의존 그래프가 엄격하게 유지된다. 각 패키지는 독립적으로 테스트 가능하고, <code>PageController</code>는 LLM 없이 단독 사용 가능하다.</p>
+</li>
+<li>
+<p><strong>MacroTool + Zod 스키마를 통한 구조화된 LLM 출력 강제</strong>: 모든 도구를 단일 공용체 스키마로 통합해 LLM이 매 스텝 반드시 정형화된 출력을 생성하도록 강제한다. 파싱 실패나 도구 선택 오류를 구조적으로 차단한다.</p>
+</li>
+<li>
+<p><strong>AbortSignal 기반 협력적 취소 전파</strong>: 에이전트 루프, LLM 호출, 각 도구 실행, 라이프사이클 훅 모두가 단일 <code>AbortController</code> 신호를 공유하여 <code>stop()</code> 호출 시 즉각적이고 완전한 정리가 보장된다.</p>
+</li>
+<li>
+<p><strong>소스-퍼스트 모노레포로 내부 패키지 개발 경험 우수</strong>: 개발 중에는 <code>src/*.ts</code>를 직접 참조하므로 빌드 없이 즉시 변경이 반영된다. 퍼블리시 시에는 스크립트가 <code>publishConfig</code>를 자동 승격하므로 이중 관리 불필요.</p>
+</li>
+<li>
+<p><strong>활발한 릴리즈 사이클과 투명한 변경 이력</strong>: CHANGELOG가 breaking changes, features, improvements, bug fixes를 범주별로 명확히 기록하며, semver 규약을 준수한다. 주간 릴리즈 페이스가 유지된다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험 / 개선 필요 사항 (Risks &amp; Areas for Improvement)</h2>
+<ol>
+<li>
+<p><strong>단독 메인테이너 리스크</strong>: 커밋 이력 기준 실질적 기여자가 1인이다. 버스 팩터(bus factor)가 1로, 핵심 기능 지식과 릴리즈 권한이 집중되어 있다. 알리바바 조직 이름으로 운영되나 다중 메인테이너 체계는 아직 구축되지 않은 것으로 보인다.</p>
+</li>
+<li>
+<p><strong>클라이언트 사이드 API 키 노출</strong>: BYOK 아키텍처에서 <code>apiKey</code>가 브라우저 번들에 포함되는 구조다. 서버사이드 프록시 없이 직접 사용 시 키 노출 위험이 상존한다. 문서가 경고는 하나 구조적 보호 수단이 없다.</p>
+</li>
+<li>
+<p><strong>E2E 테스트 부재와 부분적 단위 테스트 커버리지</strong>: <code>@page-agent/llms</code> 외 패키지의 테스트는 초기 단계이다. 에이전트 루프 전체를 실제 브라우저 환경에서 검증하는 E2E 테스트가 없어 회귀 탐지 능력이 제한적이다.</p>
+</li>
+<li>
+<p><strong>TypeScript 6 beta 의존성</strong>: <code>typescript: ^6.0.3</code>은 아직 정식 릴리즈 전 버전이다. 다운스트림 사용자의 TypeScript 버전 호환성 문제나 예기치 않은 API 변경 가능성이 있다.</p>
+</li>
+<li>
+<p><strong>DOM tree engine의 JavaScript 사용과 browser-use 포크 유지 부담</strong>: <code>page-controller/src/dom/dom_tree/index.js</code>가 TypeScript가 아닌 JavaScript로 작성되어 타입 안전성이 없다. 또한 browser-use의 특정 커밋(0.5.9 d51b6e73)에서 포크된 코드로, 업스트림 버그 픽스나 개선을 수동으로 추적·병합해야 하는 유지보수 부담이 있다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>기술 도입 관점:</strong> 웹 애플리케이션에 AI Copilot 기능을 빠르게 추가하려는 팀에게 강력히 권장한다. 백엔드 재작성 없이 클라이언트 사이드 JS 몇 줄로 통합 가능하고, OpenAI 호환 API라면 어떤 LLM이든 사용할 수 있는 BYOK 모델이 채택 장벽을 낮춘다.</p>
+<p><strong>아키텍처 벤치마킹 관점:</strong> MacroTool 패턴, 이벤트-분리형 UI, 인덱스 기반 DOM 조작 파이프라인은 브라우저 에이전트 설계의 실용적 참조 구현으로 가치가 높다.</p>
+<p><strong>프로덕션 채택 시 주의사항:</strong>
+- API 키를 서버사이드 프록시로 격리할 것
+- <code>@page-agent/core</code>를 직접 사용하면 UI 없이 더 유연하게 통합 가능
+- TypeScript 6이 정식 릴리즈될 때까지 TS 버전 호환성을 모니터링할 것
+- 단독 메인테이너 구조이므로 포크 전략을 고려하거나 업스트림 기여를 통해 지식 분산을 유도할 것</p>
+<p><strong>보안 검토 관점:</strong> 클라이언트 사이드 전용 구조로 서버 공격 표면이 없고, SECURITY.md와 Dependabot이 기본 위생을 갖추고 있다. 다만 SBOM과 아티팩트 서명이 없으므로 엄격한 공급망 보안 요구 환경에서는 보완이 필요하다.</p>
+<p><strong>기여 준비도:</strong> AGENTS.md, developer-guide, CONTRIBUTING.md가 잘 정비되어 있고 commitlint + ESLint strict로 코드 품질 기준이 자동화되어 있어 신규 기여자 온보딩 환경이 양호하다. AI 코딩 정책(코어 코드에 vibe coding 금지)이 명시적으로 문서화된 점이 특히 인상적이다.</p>
+<hr />
+<p><em>분석 도구: 직접 파일 검사 (git log, package.json, 소스 파일, CI 워크플로, 문서 전수 확인)</em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>alibaba/page-agent</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/alibaba/page-agent" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>

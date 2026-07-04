@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-04 02:00:13 KST",
+  "generated_at": "2026-07-05 02:00:25 KST",
   "list_order": [
     "top100",
     "daily",
@@ -17,79 +17,79 @@
     },
     "daily": {
       "candidates": 5,
-      "selected": 4,
-      "skipped_existing_analysis": 1,
+      "selected": 3,
+      "skipped_existing_analysis": 2,
       "skipped_duplicate": 0
     },
     "weekly": {
       "candidates": 5,
-      "selected": 0,
-      "skipped_existing_analysis": 4,
+      "selected": 1,
+      "skipped_existing_analysis": 3,
       "skipped_duplicate": 1
     },
     "monthly": {
       "candidates": 5,
       "selected": 0,
-      "skipped_existing_analysis": 4,
-      "skipped_duplicate": 1
+      "skipped_existing_analysis": 5,
+      "skipped_duplicate": 0
     }
   },
   "targets": [
     {
-      "rank": 1,
-      "name": "strix",
-      "full_name": "usestrix/strix",
-      "owner": "usestrix",
-      "description": "Open-source AI penetration testing tool to find and fix your app’s vulnerabilities.",
-      "url": "https://github.com/usestrix/strix",
-      "stars": 34103,
-      "forks": 3510,
-      "language": "Python",
-      "stars_gained": "2,804 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
-      "rank": 2,
-      "name": "codex-plugin-cc",
-      "full_name": "openai/codex-plugin-cc",
-      "owner": "openai",
-      "description": "Use Codex from Claude Code to review code or delegate tasks.",
-      "url": "https://github.com/openai/codex-plugin-cc",
-      "stars": 23041,
-      "forks": 1395,
-      "language": "JavaScript",
-      "stars_gained": "629 stars today",
+      "rank": 3,
+      "name": "page-agent",
+      "full_name": "alibaba/page-agent",
+      "owner": "alibaba",
+      "description": "JavaScript in-page GUI agent. Control web interfaces with natural language.",
+      "url": "https://github.com/alibaba/page-agent",
+      "stars": 22895,
+      "forks": 1989,
+      "language": "TypeScript",
+      "stars_gained": "726 stars today",
       "topics": [],
       "period": "daily"
     },
     {
       "rank": 4,
-      "name": "elasticsearch",
-      "full_name": "elastic/elasticsearch",
-      "owner": "elastic",
-      "description": "Free and Open Source, Distributed, RESTful Search Engine",
-      "url": "https://github.com/elastic/elasticsearch",
-      "stars": 77281,
-      "forks": 25923,
-      "language": "Java",
-      "stars_gained": "77 stars today",
+      "name": "strix",
+      "full_name": "usestrix/strix",
+      "owner": "usestrix",
+      "description": "Open-source AI penetration testing tool to find and fix your app’s vulnerabilities.",
+      "url": "https://github.com/usestrix/strix",
+      "stars": 35746,
+      "forks": 3638,
+      "language": "Python",
+      "stars_gained": "1,910 stars today",
       "topics": [],
       "period": "daily"
     },
     {
       "rank": 5,
-      "name": "checkout",
-      "full_name": "actions/checkout",
-      "owner": "actions",
-      "description": "Action for checking out a repo",
-      "url": "https://github.com/actions/checkout",
-      "stars": 8239,
-      "forks": 2533,
+      "name": "chrome-devtools-mcp",
+      "full_name": "ChromeDevTools/chrome-devtools-mcp",
+      "owner": "ChromeDevTools",
+      "description": "Chrome DevTools for coding agents",
+      "url": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
+      "stars": 45710,
+      "forks": 2975,
       "language": "TypeScript",
-      "stars_gained": "129 stars today",
+      "stars_gained": "303 stars today",
       "topics": [],
       "period": "daily"
+    },
+    {
+      "rank": 5,
+      "name": "OmniRoute",
+      "full_name": "diegosouzapw/OmniRoute",
+      "owner": "diegosouzapw",
+      "description": "Never stop coding. Free AI gateway: one endpoint, 231+ providers (50+ free), connect Claude Code, Codex, Cursor, Cline & Copilot to FREE Claude/GPT/Gemini. RTK+Caveman stacked compression saves 15-95% tokens, smart auto-fallback, MCP/A2A, multimodal APIs, Desktop/PWA.",
+      "url": "https://github.com/diegosouzapw/OmniRoute",
+      "stars": 11185,
+      "forks": 1627,
+      "language": "TypeScript",
+      "stars_gained": "3,631 stars this week",
+      "topics": [],
+      "period": "weekly"
     }
   ]
 }

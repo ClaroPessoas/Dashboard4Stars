@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ChromeDevTools/chrome-devtools-mcp - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/ChromeDevTools/chrome-devtools-mcp" target="_blank" rel="noopener">ChromeDevTools/chrome-devtools-mcp</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Chrome DevTools for coding agents</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">TypeScript</span>
+      <span class="badge badge-stars">★ 45710</span>
+      <span class="badge badge-stars">+303 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><p>Now I have enough information to write the comprehensive report.</p>
+<hr />
+<h1 id="chrome-devtools-mcp-review-sourcemd">Chrome DevTools MCP — 소스 분석 보고서 (REVIEW-Source.md)</h1>
+<p><strong>분석일:</strong> 2026-07-05
+<strong>분석 대상:</strong> <code>/tmp/github-dashboard-analysis/ChromeDevTools_chrome-devtools-mcp</code>
+<strong>버전:</strong> 1.5.0</p>
+<hr />
+<h2 id="8-a">8-A. 구조적 분석표</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>AI 코딩 에이전트(Claude, Cursor, Copilot, Gemini 등)가 MCP(Model Context Protocol)를 통해 Chrome DevTools 기능(브라우저 자동화, 성능 분석, 네트워크 디버깅, 힙 스냅샷, Lighthouse 등)에 접근할 수 있도록 하는 MCP 서버이자 CLI 도구. Google LLC/ChromeDevTools 공식 조직에서 개발·유지보수</td>
+<td>★★★★★ — 범용 AI 에이전트 브라우저 인터페이스의 사실상 레퍼런스 구현</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>단일 리포지토리. 최상위에 <code>src/</code>(소스), <code>tests/</code>(테스트), <code>docs/</code>(문서), <code>scripts/</code>(빌드·도구 스크립트), <code>skills/</code>(AI 스킬 패키지), <code>.github/</code>(CI/CD·이슈 템플릿), 플러그인 설정 파일(<code>.claude-plugin/</code>, <code>.cursor-plugin/</code>, <code>.gemini/</code>) 분리. 기능 지향(feature-oriented) 구조</td>
+<td>★★★★☆ — 관심사 분리 명확하지만 <code>src/</code> 하위 flat 파일 과다</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td><strong>언어:</strong> TypeScript (ES2023 target, <code>tsc</code> + Rollup 번들링). <strong>런타임:</strong> Node.js ^20.19.0 / ^22.12.0 / &gt;=23. <strong>핵심 의존:</strong> <code>puppeteer@25.2.1</code>, <code>@modelcontextprotocol/sdk@1.29.0</code>, <code>lighthouse@13.4.0</code>, <code>chrome-devtools-frontend@1.0.1652307</code>. <strong>코드 품질:</strong> ESLint 9 + TypeScript-ESLint + Prettier. <strong>테스트:</strong> Node.js 내장 테스트 러너 (커스텀 <code>scripts/test.mjs</code> 래퍼). <strong>패키지 매니저:</strong> npm (<code>package-lock=true</code>)</td>
+<td>★★★★★ — 최신 Node/TS 버전 적극 추적, 핵심 의존성 고정 버전 운용</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td><strong>MCP 서버:</strong> <code>src/bin/chrome-devtools-mcp-main.ts</code> → <code>createMcpServer()</code> (<code>src/index.ts</code>). <strong>CLI:</strong> <code>src/bin/chrome-devtools.ts</code>. <strong>데몬 모드:</strong> <code>src/daemon/daemon.ts</code> (여러 MCP 세션이 동일 Chrome 인스턴스 공유). 전송: stdio (MCP 표준)</td>
+<td>★★★★★ — 진입점이 3가지로 명확히 분리 (서버·CLI·데몬)</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td><strong>McpContext</strong> — 중앙 상태 객체 (브라우저 인스턴스, 페이지, 수집기 보유). <strong>ToolHandler</strong> — 각 Tool을 래핑, 접근 제어·텔레메트리·Mutex 직렬화 적용. <strong>tools/</strong> — 카테고리별 Tool 모듈(console, emulation, extensions, input, lighthouse, memory, network, pages, performance, screencast, screenshot, script, snapshot 등 14개). <strong>third_party/</strong> — MCP SDK·Puppeteer 격리 래핑. <strong>trace-processing/</strong> — Chrome Trace 파싱·분석. <strong>formatters/</strong> — 응답 포매터. Mutex로 동시 호출 직렬화</td>
+<td>★★★★★ — 계층 분리 명확, 컴포저블 도구 설계 원칙 문서화됨</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>영속 데이터 없음(DB/캐시 미사용). 힙 스냅샷·스크린샷·트레이스 파일을 디스크 임시 디렉터리에 저장 후 경로 반환. 텔레메트리는 Google Clearcut 엔드포인트로 전송 (옵트아웃 지원, CI 환경 자동 비활성화)</td>
+<td>★★★★☆ — 파일 기반 무상태 설계 단순·적절; 텔레메트리 수집 기본 활성화는 사용자 주의 필요</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>npm 패키지 (<code>chrome-devtools-mcp</code>). GitHub Actions로 태그 push 시 npm 자동 배포 (<code>OIDC</code>로 자격증명). MCP 레지스트리(<code>server.json</code>) 동시 게시. <code>npx -y chrome-devtools-mcp@latest</code>로 zero-install 실행 가능. Docker·Kubernetes 없음 (Node 프로세스 직접 실행)</td>
+<td>★★★★★ — 최소 설치 마찰, OIDC 기반 배포 보안, MCP 레지스트리 등록</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>단위 테스트(McpContext, McpResponse, ToolHandler 등)·통합 테스트(tools/**)·E2E 테스트(e2e/*)·CLI 테스트. 골든 스냅샷(<code>.js.snapshot</code>) 파일로 출력 회귀 방지. 플랫폼 매트릭스(ubuntu/windows/macos) × Node 버전(22/24/26) CI 실행. Eval 스크립트(Gemini)로 AI 도구 사용 평가</td>
+<td>★★★★☆ — 커버리지 수치 미공개, 그러나 다차원 테스트 구조 충실</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td>SECURITY.md 존재 (Chromium 보안팀 라우팅). GitHub Actions 액션 SHA 핀. Dependabot 주간 그룹 업데이트. OIDC 기반 npm 배포. MCP Roots 파일시스템 제한 지원. URL 허용/차단 목록(네트워크 가드레일). PID 디렉터리 0o700 권한 설정. Rollup 라이선스 화이트리스트(MIT·Apache·BSD). SBOM 파일 없음</td>
+<td>★★★★☆ — 공급망 보안 우수, SBOM 부재·텔레메트리 기본 활성화 개선 여지</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>GitHub ChromeDevTools 공식 조직. v1.5.0, CHANGELOG 101KB (1,000+ 라인). Release-please 자동 릴리스. Conventional Commits 적용. CONTRIBUTING·AGENTS·CODE_OF_CONDUCT 문서 완비. 이슈 템플릿 3종. 다중 AI 클라이언트(Amp·Antigravity·Claude·Cursor·Copilot·Gemini·VS Code) 공식 설정 가이드. 자동 업데이트 체크 내장</td>
+<td>★★★★★ — Google 공식 관리, 릴리스 자동화·문서 성숙도 최고 수준</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 (Strengths)</h2>
+<ol>
+<li>
+<p><strong>표준 프로토콜 기반 에이전트 중립 설계</strong>: MCP 표준을 충실히 준수하여 특정 LLM 벤더에 종속되지 않으며, 10개 이상의 AI 클라이언트에 공식 통합 설정을 제공한다. <code>--slim</code> 모드로 기능 범위를 최소화할 수도 있어 용도에 따른 최적화가 가능하다.</p>
+</li>
+<li>
+<p><strong>다층 도구 아키텍처와 Mutex 직렬화</strong>: 14개 기능 카테고리(성능·네트워크·메모리·Lighthouse 등)의 도구가 <code>ToolHandler</code>를 통해 일관된 접근 제어·텔레메트리·오류 처리를 받는다. FIFO Mutex로 동시 도구 호출의 경쟁 조건을 방지한다.</p>
+</li>
+<li>
+<p><strong>번들링과 zero-install 배포</strong>: TypeScript → <code>tsc</code> → Rollup 파이프라인으로 모든 의존성을 단일 번들로 패키징하여 <code>npx -y chrome-devtools-mcp@latest</code> 한 줄로 즉시 실행된다. <code>node_modules</code> 없이 배포 가능한 구조는 MCP 서버 특성에 최적화되어 있다.</p>
+</li>
+<li>
+<p><strong>설계 원칙 명문화 + AI-first 기여 가이드</strong>: <code>docs/design-principles.md</code>에 토큰 최적화·자가 치유 오류·점진적 복잡성 등 7가지 원칙이 기록되어 있다. <code>AGENTS.md</code>에는 AI 에이전트를 위한 TypeScript 작성 규칙까지 명시하여 AI 기여자 워크플로를 고려한다.</p>
+</li>
+<li>
+<p><strong>엔터프라이즈급 공급망 보안</strong>: 모든 GitHub Actions 의존성을 커밋 SHA로 고정, OIDC 기반 비밀 없는 npm 배포, Dependabot 그룹 전략(핵심 deps 별도 관리)을 조합하여 공급망 공격 표면을 최소화한다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-improvements">위험 / 개선 필요 사항 (Risks &amp; Improvements)</h2>
+<ol>
+<li>
+<p><strong>텔레메트리 기본 활성화</strong>: Google Clearcut 사용 통계가 기본 활성화(<code>--no-usage-statistics</code> 필요)되어 있어, 기업·보안 민감 환경에서는 정책 위반 가능성이 있다. 기본값을 옵트인으로 전환하거나 최초 실행 시 동의 프롬프트 추가를 검토할 필요가 있다.</p>
+</li>
+<li>
+<p><strong>SBOM(Software Bill of Materials) 부재</strong>: <code>rollup-plugin-license</code>로 번들 라이선스는 관리하지만 SPDX/CycloneDX 형식의 SBOM 파일이 없다. 공공기관·금융 등 규제 환경의 공급망 감사 요건을 충족하지 못할 수 있다.</p>
+</li>
+<li>
+<p><strong>테스트 커버리지 수치 미측정·미게시</strong>: <code>.github/workflows</code>에 커버리지 임계값 검사가 없고 커버리지 배지도 없다. 특히 <code>McpContext.ts</code>(핵심 상태 관리) 및 <code>browser.ts</code>(브라우저 연결)는 실제 Chrome 없이는 완전한 단위 테스트가 어렵다.</p>
+</li>
+<li>
+<p><strong><code>src/</code> 루트 파일 과다(Flat 구조 혼재)</strong>: <code>src/</code> 최상위에 <code>McpContext.ts</code>, <code>McpPage.ts</code>, <code>ToolHandler.ts</code>, <code>Mutex.ts</code> 등 핵심 파일이 도메인 서브디렉터리 없이 flat하게 존재한다. 프로젝트 규모가 커질수록 파일 탐색 비용이 증가하며, 현재 <code>src/tools/</code>와 <code>src/formatters/</code> 등 서브디렉터리화된 영역과 일관성이 없다.</p>
+</li>
+<li>
+<p><strong>네트워크 가드레일의 제한적 적용 범위</strong>: <code>--allowed-url-pattern</code> / <code>--blocked-url-pattern</code>이 Chrome DevTools가 attached된 탭에만 적용되고 OS 수준 샌드박스가 아니다. SECURITY.md가 이를 명시하나, 실제 사용자는 이를 완전한 네트워크 격리로 오해할 위험이 있다. 문서 강화 또는 경고 메시지 추가가 필요하다.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 (Adoption Recommendation)</h2>
+<p><strong>권고 수준: ✅ 적극 도입 권장 (Production-ready, 조건부 주의)</strong></p>
+<p><code>chrome-devtools-mcp</code>는 AI 에이전트에 Chrome DevTools 능력을 부여하는 분야에서 <strong>구글 공식 지원의 유일한 MCP 레퍼런스 구현</strong>이다. 릴리스 자동화, 다플랫폼 CI, 설계 원칙 명문화, 다중 클라이언트 지원 등 운영 성숙도가 매우 높다.</p>
+<ul>
+<li><strong>아키텍처 벤치마킹</strong>: MCP 서버를 직접 구현하려는 팀에게 Tool 카테고리 분리·ToolHandler 패턴·번들 배포 전략은 직접 참고할 수 있는 우수 사례다.</li>
+<li><strong>보안 검토 주의사항</strong>: 기업 환경 도입 시 텔레메트리 기본 활성화, 네트워크 가드레일 한계, SBOM 부재 세 가지를 내부 보안 정책에 맞게 사전 검토해야 한다.</li>
+<li><strong>기여 준비도</strong>: AGENTS.md, CONTRIBUTING.md, 이슈 템플릿, Eval 스크립트까지 갖춰져 있어 외부 기여자 진입 장벽이 낮다. Google CLA 서명만 완료하면 즉시 기여 가능하다.</li>
+<li><strong>운영 성숙도 평가</strong>: v1.5.0, 활발한 주간 릴리스 사이클, 1,000줄 이상의 CHANGELOG — 단기 프로토타입이 아닌 장기 운용을 전제한 프로젝트임을 증명한다.</li>
+</ul>
+<hr />
+<h2 id="_1">주요 파일 맵</h2>
+<pre><code>chrome-devtools-mcp/
+├── src/
+│   ├── index.ts              # createMcpServer() — 서버 팩토리·진입점
+│   ├── McpContext.ts         # 중앙 상태: 브라우저·페이지·수집기
+│   ├── ToolHandler.ts        # 도구 래퍼: ACL·텔레메트리·Mutex
+│   ├── browser.ts            # Puppeteer 연결/런치 관리
+│   ├── Mutex.ts              # FIFO 뮤텍스
+│   ├── bin/                  # CLI 진입점 3종
+│   ├── tools/                # 14개 도구 카테고리 모듈
+│   ├── telemetry/            # ClearcutLogger (Google 통계)
+│   ├── daemon/               # 데몬 모드 (브라우저 공유)
+│   ├── trace-processing/     # Chrome Trace 파싱
+│   ├── formatters/           # 응답 포매터
+│   └── third_party/          # MCP SDK·Puppeteer 격리 래퍼
+├── tests/                    # 단위·통합·E2E 테스트
+├── skills/                   # AI 스킬 패키지 (a11y, memory-leak 등)
+├── docs/                     # 설계 원칙·트러블슈팅·CLI 레퍼런스
+└── scripts/                  # 빌드·문서 생성·eval 스크립트
+</code></pre></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>ChromeDevTools/chrome-devtools-mcp</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/ChromeDevTools/chrome-devtools-mcp" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
