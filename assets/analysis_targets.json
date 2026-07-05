@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-07-05 02:00:25 KST",
+  "generated_at": "2026-07-06 02:00:13 KST",
   "list_order": [
     "top100",
     "daily",
@@ -24,8 +24,8 @@
     "weekly": {
       "candidates": 5,
       "selected": 1,
-      "skipped_existing_analysis": 3,
-      "skipped_duplicate": 1
+      "skipped_existing_analysis": 4,
+      "skipped_duplicate": 0
     },
     "monthly": {
       "candidates": 5,
@@ -36,58 +36,58 @@
   },
   "targets": [
     {
-      "rank": 3,
-      "name": "page-agent",
-      "full_name": "alibaba/page-agent",
-      "owner": "alibaba",
-      "description": "JavaScript in-page GUI agent. Control web interfaces with natural language.",
-      "url": "https://github.com/alibaba/page-agent",
-      "stars": 22895,
-      "forks": 1989,
-      "language": "TypeScript",
-      "stars_gained": "726 stars today",
+      "rank": 1,
+      "name": "meetily",
+      "full_name": "Zackriya-Solutions/meetily",
+      "owner": "Zackriya-Solutions",
+      "description": "Privacy first, AI meeting assistant with 4x faster Parakeet/Whisper live transcription, speaker diarization, and Ollama summarization built on Rust. 100% local processing. no cloud required. Meetily (Meetly Ai -https://meetily.ai) is the #1 Self-hosted, Open-source Ai meeting note taker for macOS & Windows.",
+      "url": "https://github.com/Zackriya-Solutions/meetily",
+      "stars": 16366,
+      "forks": 1754,
+      "language": "Rust",
+      "stars_gained": "1,409 stars today",
       "topics": [],
       "period": "daily"
     },
     {
-      "rank": 4,
+      "rank": 3,
+      "name": "system_prompts_leaks",
+      "full_name": "asgeirtj/system_prompts_leaks",
+      "owner": "asgeirtj",
+      "description": "Extracted system prompts from Anthropic - Claude Fable 5, Opus 4.8, Claude Code, Claude Design. OpenAI - ChatGPT 5.5 Thinking, GPT 5.5 Instant, Codex. Google - Gemini 3.5 Flash, 3.1 Pro, Antigravity. xAI - Grok, Cursor, Copilot, VS Code, Perplexity, and more. Updated regularly.",
+      "url": "https://github.com/asgeirtj/system_prompts_leaks",
+      "stars": 49641,
+      "forks": 8124,
+      "language": "JavaScript",
+      "stars_gained": "981 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 5,
+      "name": "claude-skills",
+      "full_name": "alirezarezvani/claude-skills",
+      "owner": "alirezarezvani",
+      "description": "337 Claude Code skills & agent skills & plugins (30+ Agents, 70+ custom commands, 330+ skills, customizable references, scripts)for Claude Code, Codex, Gemini CLI, Cursor, and 8 more coding agents — engineering, marketing, product, compliance, C-level advisory, research, business operations, commercial & finance, and your daily productivity skills.",
+      "url": "https://github.com/alirezarezvani/claude-skills",
+      "stars": 20405,
+      "forks": 2786,
+      "language": "Python",
+      "stars_gained": "394 stars today",
+      "topics": [],
+      "period": "daily"
+    },
+    {
+      "rank": 1,
       "name": "strix",
       "full_name": "usestrix/strix",
       "owner": "usestrix",
       "description": "Open-source AI penetration testing tool to find and fix your app’s vulnerabilities.",
       "url": "https://github.com/usestrix/strix",
-      "stars": 35746,
-      "forks": 3638,
+      "stars": 36836,
+      "forks": 3734,
       "language": "Python",
-      "stars_gained": "1,910 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
-      "rank": 5,
-      "name": "chrome-devtools-mcp",
-      "full_name": "ChromeDevTools/chrome-devtools-mcp",
-      "owner": "ChromeDevTools",
-      "description": "Chrome DevTools for coding agents",
-      "url": "https://github.com/ChromeDevTools/chrome-devtools-mcp",
-      "stars": 45710,
-      "forks": 2975,
-      "language": "TypeScript",
-      "stars_gained": "303 stars today",
-      "topics": [],
-      "period": "daily"
-    },
-    {
-      "rank": 5,
-      "name": "OmniRoute",
-      "full_name": "diegosouzapw/OmniRoute",
-      "owner": "diegosouzapw",
-      "description": "Never stop coding. Free AI gateway: one endpoint, 231+ providers (50+ free), connect Claude Code, Codex, Cursor, Cline & Copilot to FREE Claude/GPT/Gemini. RTK+Caveman stacked compression saves 15-95% tokens, smart auto-fallback, MCP/A2A, multimodal APIs, Desktop/PWA.",
-      "url": "https://github.com/diegosouzapw/OmniRoute",
-      "stars": 11185,
-      "forks": 1627,
-      "language": "TypeScript",
-      "stars_gained": "3,631 stars this week",
+      "stars_gained": "9,362 stars this week",
       "topics": [],
       "period": "weekly"
     }

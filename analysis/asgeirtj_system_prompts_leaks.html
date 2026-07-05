@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>asgeirtj/system_prompts_leaks - 분석 결과</title>
+  <style>
+    :root {
+      --bg: #f6f8fa; --surface: #ffffff; --border: #d0d7de;
+      --text: #1f2328; --text-muted: #656d76; --text-link: #0969da;
+      --accent: #2da44e; --code-bg: #f6f8fa; --code-border: #d0d7de;
+      --tab-active: #fd8c73;
+    }
+    [data-theme="dark"] {
+      --bg: #0d1117; --surface: #161b22; --border: #30363d;
+      --text: #e6edf3; --text-muted: #7d8590; --text-link: #58a6ff;
+      --accent: #3fb950; --code-bg: #161b22; --code-border: #30363d;
+      --tab-active: #f78166;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+           background: var(--bg); color: var(--text); font-size: 14px; line-height: 1.6; }
+
+    .page-header { background: var(--surface); border-bottom: 1px solid var(--border);
+                   padding: 16px 24px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+    .back-link { color: var(--text-muted); text-decoration: none; font-size: 13px; }
+    .back-link:hover { color: var(--text-link); }
+    .repo-title { font-size: 18px; font-weight: 700; }
+    .repo-title a { color: var(--text-link); text-decoration: none; }
+    .repo-title a:hover { text-decoration: underline; }
+    .repo-meta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 6px; }
+    .badge { padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+    .badge-period { background: #ddf4ff; color: #0550ae; }
+    [data-theme="dark"] .badge-period { background: #1f2d3d; color: #79c0ff; }
+    .badge-lang { background: #f6f8fa; color: var(--text-muted); border: 1px solid var(--border); }
+    .badge-stars { background: #fff3cd; color: #9a6700; }
+    [data-theme="dark"] .badge-stars { background: #3d2c00; color: #e3b341; }
+    .header-right { margin-left: auto; }
+    .btn-theme { background: transparent; border: 1px solid var(--border); color: var(--text);
+                 padding: 5px 10px; border-radius: 6px; cursor: pointer; font-size: 13px; }
+
+    /* Tabs */
+    .tabs { display: flex; border-bottom: 1px solid var(--border);
+            background: var(--surface); padding: 0 24px; }
+    .tab { padding: 10px 16px; cursor: pointer; border: none; border-bottom: 2px solid transparent;
+           background: transparent; color: var(--text-muted); font-size: 14px; font-weight: 500; }
+    .tab:hover { color: var(--text); }
+    .tab.active { color: var(--text); border-bottom-color: var(--tab-active); }
+
+    /* Content */
+    .content { max-width: 960px; margin: 0 auto; padding: 24px; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Markdown styles */
+    .md-body h1 { font-size: 1.6em; margin: 24px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+    .md-body h2 { font-size: 1.3em; margin: 20px 0 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+    .md-body h3 { font-size: 1.1em; margin: 16px 0 8px; }
+    .md-body h4 { font-size: 1em; margin: 12px 0 6px; }
+    .md-body p { margin: 10px 0; }
+    .md-body ul, .md-body ol { margin: 8px 0 8px 24px; }
+    .md-body li { margin: 4px 0; }
+    .md-body table { border-collapse: collapse; width: 100%; margin: 12px 0; font-size: 13px; }
+    .md-body th, .md-body td { border: 1px solid var(--border); padding: 8px 12px; text-align: left; }
+    .md-body th { background: var(--bg); font-weight: 600; }
+    .md-body code { background: var(--code-bg); border: 1px solid var(--code-border);
+                    border-radius: 4px; padding: 1px 5px; font-family: 'SFMono-Regular', Consolas, monospace;
+                    font-size: 12px; }
+    .md-body pre { background: var(--code-bg); border: 1px solid var(--code-border);
+                   border-radius: 6px; padding: 14px; overflow-x: auto; margin: 12px 0; }
+    .md-body pre code { background: none; border: none; padding: 0; font-size: 13px; }
+    .md-body blockquote { border-left: 3px solid var(--border); padding-left: 12px;
+                           color: var(--text-muted); margin: 12px 0; }
+    .md-body a { color: var(--text-link); }
+    .md-body a:hover { text-decoration: underline; }
+    .md-body hr { border: none; border-top: 1px solid var(--border); margin: 16px 0; }
+
+    .empty-notice { color: var(--text-muted); padding: 40px 0; text-align: center; font-size: 15px; }
+
+    .footer { text-align: center; padding: 20px; color: var(--text-muted); font-size: 12px;
+              border-top: 1px solid var(--border); margin-top: 24px; }
+  </style>
+</head>
+<body>
+
+<div class="page-header">
+  <div style="flex:1; min-width:0;">
+    <div style="margin-bottom:4px;">
+      <a class="back-link" href="../index.html">← 대시보드로 돌아가기</a>
+    </div>
+    <div class="repo-title">
+      <a href="https://github.com/asgeirtj/system_prompts_leaks" target="_blank" rel="noopener">asgeirtj/system_prompts_leaks</a>
+    </div>
+    
+    <div style="color:var(--text-muted); margin-top:4px; font-size:13px;">Extracted system prompts from Anthropic - Claude Fable 5, Opus 4.8, Claude Code, Claude Design. OpenAI - ChatGPT 5.5 Thinking, GPT 5.5 Instant, Codex. Google - Gemini 3.5 Flash, 3.1 Pro, Antigravity. xAI - Grok, Cursor, Copilot, VS Code, Perplexity, and more. Updated regularly.</div>
+    
+    <div class="repo-meta">
+      <span class="badge badge-period">daily trending</span>
+      <span class="badge badge-lang">JavaScript</span>
+      <span class="badge badge-stars">★ 49641</span>
+      <span class="badge badge-stars">+981 stars today</span>
+    </div>
+  </div>
+  <div class="header-right">
+    <button class="btn-theme" id="themeToggle">🌙</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button class="tab active" data-panel="source">📊 소스 분석</button>
+  <button class="tab" data-panel="indepth">🔬 심층 분석</button>
+  <button class="tab" data-panel="guide">📚 주니어 가이드</button>
+</div>
+
+<div class="content">
+  <div class="panel active" id="panel-source">
+    
+    <div class="md-body"><hr />
+<p>분석일: 2026-07-06
+분석 대상: <code>/tmp/github-dashboard-analysis/asgeirtj_system_prompts_leaks</code></p>
+<hr />
+<h1 id="asgeirtjsystem_prompts_leaks">오픈소스 분석 보고서: <code>asgeirtj/system_prompts_leaks</code></h1>
+<blockquote>
+<p><strong>Analysis Report: asgeirtj/system_prompts_leaks</strong> — AI System Prompt Archive</p>
+</blockquote>
+<hr />
+<h2 id="structured-analysis-table">종합 분석표 / Structured Analysis Table</h2>
+<table>
+<thead>
+<tr>
+<th>항목</th>
+<th>확인 내용</th>
+<th>평가</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>목적</strong></td>
+<td>주요 AI 챗봇(Claude, ChatGPT, Gemini, Grok 등)의 시스템 프롬프트를 수집·문서화하는 공개 아카이브 저장소. AI 투명성 연구자, 개발자, 언론인, 프롬프트 엔지니어를 주요 타겟으로 함.</td>
+<td>★★★★★ — 명확하고 독창적인 목적. Washington Post 등 주요 언론에 소개될 만큼 공익적 가치가 인정됨</td>
+</tr>
+<tr>
+<td><strong>구조</strong></td>
+<td>공급사별 최상위 디렉터리로 구성: <code>Anthropic/</code>, <code>OpenAI/</code>, <code>Google/</code>, <code>xAI/</code>, <code>Microsoft/</code>, <code>Meta/</code>, <code>Mistral/</code>, <code>Perplexity/</code>, <code>Qwen/</code>, <code>Cursor/</code>, <code>Misc/</code>. 각 디렉터리 내에 모델·버전별 <code>.md</code> 파일. 일부 하위 디렉터리(<code>Official/</code>, <code>old/</code>, <code>raw/</code>, <code>Codex/</code>, <code>Claude Code/</code>) 포함. <code>.github/</code>에 워크플로우·스크립트 분리.</td>
+<td>★★★★☆ — 벤더 중심의 직관적인 구조. 파일 수가 많아질수록 탐색이 복잡해질 수 있으나 현재는 명료함</td>
+</tr>
+<tr>
+<td><strong>스택</strong></td>
+<td>소프트웨어 스택 없음 — 순수 문서 아카이브. 자동화: Python 3 (표준 라이브러리만 사용, <code>urllib</code>, <code>json</code>, <code>subprocess</code>). CI/CD: GitHub Actions. 프론트엔드(대시보드): 인라인 HTML + ApexCharts 4 (CDN). 버전 관리: Git + <code>.gitattributes</code>(마크다운 공백 보존). 라이선스: CC0 1.0 (퍼블릭 도메인).</td>
+<td>★★★★☆ — 목적에 적합한 최소 스택. 외부 의존성을 최소화함</td>
+</tr>
+<tr>
+<td><strong>진입점</strong></td>
+<td>저장소 자체가 진입점. <code>README.md</code>가 전체 인덱스 역할. GitHub Actions 워크플로우 진입점: <code>.github/workflows/traffic-to-badge.yml</code> (매일 00:00 UTC 실행). Python 스크립트: <code>.github/scripts/accumulate-traffic.py</code> (워크플로우에서 호출).</td>
+<td>★★★★★ — README가 완전한 네비게이션 허브로 기능</td>
+</tr>
+<tr>
+<td><strong>아키텍처</strong></td>
+<td>플랫 파일 아카이브(Flat File Archive) 패턴. 계층: 콘텐츠 계층(<code>.md</code> 파일들) + 자동화 계층(GitHub Actions + Python). <code>traffic</code> 브랜치에 분석 데이터를 격리 저장하는 이중 브랜치 전략. 대시보드는 자기 완결형 HTML(데이터 임베딩 방식)로 배포됨.</td>
+<td>★★★☆☆ — 단순하지만 내용상 적절. 앱 코드가 아니므로 아키텍처 평가 기준이 제한적</td>
+</tr>
+<tr>
+<td><strong>데이터</strong></td>
+<td>데이터 저장소 없음. 콘텐츠 자체가 데이터. 총 275개 마크다운 파일, ~7MB. 최대 파일: <code>claude-design.md</code> (465KB), <code>Official/all.md</code> (395KB), GPT-5.5 Codex (359KB). 트래픽 데이터(JSON 형태)는 <code>traffic</code> 브랜치에 별도 누적.</td>
+<td>★★★★☆ — 콘텐츠 규모가 상당하며 구조적으로 관리됨</td>
+</tr>
+<tr>
+<td><strong>배포</strong></td>
+<td>GitHub Pages + <code>traffic</code> 브랜치를 통한 정적 대시보드 배포. <code>peaceiris/actions-gh-pages@v4</code> 사용. 별도 컨테이너·서버·패키지 배포 없음.</td>
+<td>★★★★★ — 문서 저장소에 완벽히 적합한 배포 방식</td>
+</tr>
+<tr>
+<td><strong>테스트</strong></td>
+<td>공식 테스트 없음 (단위, 통합, E2E 모두 부재). 콘텐츠 검증 자동화 없음. CI는 트래픽 배지 생성에만 집중.</td>
+<td>★★☆☆☆ — 문서 저장소 특성상 이해 가능하나, 프롬프트 유효성·포맷 일관성 검증 부재</td>
+</tr>
+<tr>
+<td><strong>보안</strong></td>
+<td><code>SECURITY.md</code> 없음. 시크릿: <code>TRAFFIC_TOKEN</code>, <code>GITHUB_TOKEN</code> (GitHub Secrets로 관리, 하드코딩 없음). Dependabot/Renovate 미설정. SBOM 없음. <strong>핵심 리스크</strong>: 타사 AI 시스템 프롬프트를 허가 없이 공개 — 법적·윤리적 회색 지대. CC0 라이선스는 자신의 큐레이션 작업에만 적용되며, 수록된 프롬프트 원본의 저작권/서비스 이용약관 문제는 별개.</td>
+<td>★★☆☆☆ — 시크릿 관리는 적절하나 법적 리스크 관리 체계 전무</td>
+</tr>
+<tr>
+<td><strong>성숙도</strong></td>
+<td>단일 기여자(Ásgeir Thor Johnson). 마지막 커밋: 2026-07-02 (최신). 업데이트 빈도: 매우 활발 (Claude Sonnet 5: 2026-07-01 등 신규 모델 출시 직후 반영). 커뮤니티: PRs Welcome 배지, CONTRIBUTING.md 존재. Ko-fi 후원 링크. 이슈 템플릿 없음. Changelog 없음. ADR 없음. Trendshift 랭킹 진입.</td>
+<td>★★★☆☆ — 개인 프로젝트로서 높은 활동성. 단일 유지관리자 의존도가 지속가능성의 약점</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="strengths">강점 / Strengths</h2>
+<ol>
+<li>
+<p><strong>업계 최빠른 캡처 속도</strong>: Claude Sonnet 5 (2026-07-01), Claude Opus 4.8, GPT-5.5 등 신규 모델 출시 직후 수일 내에 시스템 프롬프트가 수록됨. 경쟁 저장소 대비 리드타임이 현저히 짧음.</p>
+</li>
+<li>
+<p><strong>광범위한 벤더 커버리지</strong>: Anthropic, OpenAI, Google, xAI, Microsoft, Meta, Mistral, Perplexity, Qwen, Cursor 등 주요 AI 공급사를 망라하며, 각 제품의 다양한 변형(API vs. 웹앱, 도구 포함 vs. 미포함, 모델 버전별)까지 체계적으로 수집.</p>
+</li>
+<li>
+<p><strong>자동화된 트래픽 분석 인프라</strong>: Python으로 구현된 일일 트래픽 누적 시스템이 GitHub Actions와 연동되어 참조자(referrer), 페이지뷰, 별(star) 획득 추이를 시계열로 관리함. self-contained HTML 대시보드까지 자동 생성.</p>
+</li>
+<li>
+<p><strong>최소 마찰 공개 라이선스</strong>: CC0 1.0(퍼블릭 도메인)으로 큐레이션 작업을 공개, 재사용·재배포에 법적 장벽 없음. <code>.gitattributes</code>를 통한 공백 보존으로 프롬프트 원문 재현성 확보.</p>
+</li>
+<li>
+<p><strong>미디어 신뢰도 및 커뮤니티 영향력</strong>: Washington Post 등 주요 언론 보도, Trendshift 트렌딩 진입, star history 성장 차트로 확인되는 실질적 영향력. AI 투명성 담론의 1차 자료(primary source)로 자리매김.</p>
+</li>
+</ol>
+<hr />
+<h2 id="risks-areas-for-improvement">위험/개선 필요 사항 / Risks &amp; Areas for Improvement</h2>
+<ol>
+<li>
+<p><strong>법적·윤리적 취약성</strong>: 수록된 프롬프트는 각 AI 기업의 독점적 지식재산일 가능성이 높음. OpenAI, Google, Anthropic 등의 서비스 이용약관(ToS)은 시스템 프롬프트 추출·공개를 명시적으로 금지하거나 제한할 수 있음. CC0는 기여자의 큐레이션에만 적용되며, 원본 콘텐츠 저작권은 별개 문제. 현재 <code>SECURITY.md</code>, 법적 고지, DMCA 대응 절차 전무.</p>
+</li>
+<li>
+<p><strong>단일 유지관리자 의존(Bus Factor = 1)</strong>: 전체 저장소가 단 1인에 의해 운영됨. 유지관리자 이탈 시 프로젝트 전체가 방치될 위험. 공동 관리자(co-maintainer) 없음, 이슈 라벨·PR 트리아지 시스템 없음.</p>
+</li>
+<li>
+<p><strong>콘텐츠 무결성 검증 부재</strong>: 수록된 프롬프트가 실제 해당 AI의 시스템 프롬프트인지 검증하는 자동화 프로세스 없음. 악의적 기여자가 조작된 프롬프트를 제출할 경우 탐지 메커니즘 없음 (README에 Claude가 진본임을 확인하는 스크린샷이 있으나 이것만으로는 충분하지 않음).</p>
+</li>
+<li>
+<p><strong>트래픽 자동화의 보안 허점</strong>: <code>accumulate-traffic.py</code>가 <code>subprocess.check_output</code>으로 <code>git show origin/traffic:...</code>을 실행하는 패턴은 경로 인젝션 위험성이 있음. 또한 GitHub GraphQL API를 <code>urllib</code>로 직접 호출하는 방식은 토큰 만료·레이트 리밋 처리가 미흡.</p>
+</li>
+<li>
+<p><strong>버전 이력 및 변경 추적 체계 없음</strong>: AI 모델 버전별 프롬프트 변화를 비교할 수 있는 구조화된 diff 링크가 일부만 제공됨 (Claude Fable 5 vs. Opus 4.8 diff 예시). 자동화된 버전간 diff 생성 파이프라인, CHANGELOG, 시간별 프롬프트 진화 검색 기능이 부재.</p>
+</li>
+</ol>
+<hr />
+<h2 id="adoption-recommendation">도입 권고 / Adoption Recommendation</h2>
+<h3 id="_1">대상별 활용 평가</h3>
+<table>
+<thead>
+<tr>
+<th>활용 목적</th>
+<th>권고 수준</th>
+<th>비고</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>AI 투명성 연구·학술</strong></td>
+<td>✅ 적극 권고</td>
+<td>업계 최광범위한 1차 자료 아카이브</td>
+</tr>
+<tr>
+<td><strong>프롬프트 엔지니어링 참고</strong></td>
+<td>✅ 권고</td>
+<td>경쟁 제품·자사 모델 비교 분석에 유용</td>
+</tr>
+<tr>
+<td><strong>언론·저널리즘</strong></td>
+<td>✅ 권고</td>
+<td>Washington Post 인용 선례 존재</td>
+</tr>
+<tr>
+<td><strong>상업적 재사용 (프롬프트 그대로 활용)</strong></td>
+<td>⚠️ 주의</td>
+<td>원본 프롬프트 저작권 및 ToS 검토 필수</td>
+</tr>
+<tr>
+<td><strong>프로덕션 의존 라이브러리로 채택</strong></td>
+<td>❌ 해당 없음</td>
+<td>소프트웨어 패키지가 아님</td>
+</tr>
+<tr>
+<td><strong>기업 내부 AI 정책 벤치마크</strong></td>
+<td>✅ 조건부 권고</td>
+<td>법무팀 검토 후 참고 자료로 활용</td>
+</tr>
+</tbody>
+</table>
+<h3 id="_2">총평</h3>
+<p><code>asgeirtj/system_prompts_leaks</code>는 <strong>AI 시스템 프롬프트 아카이브 분야에서 사실상 표준(de facto standard)</strong>으로 자리잡은 저장소이다. 단일 기여자에 의해 운영됨에도 불구하고 업데이트 빈도, 커버리지의 폭, 미디어 공신력 측면에서 경쟁 자료를 압도한다.</p>
+<p><strong>연구자·개발자 관점</strong>: 직접 참조 및 포크를 적극 권장한다. 단, 수록 콘텐츠를 상업적 목적으로 활용하거나 파생 제품을 만들 경우 반드시 원본 AI 기업의 ToS를 검토해야 한다.</p>
+<p><strong>프로젝트 지속가능성 관점</strong>: 현재의 Bus Factor 1 구조는 장기 신뢰성의 핵심 리스크다. 관심 있는 기여자는 적극적인 PR·이슈 참여를 통해 공동 관리 체계 구축에 기여하는 것이 바람직하다.</p>
+<p><strong>법적 리스크 관점</strong>: 프롬프트 수집·공개 활동 자체는 법적 회색 지대에 존재한다. 저장소 자체의 CC0 라이선스는 큐레이션 작업에만 적용되므로, 수록된 프롬프트를 재활용할 때는 원본 콘텐츠에 대한 독립적인 법적 검토가 필요하다.</p>
+<hr />
+<p><em>보고서 형식: 8-A (단일 프로젝트 표준 분석)</em>
+<em>출력 파일 경로 (기록용): <code>.review/REVIEW-Source.md</code></em></p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-indepth">
+    
+    <div class="md-body"><p>심층 분석 결과 없음</p></div>
+    
+  </div>
+
+  <div class="panel" id="panel-guide">
+    
+    <div class="md-body"><p>가이드 없음</p></div>
+    
+  </div>
+</div>
+
+<footer class="footer">
+  분석 대상: <strong>asgeirtj/system_prompts_leaks</strong> &nbsp;·&nbsp;
+  GitHub Stars Dashboard &nbsp;·&nbsp;
+  <a href="https://github.com/asgeirtj/system_prompts_leaks" target="_blank" rel="noopener">원본 저장소 →</a>
+</footer>
+
+<script>
+// Tab switching
+document.querySelectorAll('.tab').forEach(function(btn) {
+  btn.addEventListener('click', function() {
+    document.querySelectorAll('.tab').forEach(function(b){ b.classList.remove('active'); });
+    document.querySelectorAll('.panel').forEach(function(p){ p.classList.remove('active'); });
+    btn.classList.add('active');
+    document.getElementById('panel-' + btn.dataset.panel).classList.add('active');
+  });
+});
+
+// Dark mode
+document.getElementById('themeToggle').addEventListener('click', function() {
+  const html = document.documentElement;
+  const isDark = html.getAttribute('data-theme') === 'dark';
+  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  this.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'light' : 'dark');
+});
+(function() {
+  const saved = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', saved);
+  document.getElementById('themeToggle').textContent = saved === 'dark' ? '☀️' : '🌙';
+})();
+</script>
+</body>
+</html>
